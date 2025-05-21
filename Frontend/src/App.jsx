@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Header from "./Components/Header";
 import MainContent from "./Components/MainContent";
@@ -6,14 +7,14 @@ import MessageInput from "./Components/MessageInput";
 import { FiMenu } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SubscriptionPlans from "./pages/SubscriptionPlans";
 
 function App() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
-    const [currentChatTitle, setCurrentChatTitle] =
-        useState("Learning Theories");
+    const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
 
     useEffect(() => {
         const checkScreenSize = () => {
@@ -53,15 +54,11 @@ function App() {
 
     const handleLogout = () => {
         setIsLoggedIn(false);
-        toast.info("You’ve been signed out.");
+        toast.info("You've been signed out.");
     };
 
-    return (
-        <div
-            className={`${
-                darkMode ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-900"
-            } flex h-screen`}
-        >
+    const MainAppContent = () => (
+        <>
             <Sidebar
                 isOpen={isSidebarOpen}
                 isLoggedIn={isLoggedIn}
@@ -102,33 +99,63 @@ function App() {
 
                 <MessageInput darkMode={darkMode} />
             </div>
+        </>
+    );
 
-            {/* ToastContainer with Tailwind classes */}
-            <ToastContainer
-                position="bottom-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme={darkMode ? "dark" : "light"}
-                toastClassName={() =>
-                    `rounded-xl px-4 py-3 border-l-4 shadow-md ${
-                        darkMode
-                            ? "bg-gray-800 text-white border-emerald-400"
-                            : "bg-white text-gray-900 border-[#52B788]"
-                    }`
-                }
-                bodyClassName="text-sm font-medium"
-                progressClassName={`${
-                    darkMode ? "bg-emerald-400" : "bg-[#52B788]"
-                } h-1 rounded-b`}
-                closeButton={false}
-            />
-        </div>
+    return (
+        <Router>
+            <div className={`${darkMode ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-900"} flex h-screen`}>
+                <Routes>
+                    <Route path="/" element={<MainAppContent />} />
+                    <Route path="/subscription-plans" element={
+                        <div className="flex w-full">
+                            <Sidebar
+                                isOpen={isSidebarOpen}
+                                isLoggedIn={isLoggedIn}
+                                onClose={toggleSidebar}
+                                onNewChat={handleNewChat}
+                                onSelectChat={handleSelectChat}
+                                onSubscribe={handleLogin}
+                                onLogout={handleLogout}
+                                darkMode={darkMode}
+                                isMobile={isMobile}
+                            />
+                            <SubscriptionPlans 
+                                darkMode={darkMode} 
+                                currentPlan={isLoggedIn ? "free" : null}
+                                onBack={() => window.history.back()}
+                            />
+                        </div>
+                    } />
+                </Routes>
+
+                {/* ToastContainer with Tailwind classes */}
+                <ToastContainer
+                    position="bottom-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme={darkMode ? "dark" : "light"}
+                    toastClassName={() =>
+                        `rounded-xl px-4 py-3 border-l-4 shadow-md ${
+                            darkMode
+                                ? "bg-gray-800 text-white border-emerald-400"
+                                : "bg-white text-gray-900 border-[#52B788]"
+                        }`
+                    }
+                    bodyClassName="text-sm font-medium"
+                    progressClassName={`${
+                        darkMode ? "bg-emerald-400" : "bg-[#52B788]"
+                    } h-1 rounded-b`}
+                    closeButton={false}
+                />
+            </div>
+        </Router>
     );
 }
 
