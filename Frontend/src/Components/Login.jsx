@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -55,9 +55,8 @@ export default function Login() {
       setOtpScreen(true);
       setResendTimer(30);
       toast.success('OTP sent!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to send OTP');
-      console.error(error);
     }
   };
 
@@ -65,11 +64,10 @@ export default function Login() {
     if (!confirmationResult || !otpComplete) return;
     try {
       const result = await confirmationResult.confirm(fullOtp);
-      toast.success(result.additionalUserInfo.isNewUser ? 'Welcome new user!' : 'Welcome back!');
+      toast.success(result?.additionalUserInfo?.isNewUser ? 'Welcome new user!' : 'Welcome back!');
       navigate('/questionnaire');
-    } catch (error) {
+    } catch {
       toast.error('Invalid OTP');
-      console.error(error);
     }
   };
 
@@ -101,7 +99,7 @@ export default function Login() {
                   key={i}
                   id={`otp-${i}`}
                   type="password"
-                  maxLength="1"
+  maxLength="1"
                   className="w-12 h-12 text-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1A2A3A] text-gray-800 dark:text-white focus:outline-none focus:border-[#009688]"
                   value={d}
                   onChange={(e) => handleOtpChange(e.target.value, i)}
