@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-auth-domain",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id"
+  apiKey: "AIzaSyBP84jQKc5qOpq_iGwlvNgqCmLlmnPnfG0",
+  authDomain: "mvp-3234.firebaseapp.com",
+  projectId: "mvp-3234",
+  storageBucket: "mvp-3234.appspot.com",
+  messagingSenderId: "416496021940",
+  appId: "1:416496021940:web:1ae40846e7ff15eba142e1"
 };
 
 const app = initializeApp(firebaseConfig);

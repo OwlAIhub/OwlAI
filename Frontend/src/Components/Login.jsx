@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../firebase';
 
 export default function Login() {
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -8,6 +9,7 @@ export default function Login() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState(30);
+  const [confirmationResult, setConfirmationResult] = useState(null);
   const navigate = useNavigate();
 
   const isValidPhone = (number) => /^[6-9]\d{9}$/.test(number);
@@ -31,22 +33,44 @@ export default function Login() {
     }
   };
 
-  const handleSendOTP = () => {
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {},
+        'expired-callback': () => {},
+      });
+    }
+  };
+
+  const handleSendOTP = async () => {
     if (!isValidPhone(phone)) {
       toast.error('Invalid phone number');
       return;
     }
-    // Simulate OTP sending without Firebase
-    setOtpScreen(true);
-    setResendTimer(30);
-    toast.success('OTP sent! (simulated)');
+    setupRecaptcha();
+    try {
+      const result = await signInWithPhoneNumber(auth, '+91' + phone, window.recaptchaVerifier);
+      setConfirmationResult(result);
+      setOtpScreen(true);
+      setResendTimer(30);
+      toast.success('OTP sent!');
+    } catch (error) {
+      toast.error('Failed to send OTP');
+      console.error(error);
+    }
   };
 
-  const handleVerifyOTP = () => {
-    if (!otpComplete) return;
-    // Simulate OTP verification without Firebase
-    toast.success('OTP verified! (simulated)');
-    navigate('/questionnaire');
+  const handleVerifyOTP = async () => {
+    if (!confirmationResult || !otpComplete) return;
+    try {
+      const result = await confirmationResult.confirm(fullOtp);
+      toast.success(result.additionalUserInfo.isNewUser ? 'Welcome new user!' : 'Welcome back!');
+      navigate('/questionnaire');
+    } catch (error) {
+      toast.error('Invalid OTP');
+      console.error(error);
+    }
   };
 
   const handleLogin = () => setShowPhoneForm(true);
