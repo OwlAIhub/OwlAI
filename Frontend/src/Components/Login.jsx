@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../firebase';
 
 export default function Login() {
@@ -10,7 +9,6 @@ export default function Login() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState(30);
   const [confirmationResult, setConfirmationResult] = useState(null);
-  const navigate = useNavigate();
 
   const isValidPhone = (number) => /^[6-9]\d{9}$/.test(number);
   const fullOtp = otp.join('');
@@ -55,9 +53,8 @@ export default function Login() {
       setOtpScreen(true);
       setResendTimer(30);
       toast.success('OTP sent!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to send OTP');
-      console.error(error);
     }
   };
 
@@ -65,11 +62,9 @@ export default function Login() {
     if (!confirmationResult || !otpComplete) return;
     try {
       const result = await confirmationResult.confirm(fullOtp);
-      toast.success(result.additionalUserInfo.isNewUser ? 'Welcome new user!' : 'Welcome back!');
-      navigate('/questionnaire');
-    } catch (error) {
+      toast.success(result?.additionalUserInfo?.isNewUser ? 'Welcome new user!' : 'Welcome back!');
+    } catch {
       toast.error('Invalid OTP');
-      console.error(error);
     }
   };
 
