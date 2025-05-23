@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-} from "framer-motion";
+import { motion, useMotionValue, useReducedMotion } from "framer-motion";
 
 const AnimatedOwlLogo = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const rotateX = useMotionValue(0);
@@ -15,99 +12,91 @@ const AnimatedOwlLogo = () => {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e) => setIsDarkMode(e.matches);
+    const handleColorChange = (e) => setIsDarkMode(e.matches);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
 
     setIsDarkMode(mediaQuery.matches);
+    setIsMobile(window.innerWidth <= 768);
 
     if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
+      mediaQuery.addEventListener("change", handleColorChange);
     } else {
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
+      mediaQuery.addListener(handleColorChange);
     }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", handleColorChange);
+      } else {
+        mediaQuery.removeListener(handleColorChange);
+      }
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const handleMouseMove = (e) => {
+    if (isMobile) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
 
-    const rotateRange = 10;
+    const rotateRange = 6;
     rotateY.set(((x / width) - 0.5) * 2 * rotateRange);
     rotateX.set(((y / height) - 0.5) * -2 * rotateRange);
-    scale.set(1.05);
+    scale.set(1.02);
   };
 
   const handleMouseLeave = () => {
+    if (isMobile) return;
     rotateX.set(0);
     rotateY.set(0);
     scale.set(1);
   };
 
   return (
-    <div className="flex justify-center items-center my-12 relative">
-      {/* Owl container */}
+    <div className="flex justify-center items-center my-12">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-72 h-80 relative z-10"
+        className="w-72 h-80 relative"
         style={{ perspective: 1000 }}
         onMouseMove={!shouldReduceMotion ? handleMouseMove : undefined}
         onMouseLeave={!shouldReduceMotion ? handleMouseLeave : undefined}
+        whileTap={isMobile ? { scale: 0.96 } : {}}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
       >
-        {/* Shadow animation */}
-        <motion.div
-          className="absolute bottom-0 left-1/2 w-36 h-6 bg-black rounded-full opacity-20 blur-md -translate-x-1/2 z-0"
-          animate={{ scaleX: [1, 1.15, 1], opacity: [0.2, 0.1, 0.2] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {/* Owl image */}
         <motion.img
-          src="/owlimg2.png"
-          alt="Wisdom Owl Logo"
-          className="w-full h-full object-contain select-none pointer-events-none z-10"
+          src="/owlimg.png"
+          alt="Owl AI Logo"
+          className="w-full h-full object-contain select-none pointer-events-none"
           animate={
-            !shouldReduceMotion
+            shouldReduceMotion
+              ? {}
+              : isMobile
               ? {
-                  y: [0, -4, 0, 4, 0],
-                  rotate: [0, 1.5, 0, -1.5, 0],
-                  scale: [1, 1.01, 1],
+                  y: [0, -5, 0, 5, 0],
+                  scale: [1, 1.015, 1],
                 }
-              : {}
+              : {
+                  y: [0, -2, 0, 2, 0],
+                }
           }
           transition={{
-            duration: 6,
+            duration: isMobile ? 6 : 8,
             repeat: Infinity,
             ease: "easeInOut",
           }}
           style={{
-            rotateX: shouldReduceMotion ? 0 : rotateX,
-            rotateY: shouldReduceMotion ? 0 : rotateY,
+            rotateX: shouldReduceMotion || isMobile ? 0 : rotateX,
+            rotateY: shouldReduceMotion || isMobile ? 0 : rotateY,
             scale: shouldReduceMotion ? 1 : scale,
-            filter: isDarkMode
-              ? "brightness(1.1) contrast(1.05) saturate(0.9)"
-              : "none",
             transformStyle: "preserve-3d",
-            willChange: "transform, filter",
+            willChange: "transform",
+            filter: isDarkMode ? "brightness(1.05)" : "none",
           }}
         />
-
-        {/* Eye blink */}
-        {!shouldReduceMotion && (
-          <motion.div
-            className="absolute top-[calc(50%-30px)] left-[calc(50%-30px)] w-10 h-3 bg-black rounded-full z-20"
-            animate={{ scaleY: [1, 0.1, 1], opacity: [0, 0.85, 0] }}
-            transition={{
-              duration: 0.2,
-              repeat: Infinity,
-              repeatDelay: 4.5,
-              ease: "easeInOut",
-            }}
-          />
-        )}
       </motion.div>
     </div>
   );

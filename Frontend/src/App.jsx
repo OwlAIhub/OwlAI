@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./Components/Sidebar";
-import Header from "./Components/Header";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 import MainContent from "./Components/MainContent";
 import MessageInput from "./Components/MessageInput";
 import { FiMenu } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
-
+import UserProfile from "./pages/UserProfile";
 function App() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -107,7 +107,9 @@ function App() {
             <div className={`${darkMode ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-900"} flex h-screen`}>
                 <Routes>
                     <Route path="/" element={<MainAppContent />} />
-                    <Route path="/subscription-plans" element={
+                    <Route path="/userProfile" element={<UserProfile />} />
+
+                    <Route path="/subscription" element={
                         <div className="flex w-full">
                             <Sidebar
                                 isOpen={isSidebarOpen}
