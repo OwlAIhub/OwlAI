@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
+import Header from '../Components/Header';
+import Sidebar from '../Components/Sidebar';
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);

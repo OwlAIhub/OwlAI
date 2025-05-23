@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
+import Sidebar from "./Components/Sidebar";
+import Header from "./Components/Header";
 import MainContent from "./Components/MainContent";
 import MessageInput from "./Components/MessageInput";
 import { FiMenu } from "react-icons/fi";
