@@ -1,5 +1,5 @@
 import React from "react";
-import OwlLogo from "./owlLogo";
+import OwlLogo from "./OwlLogo";
 
 const MainContent = ({ currentChatTitle, darkMode }) => {
     return (
