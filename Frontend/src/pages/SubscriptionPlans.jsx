@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiCheck, FiX, FiArrowRight, FiStar } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import Header from "../Components/Header";
+import Header from "../components/Header";
 
 const SubscriptionPlans = ({ onClose, darkMode = true }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);

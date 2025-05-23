@@ -38,7 +38,7 @@ const MessageInput = ({ darkMode }) => {
                                 className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${darkMode ? "hover:bg-[#1B263B]" : "hover:bg-gray-200"}`}
                             >
                                 <img
-                                    src="/owlimg2.png"
+                                    src="/owlimg.png"
                                     alt="Send"
                                     className={`w-6 h-8 ${darkMode ? "filter brightness-100" : ""}`}
                                 />
