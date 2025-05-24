@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ugcNetLogo from '../assets/ugc-net-logo.png';
+import csirNetLogo from '../assets/csir-net-logo.png';
+
+// import { db } from '../firebase'; // Assuming firebase.js is set up with Firestore
+// import { collection, addDoc } from 'firebase/firestore';
 
 const languages = ['English', 'Hinglish'];
 
 const curricula = [
-  { label: 'UGC-NET', value: 'UGC-NET', logo: '/assets/ugc-net-logo.png' },
-  { label: 'CSIR-NET', value: 'CSIR-NET', logo: '/assets/csir-net-logo.png' },
+  { label: 'UGC-NET', value: 'UGC-NET', logo: '../assets/ugc-net-logo.png' },
+  { label: 'CSIR-NET', value: 'CSIR-NET', logo: '../assets/csir-net-logo.png' },
 ];
 
 const ugcNetSubjects = [
@@ -47,12 +52,13 @@ const sources = [
   'YouTube',
   'Friend / Senior',
   'Teacher / Coaching',
+  'Telegram',
   'Other',
 ];
 
-const examCyclesEnglish = ['June 2025', 'Dec 2025', 'Not sure yet'];
+const examCyclesEnglish = ['June 2025', 'Dec 2025', 'Jan 2026', 'June 2026', 'Not sure yet'];
 
-const examCyclesHinglish = ['June 2025', 'Dec 2025', 'Jan 2026', 'June 2026'];
+const examCyclesHinglish = ['June 2025', 'Dec 2025', 'Jan 2026', 'June 2026', 'Not sure yet'];
 
 export default function Questionnaire() {
   const navigate = useNavigate();
@@ -70,6 +76,29 @@ export default function Questionnaire() {
     examCycle: '',
   });
 
+  // Validation logic for mandatory fields
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return formData.firstName.trim() !== '' && formData.lastName.trim() !== '';
+      case 2:
+        return formData.language !== '';
+      case 3:
+        return formData.curriculum !== '';
+      case 4:
+        return formData.selectedSubjects.length > 0 && 
+               (formData.selectedSubjects.includes('Other') ? formData.otherSubject.trim() !== '' : true);
+      case 5:
+        return formData.attempt !== '';
+      case 6: // Exam Cycle is skippable
+        return true;
+      case 7: // How Did You Hear About Us is skippable
+        return true;
+      default:
+        return false;
+    }
+  };
+
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -78,12 +107,18 @@ export default function Questionnaire() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      console.log('Form submitted:', formData);
-      navigate('/chat'); // Navigate to the main app content after submission
+      try {
+        // Store form data in Firebase Firestore
+        await addDoc(collection(db, 'questionnaireResponses'), formData);
+        console.log('Form data stored in Firebase:', formData);
+        navigate('/main');
+      } catch (error) {
+        console.error('Error storing form data in Firebase:', error);
+      }
     }
   };
 
@@ -100,16 +135,18 @@ export default function Questionnaire() {
   return (
     <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#0D1B2A]">
       {/* Header */}
-      <div className="p-4 flex items-center bg-gradient-to-b from-purple-200 to-purple-100 dark:from-[#0D1B2A] dark:to-[#1A2A3A]">
-        <button
-          onClick={handleBack}
-          className="mr-4 p-2 rounded-full bg-gradient-to-r from-orange-400 to-purple-600 text-white"
-        >
-          {'<'}
-        </button>
+      <div className="p-4 flex items-center bg-gray-50 dark:bg-[#0D1B2A]">
+        {currentStep > 1 && (
+          <button
+            onClick={handleBack}
+            className="mr-4 p-2 rounded-full bg-[#009688] text-white hover:bg-[#00796B]"
+          >
+            {'<'}
+          </button>
+        )}
         <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-orange-400 to-purple-600"
+            className="h-full bg-[#009688]"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           ></div>
         </div>
@@ -246,7 +283,7 @@ export default function Questionnaire() {
           </>
         )}
 
-        {/* Step 6: Exam Cycle Selection (Optional) */}
+        {/* Step 6: Exam Cycle Selection (Skippable) */}
         {currentStep === 6 && (
           <>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
@@ -272,7 +309,7 @@ export default function Questionnaire() {
           </>
         )}
 
-        {/* Step 7: How did you hear about us? */}
+        {/* Step 7: How did you hear about us? (Skippable) */}
         {currentStep === 7 && (
           <>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
@@ -297,18 +334,25 @@ export default function Questionnaire() {
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-6 w-full max-w-md">
-          <button
-            onClick={handleBack}
-            className="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
-          >
-            Back
-          </button>
+        <div className={`flex ${currentStep === 1 ? 'justify-end' : 'justify-between'} mt-6 w-full max-w-md`}>
+          {currentStep > 1 && (
+            <button
+              onClick={handleBack}
+              className="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
+            >
+              Back
+            </button>
+          )}
           <button
             onClick={handleNext}
-            className="px-6 py-2 rounded-xl font-semibold bg-[#009688] text-white hover:bg-[#00796B] transition"
+            disabled={!isStepValid()}
+            className={`px-6 py-2 rounded-xl font-semibold transition ${
+              isStepValid()
+                ? 'bg-[#009688] text-white hover:bg-[#00796B]'
+                : 'bg-[#FFC107] text-gray-800 cursor-not-allowed'
+            }`}
           >
-            {currentStep === 6 ? 'Skip & Continue' : currentStep < totalSteps ? 'Continue' : 'Submit'}
+            {currentStep === totalSteps ? 'Skip & Continue' : currentStep === 6 || currentStep === 7 ? 'Skip & Continue' : 'Continue'}
           </button>
         </div>
       </div>
