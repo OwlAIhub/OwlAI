@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaChevronDown, FaKiwiBird } from "react-icons/fa";
 import { FiMenu, FiSearch, FiUser, FiLogOut } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const Header = ({
     currentChatTitle,
@@ -124,12 +125,13 @@ const Header = ({
                             )}
                         </div>
                     ) : (
+                        <Link to="/login">
                         <button
-                            onClick={onLogin}
                             className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-full text-sm font-medium"
                         >
                             Sign In
                         </button>
+                        </Link>
                     )}
                 </div>
             </div>

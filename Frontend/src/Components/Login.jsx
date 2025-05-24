@@ -35,11 +35,20 @@ export default function Login() {
 
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {},
-        'expired-callback': () => {},
-      });
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        'recaptcha-container',
+        {
+          size: 'invisible',
+          callback: () => {
+            console.log('reCAPTCHA verified');
+          },
+          'expired-callback': () => {
+            console.log('reCAPTCHA expired');
+          },
+        }
+      );
+      window.recaptchaVerifier.render().catch(console.error);
     }
   };
 
@@ -50,13 +59,18 @@ export default function Login() {
     }
     setupRecaptcha();
     try {
-      const result = await signInWithPhoneNumber(auth, '+91' + phone, window.recaptchaVerifier);
+      const result = await signInWithPhoneNumber(
+        auth,
+        '+91' + phone,
+        window.recaptchaVerifier
+      );
       setConfirmationResult(result);
       setOtpScreen(true);
       setResendTimer(30);
       toast.success('OTP sent!');
-    } catch {
-      toast.error('Failed to send OTP');
+    } catch (err) {
+      console.error('Error sending OTP:', err);
+      toast.error(err.message || 'Failed to send OTP');
     }
   };
 
@@ -64,9 +78,18 @@ export default function Login() {
     if (!confirmationResult || !otpComplete) return;
     try {
       const result = await confirmationResult.confirm(fullOtp);
-      toast.success(result?.additionalUserInfo?.isNewUser ? 'Welcome new user!' : 'Welcome back!');
-      navigate('/questionnaire');
-    } catch {
+      const isNewUser = result?.additionalUserInfo?.isNewUser;
+
+      toast.success(isNewUser ? 'Welcome new user!' : 'Welcome back!');
+
+      // 👇 Conditional navigation
+      if (isNewUser) {
+        navigate('/questionnaire');
+      } else {
+        navigate('/main');
+      }
+    } catch (err) {
+      console.error('OTP Verification Error:', err);
       toast.error('Invalid OTP');
     }
   };
@@ -77,21 +100,34 @@ export default function Login() {
     <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 bg-gray-50 dark:bg-[#0D1B2A]">
       <div className="max-w-md w-full space-y-8 text-center">
         <div>
-          <h1 className={`text-4xl font-bold text-gray-800 dark:text-white ${otpScreen ? 'mb-2 text-2xl' : ''}`}>Owl AI</h1>
+          <h1
+            className={`text-4xl font-bold text-gray-800 dark:text-white ${
+              otpScreen ? 'mb-2 text-2xl' : ''
+            }`}
+          >
+            Owl AI
+          </h1>
           {!otpScreen && (
             <>
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">Let's get started!</h2>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">Create account or sign in by entering your mobile number</p>
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mt-4">
+                Let's get started!
+              </h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">
+                Create account or sign in by entering your mobile number
+              </p>
             </>
           )}
         </div>
 
         {otpScreen ? (
           <>
-            {/* OTP Input Screen */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">We sent you a code</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-300 mb-4">Enter 6-digit code sent to +91 {phone}</p>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                We sent you a code
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mb-4">
+                Enter 6-digit code sent to +91 {phone}
+              </p>
             </div>
             <div className="flex justify-center space-x-2">
               {otp.map((d, i) => (
@@ -122,15 +158,19 @@ export default function Login() {
                 Resend OTP in 00:{resendTimer.toString().padStart(2, '0')}
               </p>
             ) : (
-              <button onClick={handleSendOTP} className="text-blue-600 dark:text-[#FFC107] mt-4 hover:underline">
+              <button
+                onClick={handleSendOTP}
+                className="text-blue-600 dark:text-[#FFC107] mt-4 hover:underline"
+              >
                 Resend Code
               </button>
             )}
           </>
         ) : showPhoneForm ? (
           <>
-            {/* Phone Entry Screen */}
-            <label className="block text-sm text-left text-gray-600 dark:text-gray-300 mb-1">Enter your phone number</label>
+            <label className="block text-sm text-left text-gray-600 dark:text-gray-300 mb-1">
+              Enter your phone number
+            </label>
             <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-full overflow-hidden bg-white dark:bg-[#1A2A3A]">
               <span className="px-4 text-gray-500 dark:text-gray-300">+91</span>
               <input
@@ -157,7 +197,7 @@ export default function Login() {
             onClick={handleLogin}
             className="w-full py-2 rounded-xl font-semibold bg-[#009688] text-white hover:bg-[#00796B] transition"
           >
-            Log In
+            Continue
           </button>
         )}
 
