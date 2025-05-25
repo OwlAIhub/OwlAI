@@ -33,6 +33,18 @@ export default function Login() {
     }
   };
 
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      if (otp[index]) {
+        const newOtp = [...otp];
+        newOtp[index] = '';
+        setOtp(newOtp);
+      } else if (index > 0) {
+        document.getElementById(`otp-${index - 1}`).focus();
+      }
+    }
+  };
+
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
@@ -81,8 +93,6 @@ export default function Login() {
       const isNewUser = result?.additionalUserInfo?.isNewUser;
 
       toast.success(isNewUser ? 'Welcome new user!' : 'Welcome back!');
-
-      // 👇 Conditional navigation
       if (isNewUser) {
         navigate('/questionnaire');
       } else {
@@ -129,26 +139,32 @@ export default function Login() {
                 Enter 6-digit code sent to +91 {phone}
               </p>
             </div>
-            <div className="flex justify-center space-x-2">
-              {otp.map((d, i) => (
-                <input
-                  key={i}
-                  id={`otp-${i}`}
-                  type="text"
-                  maxLength="1"
-                  className="w-12 h-12 text-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1A2A3A] text-gray-800 dark:text-white focus:outline-none focus:border-[#009688]"
-                  value={d}
-                  onChange={(e) => handleOtpChange(e.target.value, i)}
-                />
-              ))}
-            </div>
+            <form autoComplete="one-time-code">
+              <div className="flex justify-center space-x-2">
+                {otp.map((d, i) => (
+                  <input
+                    key={i}
+                    id={`otp-${i}`}
+                    name={`otp-${i}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength="1"
+                    autoComplete="one-time-code"
+                    className="w-12 h-12 text-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1A2A3A] text-gray-800 dark:text-white focus:outline-none focus:border-[#009688]"
+                    value={d}
+                    onChange={(e) => handleOtpChange(e.target.value, i)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, i)}
+                  />
+                ))}
+              </div>
+            </form>
             <button
               onClick={handleVerifyOTP}
               disabled={!otpComplete}
               className={`mt-6 w-full py-2 rounded-xl font-semibold transition ${
                 otpComplete
                   ? 'bg-[#009688] text-white hover:bg-[#00796B]'
-                  : 'bg-[#FFC107] text-gray-800 cursor-not-allowed'
+                  : 'bg-[#009688] text-gray-800 cursor-not-allowed'
               }`}
             >
               {otpComplete ? 'Verify and Continue' : 'Continue'}
@@ -160,7 +176,7 @@ export default function Login() {
             ) : (
               <button
                 onClick={handleSendOTP}
-                className="text-blue-600 dark:text-[#FFC107] mt-4 hover:underline"
+                className="text-[#009688] hover:text-[#00796B] mt-4 hover:underline"
               >
                 Resend Code
               </button>
@@ -186,7 +202,7 @@ export default function Login() {
               className={`mt-4 w-full py-2 rounded-xl font-semibold transition ${
                 isValidPhone(phone)
                   ? 'bg-[#009688] text-white hover:bg-[#00796B]'
-                  : 'bg-[#FFC107] text-gray-800 cursor-not-allowed'
+                  : 'bg-[#009688] text-gray-800 cursor-not-allowed'
               }`}
             >
               Send OTP
@@ -204,11 +220,11 @@ export default function Login() {
         {!otpScreen && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-6">
             By creating an account, you agree to Owl AI's{' '}
-            <a href="#" className="underline text-blue-600 dark:text-[#FFC107]">
+            <a href="#" className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]">
               T&C
             </a>{' '}
             and{' '}
-            <a href="#" className="underline text-blue-600 dark:text-[#FFC107]">
+            <a href="#" className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]">
               Privacy Policy
             </a>
           </p>

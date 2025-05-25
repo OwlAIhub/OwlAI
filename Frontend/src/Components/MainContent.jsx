@@ -13,19 +13,52 @@ const MainContent = ({
     toggleDarkMode,
 }) => {
     return (
-        <div className="flex w-full h-screen">
-            <Sidebar
-                isOpen={isSidebarOpen}
-                isLoggedIn={isLoggedIn}
-                onClose={toggleSidebar}
-                onNewChat={() => {}}
-                onSelectChat={() => {}}
-                onLogout={onLogout}
-                darkMode={darkMode}
-                isMobile={false}
-            />
+        <div className="relative flex w-full h-screen overflow-hidden">
+            {/* Enhanced Sidebar with luxurious animation */}
+            <div 
+                className={`fixed inset-y-0 z-20 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
+                    ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
+                    transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
+                    w-64 md:w-72
+                    border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                style={{
+                    willChange: 'transform',
+                    transitionProperty: 'transform, box-shadow',
+                }}
+            >
+                <Sidebar
+                    isOpen={isSidebarOpen}
+                    isLoggedIn={isLoggedIn}
+                    onClose={toggleSidebar}
+                    onNewChat={() => {}}
+                    onSelectChat={() => {}}
+                    onLogout={onLogout}
+                    darkMode={darkMode}
+                    isMobile={false}
+                />
+            </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Enhanced Overlay with matching animation */}
+            {isSidebarOpen && (
+                <div 
+                    className={`fixed inset-0 z-10 bg-black transition-opacity duration-600 ease-in-out ${
+                        isSidebarOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
+                    } md:hidden`}
+                    onClick={toggleSidebar}
+                    style={{
+                        willChange: 'opacity',
+                    }}
+                />
+            )}
+
+            {/* Main content with coordinated animation */}
+            <div 
+                className={`flex-1 flex flex-col overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
+                    ${isSidebarOpen ? 'md:ml-64 lg:ml-72' : 'ml-0'}`}
+                style={{
+                    willChange: 'margin',
+                }}
+            >
                 <Header
                     currentChatTitle={currentChatTitle}
                     onToggleSidebar={toggleSidebar}
@@ -44,7 +77,7 @@ const MainContent = ({
                         <div className="flex-grow flex flex-col items-center justify-center text-center gap-4 px-4">
                             <div className="space-y-2">
                                 <h1
-                                    className={`text-2xl md:text-3xl lg:text-3xl font-semibold ${
+                                    className={`text-2xl md:text-3xl lg:text-4xl font-bold ${
                                         darkMode
                                             ? "text-white"
                                             : "text-gray-900"
@@ -53,7 +86,7 @@ const MainContent = ({
                                     How may I help you?
                                 </h1>
                                 <p
-                                    className={`text-base md:text-lg lg:text-lg ${
+                                    className={`text-base md:text-lg lg:text-xl ${
                                         darkMode
                                             ? "text-gray-300"
                                             : "text-gray-600"
@@ -65,15 +98,15 @@ const MainContent = ({
                             </div>
                         </div>
 
-                        <div className="w-full max-w-xl mt-4 mb-6 px-2">
+                        <div className="w-full max-w-xl mt-8 mb-6 px-2">
                             <div
-                                className={`p-4 md:p-6 rounded-xl transition-all duration-300 transform ${
+                                className={`p-6 md:p-8 rounded-xl ${
                                     darkMode
-                                        ? "bg-gray-800 text-gray-100 shadow-lg hover:scale-[1.01]"
-                                        : "bg-white text-gray-900 shadow-md hover:scale-[1.01]"
+                                        ? "bg-gray-800 text-gray-100 shadow-lg"
+                                        : "bg-white text-gray-900 shadow-md"
                                 }`}
                             >
-                                <h2 className="text-lg md:text-xl font-medium mb-2">
+                                <h2 className="text-xl md:text-2xl font-semibold mb-3">
                                     {currentChatTitle || "New Chat"}
                                 </h2>
                                 <p
@@ -90,7 +123,7 @@ const MainContent = ({
                     </div>
                 </main>
 
-                {/* DIRECTLY ADDED Message Input */}
+                {/* Message Input */}
                 <div
                     className={`border-t p-4 ${
                         darkMode
@@ -102,34 +135,10 @@ const MainContent = ({
                         <div className="relative">
                             <div className="relative flex items-center">
                                 <div className="relative flex-grow">
-                                    <button
-                                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${
-                                            darkMode
-                                                ? "text-[#FFC107] hover:bg-[#1B263B]"
-                                                : "text-[#009688] hover:bg-gray-200"
-                                        }`}
-                                        aria-label="Add attachments"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            strokeWidth={2}
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                            />
-                                        </svg>
-                                    </button>
-
                                     <input
                                         type="text"
                                         placeholder="Ask your Owl AI anything..."
-                                        className={`w-full py-3 pl-10 pr-12 rounded-2xl shadow-sm focus:outline-none focus:ring-2 ${
+                                        className={`w-full py-3 pl-4 pr-12 rounded-2xl shadow-sm focus:outline-none focus:ring-2 ${
                                             darkMode
                                                 ? "bg-[#1B263B] text-white placeholder-gray-400 focus:ring-[#009688] border border-[#0D1B2A]"
                                                 : "bg-white text-gray-900 placeholder-gray-500 focus:ring-[#009688] border border-gray-200"

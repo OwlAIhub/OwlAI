@@ -10,8 +10,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile";
-import Login from "./components/Login.jsx";
-import Questionnaire from "./components/Questionnaire";
+import Login from "./Components/Login.jsx";
+import Questionnaire from "./Components/Questionnaire";
 import { Toaster } from "react-hot-toast";
 import { auth } from "./firebase.js";
 
@@ -20,8 +20,7 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
-    const [currentChatTitle, setCurrentChatTitle] =
-        useState("Learning Theories");
+    const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -75,21 +74,6 @@ function App() {
         />
     );
 
-    const AuthContent = ({ Component }) => (
-        <MainContent
-            currentChatTitle={currentChatTitle}
-            darkMode={darkMode}
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-            isLoggedIn={isLoggedIn}
-            onLogin={() => {}}
-            onLogout={handleLogout}
-            toggleDarkMode={toggleDarkMode}
-        >
-            <Component />
-        </MainContent>
-    );
-
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
@@ -105,10 +89,16 @@ function App() {
                         <Route path="/" element={<MainAppContent />} />
                         <Route path="/login" element={<Login />} />
 
+                        {/* Directly guard questionnaire instead of wrapping in MainContent */}
                         <Route
                             path="/questionnaire"
-                            element={<AuthContent Component={Questionnaire} />}
+                            element={
+                                <ProtectedRoute>
+                                    <Questionnaire />
+                                </ProtectedRoute>
+                            }
                         />
+
                         <Route
                             path="/chat"
                             element={
@@ -167,9 +157,9 @@ function App() {
                             }`
                         }
                         bodyClassName="text-sm font-medium"
-                        progressClassName={`${
-                            darkMode ? "bg-emerald-400" : "bg-[#52B788]"
-                        } h-1 rounded-b`}
+                        progressClassName={`
+                            ${darkMode ? "bg-emerald-400" : "bg-[#52B788]"}
+                        h-1 rounded-b`}
                         closeButton={false}
                     />
                 </div>
