@@ -10,8 +10,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile";
-import Login from "./components/Login.jsx";
-import Questionnaire from "./components/Questionnaire";
+import Login from "./Components/Login.jsx";
+import Questionnaire from "./Components/Questionnaire";
 import { Toaster } from "react-hot-toast";
 import { auth } from "./firebase.js";
 
