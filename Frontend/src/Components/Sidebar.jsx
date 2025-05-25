@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { FaKiwiBird } from "react-icons/fa";
 import UserProfile from "../pages/UserProfile";
-import SubscriptionPlans from "../pages/SubscriptionPlans"; // ✅ Import added
+import SubscriptionPlans from "../pages/SubscriptionPlans";
 
 const Sidebar = ({
   isLoggedIn = false,
@@ -27,7 +27,8 @@ const Sidebar = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [activeChat, setActiveChat] = useState(null);
-  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false); // State for subscription modal
+  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
 
   const previousChats = [
@@ -44,9 +45,18 @@ const Sidebar = ({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const handleChatSelect = (chatId) => {
     setActiveChat(chatId);
     onSelectChat(chatId);
+    if (isMobile) onClose();
   };
 
   const filteredChats = previousChats.filter(chat =>
@@ -70,12 +80,17 @@ const Sidebar = ({
 
   return (
     <>
+      {/* Main Sidebar with slower, smoother animation */}
       <div
-        className={`fixed top-0 left-0 h-full transition-transform duration-300 ease-in-out transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 left-0 h-full transition-all duration-1000 ease-[cubic-bezier(0.2,0,0,1)] transform ${
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         } ${
           darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-800"
-        } w-64 md:w-72 z-40 flex flex-col shadow-xl`}
+        } w-64 md:w-72 z-40 flex flex-col`}
+        style={{
+          willChange: 'transform',
+          transitionProperty: 'transform, box-shadow',
+        }}
       >
         {/* Header */}
         <div className={`p-4 flex items-center justify-between border-b ${
@@ -91,7 +106,9 @@ const Sidebar = ({
           </div>
           <button
             onClick={onClose}
-            className={`p-1 rounded-full ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"} transition`}
+            className={`p-1 rounded-full ${
+              darkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
+            } ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
           >
             <FiX className="text-xl" />
           </button>
@@ -100,9 +117,11 @@ const Sidebar = ({
         {/* Search */}
         <div className="p-3">
           <div className={`flex items-center ${
-            darkMode ? "bg-gray-800" : "bg-gray-100"
+            darkMode ? "bg-gray-800 focus-within:bg-gray-700" : "bg-gray-100 focus-within:bg-gray-50"
           } rounded-lg px-3 py-2`}>
-            <FiSearch className={darkMode ? "text-gray-400" : "text-gray-500"} />
+            <FiSearch className={`${
+              darkMode ? "text-gray-400" : "text-gray-500"
+            }`} />
             <input
               type="text"
               value={searchQuery}
@@ -114,7 +133,10 @@ const Sidebar = ({
               autoFocus
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="text-gray-400 hover:text-gray-600">
+              <button 
+                onClick={() => setSearchQuery("")} 
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <FiX size={16} />
               </button>
             )}
@@ -127,19 +149,21 @@ const Sidebar = ({
             onClick={onNewChat}
             className={`w-full flex items-center justify-center ${
               darkMode ? "bg-teal-600 hover:bg-teal-700" : "bg-teal-500 hover:bg-teal-600"
-            } text-white py-2.5 rounded-lg transition font-medium`}
+            } text-white py-2.5 rounded-lg font-medium`}
           >
             <FiPlus className="mr-2" />
             New Chat
           </button>
         </div>
 
-        {/* Upgrade Button (only shown if not on premium plan) */}
+        {/* Upgrade Button */}
         {isLoggedIn && currentUser?.plan !== "Premium" && (
           <div className="px-3 mb-2">
             <button
               onClick={handleUpgradeClick}
-              className={`w-full flex items-center justify-center bg-[#009688] text-white py-2.5 rounded-lg transition font-medium`}
+              className={`w-full flex items-center justify-center bg-[#009688] hover:bg-[#00897b] text-white py-2.5 rounded-lg font-medium shadow-md ${
+                darkMode ? "shadow-teal-900/50" : "shadow-teal-500/30"
+              }`}
             >
               <FiCreditCard className="mr-2" />
               Upgrade Plan
@@ -153,7 +177,6 @@ const Sidebar = ({
         }`}>
           {isLoggedIn ? (
             <>
-              {/* Starred */}
               {starredChats.length > 0 && (
                 <div className="mb-4">
                   <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${
@@ -173,7 +196,6 @@ const Sidebar = ({
                 </div>
               )}
 
-              {/* Recent */}
               <div className="mb-4">
                 <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${
                   darkMode ? "text-gray-400" : "text-gray-500"
@@ -181,13 +203,14 @@ const Sidebar = ({
                   <FiClock className="mr-2" /> Recent
                 </div>
                 {regularChats.length > 0 ? (
-                  regularChats.map(chat => (
+                  regularChats.map((chat, index) => (
                     <ChatItem
                       key={chat.id}
                       chat={chat}
                       darkMode={darkMode}
                       active={activeChat === chat.id}
                       onClick={() => handleChatSelect(chat.id)}
+                      delay={index * 100}
                     />
                   ))
                 ) : (
@@ -200,7 +223,9 @@ const Sidebar = ({
               </div>
             </>
           ) : (
-            <div className="text-center px-4 py-8">
+            <div className={`text-center px-4 py-8 ${
+              isOpen ? 'opacity-100' : 'opacity-0'
+            }`}>
               <p className={`text-sm ${
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}>
@@ -278,11 +303,11 @@ const Sidebar = ({
   );
 };
 
-const ChatItem = ({ chat, darkMode, active, onClick }) => {
+const ChatItem = ({ chat, darkMode, active, onClick, delay = 0 }) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left text-sm px-3 py-2.5 rounded-md flex justify-between items-center transition ${
+      className={`w-full text-left text-sm px-3 py-2.5 rounded-md flex justify-between items-center ${
         active
           ? darkMode
             ? "bg-gray-700 text-white"
@@ -291,6 +316,9 @@ const ChatItem = ({ chat, darkMode, active, onClick }) => {
             ? "hover:bg-gray-800 text-gray-200"
             : "hover:bg-gray-100 text-gray-800"
       }`}
+      style={{
+        transitionDelay: `${delay}ms`
+      }}
     >
       <div className="truncate flex items-center">
         <FiMessageSquare className={`mr-2 flex-shrink-0 ${
