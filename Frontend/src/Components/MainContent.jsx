@@ -172,7 +172,7 @@ const MainContent = ({
                                 </div>
                             </div>
                         )}
-                     <div className="w-full max-w-2xl mx-auto mb-4 px-4">
+                     <div className="w-full max-w-2xl mx-auto mb-64 px-4">
   <div className="space-y-2">
     {chatMessages.length > 0 && (
       <div
@@ -193,7 +193,8 @@ const MainContent = ({
                 {botMsg && botMsg.role === "bot" && (
                   <div
                     key={`bot-${index}`}
-                    className="self-start max-w-[80%] p-3 rounded-xl break-words whitespace-pre-wrap bg-gray-200 text-gray-800"
+                    className={`self-start max-w-[80%] p-3 rounded-xl break-words whitespace-pre-wrap${darkMode ? "text-white-90" : "text-gray-800"
+                    }`}
                   >
                     {botMsg.content}
                   </div>
