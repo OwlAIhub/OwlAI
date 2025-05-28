@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../firebase.js';
+import { auth, RecaptchaVerifier, signInWithPhoneNumber, db } from '../firebase.js';
+import { ref, set } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
@@ -10,11 +11,19 @@ export default function Login() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState(30);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
   const navigate = useNavigate();
 
   const isValidPhone = (number) => /^[6-9]\d{9}$/.test(number);
   const fullOtp = otp.join('');
   const otpComplete = fullOtp.length === 6;
+
+  useEffect(() => {
+    if (otpComplete && otpScreen) {
+      handleVerifyOTP();
+    }
+  }, [otp, otpScreen]);
 
   useEffect(() => {
     let timer;
@@ -57,10 +66,14 @@ export default function Login() {
           },
           'expired-callback': () => {
             console.log('reCAPTCHA expired');
+            toast.error('reCAPTCHA expired, please try again.');
           },
         }
       );
-      window.recaptchaVerifier.render().catch(console.error);
+      window.recaptchaVerifier.render().catch((error) => {
+        console.error('reCAPTCHA render error:', error);
+        toast.error('Failed to load reCAPTCHA, please try again.');
+      });
     }
   };
 
@@ -69,38 +82,65 @@ export default function Login() {
       toast.error('Invalid phone number');
       return;
     }
+    setIsSendingOTP(true);
     setupRecaptcha();
     try {
+      const formattedPhone = '+91' + phone;
+      console.log('Sending OTP to:', formattedPhone);
       const result = await signInWithPhoneNumber(
         auth,
-        '+91' + phone,
+        formattedPhone,
         window.recaptchaVerifier
       );
       setConfirmationResult(result);
       setOtpScreen(true);
       setResendTimer(30);
+      setOtp(['', '', '', '', '', '']);
       toast.success('OTP sent!');
     } catch (err) {
-      console.error('Error sending OTP:', err);
+      console.error('Error sending OTP:', err.code, err.message);
       toast.error(err.message || 'Failed to send OTP');
+    } finally {
+      setIsSendingOTP(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!confirmationResult || !otpComplete) return;
+    if (!confirmationResult || !otpComplete) {
+      toast.error('Please enter a complete OTP.');
+      return;
+    }
+    setIsVerifyingOTP(true);
     try {
+      console.log('Verifying OTP:', fullOtp);
       const result = await confirmationResult.confirm(fullOtp);
       const isNewUser = result?.additionalUserInfo?.isNewUser;
+      const uid = result?.user?.uid;
+
+      const token = await result.user.getIdToken();
+      localStorage.setItem('token', token);
 
       toast.success(isNewUser ? 'Welcome new user!' : 'Welcome back!');
-      if (isNewUser) {
+
+      if (isNewUser && uid) {
+        await set(ref(db, 'users/' + uid), {
+          phone: phone
+        });
         navigate('/questionnaire');
       } else {
         navigate('/main');
       }
     } catch (err) {
-      console.error('OTP Verification Error:', err);
-      toast.error('Invalid OTP');
+      console.error('OTP Verification Error:', err.code, err.message);
+      if (err.code === 'auth/invalid-verification-code') {
+        toast.error('Invalid OTP, please check and try again.');
+      } else if (err.code === 'auth/code-expired') {
+        toast.error('OTP has expired, please request a new one.');
+      } else {
+        toast.error('Failed to verify OTP: ' + err.message);
+      }
+    } finally {
+      setIsVerifyingOTP(false);
     }
   };
 
@@ -160,14 +200,14 @@ export default function Login() {
             </form>
             <button
               onClick={handleVerifyOTP}
-              disabled={!otpComplete}
+              disabled={!otpComplete || isVerifyingOTP}
               className={`mt-6 w-full py-2 rounded-xl font-semibold transition ${
-                otpComplete
+                otpComplete && !isVerifyingOTP
                   ? 'bg-[#009688] text-white hover:bg-[#00796B]'
                   : 'bg-[#009688] text-gray-800 cursor-not-allowed'
               }`}
             >
-              {otpComplete ? 'Verify and Continue' : 'Continue'}
+              {isVerifyingOTP ? 'Verifying...' : otpComplete ? 'Verify and Continue' : 'Continue'}
             </button>
             {resendTimer > 0 ? (
               <p className="text-sm mt-4 text-gray-500 dark:text-gray-300">
@@ -176,9 +216,12 @@ export default function Login() {
             ) : (
               <button
                 onClick={handleSendOTP}
-                className="text-[#009688] hover:text-[#00796B] mt-4 hover:underline"
+                disabled={isSendingOTP}
+                className={`text-[#009688] hover:text-[#00796B] mt-4 hover:underline ${
+                  isSendingOTP ? 'cursor-not-allowed opacity-50' : ''
+                }`}
               >
-                Resend Code
+                {isSendingOTP ? 'Sending...' : 'Resend Code'}
               </button>
             )}
           </>
@@ -198,14 +241,14 @@ export default function Login() {
             </div>
             <button
               onClick={handleSendOTP}
-              disabled={!isValidPhone(phone)}
+              disabled={!isValidPhone(phone) || isSendingOTP}
               className={`mt-4 w-full py-2 rounded-xl font-semibold transition ${
-                isValidPhone(phone)
+                isValidPhone(phone) && !isSendingOTP
                   ? 'bg-[#009688] text-white hover:bg-[#00796B]'
                   : 'bg-[#009688] text-gray-800 cursor-not-allowed'
               }`}
             >
-              Send OTP
+              {isSendingOTP ? 'Sending...' : 'Send OTP'}
             </button>
           </>
         ) : (
