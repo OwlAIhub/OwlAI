@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import ugcNetLogo from '../assets/ugc-net-logo.png';
 import csirNetLogo from '../assets/csir-net-logo.png';
 
-// import { db } from '../firebase'; // Assuming firebase.js is set up with Firestore
-// import { collection, addDoc } from 'firebase/firestore';
+import { db, auth, RecaptchaVerifier, signInWithPhoneNumber } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const languages = ['English', 'Hinglish'];
 
@@ -113,7 +113,7 @@ export default function Questionnaire() {
     } else {
       try {
         // Store form data in Firebase Firestore
-        await addDoc(collection(db, 'questionnaireResponses'), formData);
+        await addDoc(collection(db, 'users'), formData);
         console.log('Form data stored in Firebase:', formData);
         navigate('/main');
       } catch (error) {

@@ -1,16 +1,26 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBP84jQKc5qOpq_iGwlvNgqCmLlmnPnfG0",
-  authDomain: "mvp-3234.firebaseapp.com",
-  projectId: "mvp-3234",
-  storageBucket: "mvp-3234.firebasestorage.app",
-  messagingSenderId: "416496021940",
-  appId: "1:416496021940:web:1ae40846e7ff15eba142e1"
+apiKey: "AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM",
+authDomain: "owl-ai-1ef31.firebaseapp.com",
+projectId: "owl-ai-1ef31",
+storageBucket: "owl-ai-1ef31.firebasestorage.app",
+messagingSenderId: "202604444478",
+appId: "1:202604444478:web:dd2fc34ca902361ccbca6f",
+measurementId: "G-LY2D6QL6B9"
 };
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 
-export { auth, RecaptchaVerifier, signInWithPhoneNumber };
+const db = getFirestore(app);
+
+export { 
+auth, 
+db, 
+RecaptchaVerifier, 
+signInWithPhoneNumber 
+};
