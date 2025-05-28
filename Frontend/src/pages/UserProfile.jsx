@@ -1,27 +1,32 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import Header from '../Components/Header';
 import Sidebar from '../Components/Sidebar';
+import { FiEdit, FiCamera, FiX, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { RiGraduationCapLine, RiMailLine, RiGlobalLine, RiMedalLine } from 'react-icons/ri';
+import { Dialog, Transition } from '@headlessui/react';
 
-const UserProfile = () => {
+const UserProfile = ({ currentUser }) => {
   // User data state
   const [isEditing, setIsEditing] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    name: currentUser?.name || 'John Doe',
+    email: currentUser?.email || 'john.doe@example.com',
     educationLevel: 'Graduate',
     preferredLanguage: 'English',
     targetExam: 'UGC-NET',
     examAttempt: 'First Attempt',
     joinDate: 'January 2023',
-    subscription: 'Premium'
+    subscription: currentUser?.plan || 'Premium'
   });
 
   // Layout state
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [expandedSection, setExpandedSection] = useState(null);
 
   // Check screen size and set initial sidebar state
   useEffect(() => {
@@ -41,6 +46,9 @@ const UserProfile = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const handleLogin = () => setIsLoggedIn(true);
   const handleLogout = () => setIsLoggedIn(false);
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
 
   // Animation variants
   const containerVariants = {
@@ -114,21 +122,32 @@ const UserProfile = () => {
     setIsEditing(false);
   };
 
-  // Color schemes for light/dark modes
+  // Color schemes for light/dark modes with glassmorphism
   const colors = {
-    bg: darkMode ? 'bg-gray-900' : 'bg-white',
+    bg: darkMode ? 'bg-gray-900' : 'bg-gray-100',
     text: darkMode ? 'text-gray-100' : 'text-gray-800',
-    cardBg: darkMode ? 'bg-gray-800' : 'bg-gray-50',
-    border: darkMode ? 'border-gray-700' : 'border-gray-200',
+    cardBg: darkMode ? 'bg-gray-800 bg-opacity-60 backdrop-blur-lg' : 'bg-white bg-opacity-70 backdrop-blur-lg',
+    border: darkMode ? 'border-gray-700 border-opacity-30' : 'border-gray-200 border-opacity-50',
     primary: darkMode ? 'bg-teal-600' : 'bg-teal-500',
     primaryHover: darkMode ? 'hover:bg-teal-700' : 'hover:bg-teal-600',
     secondary: darkMode ? 'bg-amber-500' : 'bg-amber-400',
     secondaryHover: darkMode ? 'hover:bg-amber-600' : 'hover:bg-amber-500',
     accentText: darkMode ? 'text-teal-400' : 'text-teal-600',
-    inputBg: darkMode ? 'bg-gray-700' : 'bg-white',
-    inputBorder: darkMode ? 'border-gray-600' : 'border-gray-300',
-    overlay: darkMode ? 'bg-black bg-opacity-70' : 'bg-black bg-opacity-50'
+    inputBg: darkMode ? 'bg-gray-700 bg-opacity-50 backdrop-blur-sm' : 'bg-white bg-opacity-80 backdrop-blur-sm',
+    inputBorder: darkMode ? 'border-gray-600 border-opacity-30' : 'border-gray-300 border-opacity-50',
+    overlay: darkMode ? 'bg-black bg-opacity-70' : 'bg-black bg-opacity-50',
+    subtleText: darkMode ? 'text-gray-400' : 'text-gray-500',
+    divider: darkMode ? 'border-gray-700 border-opacity-30' : 'border-gray-200 border-opacity-50',
+    shadow: darkMode ? 'shadow-lg shadow-black/30' : 'shadow-lg shadow-gray-400/20'
   };
+
+  // Stats data
+  const stats = [
+    { label: 'Member Since', value: userData.joinDate, icon: <RiMedalLine className="text-lg" /> },
+    { label: 'Subscription', value: userData.subscription, icon: <RiMedalLine className="text-lg" /> },
+    { label: 'Target Exam', value: userData.targetExam, icon: <RiGraduationCapLine className="text-lg" /> },
+    { label: 'Exam Attempt', value: userData.examAttempt, icon: <RiGraduationCapLine className="text-lg" /> }
+  ];
 
   return (
     <div className={`flex flex-col min-h-screen w-full ${colors.bg} ${colors.text}`}>
@@ -140,51 +159,35 @@ const UserProfile = () => {
         onLogout={handleLogout}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
+        currentUser={currentUser}
       />
       
       <div className="flex flex-1 w-full overflow-hidden">
         {/* Sidebar */}
-        <AnimatePresence>
-          {(sidebarOpen || isDesktop) && (
-            <>
-              <motion.div 
-                className={`fixed lg:static z-30 w-64 h-full ${colors.cardBg} ${colors.border} border-r shadow-lg`}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={sidebarVariants}
-              >
-                <Sidebar darkMode={darkMode} />
-              </motion.div>
-              {!isDesktop && (
-                <motion.div
-                  className={`fixed inset-0 z-20 ${colors.overlay}`}
-                  onClick={toggleSidebar}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              )}
-            </>
-          )}
-        </AnimatePresence>
+        <Sidebar 
+          isLoggedIn={isLoggedIn}
+          isOpen={sidebarOpen}
+          onClose={toggleSidebar}
+          darkMode={darkMode}
+          currentUser={{ ...userData, plan: userData.subscription }}
+        />
 
         {/* Main Content */}
         <motion.main 
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className={`flex-1 w-full overflow-y-auto p-4 lg:p-8 transition-colors duration-300 ${colors.bg}`}
-          style={{ 
+          className={`flex-1 w-full overflow-y-auto p-4 lg:p-8 transition-all duration-300 ${colors.bg}`}
+          style={{
             marginLeft: sidebarOpen && isDesktop ? '16rem' : '0',
-            maxWidth: sidebarOpen && isDesktop ? 'calc(100% - 16rem)' : '100%'
+            transition: 'margin-left 0.3s ease'
           }}
         >
           <div className="max-w-6xl mx-auto w-full">
             {/* Profile Header */}
             <motion.div 
               variants={itemVariants}
-              className="flex flex-col lg:flex-row gap-8 mb-8"
+              className="flex flex-col lg:flex-row gap-6 mb-8"
             >
               {/* Avatar Section */}
               <motion.div
@@ -193,44 +196,42 @@ const UserProfile = () => {
                 whileTap="tap"
               >
                 <motion.div
-                  className={`relative w-40 h-40 lg:w-48 lg:h-48 rounded-full border-4 ${colors.primary} overflow-hidden`}
+                  className={`relative w-32 h-32 lg:w-40 lg:h-40 rounded-full border-4 ${colors.primary} overflow-hidden ${colors.shadow}`}
                   variants={avatarVariants}
                   initial="initial"
                 >
-                  <div className={`absolute inset-0 ${colors.primary} flex items-center justify-center text-5xl font-bold`}>
-                    JD
+                  <div className={`absolute inset-0 ${colors.primary} flex items-center justify-center text-4xl font-bold text-white`}>
+                    {userData.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <motion.div
                     className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
                     whileHover={{ opacity: 1 }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="text-sm font-medium">Update Photo</span>
+                    <FiCamera className="h-6 w-6 mb-1 text-white" />
+                    <span className="text-sm font-medium text-white">Update Photo</span>
                   </motion.div>
                 </motion.div>
-                <button 
+                <motion.button 
                   onClick={() => setIsEditing(!isEditing)}
-                  className={`absolute -bottom-2 -right-2 ${colors.primary} ${colors.primaryHover} rounded-full p-2 shadow-lg transition-colors duration-300`}
+                  className={`absolute -bottom-2 -right-2 ${colors.primary} ${colors.primaryHover} rounded-full p-2 ${colors.shadow} transition-colors duration-300 flex items-center justify-center`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
+                  <FiEdit className="h-5 w-5 text-white" />
+                </motion.button>
               </motion.div>
 
               {/* Profile Summary */}
               <div className="flex-1 w-full">
                 <motion.div variants={itemVariants}>
-                  <h1 className={`text-3xl lg:text-4xl font-bold ${colors.accentText} mb-2`}>
+                  <h1 className={`text-2xl lg:text-3xl font-bold ${colors.accentText} mb-2`}>
                     {userData.name}
                   </h1>
                   <motion.p 
-                    className={`text-lg lg:text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-6`}
+                    className={`text-base lg:text-lg ${colors.subtleText} mb-4 flex items-center gap-1`}
                     variants={itemVariants}
                   >
+                    <RiGraduationCapLine />
                     {userData.educationLevel} student
                   </motion.p>
                 </motion.div>
@@ -240,70 +241,134 @@ const UserProfile = () => {
                   className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 w-full"
                   variants={containerVariants}
                 >
-                  {[
-                    { label: 'Member Since', value: userData.joinDate },
-                    { label: 'Subscription', value: userData.subscription },
-                    { label: 'Target Exam', value: userData.targetExam },
-                    { label: 'Exam Attempt', value: userData.examAttempt }
-                  ].map((item, index) => (
+                  {stats.map((item, index) => (
                     <motion.div 
                       key={index}
-                      className={`p-4 rounded-xl ${colors.cardBg} ${colors.border} border w-full`}
+                      className={`p-4 rounded-lg ${colors.cardBg} ${colors.border} border ${colors.shadow} w-full transition-all duration-200 hover:shadow-xl`}
                       variants={itemVariants}
                       whileHover={{ y: -4 }}
                     >
-                      <h3 className={`text-sm font-semibold ${colors.accentText} mb-1`}>{item.label}</h3>
-                      <p className="text-lg font-medium">{item.value}</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`p-2 rounded-full ${colors.primary} bg-opacity-20 text-${colors.accentText}`}>
+                          {item.icon}
+                        </div>
+                        <h3 className={`text-xs font-semibold ${colors.accentText}`}>{item.label}</h3>
+                      </div>
+                      <p className="text-sm font-medium ml-10">{item.value}</p>
                     </motion.div>
                   ))}
                 </motion.div>
 
-                {/* Additional Info Section */}
+                {/* Tabs */}
                 <motion.div 
-                  className={`p-6 rounded-xl mb-6 ${colors.cardBg} ${colors.border} border w-full`}
+                  className="flex border-b mb-6"
                   variants={itemVariants}
-                  whileHover={{ y: -2 }}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                    <div>
-                      <h3 className={`text-lg font-semibold ${colors.accentText} mb-3`}>Personal Information</h3>
-                      <div className="space-y-3">
-                        <div>
-                          <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Email</p>
-                          <p className="font-medium break-all">{userData.email}</p>
-                        </div>
-                        <div>
-                          <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Preferred Language</p>
-                          <p className="font-medium">{userData.preferredLanguage}</p>
-                        </div>
-                      </div>
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'overview' ? `${colors.accentText} border-b-2 ${darkMode ? 'border-teal-400' : 'border-teal-600'}` : `${colors.subtleText} hover:${colors.accentText}`}`}
+                  >
+                    Overview
+                  </button>
+                </motion.div>
+
+                {/* Collapsible Sections */}
+                <motion.div className="space-y-4" variants={containerVariants}>
+                  {/* Personal Information Section */}
+                  <motion.div 
+                    className={`rounded-lg overflow-hidden ${colors.cardBg} ${colors.border} border ${colors.shadow}`}
+                    variants={itemVariants}
+                  >
+                    <div 
+                      className={`p-4 flex justify-between items-center cursor-pointer ${expandedSection === 'personal' ? `${colors.primary} bg-opacity-10` : ''}`}
+                      onClick={() => toggleSection('personal')}
+                    >
+                      <h3 className={`text-base font-semibold ${colors.accentText} flex items-center gap-2`}>
+                        <RiMailLine />
+                        Personal Information
+                      </h3>
+                      {expandedSection === 'personal' ? <FiChevronUp /> : <FiChevronDown />}
                     </div>
-                    <div>
-                      <h3 className={`text-lg font-semibold ${colors.accentText} mb-3`}>Education Details</h3>
-                      <div className="space-y-3">
-                        <div>
-                          <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Education Level</p>
-                          <p className="font-medium">{userData.educationLevel}</p>
-                        </div>
-                      </div>
+                    <AnimatePresence>
+                      {expandedSection === 'personal' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="px-4 pb-4"
+                        >
+                          <div className="space-y-4">
+                            <div>
+                              <p className={`text-xs ${colors.subtleText}`}>Email</p>
+                              <p className="text-sm font-medium break-all">{userData.email}</p>
+                            </div>
+                            <div>
+                              <p className={`text-xs ${colors.subtleText}`}>Preferred Language</p>
+                              <p className="text-sm font-medium">{userData.preferredLanguage}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  {/* Education Details Section */}
+                  <motion.div 
+                    className={`rounded-lg overflow-hidden ${colors.cardBg} ${colors.border} border ${colors.shadow}`}
+                    variants={itemVariants}
+                  >
+                    <div 
+                      className={`p-4 flex justify-between items-center cursor-pointer ${expandedSection === 'education' ? `${colors.primary} bg-opacity-10` : ''}`}
+                      onClick={() => toggleSection('education')}
+                    >
+                      <h3 className={`text-base font-semibold ${colors.accentText} flex items-center gap-2`}>
+                        <RiGraduationCapLine />
+                        Education Details
+                      </h3>
+                      {expandedSection === 'education' ? <FiChevronUp /> : <FiChevronDown />}
                     </div>
-                  </div>
+                    <AnimatePresence>
+                      {expandedSection === 'education' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="px-4 pb-4"
+                        >
+                          <div className="space-y-4">
+                            <div>
+                              <p className={`text-xs ${colors.subtleText}`}>Education Level</p>
+                              <p className="text-sm font-medium">{userData.educationLevel}</p>
+                            </div>
+                            <div>
+                              <p className={`text-xs ${colors.subtleText}`}>Target Exam</p>
+                              <p className="text-sm font-medium">{userData.targetExam}</p>
+                            </div>
+                            <div>
+                              <p className={`text-xs ${colors.subtleText}`}>Exam Attempt</p>
+                              <p className="text-sm font-medium">{userData.examAttempt}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 </motion.div>
 
                 {/* Action Buttons */}
                 <motion.div 
-                  className="flex flex-wrap gap-4 w-full"
+                  className="flex flex-wrap gap-3 w-full mt-6"
                   variants={itemVariants}
                 >
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(!isEditing)}
-                    className={`px-6 py-3 rounded-xl ${colors.primary} ${colors.primaryHover} transition-colors duration-300 text-white font-medium shadow-md flex items-center gap-2`}
+                    className={`px-4 py-2 rounded-lg ${colors.primary} ${colors.primaryHover} transition-colors duration-300 text-white font-medium ${colors.shadow} flex items-center gap-2 text-sm`}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <FiEdit className="h-4 w-4" />
                     {isEditing ? 'Cancel Editing' : 'Edit Profile'}
                   </motion.button>
                 </motion.div>
@@ -314,160 +379,182 @@ const UserProfile = () => {
       </div>
 
       {/* Modal Edit Form */}
-      <AnimatePresence>
-        {isEditing && (
-          <>
-            <motion.div
-              className={`fixed inset-0 z-40 ${colors.overlay}`}
-              variants={backdropVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              onClick={() => setIsEditing(false)}
-            />
-            
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto">
-              <motion.div
-                variants={modalVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className={`rounded-2xl p-6 shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto ${colors.cardBg} ${colors.border} border`}
-                onClick={(e) => e.stopPropagation()}
+      <Transition appear show={isEditing} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setIsEditing(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className={`fixed inset-0 ${colors.overlay} backdrop-blur-sm`} />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className={`text-2xl font-bold ${colors.accentText}`}>Edit Profile</h2>
-                  <button 
-                    onClick={() => setIsEditing(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                
-                <form onSubmit={handleEditSubmit}>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {[
-                      { label: 'Full Name', name: 'name', type: 'text', value: userData.name },
-                      { label: 'Email', name: 'email', type: 'email', value: userData.email },
-                    ].map((field, index) => (
-                      <motion.div key={index} variants={itemVariants}>
-                        <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                          {field.label}
-                        </label>
-                        <input
-                          type={field.type}
-                          name={field.name}
-                          defaultValue={field.value}
-                          className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'}`}
-                        />
-                      </motion.div>
-                    ))}
-
-                    <motion.div variants={itemVariants}>
-                      <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                        Education Level
-                      </label>
-                      <select
-                        name="educationLevel"
-                        defaultValue={userData.educationLevel}
-                        className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'}`}
-                      >
-                        {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
-                          <option key={level} value={level}>{level}</option>
-                        ))}
-                      </select>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants}>
-                      <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                        Preferred Language
-                      </label>
-                      <select
-                        name="preferredLanguage"
-                        defaultValue={userData.preferredLanguage}
-                        className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'}`}
-                      >
-                        {['English', 'Hinglish', 'Hindi'].map(lang => (
-                          <option key={lang} value={lang}>{lang}</option>
-                        ))}
-                      </select>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants}>
-                      <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                        Target Exam
-                      </label>
-                      <div className="space-y-2">
-                        {['UGC-NET', 'CSIR-NET'].map(exam => (
-                          <label key={exam} className="flex items-center space-x-2">
-                            <input
-                              type="radio"
-                              name="targetExam"
-                              value={exam}
-                              defaultChecked={userData.targetExam === exam}
-                              className={colors.accentText.replace('text', 'accent')}
-                            />
-                            <span>{exam}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants}>
-                      <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                        Exam Attempt
-                      </label>
-                      <div className="space-y-2">
-                        {['First Attempt', 'Second Attempt', 'Third Attempt'].map(attempt => (
-                          <label key={attempt} className="flex items-center space-x-2">
-                            <input
-                              type="radio"
-                              name="examAttempt"
-                              value={attempt}
-                              defaultChecked={userData.examAttempt === attempt}
-                              className={colors.accentText.replace('text', 'accent')}
-                            />
-                            <span>{attempt}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  <motion.div 
-                    className="flex justify-end gap-4"
-                    variants={itemVariants}
-                  >
-                    <motion.button
-                      type="button"
+                <Dialog.Panel className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle ${colors.cardBg} ${colors.border} border ${colors.shadow} backdrop-blur-lg`}>
+                  <div className="flex justify-between items-center mb-4">
+                    <Dialog.Title
+                      as="h3"
+                      className={`text-xl font-bold ${colors.accentText}`}
+                    >
+                      Edit Profile
+                    </Dialog.Title>
+                    <button 
                       onClick={() => setIsEditing(false)}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`px-6 py-3 rounded-xl ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium shadow-md`}
+                      className={`p-1 rounded-full ${darkMode ? 'hover:bg-gray-700 hover:bg-opacity-30' : 'hover:bg-gray-200 hover:bg-opacity-50'}`}
                     >
-                      Cancel
-                    </motion.button>
-                    <motion.button
-                      type="submit"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`px-6 py-3 rounded-xl ${colors.secondary} ${colors.secondaryHover} transition-colors duration-300 font-medium shadow-md flex items-center gap-2`}
+                      <FiX className="h-6 w-6" />
+                    </button>
+                  </div>
+                  
+                  <form onSubmit={handleEditSubmit}>
+                    <div className="grid grid-cols-1 gap-4 mb-4">
+                      {[
+                        { label: 'Full Name', name: 'name', type: 'text', value: userData.name, icon: <RiMailLine className="text-lg" /> },
+                        { label: 'Email', name: 'email', type: 'email', value: userData.email, icon: <RiMailLine className="text-lg" /> },
+                      ].map((field, index) => (
+                        <motion.div key={index} variants={itemVariants}>
+                          <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                            {field.label}
+                          </label>
+                          <div className="relative">
+                            <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
+                              {field.icon}
+                            </div>
+                            <input
+                              type={field.type}
+                              name={field.name}
+                              defaultValue={field.value}
+                              className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'}`}
+                            />
+                          </div>
+                        </motion.div>
+                      ))}
+
+                      <motion.div variants={itemVariants}>
+                        <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                          Education Level
+                        </label>
+                        <div className="relative">
+                          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
+                            <RiGraduationCapLine className="text-lg" />
+                          </div>
+                          <select
+                            name="educationLevel"
+                            defaultValue={userData.educationLevel}
+                            className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} appearance-none`}
+                          >
+                            {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
+                              <option key={level} value={level}>{level}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </motion.div>
+
+                      <motion.div variants={itemVariants}>
+                        <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                          Preferred Language
+                        </label>
+                        <div className="relative">
+                          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
+                            <RiGlobalLine className="text-lg" />
+                          </div>
+                          <select
+                            name="preferredLanguage"
+                            defaultValue={userData.preferredLanguage}
+                            className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} appearance-none`}
+                          >
+                            {['English', 'Hinglish', 'Hindi'].map(lang => (
+                              <option key={lang} value={lang}>{lang}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </motion.div>
+
+                      <motion.div variants={itemVariants}>
+                        <label className={`block text-sm font-medium ${colors.subtleText} mb-2`}>
+                          Target Exam
+                        </label>
+                        <div className="space-y-2">
+                          {['UGC-NET', 'CSIR-NET'].map(exam => (
+                            <label key={exam} className="flex items-center space-x-3">
+                              <input
+                                type="radio"
+                                name="targetExam"
+                                value={exam}
+                                defaultChecked={userData.targetExam === exam}
+                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')} focus:ring-0`}
+                              />
+                              <span className="text-sm">{exam}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div variants={itemVariants}>
+                        <label className={`block text-sm font-medium ${colors.subtleText} mb-2`}>
+                          Exam Attempt
+                        </label>
+                        <div className="space-y-2">
+                          {['First Attempt', 'Second Attempt', 'Third Attempt'].map(attempt => (
+                            <label key={attempt} className="flex items-center space-x-3">
+                              <input
+                                type="radio"
+                                name="examAttempt"
+                                value={attempt}
+                                defaultChecked={userData.examAttempt === attempt}
+                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')} focus:ring-0`}
+                              />
+                              <span className="text-sm">{attempt}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    <motion.div 
+                      className="flex justify-end gap-3"
+                      variants={itemVariants}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Save Changes
-                    </motion.button>
-                  </motion.div>
-                </form>
-              </motion.div>
+                      <motion.button
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`px-4 py-2 rounded-lg ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
+                      >
+                        Cancel
+                      </motion.button>
+                      <motion.button
+                        type="submit"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`px-4 py-2 rounded-lg ${colors.secondary} ${colors.secondaryHover} transition-colors duration-300 font-medium text-sm ${colors.shadow} flex items-center gap-2`}
+                      >
+                        <FiCheck className="h-4 w-4" />
+                        Save Changes
+                      </motion.button>
+                    </motion.div>
+                  </form>
+                </Dialog.Panel>
+              </Transition.Child>
             </div>
-          </>
-        )}
-      </AnimatePresence>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };
