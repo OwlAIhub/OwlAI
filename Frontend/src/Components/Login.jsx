@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import toast from 'react-hot-toast'; // REMOVE THIS LINE
 import { toast } from 'react-toastify'; // USE react-toastify ONLY
 import {
   auth,
@@ -31,6 +30,7 @@ export default function Login() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp]);
+
 
   useEffect(() => {
     let timer;
@@ -104,7 +104,7 @@ export default function Login() {
       setOtp(['', '', '', '', '', '']);
       toast.success('OTP sent!');
     } catch (err) {
-      console.error('Error sending OTP:', err);
+      console.error('Error sending OTP:', err.code, err.message);
       toast.error(err.message || 'Failed to send OTP');
     } finally {
       setIsSendingOTP(false);
@@ -118,8 +118,8 @@ export default function Login() {
       return;
     }
     setIsVerifyingOTP(true);
-
     try {
+      console.log('Verifying OTP:', fullOtp);
       const result = await confirmationResult.confirm(fullOtp);
       const user = result.user;
       const uid = user.uid;
@@ -147,6 +147,18 @@ export default function Login() {
           createdAt: new Date().toISOString()
         }));
         toast.success('Welcome new user!');
+      const isNewUser = result?.additionalUserInfo?.isNewUser;
+      const uid = result?.user?.uid;
+
+      const token = await result.user.getIdToken();
+      localStorage.setItem('token', token);
+
+      toast.success(isNewUser ? 'Welcome new user!' : 'Welcome back!');
+
+      if (isNewUser && uid) {
+        await set(ref(db, 'users/' + uid), {
+          phone: phone
+        });
         navigate('/questionnaire');
       } else {
         // Existing user: check questionnaireFilled
@@ -167,7 +179,6 @@ export default function Login() {
         }
       }
     } catch (err) {
-      console.error('OTP Verification Error:', err);
       if (err.code === 'auth/invalid-verification-code') {
         toast.error('Invalid OTP, please check and try again.');
       } else if (err.code === 'auth/code-expired') {

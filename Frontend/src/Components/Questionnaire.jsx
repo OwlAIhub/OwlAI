@@ -6,6 +6,7 @@ import csirNetLogo from '../assets/csir-net-logo.png';
 import { db, auth } from '../firebase';
 import { collection, addDoc, doc, getDoc, setDoc } from 'firebase/firestore';
 
+
 const languages = ['English', 'Hinglish'];
 
 const curricula = [
