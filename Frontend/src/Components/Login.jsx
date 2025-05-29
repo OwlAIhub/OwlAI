@@ -31,7 +31,6 @@ export default function Login() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp]);
 
-
   useEffect(() => {
     let timer;
     if (otpScreen && resendTimer > 0) {
@@ -147,18 +146,6 @@ export default function Login() {
           createdAt: new Date().toISOString()
         }));
         toast.success('Welcome new user!');
-      const isNewUser = result?.additionalUserInfo?.isNewUser;
-      const uid = result?.user?.uid;
-
-      const token = await result.user.getIdToken();
-      localStorage.setItem('token', token);
-
-      toast.success(isNewUser ? 'Welcome new user!' : 'Welcome back!');
-
-      if (isNewUser && uid) {
-        await set(ref(db, 'users/' + uid), {
-          phone: phone
-        });
         navigate('/questionnaire');
       } else {
         // Existing user: check questionnaireFilled
