@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Link } from "react-router-dom";
-import OwlLogo from "./owlLogo";
+import OwlLogo from "./OwlLogo";
 
 const MainContent = ({
   currentChatTitle,
