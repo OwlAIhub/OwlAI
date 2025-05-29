@@ -4,6 +4,7 @@ import {
     Routes,
     Route,
     Navigate,
+    useLocation,
 } from "react-router-dom";
 import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
@@ -12,7 +13,6 @@ import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile";
 import Login from "./Components/Login.jsx";
 import Questionnaire from "./Components/Questionnaire";
-import { Toaster } from "react-hot-toast";
 import { auth } from "./firebase.js";
 
 function App() {
@@ -25,9 +25,6 @@ function App() {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             setIsLoggedIn(!!user);
-            if (user) {
-                toast.success("Signed in successfully! 🚀");
-            }
         });
         return () => unsubscribe();
     }, []);
@@ -61,22 +58,32 @@ function App() {
         return isLoggedIn ? children : <Navigate to="/login" replace />;
     };
 
-    const MainAppContent = () => (
-        <MainContent
-            currentChatTitle={currentChatTitle}
-            darkMode={darkMode}
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-            isLoggedIn={isLoggedIn}
-            onLogin={() => {}}
-            onLogout={handleLogout}
-            toggleDarkMode={toggleDarkMode}
-        />
-    );
+    // Show toast only when redirected with state
+    const MainAppContent = () => {
+        const location = useLocation();
+        useEffect(() => {
+            if (location.state?.showSignInToast) {
+                toast.success("Signed in successfully! 🚀");
+                // Remove the state so it doesn't show again
+                window.history.replaceState({}, document.title);
+            }
+        }, [location.state]);
+        return (
+            <MainContent
+                currentChatTitle={currentChatTitle}
+                darkMode={darkMode}
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleSidebar}
+                isLoggedIn={isLoggedIn}
+                onLogin={() => {}}
+                onLogout={handleLogout}
+                toggleDarkMode={toggleDarkMode}
+            />
+        );
+    };
 
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false} />
             <Router>
                 <div
                     className={`${
@@ -89,7 +96,6 @@ function App() {
                         <Route path="/" element={<MainAppContent />} />
                         <Route path="/login" element={<Login />} />
 
-                        {/* Directly guard questionnaire instead of wrapping in MainContent */}
                         <Route
                             path="/questionnaire"
                             element={

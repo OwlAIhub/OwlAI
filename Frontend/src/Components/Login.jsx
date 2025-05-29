@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { auth, RecaptchaVerifier, signInWithPhoneNumber, db } from '../firebase.js';
-import { ref, set } from 'firebase/database';
+import { toast } from 'react-toastify'; // USE react-toastify ONLY
+import {
+  auth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  db
+} from '../firebase.js';
 import { useNavigate } from 'react-router-dom';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function Login() {
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -23,7 +28,9 @@ export default function Login() {
     if (otpComplete && otpScreen) {
       handleVerifyOTP();
     }
-  }, [otp, otpScreen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otp]);
+
 
   useEffect(() => {
     let timer;
@@ -38,7 +45,9 @@ export default function Login() {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-      if (value && index < 5) document.getElementById(`otp-${index + 1}`).focus();
+      if (value && index < 5) {
+        document.getElementById(`otp-${index + 1}`).focus();
+      }
     }
   };
 
@@ -61,13 +70,10 @@ export default function Login() {
         'recaptcha-container',
         {
           size: 'invisible',
-          callback: () => {
-            console.log('reCAPTCHA verified');
-          },
+          callback: () => {},
           'expired-callback': () => {
-            console.log('reCAPTCHA expired');
             toast.error('reCAPTCHA expired, please try again.');
-          },
+          }
         }
       );
       window.recaptchaVerifier.render().catch((error) => {
@@ -84,9 +90,9 @@ export default function Login() {
     }
     setIsSendingOTP(true);
     setupRecaptcha();
+
     try {
       const formattedPhone = '+91' + phone;
-      console.log('Sending OTP to:', formattedPhone);
       const result = await signInWithPhoneNumber(
         auth,
         formattedPhone,
@@ -105,6 +111,7 @@ export default function Login() {
     }
   };
 
+  // Updated logic: always check questionnaireFilled and redirect accordingly
   const handleVerifyOTP = async () => {
     if (!confirmationResult || !otpComplete) {
       toast.error('Please enter a complete OTP.');
@@ -114,6 +121,32 @@ export default function Login() {
     try {
       console.log('Verifying OTP:', fullOtp);
       const result = await confirmationResult.confirm(fullOtp);
+      const user = result.user;
+      const uid = user.uid;
+
+      // Store token
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+
+      // Firestore user doc reference
+      const userRef = doc(db, 'users', uid);
+      let userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // New user: create Firestore doc with questionnaireFilled: false and phone
+        await setDoc(userRef, {
+          phone: phone,
+          createdAt: new Date().toISOString(),
+          questionnaireFilled: false
+        });
+        // Store user info in localStorage for new user
+        localStorage.setItem('user', JSON.stringify({
+          uid,
+          phone: phone,
+          questionnaireFilled: false,
+          createdAt: new Date().toISOString()
+        }));
+        toast.success('Welcome new user!');
       const isNewUser = result?.additionalUserInfo?.isNewUser;
       const uid = result?.user?.uid;
 
@@ -128,10 +161,24 @@ export default function Login() {
         });
         navigate('/questionnaire');
       } else {
-        navigate('/main');
+        // Existing user: check questionnaireFilled
+        const data = userSnap.data();
+        // Store user info in localStorage
+        localStorage.setItem('user', JSON.stringify({
+          uid,
+          phone: data.phone,
+          ...data
+        }));
+        if (data.questionnaireFilled) {
+          toast.success('Welcome back!');
+          // Pass state to show toast only once
+          navigate('/chat', { state: { showSignInToast: true } });
+        } else {
+          toast.success('Please complete the questionnaire!');
+          navigate('/questionnaire');
+        }
       }
     } catch (err) {
-      console.error('OTP Verification Error:', err.code, err.message);
       if (err.code === 'auth/invalid-verification-code') {
         toast.error('Invalid OTP, please check and try again.');
       } else if (err.code === 'auth/code-expired') {
@@ -263,11 +310,17 @@ export default function Login() {
         {!otpScreen && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-6">
             By creating an account, you agree to Owl AI's{' '}
-            <a href="#" className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]">
+            <a
+              href="#"
+              className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]"
+            >
               T&C
             </a>{' '}
             and{' '}
-            <a href="#" className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]">
+            <a
+              href="#"
+              className="underline text-[#009688] hover:text-[#00796B] dark:text-[#009688] dark:hover:text-[#00796B]"
+            >
               Privacy Policy
             </a>
           </p>
