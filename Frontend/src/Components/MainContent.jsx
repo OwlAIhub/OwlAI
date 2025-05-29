@@ -3,7 +3,6 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Link } from "react-router-dom";
 
-
 const MainContent = ({
     currentChatTitle,
     darkMode,
