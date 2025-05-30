@@ -5,6 +5,7 @@ import {
     Route,
     Navigate,
     useLocation,
+    useNavigate,
 } from "react-router-dom";
 import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
@@ -54,6 +55,7 @@ function App() {
             });
     };
 
+    // Only protect routes that require authentication
     const ProtectedRoute = ({ children }) => {
         return isLoggedIn ? children : <Navigate to="/login" replace />;
     };
@@ -61,13 +63,16 @@ function App() {
     // Show toast only when redirected with state
     const MainAppContent = () => {
         const location = useLocation();
+        const navigate = useNavigate();
+
         useEffect(() => {
             if (location.state?.showSignInToast) {
                 toast.success("Signed in successfully! 🚀");
                 // Remove the state so it doesn't show again
-                window.history.replaceState({}, document.title);
+                navigate(location.pathname, { replace: true, state: {} });
             }
-        }, [location.state]);
+        }, [location, navigate]);
+
         return (
             <MainContent
                 currentChatTitle={currentChatTitle}
@@ -93,9 +98,8 @@ function App() {
                     } flex h-screen`}
                 >
                     <Routes>
-                        <Route path="/" element={<MainAppContent />} />
+                        <Route path="/" element={<Navigate to="/chat" replace />} />
                         <Route path="/login" element={<Login />} />
-
                         <Route
                             path="/questionnaire"
                             element={
@@ -104,15 +108,8 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
-
-                        <Route
-                            path="/chat"
-                            element={
-                                <ProtectedRoute>
-                                    <MainAppContent />
-                                </ProtectedRoute>
-                            }
-                        />
+                        {/* Chat page is always accessible */}
+                        <Route path="/chat" element={<MainAppContent />} />
                         <Route
                             path="/userProfile"
                             element={
@@ -137,7 +134,7 @@ function App() {
                             path="*"
                             element={
                                 <Navigate
-                                    to={isLoggedIn ? "/chat" : "/login"}
+                                    to={"/chat"}
                                     replace
                                 />
                             }
