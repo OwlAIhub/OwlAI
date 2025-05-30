@@ -5,6 +5,10 @@ import csirNetLogo from '../assets/csir-net-logo.png';
 
 import { db, auth } from '../firebase';
 import { collection, addDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+<<<<<<< HEAD
+=======
+
+>>>>>>> 57026e07748d5c2a109d3b835f2cf9c631c6977b
 
 const languages = ['English', 'Hinglish'];
 
@@ -181,7 +185,11 @@ export default function Questionnaire() {
     }
   };
 
+<<<<<<< HEAD
   // Only navigate to /chat with NO toast state after questionnaire
+=======
+  // Updated handleNext with one-time toast logic
+>>>>>>> 57026e07748d5c2a109d3b835f2cf9c631c6977b
   const handleNext = async () => {
     if (!auth.currentUser) {
       navigate('/login');
@@ -203,8 +211,13 @@ export default function Questionnaire() {
           submittedAt: new Date().toISOString(),
         });
 
+<<<<<<< HEAD
         // Go to chat WITHOUT toast state
         navigate('/chat');
+=======
+        // Pass state to show toast only once
+        navigate('/chat', { state: { showSignInToast: true } });
+>>>>>>> 57026e07748d5c2a109d3b835f2cf9c631c6977b
       } catch (error) {
         console.error('Error storing form data in Firebase:', error);
         alert('There was an error saving your answers. Please try again.');

@@ -68,7 +68,7 @@ const AnimatedOwlLogo = () => {
         transition={{ duration: 1.2, ease: "easeOut" }}
       >
         <motion.img
-          src="/owlimg.png"
+          src="/owlimg2.png"
           alt="Owl AI Logo"
           className="w-full h-full object-contain select-none pointer-events-none"
           animate={

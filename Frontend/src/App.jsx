@@ -6,6 +6,7 @@ import {
     Navigate,
     useLocation,
     useNavigate, // <-- Add this
+
 } from "react-router-dom";
 import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
@@ -71,6 +72,11 @@ function App() {
                 navigate(location.pathname, { replace: true, state: {} });
             }
         }, [location, navigate]);
+
+                window.history.replaceState({}, document.title);
+            }
+        }, [location.state]);
+
         return (
             <MainContent
                 currentChatTitle={currentChatTitle}
