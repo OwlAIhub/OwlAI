@@ -5,8 +5,7 @@ import {
     Route,
     Navigate,
     useLocation,
-    useNavigate, // <-- Add this
-
+    useNavigate,
 } from "react-router-dom";
 import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
@@ -56,6 +55,7 @@ function App() {
             });
     };
 
+    // Only protect routes that require authentication
     const ProtectedRoute = ({ children }) => {
         return isLoggedIn ? children : <Navigate to="/login" replace />;
     };
@@ -72,10 +72,6 @@ function App() {
                 navigate(location.pathname, { replace: true, state: {} });
             }
         }, [location, navigate]);
-
-                window.history.replaceState({}, document.title);
-            }
-        }, [location.state]);
 
         return (
             <MainContent
@@ -104,7 +100,6 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Navigate to="/chat" replace />} />
                         <Route path="/login" element={<Login />} />
-
                         <Route
                             path="/questionnaire"
                             element={
@@ -113,15 +108,8 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
-
-                        <Route
-                            path="/chat"
-                            element={
-                                <ProtectedRoute>
-                                    <MainAppContent />
-                                </ProtectedRoute>
-                            }
-                        />
+                        {/* Chat page is always accessible */}
+                        <Route path="/chat" element={<MainAppContent />} />
                         <Route
                             path="/userProfile"
                             element={
@@ -146,7 +134,7 @@ function App() {
                             path="*"
                             element={
                                 <Navigate
-                                    to={isLoggedIn ? "/chat" : "/login"}
+                                    to={"/chat"}
                                     replace
                                 />
                             }

@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-=======
 import OwlLogo from "./OwlLogo";
->>>>>>> 57026e07748d5c2a109d3b835f2cf9c631c6977b
 
 const MainContent = ({
   currentChatTitle,
@@ -334,10 +331,4 @@ const MainContent = ({
   );
 };
 
-<<<<<<< HEAD
 export default MainContent;
-=======
-
-export default MainContent;
-
->>>>>>> 57026e07748d5c2a109d3b835f2cf9c631c6977b
