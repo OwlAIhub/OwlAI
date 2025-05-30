@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import toast from 'react-hot-toast'; // REMOVE THIS LINE
-import { toast } from 'react-toastify'; // USE react-toastify ONLY
+import { toast } from 'react-toastify';
 import {
   auth,
   RecaptchaVerifier,
@@ -104,21 +103,20 @@ export default function Login() {
       setOtp(['', '', '', '', '', '']);
       toast.success('OTP sent!');
     } catch (err) {
-      console.error('Error sending OTP:', err);
+      console.error('Error sending OTP:', err.code, err.message);
       toast.error(err.message || 'Failed to send OTP');
     } finally {
       setIsSendingOTP(false);
     }
   };
 
-  // Updated logic: always check questionnaireFilled and redirect accordingly
+  // Only show sign-in toast for existing users, not after questionnaire
   const handleVerifyOTP = async () => {
     if (!confirmationResult || !otpComplete) {
       toast.error('Please enter a complete OTP.');
       return;
     }
     setIsVerifyingOTP(true);
-
     try {
       const result = await confirmationResult.confirm(fullOtp);
       const user = result.user;
@@ -146,7 +144,7 @@ export default function Login() {
           questionnaireFilled: false,
           createdAt: new Date().toISOString()
         }));
-        toast.success('Welcome new user!');
+        // Navigate to questionnaire (do not show sign-in toast yet)
         navigate('/questionnaire');
       } else {
         // Existing user: check questionnaireFilled
@@ -158,16 +156,13 @@ export default function Login() {
           ...data
         }));
         if (data.questionnaireFilled) {
-          toast.success('Welcome back!');
-          // Pass state to show toast only once
+          // Pass state to show toast only once in /chat
           navigate('/chat', { state: { showSignInToast: true } });
         } else {
-          toast.success('Please complete the questionnaire!');
           navigate('/questionnaire');
         }
       }
     } catch (err) {
-      console.error('OTP Verification Error:', err);
       if (err.code === 'auth/invalid-verification-code') {
         toast.error('Invalid OTP, please check and try again.');
       } else if (err.code === 'auth/code-expired') {
