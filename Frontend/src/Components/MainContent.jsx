@@ -279,14 +279,15 @@ const [displayedText, setDisplayedText] = useState("");
 {chatMessages.map((msg, index) => (
   <div
     key={index}
-    className={`w-full max-w-3xl rounded-lg mb-4 p-4 ${
-      msg.role === "user"
-        ? darkMode
-          ? "bg-blue-900 text-white self-end"
-          : "bg-blue-100 text-blue-900 self-end"
-        : darkMode
-        ? " text-gray-100 self-start"
-        : " text-gray-900 self-start"
+    className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-sm break-words
+        ${
+        msg.role === "user"
+          ? darkMode
+            ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white self-end"
+            : "bg-gray-200 text-gray-800 self-end"
+          : darkMode
+          ? "text-gray-100 self-start"
+          : "text-gray-900 self-start"
     }`}
     style={{
       boxShadow: darkMode
@@ -310,18 +311,25 @@ const [displayedText, setDisplayedText] = useState("");
 {loading && (
   <div
     className={`w-full max-w-3xl rounded-lg p-4 ${
-      darkMode ? " text-gray-100 self-start" : " text-gray-900 self-start"
+      darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
     }`}
     style={{
-      boxShadow: darkMode ? "0 2px 10px " : "0 2px 10px ",
       fontStyle: "italic",
       fontWeight: "500",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
     }}
   >
     Thinking
-    <span className="thinking-dots" />
+    <div className="typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </div>
 )}
+
 
 {/* Show typing text only if it exists (during typing) */}
 {displayedText && !loading && (
@@ -428,53 +436,38 @@ const [displayedText, setDisplayedText] = useState("");
                 </div>
             </div>
             <style>{`
-        .thinking-dots {
-          display: inline-block;
-          margin-left: 6px;
-          width: 14px;
-          height: 14px;
-          position: relative;
-        }
-        .thinking-dots::before, .thinking-dots::after, .thinking-dots div {
-          content: '';
-          display: inline-block;
-          position: absolute;
-          top: 50%;
-          width: 4px;
-          height: 4px;
-          border-radius: 50%;
-          background-color: currentColor;
-          animation-timing-function: cubic-bezier(0, 1, 1, 0);
-          animation-duration: 1.2s;
-          animation-iteration-count: infinite;
-        }
-        .thinking-dots::before {
-          left: 0;
-          animation-name: thinking-dot1;
-        }
-        .thinking-dots::after {
-          left: 10px;
-          animation-name: thinking-dot3;
-        }
-        .thinking-dots div {
-          left: 5px;
-          animation-name: thinking-dot2;
-        }
-        @keyframes thinking-dot1 {
-          0% { transform: scale(0); }
-          50% { transform: scale(1); }
-          100% { transform: scale(0); }
-        }
-        @keyframes thinking-dot2 {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(5px); }
-          100% { transform: translateX(0); }
-        }
-        @keyframes thinking-dot3 {
-          0% { transform: scale(1); }
-          50% { transform: scale(0); }
-          100% { transform: scale(1); }
-        }
+       .typing-indicator {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: bounce 1.2s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
       `}</style>
         </div>
     );
