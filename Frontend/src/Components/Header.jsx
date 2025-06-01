@@ -1,19 +1,23 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaKiwiBird } from "react-icons/fa";
-import { FiMenu, FiSearch, FiUser, FiLogOut } from "react-icons/fi";
+import { FiMenu, FiSearch, FiLogOut } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 const Header = ({
     currentChatTitle,
     onToggleSidebar,
-    isLoggedIn,
-    onLogin,
     onLogout,
     darkMode,
     toggleDarkMode,
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+    // Get user from localStorage
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+
+    const firstLetter = user?.firstName?.[0]?.toUpperCase() || "G";
 
     return (
         <header
@@ -24,9 +28,8 @@ const Header = ({
             } shadow-sm`}
         >
             <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-                {/* Left Section - Logo and Menu */}
+                {/* Left - Logo */}
                 <div className="flex items-center space-x-3">
-                    {/* Mobile menu button */}
                     <button
                         onClick={onToggleSidebar}
                         className="md:hidden p-2 rounded-md text-teal-600 hover:bg-teal-100 focus:outline-none"
@@ -35,7 +38,6 @@ const Header = ({
                         <FiMenu size={20} />
                     </button>
 
-                    {/* Logo */}
                     <div
                         onClick={onToggleSidebar}
                         className="flex items-center cursor-pointer"
@@ -49,7 +51,7 @@ const Header = ({
                     </div>
                 </div>
 
-                {/* Center - Chat Title or Search Prompt */}
+                {/* Center - Title or Search */}
                 <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
                     {currentChatTitle ? (
                         <h1 className="text-lg font-semibold truncate text-center text-gray-700 dark:text-gray-200">
@@ -65,32 +67,24 @@ const Header = ({
                     )}
                 </div>
 
-                {/* Right - Actions */}
+                {/* Right - Dark mode + Profile */}
                 <div className="flex items-center space-x-3">
-                    {/* Dark Mode Toggle */}
                     <button
                         onClick={toggleDarkMode}
                         className="p-2 rounded-full text-teal-600 hover:bg-teal-100 focus:outline-none"
                         aria-label="Toggle dark mode"
                     >
-                        {darkMode ? (
-                            <MdLightMode size={20} />
-                        ) : (
-                            <MdDarkMode size={20} />
-                        )}
+                        {darkMode ? <MdLightMode size={20} /> : <MdDarkMode size={20} />}
                     </button>
 
-                    {/* User Section */}
-                    {isLoggedIn ? (
+                    {user ? (
                         <div className="relative">
                             <button
-                                onClick={() =>
-                                    setShowProfileDropdown((prev) => !prev)
-                                }
+                                onClick={() => setShowProfileDropdown((prev) => !prev)}
                                 className="flex items-center space-x-2 focus:outline-none"
                             >
-                                <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
-                                    <FiUser className="text-white" />
+                                <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    {firstLetter}
                                 </div>
                                 <FaChevronDown
                                     className={`text-teal-500 transition-transform duration-200 ${
@@ -112,7 +106,7 @@ const Header = ({
                                             Signed in as
                                         </p>
                                         <p className="text-sm font-medium text-teal-500 truncate">
-                                            user@example.com
+                                            {user.firstName + " " + user.lastName}
                                         </p>
                                     </div>
                                     <button
@@ -126,11 +120,9 @@ const Header = ({
                         </div>
                     ) : (
                         <Link to="/login">
-                        <button
-                            className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-full text-sm font-medium"
-                        >
-                            Sign In
-                        </button>
+                            <button className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-full text-sm font-medium">
+                                Sign In
+                            </button>
                         </Link>
                     )}
                 </div>
