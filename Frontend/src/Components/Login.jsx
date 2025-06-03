@@ -18,6 +18,8 @@ export default function Login() {
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
+  const [showCSIRPopup, setShowCSIRPopup] = useState(false);
+  const [csirUserData, setCsirUserData] = useState(null);
   const navigate = useNavigate();
 
   const isValidPhone = (number) => /^[6-9]\d{9}$/.test(number);
@@ -62,24 +64,31 @@ export default function Login() {
     }
   };
 
+  // --- reCAPTCHA FIX: Always clear previous verifier and DOM before creating new one ---
   const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        'recaptcha-container',
-        {
-          size: 'invisible',
-          callback: () => {},
-          'expired-callback': () => {
-            toast.error('reCAPTCHA expired, please try again.');
-          }
-        }
-      );
-      window.recaptchaVerifier.render().catch((error) => {
-        console.error('reCAPTCHA render error:', error);
-        toast.error('Failed to load reCAPTCHA, please try again.');
-      });
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (e) {}
+      window.recaptchaVerifier = null;
+      const el = document.getElementById('recaptcha-container');
+      if (el) el.innerHTML = '';
     }
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      'recaptcha-container',
+      {
+        size: 'invisible',
+        callback: () => {},
+        'expired-callback': () => {
+          toast.error('reCAPTCHA expired, please try again.');
+        }
+      }
+    );
+    window.recaptchaVerifier.render().catch((error) => {
+      console.error('reCAPTCHA render error:', error);
+      toast.error('Failed to load reCAPTCHA, please try again.');
+    });
   };
 
   const handleSendOTP = async () => {
@@ -135,19 +144,21 @@ export default function Login() {
         await setDoc(userRef, {
           phone: phone,
           createdAt: new Date().toISOString(),
-          questionnaireFilled: false
+          questionnaireFilled: false,
+          csirBlocked: false
         });
         // Store user info in localStorage for new user
         localStorage.setItem('user', JSON.stringify({
           uid,
           phone: phone,
           questionnaireFilled: false,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          csirBlocked: false
         }));
         // Navigate to questionnaire (do not show sign-in toast yet)
         navigate('/questionnaire');
       } else {
-        // Existing user: check questionnaireFilled
+        // Existing user: check questionnaireFilled and csirBlocked
         const data = userSnap.data();
         // Store user info in localStorage
         localStorage.setItem('user', JSON.stringify({
@@ -155,11 +166,46 @@ export default function Login() {
           phone: data.phone,
           ...data
         }));
+
+        // If user is blocked due to CSIR-NET, show popup
+        if (data.csirBlocked) {
+          setCsirUserData({ uid, phone: data.phone, ...data });
+          setShowCSIRPopup(true);
+          setIsVerifyingOTP(false);
+          return;
+        }
+
         if (data.questionnaireFilled) {
           // Pass state to show toast only once in /chat
           navigate('/chat', { state: { showSignInToast: true } });
         } else {
-          navigate('/questionnaire');
+          // If user is returning from CSIR-NET block, skip to curriculum step
+          // and prefill previous data except curriculum/subjects
+          if (
+            data.curriculum === '' &&
+            Array.isArray(data.selectedSubjects) &&
+            data.selectedSubjects.length === 0 &&
+            data.csirBlocked === false
+          ) {
+            // User just changed from CSIR-NET to UGC-NET, so go to questionnaire with step=3 and prefill
+            navigate('/questionnaire', {
+              state: {
+                step: 3,
+                prefill: {
+                  firstName: data.firstName || '',
+                  lastName: data.lastName || '',
+                  language: data.language || '',
+                  attempt: data.attempt || '',
+                  heardFrom: data.heardFrom || '',
+                  examCycle: data.examCycle || '',
+                  // curriculum and selectedSubjects intentionally left blank
+                }
+              }
+            });
+          } else {
+            // Normal flow
+            navigate('/questionnaire');
+          }
         }
       }
     } catch (err) {
@@ -173,6 +219,52 @@ export default function Login() {
     } finally {
       setIsVerifyingOTP(false);
     }
+  };
+
+  // Handler for "Change your exam to UGC-NET" in popup
+  const handleChangeExamToUGCNet = async () => {
+    if (!csirUserData) return;
+    const userRef = doc(db, 'users', csirUserData.uid);
+    // Only reset curriculum and selectedSubjects, keep other info
+    await setDoc(userRef, {
+      csirBlocked: false,
+      curriculum: '',
+      selectedSubjects: [],
+      questionnaireFilled: false,
+    }, { merge: true });
+
+    // Update localStorage as well
+    localStorage.setItem('user', JSON.stringify({
+      ...csirUserData,
+      csirBlocked: false,
+      curriculum: '',
+      selectedSubjects: [],
+      questionnaireFilled: false,
+    }));
+
+    setShowCSIRPopup(false);
+
+    // Go to questionnaire, step 3 (curriculum), prefill previous data
+    navigate('/questionnaire', {
+      state: {
+        step: 3,
+        prefill: {
+          firstName: csirUserData.firstName || '',
+          lastName: csirUserData.lastName || '',
+          language: csirUserData.language || '',
+          attempt: csirUserData.attempt || '',
+          heardFrom: csirUserData.heardFrom || '',
+          examCycle: csirUserData.examCycle || '',
+        }
+      }
+    });
+  };
+
+  // Handler for logout in popup
+  const handleLogout = async () => {
+    await auth.signOut();
+    setShowCSIRPopup(false);
+    navigate('/login');
   };
 
   const handleLogin = () => setShowPhoneForm(true);
@@ -312,6 +404,36 @@ export default function Login() {
 
         <div id="recaptcha-container"></div>
       </div>
+
+      {/* CSIR-NET Blocked Popup */}
+      {showCSIRPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-[#1A2A3A] rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
+            <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+              Hey Aspirant,
+            </h3>
+            <p className="mb-6 text-gray-700 dark:text-gray-200">
+              Our AI is not yet trained for this exam category: <b>CSIR-NET</b>.<br />
+              We are actively working to expand into more exams very soon.<br />
+              Stay tuned - your prep buddy is on the way!
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleChangeExamToUGCNet}
+                className="px-6 py-2 rounded-xl font-semibold bg-[#009688] text-white hover:bg-[#00796B] transition"
+              >
+                Change your exam to UGC-NET
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
