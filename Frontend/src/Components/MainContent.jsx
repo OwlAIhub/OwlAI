@@ -171,13 +171,38 @@ const [copiedIndex, setCopiedIndex] = useState(null);
       }, [response]);
       
       
-      const handleFeedback = (index, type) => {
-        setChatMessages((prev) =>
-          prev.map((msg, i) =>
-            i === index ? { ...msg, feedback: type } : msg
-          )
-        );
+      const handleFeedback = async (index, type) => {
+        const msg = chatMessages[index];
+        const score = type === "like" ? 1 : 0;
+        const remarks =
+          type === "like" ? "Satisfied with the response" : "Not satisfied with the response";
+      
+        const feedbackData = {
+          chat_id: "abc-123", 
+          user_id: user.uid, 
+          usefulness_score: score,
+          content_quality_score: score,
+          remarks: remarks,
+          flagged_reason: null,
+        };
+      
+        try {
+          await fetch(`${config.apiUrl}/feedback/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(feedbackData),
+          });
+      
+          const updatedMessages = [...chatMessages];
+          updatedMessages[index].feedback = type;
+          setChatMessages(updatedMessages);
+        } catch (error) {
+          console.error("Feedback error:", error);
+        }
       };
+      
       
       const handleCopy = async (text, index) => {
         try {
@@ -266,7 +291,7 @@ const [copiedIndex, setCopiedIndex] = useState(null);
                     className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${darkMode ? "bg-gray-900" : "bg-gray-50"
                         }`}
                 >
-                    <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col items-center justify-center">
+                    <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
                         {chatMessages.length === 0 && isLoggedIn ? (
                             <div className="text-center space-y-6 px-4">
                                 <h1 className={`text-3xl md:text-4xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
@@ -298,7 +323,7 @@ const [copiedIndex, setCopiedIndex] = useState(null);
 {chatMessages.map((msg, index) => (
   <div
     key={index}
-    className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-sm break-words
+    className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words
         ${
         msg.role === "user"
           ? darkMode
@@ -323,21 +348,23 @@ const [copiedIndex, setCopiedIndex] = useState(null);
       </div>
       <div className="flex gap-4 mt-2 text-sm text-gray-500">
       <button
-        onClick={() => handleFeedback(index, "like")}
-        className={`hover:text-green-500 transition cursor-pointer ${
-          msg.feedback === "like" ? "text-green-600 font-semibold" : ""
-        }`}
-      >
-        👍 {msg.feedback === "like" && "Thanks!"}
-      </button>
-      <button
-        onClick={() => handleFeedback(index, "report")}
-        className={`hover:text-red-500 transition cursor-pointer ${
-          msg.feedback === "report" ? "text-red-600 font-semibold" : ""
-        }`}
-      >
-        ⚠️ {msg.feedback === "report" && "Reported"}
-      </button>
+    onClick={() => handleFeedback(index, "like")}
+    className={`hover:text-green-500 transition cursor-pointer ${
+      msg.feedback === "like" ? "text-green-600 font-semibold" : ""
+    }`}
+  >
+    👍 {msg.feedback === "like" && "Thanks!"}
+  </button>
+
+  <button
+    onClick={() => handleFeedback(index, "dislike")}
+    className={`hover:text-red-500 transition cursor-pointer ${
+      msg.feedback === "dislike" ? "text-red-600 font-semibold" : ""
+    }`}
+  >
+    👎 {msg.feedback === "dislike" && "Noted"}
+  </button>
+
       <button
   onClick={() => handleCopy(msg.content, index)}
   className="hover:text-blue-500 transition flex items-center gap-1 cursor-pointer"
