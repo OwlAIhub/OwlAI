@@ -22,6 +22,16 @@ export default function Login() {
   const [csirUserData, setCsirUserData] = useState(null);
   const navigate = useNavigate();
 
+  // Redirect logged-in users away from /login
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigate('/chat', { replace: true });
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
   const isValidPhone = (number) => /^[6-9]\d{9}$/.test(number);
   const fullOtp = otp.join('');
   const otpComplete = fullOtp.length === 6;

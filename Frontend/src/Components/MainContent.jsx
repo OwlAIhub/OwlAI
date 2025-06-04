@@ -527,6 +527,4 @@ const [copiedIndex, setCopiedIndex] = useState(null);
     );
 };
 
-
 export default MainContent;
-

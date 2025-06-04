@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ugcNetLogo from '../assets/ugc-net-logo.png';
 import csirNetLogo from '../assets/csir-net-logo.png';
 import { db, auth } from '../firebase';
-import { collection, addDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const languages = ['English', 'Hinglish'];
 
@@ -303,11 +303,7 @@ export default function Questionnaire() {
           questionnaireFilled: true
         }, { merge: true });
 
-        await addDoc(collection(db, 'questionnaireResponses'), {
-          ...formData,
-          uid: auth.currentUser.uid,
-          submittedAt: new Date().toISOString(),
-        });
+        // Removed addDoc to questionnaireResponses
 
         // Go to chat WITHOUT toast state
         navigate('/chat');
@@ -328,11 +324,7 @@ export default function Questionnaire() {
         questionnaireFilled: true
       }, { merge: true });
 
-      await addDoc(collection(db, 'questionnaireResponses'), {
-        ...formData,
-        uid: auth.currentUser.uid,
-        submittedAt: new Date().toISOString(),
-      });
+      // Removed addDoc to questionnaireResponses
 
       navigate('/chat');
     } catch (error) {
@@ -354,11 +346,7 @@ export default function Questionnaire() {
         ...(formData.curriculum === 'CSIR-NET' ? { csirBlocked: true } : {}),
       }, { merge: true });
 
-      await addDoc(collection(db, 'questionnaireResponses'), {
-        ...formData,
-        uid: auth.currentUser.uid,
-        submittedAt: new Date().toISOString(),
-      });
+      // Removed addDoc to questionnaireResponses
 
       // Also set in localStorage for immediate effect
       if (formData.curriculum === 'CSIR-NET') {

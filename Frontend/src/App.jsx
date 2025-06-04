@@ -19,30 +19,60 @@ import { auth } from "./firebase.js";
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
-  const [loading, setLoading] = useState(true);
 
-  // Firebase auth listener
+  // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setIsLoggedIn(!!user);
-      setLoading(false);
+      setAuthReady(true);
     });
     return () => unsubscribe();
   }, []);
 
-  // Toggle sidebar (you can re-add mobile‐detection logic if needed)
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  // Toggle sidebar based on screen width
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsSidebarOpen(!mobile);
+    };
 
-  // Protect any route that requires auth
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    auth
+      .signOut()
+      .then(() => {
+        toast.info("You've been signed out.");
+        setCurrentChatTitle("Learning Theories");
+      })
+      .catch(() => {
+        toast.error("Failed to sign out.");
+      });
+  };
+
+  // Only allow rendering of protected routes after Firebase check
   const ProtectedRoute = ({ children }) => {
-    if (loading) return null; // wait until auth status is known
+    if (!authReady) return null;
     return isLoggedIn ? children : <Navigate to="/login" replace />;
   };
 
-  // MainAppContent lives inside the /chat route
+  // Wraps MainContent to show a one-time "signed in" toast
   const MainAppContent = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -50,23 +80,9 @@ function App() {
     useEffect(() => {
       if (location.state?.showSignInToast) {
         toast.success("Signed in successfully! 🚀");
-        // clear that state so toast doesn’t reappear
         navigate(location.pathname, { replace: true, state: {} });
       }
     }, [location, navigate]);
-
-    const handleLogout = () => {
-      auth
-        .signOut()
-        .then(() => {
-          toast.info("You've been signed out.");
-          setCurrentChatTitle("Learning Theories");
-          navigate("/login", { replace: true });
-        })
-        .catch(() => {
-          toast.error("Failed to sign out.");
-        });
-    };
 
     return (
       <MainContent
@@ -82,9 +98,9 @@ function App() {
     );
   };
 
-  // While Firebase tells us whether user is logged in or not
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  if (!authReady) {
+    // Wait for Firebase auth check before rendering routes
+    return null;
   }
 
   return (
@@ -92,13 +108,11 @@ function App() {
       <div
         className={`${
           darkMode ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-900"
-        } flex h-screen`}
+        } flex min-h-screen`}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
-
           <Route path="/login" element={<Login />} />
-
           <Route
             path="/questionnaire"
             element={
@@ -107,10 +121,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Chat page is always accessible */}
-          <Route path="/chat" element={<MainAppContent />} />
-
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <MainAppContent />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/userProfile"
             element={
@@ -119,7 +137,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/subscription"
             element={
@@ -132,7 +149,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
 
@@ -155,9 +171,9 @@ function App() {
             }`
           }
           bodyClassName="text-sm font-medium"
-          progressClassName={`
-            ${darkMode ? "bg-emerald-400" : "bg-[#52B788]"} h-1 rounded-b
-          `}
+          progressClassName={`${
+            darkMode ? "bg-emerald-400" : "bg-[#52B788]"
+          } h-1 rounded-b`}
           closeButton={false}
         />
       </div>
