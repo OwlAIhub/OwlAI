@@ -473,6 +473,4 @@ const [displayedText, setDisplayedText] = useState("");
     );
 };
 
-
 export default MainContent;
-
