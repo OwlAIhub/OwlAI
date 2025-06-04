@@ -5,26 +5,26 @@ import Sidebar from '../Components/Sidebar';
 import { FiEdit, FiCamera, FiX, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { RiGraduationCapLine, RiMailLine, RiGlobalLine, RiMedalLine } from 'react-icons/ri';
 import { Dialog, Transition } from '@headlessui/react';
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-const UserProfile = ({ currentUser }) => {
+const UserProfile = ({ darkMode, toggleDarkMode }) => {
   // User data state
   const [isEditing, setIsEditing] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [userData, setUserData] = useState({
-    name: currentUser?.name || 'John Doe',
-    email: currentUser?.email || 'john.doe@example.com',
-    educationLevel: 'Graduate',
+    name: '',
+    email: '', // Initially blank
+    educationLevel: '', // Initially blank
     preferredLanguage: 'English',
     targetExam: 'UGC-NET',
     examAttempt: 'First Attempt',
-    joinDate: 'January 2023',
-    subscription: currentUser?.plan || 'Premium'
+    joinDate: '',
+    subscription: ''
   });
 
   // Layout state
-  const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedSection, setExpandedSection] = useState(null);
 
@@ -41,11 +41,54 @@ const UserProfile = ({ currentUser }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        // Get user data from Firestore
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setUserData({
+            name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'User',
+            // Only set email and educationLevel if they exist in Firestore
+            email: data.email || '',
+            educationLevel: data.educationLevel || '',
+            preferredLanguage: data.language || 'English',
+            targetExam: data.targetExam || 'UGC-NET',
+            examAttempt: data.attempt || 'First Attempt',
+            joinDate: data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'January 2023',
+            subscription: data.plan || 'Premium'
+          });
+        } else {
+          // Fallback to basic data if no Firestore doc exists
+          setUserData({
+            name: user.displayName || 'User',
+            // Don't set email and educationLevel initially
+            email: '',
+            educationLevel: '',
+            preferredLanguage: 'English',
+            targetExam: 'UGC-NET',
+            examAttempt: 'First Attempt',
+            joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+            subscription: 'Premium'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   // Toggle functions
-  const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
@@ -85,41 +128,44 @@ const UserProfile = ({ currentUser }) => {
     tap: { scale: 0.98 }
   };
 
-  const sidebarVariants = {
-    hidden: { x: '-100%', opacity: 0 },
-    visible: { 
-      x: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 30 }
-    },
-    exit: { x: '-100%', opacity: 0 }
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.9 }
-  };
-
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 }
-  };
-
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    setUserData({
-      ...userData,
-      name: formData.get('name'),
-      email: formData.get('email'),
-      educationLevel: formData.get('educationLevel'),
-      preferredLanguage: formData.get('preferredLanguage'),
-      targetExam: formData.get('targetExam'),
-      examAttempt: formData.get('examAttempt')
-    });
-    setIsEditing(false);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const formData = new FormData(e.target);
+      const updatedData = {
+        firstName: formData.get('name').split(' ')[0] || '',
+        lastName: formData.get('name').split(' ').slice(1).join(' ') || '',
+        // Only include these if they were provided
+        ...(formData.get('email') && { email: formData.get('email') }),
+        ...(formData.get('educationLevel') && { educationLevel: formData.get('educationLevel') }),
+        language: formData.get('preferredLanguage'),
+        targetExam: formData.get('targetExam'),
+        attempt: formData.get('examAttempt')
+      };
+
+      // Update Firestore
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, updatedData);
+
+      // Update local state
+      setUserData({
+        ...userData,
+        name: formData.get('name'),
+        // Only update if they were provided
+        ...(formData.get('email') && { email: formData.get('email') }),
+        ...(formData.get('educationLevel') && { educationLevel: formData.get('educationLevel') }),
+        preferredLanguage: formData.get('preferredLanguage'),
+        targetExam: formData.get('targetExam'),
+        examAttempt: formData.get('examAttempt')
+      });
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   // Color schemes for light/dark modes with glassmorphism
@@ -138,7 +184,8 @@ const UserProfile = ({ currentUser }) => {
     overlay: darkMode ? 'bg-black bg-opacity-70' : 'bg-black bg-opacity-50',
     subtleText: darkMode ? 'text-gray-400' : 'text-gray-500',
     divider: darkMode ? 'border-gray-700 border-opacity-30' : 'border-gray-200 border-opacity-50',
-    shadow: darkMode ? 'shadow-lg shadow-black/30' : 'shadow-lg shadow-gray-400/20'
+    shadow: darkMode ? 'shadow-lg shadow-black/30' : 'shadow-lg shadow-gray-400/20',
+    placeholder: darkMode ? 'placeholder-gray-400' : 'placeholder-gray-500'
   };
 
   // Stats data
@@ -154,18 +201,21 @@ const UserProfile = ({ currentUser }) => {
       {/* Header */}
       <Header 
         onToggleSidebar={toggleSidebar}
-        isLoggedIn={isLoggedIn}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
+        isLoggedIn={true}
+        onLogout={() => auth.signOut()}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
-        currentUser={currentUser}
+        currentUser={{ 
+          ...userData,
+          uid: auth.currentUser?.uid,
+          plan: userData.subscription
+        }}
       />
       
       <div className="flex flex-1 w-full overflow-hidden">
         {/* Sidebar */}
         <Sidebar 
-          isLoggedIn={isLoggedIn}
+          isLoggedIn={true}
           isOpen={sidebarOpen}
           onClose={toggleSidebar}
           darkMode={darkMode}
@@ -227,13 +277,22 @@ const UserProfile = ({ currentUser }) => {
                   <h1 className={`text-2xl lg:text-3xl font-bold ${colors.accentText} mb-2`}>
                     {userData.name}
                   </h1>
-                  <motion.p 
-                    className={`text-base lg:text-lg ${colors.subtleText} mb-4 flex items-center gap-1`}
-                    variants={itemVariants}
-                  >
-                    <RiGraduationCapLine />
-                    {userData.educationLevel} student
-                  </motion.p>
+                  {userData.educationLevel ? (
+                    <motion.p 
+                      className={`text-base lg:text-lg ${colors.subtleText} mb-4 flex items-center gap-1`}
+                      variants={itemVariants}
+                    >
+                      <RiGraduationCapLine />
+                      {userData.educationLevel} student
+                    </motion.p>
+                  ) : (
+                    <motion.p 
+                      className={`text-base lg:text-lg italic ${colors.subtleText} mb-4`}
+                      variants={itemVariants}
+                    >
+                      Education level not specified
+                    </motion.p>
+                  )}
                 </motion.div>
 
                 {/* Stats Grid */}
@@ -301,7 +360,9 @@ const UserProfile = ({ currentUser }) => {
                           <div className="space-y-4">
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Email</p>
-                              <p className="text-sm font-medium break-all">{userData.email}</p>
+                              <p className="text-sm font-medium break-all">
+                                {userData.email || <span className={`italic ${colors.subtleText}`}>Not provided yet</span>}
+                              </p>
                             </div>
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Preferred Language</p>
@@ -340,7 +401,9 @@ const UserProfile = ({ currentUser }) => {
                           <div className="space-y-4">
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Education Level</p>
-                              <p className="text-sm font-medium">{userData.educationLevel}</p>
+                              <p className="text-sm font-medium">
+                                {userData.educationLevel || <span className={`italic ${colors.subtleText}`}>Not provided yet</span>}
+                              </p>
                             </div>
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Target Exam</p>
@@ -424,7 +487,15 @@ const UserProfile = ({ currentUser }) => {
                     <div className="grid grid-cols-1 gap-4 mb-4">
                       {[
                         { label: 'Full Name', name: 'name', type: 'text', value: userData.name, icon: <RiMailLine className="text-lg" /> },
-                        { label: 'Email', name: 'email', type: 'email', value: userData.email, icon: <RiMailLine className="text-lg" /> },
+                        { 
+                          label: 'Email', 
+                          name: 'email', 
+                          type: 'email', 
+                          value: userData.email, 
+                          icon: <RiMailLine className="text-lg" />,
+                          placeholder: 'Enter your email',
+                          required: true
+                        },
                       ].map((field, index) => (
                         <motion.div key={index} variants={itemVariants}>
                           <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
@@ -438,7 +509,9 @@ const UserProfile = ({ currentUser }) => {
                               type={field.type}
                               name={field.name}
                               defaultValue={field.value}
-                              className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'}`}
+                              placeholder={field.placeholder}
+                              required={field.required}
+                              className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.placeholder}`}
                             />
                           </div>
                         </motion.div>
@@ -456,7 +529,9 @@ const UserProfile = ({ currentUser }) => {
                             name="educationLevel"
                             defaultValue={userData.educationLevel}
                             className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} appearance-none`}
+                            required
                           >
+                            <option value="">Select your education level</option>
                             {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
                               <option key={level} value={level}>{level}</option>
                             ))}

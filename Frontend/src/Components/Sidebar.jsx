@@ -48,6 +48,16 @@ const Sidebar = ({
     if (isMobile) onClose();
   };
 
+  const handleLogoClick = () => {
+    navigate("/"); // Navigate to home page
+    if (isMobile) onClose(); // Close sidebar if on mobile
+  };
+
+  const handleUpgradeClick = () => {
+    navigate("/subscription");
+    if (isMobile) onClose();
+  };
+
   const filteredChats = previousChats.filter(chat =>
     chat.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -55,27 +65,27 @@ const Sidebar = ({
   const starredChats = filteredChats.filter(chat => chat.starred);
   const regularChats = filteredChats.filter(chat => !chat.starred);
 
-  const handleUpgradeClick = () => {
-    navigate("/subscription");
-    if (isMobile) onClose();
-  };
-
   return (
     <div className={`fixed top-0 left-0 h-full transition-all duration-1000 ease-[cubic-bezier(0.2,0,0,1)] transform ${
       isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
     } ${darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-800"} w-64 md:w-72 z-40 flex flex-col`}>
       
-      {/* Header */}
+      {/* Header with clickable logo */}
       <div className={`p-4 flex items-center justify-between border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
-        <div className="flex items-center space-x-3">
+        <button 
+          onClick={handleLogoClick}
+          className="flex items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity"
+          aria-label="Go to home page"
+        >
           <div className={`${darkMode ? "bg-teal-500" : "bg-teal-600"} p-2 rounded-full`}>
             <FaKiwiBird className="text-white text-lg" />
           </div>
           <span className="font-bold text-lg">Owl AI</span>
-        </div>
+        </button>
         <button
           onClick={onClose}
-          className={`p-1 rounded-full ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
+          className={`p-1 rounded-full ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"} transition-colors`}
+          aria-label="Close sidebar"
         >
           <FiX className="text-xl" />
         </button>
@@ -83,7 +93,7 @@ const Sidebar = ({
 
       {/* Search */}
       <div className="p-3">
-        <div className={`flex items-center ${darkMode ? "bg-gray-800 focus-within:bg-gray-700" : "bg-gray-100 focus-within:bg-gray-50"} rounded-lg px-3 py-2`}>
+        <div className={`flex items-center ${darkMode ? "bg-gray-800 focus-within:bg-gray-700" : "bg-gray-100 focus-within:bg-gray-50"} rounded-lg px-3 py-2 transition-colors`}>
           <FiSearch className={`${darkMode ? "text-gray-400" : "text-gray-500"}`} />
           <input
             type="text"
@@ -94,7 +104,11 @@ const Sidebar = ({
             autoFocus
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="text-gray-400 hover:text-gray-600">
+            <button 
+              onClick={() => setSearchQuery("")} 
+              className={`${darkMode ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-600"} transition-colors`}
+              aria-label="Clear search"
+            >
               <FiX size={16} />
             </button>
           )}
@@ -105,7 +119,9 @@ const Sidebar = ({
       <div className="px-3 mb-2">
         <button
           onClick={onNewChat}
-          className={`w-full flex items-center justify-center ${darkMode ? "bg-teal-600 hover:bg-teal-700" : "bg-teal-500 hover:bg-teal-600"} text-white py-2.5 rounded-lg font-medium`}
+          className={`w-full flex items-center justify-center ${
+            darkMode ? "bg-teal-600 hover:bg-teal-700" : "bg-teal-500 hover:bg-teal-600"
+          } text-white py-2.5 rounded-lg font-medium transition-colors`}
         >
           <FiPlus className="mr-2" />
           New Chat
@@ -119,7 +135,7 @@ const Sidebar = ({
             onClick={handleUpgradeClick}
             className={`w-full flex items-center justify-center bg-[#009688] hover:bg-[#00897b] text-white py-2.5 rounded-lg font-medium shadow-md ${
               darkMode ? "shadow-teal-900/50" : "shadow-teal-500/30"
-            }`}
+            } transition-colors`}
           >
             <FiCreditCard className="mr-2" />
             Upgrade Plan
@@ -133,7 +149,9 @@ const Sidebar = ({
       }`}>
         {starredChats.length > 0 && (
           <div className="mb-4">
-            <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${darkMode ? "text-teal-400" : "text-teal-600"}`}>
+            <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${
+              darkMode ? "text-teal-400" : "text-teal-600"
+            }`}>
               <FiStar className="mr-2" /> Starred
             </div>
             {starredChats.map(chat => (
@@ -149,7 +167,9 @@ const Sidebar = ({
         )}
 
         <div className="mb-4">
-          <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+          <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${
+            darkMode ? "text-gray-400" : "text-gray-500"
+          }`}>
             <FiClock className="mr-2" /> Recent
           </div>
           {regularChats.length > 0 ? (
@@ -164,7 +184,9 @@ const Sidebar = ({
               />
             ))
           ) : (
-            <div className={`text-center py-4 text-sm ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+            <div className={`text-center py-4 text-sm ${
+              darkMode ? "text-gray-500" : "text-gray-400"
+            }`}>
               No recent chats
             </div>
           )}
@@ -172,24 +194,35 @@ const Sidebar = ({
       </div>
 
       {/* User Info Section */}
-      <div className={`border-t ${darkMode ? "border-gray-700" : "border-gray-200"} p-3`}>
+      <div className={`border-t ${
+        darkMode ? "border-gray-700" : "border-gray-200"
+      } p-3`}>
         <button
-          className="w-full flex items-center justify-between"
+          className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
           onClick={() => navigate("/userProfile")}
+          aria-label="Go to user profile"
         >
           <div className="flex items-center space-x-3">
-            <div className={`${darkMode ? "bg-teal-600" : "bg-teal-500"} w-9 h-9 rounded-full flex items-center justify-center text-white`}>
+            <div className={`${
+              darkMode ? "bg-teal-600" : "bg-teal-500"
+            } w-9 h-9 rounded-full flex items-center justify-center text-white`}>
               {currentUser?.avatar ? (
-                <img src={currentUser.avatar} alt="User" className="w-full h-full rounded-full object-cover" />
+                <img 
+                  src={currentUser.avatar} 
+                  alt="User" 
+                  className="w-full h-full rounded-full object-cover" 
+                />
               ) : (
                 <FiUser />
               )}
             </div>
             <div className="text-left">
               <div className="text-sm font-medium truncate max-w-[120px]">
-              {user?.firstName + " " + user?.lastName || "Guest User"}
+                {user?.firstName + " " + user?.lastName || "Guest User"}
               </div>
-              <div className={`text-xs ${darkMode ? "text-teal-400" : "text-teal-600"}`}>
+              <div className={`text-xs ${
+                darkMode ? "text-teal-400" : "text-teal-600"
+              }`}>
                 {currentUser?.plan ? `${currentUser.plan} Plan` : "Free Plan"}
               </div>
             </div>
@@ -204,15 +237,22 @@ const Sidebar = ({
 const ChatItem = ({ chat, darkMode, active, onClick, delay = 0 }) => (
   <button
     onClick={onClick}
-    className={`w-full text-left text-sm px-3 py-2.5 rounded-md flex justify-between items-center ${
+    className={`w-full text-left text-sm px-3 py-2.5 rounded-md flex justify-between items-center transition-colors ${
       active
-        ? darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"
-        : darkMode ? "hover:bg-gray-800 text-gray-200" : "hover:bg-gray-100 text-gray-800"
+        ? darkMode 
+          ? "bg-gray-700 text-white" 
+          : "bg-gray-200 text-gray-900"
+        : darkMode 
+          ? "hover:bg-gray-800 text-gray-200" 
+          : "hover:bg-gray-100 text-gray-800"
     }`}
     style={{ transitionDelay: `${delay}ms` }}
+    aria-label={`Open chat: ${chat.title}`}
   >
     <div className="truncate flex items-center">
-      <FiMessageSquare className={`mr-2 flex-shrink-0 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+      <FiMessageSquare className={`mr-2 flex-shrink-0 ${
+        darkMode ? "text-gray-400" : "text-gray-500"
+      }`} />
       <span className="truncate">{chat.title}</span>
     </div>
   </button>
