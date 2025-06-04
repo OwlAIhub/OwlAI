@@ -27,6 +27,7 @@ const MainContent = ({
     const [loading, setLoading] = useState(false);
 const [response, setResponse] = useState("");
 const [displayedText, setDisplayedText] = useState("");
+const [copiedIndex, setCopiedIndex] = useState(null);
 
 
     const user = JSON.parse(localStorage.getItem("user"));
@@ -91,7 +92,7 @@ const [displayedText, setDisplayedText] = useState("");
           setMessageCount(nextCount);
         }
     
-        const userMessage = { role: "user", content: message };
+        const userMessage = { role: "user", content: message, isMarkdown: true, feedback: null };
         setChatMessages((prev) => [...prev, userMessage]);
     
         setMessage("");
@@ -170,7 +171,25 @@ const [displayedText, setDisplayedText] = useState("");
       }, [response]);
       
       
-    
+      const handleFeedback = (index, type) => {
+        setChatMessages((prev) =>
+          prev.map((msg, i) =>
+            i === index ? { ...msg, feedback: type } : msg
+          )
+        );
+      };
+      
+      const handleCopy = async (text, index) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopiedIndex(index);
+          setTimeout(() => setCopiedIndex(null), 5000); // reset after 2s
+        } catch (err) {
+          console.error("Copy failed:", err);
+        }
+      };
+      
+      
       // Calculate dynamic padding based on window size
       const getLogoContainerStyle = () => {
         if (windowSize.width < 768) {
@@ -296,11 +315,46 @@ const [displayedText, setDisplayedText] = useState("");
     }}
   >
     {msg.role === "bot" ? (
+        <>
       <div className="prose dark:prose-invert max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {formatMarkdown(msg.content)}
         </ReactMarkdown>
       </div>
+      <div className="flex gap-4 mt-2 text-sm text-gray-500">
+      <button
+        onClick={() => handleFeedback(index, "like")}
+        className={`hover:text-green-500 transition cursor-pointer ${
+          msg.feedback === "like" ? "text-green-600 font-semibold" : ""
+        }`}
+      >
+        👍 {msg.feedback === "like" && "Thanks!"}
+      </button>
+      <button
+        onClick={() => handleFeedback(index, "report")}
+        className={`hover:text-red-500 transition cursor-pointer ${
+          msg.feedback === "report" ? "text-red-600 font-semibold" : ""
+        }`}
+      >
+        ⚠️ {msg.feedback === "report" && "Reported"}
+      </button>
+      <button
+  onClick={() => handleCopy(msg.content, index)}
+  className="hover:text-blue-500 transition flex items-center gap-1 cursor-pointer"
+>
+  {copiedIndex === index ? (
+    <>
+      ✔️ <span className="text-sm">Copied</span>
+    </>
+  ) : (
+    <>
+      📋 <span className="text-sm">Copy</span>
+    </>
+  )}
+</button>
+
+    </div>
+    </>
     ) : (
       msg.content
     )}
