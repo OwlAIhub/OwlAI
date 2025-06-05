@@ -6,6 +6,7 @@ import OwlLogo from "./OwlLogo";
 import config from "../Config";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm"; // for tables, strikethrough, task lists
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 
 const MainContent = ({
@@ -29,6 +30,10 @@ const [response, setResponse] = useState("");
 const [displayedText, setDisplayedText] = useState("");
 const [copiedIndex, setCopiedIndex] = useState(null);
 
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedIndex, setSelectedIndex] = useState(null);
+const [customRemark, setCustomRemark] = useState("");
+const [isInterrupted, setIsInterrupted] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
     const isLoggedIn = !!user;
@@ -79,6 +84,7 @@ const [copiedIndex, setCopiedIndex] = useState(null);
       
 
     const handleSendMessage = async () => {
+        setIsInterrupted(false);
         if (!message.trim()) return;
     
         const nextCount = messageCount + 1;
@@ -165,21 +171,27 @@ const [copiedIndex, setCopiedIndex] = useState(null);
               setResponse(""); // clear response to stop typing effect
             }, 200);
           }
-        }, 25);
+        }, 10); // Adjust speed here
       
         return () => clearInterval(interval);
       }, [response]);
       
+      const handleFeedback = (index, type) => {
+        if (type === "dislike") {
+          setSelectedIndex(index);
+          setIsModalOpen(true);
+        } else {
+          sendFeedback(index, type, "Satisfied with the response");
+        }
+      };
       
-      const handleFeedback = async (index, type) => {
-        const msg = chatMessages[index];
+      
+      const sendFeedback = async (index, type, remarks) => {
         const score = type === "like" ? 1 : 0;
-        const remarks =
-          type === "like" ? "Satisfied with the response" : "Not satisfied with the response";
       
         const feedbackData = {
-          chat_id: "abc-123", 
-          user_id: user.uid, 
+          chat_id: "abc-123",
+          user_id: user.uid,
           usefulness_score: score,
           content_quality_score: score,
           remarks: remarks,
@@ -204,6 +216,7 @@ const [copiedIndex, setCopiedIndex] = useState(null);
       };
       
       
+      
       const handleCopy = async (text, index) => {
         try {
           await navigator.clipboard.writeText(text);
@@ -214,6 +227,18 @@ const [copiedIndex, setCopiedIndex] = useState(null);
         }
       };
       
+      const handleStopTyping = () => {
+        setIsInterrupted(true);
+        setLoading(false); // this stops the animation
+        if (displayedText) {
+          // push whatever is typed till now into chat
+          setChatMessages((prev) => [
+            ...prev,
+            { role: "bot", content: displayedText }
+          ]);
+          setDisplayedText("");
+        }
+      };
       
       // Calculate dynamic padding based on window size
       const getLogoContainerStyle = () => {
@@ -379,6 +404,48 @@ const [copiedIndex, setCopiedIndex] = useState(null);
     </>
   )}
 </button>
+{isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+    <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
+      >
+        ×
+      </button>
+
+      <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
+
+      <textarea
+        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white"
+        placeholder="Write your feedback..."
+        value={customRemark}
+        onChange={(e) => setCustomRemark(e.target.value)}
+      />
+
+      <div className="mt-4 flex justify-end gap-2">  
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            sendFeedback(selectedIndex, "dislike", customRemark || "Not satisfied with the response");
+            setIsModalOpen(false);
+            setCustomRemark("");
+          }}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
     </div>
     </>
@@ -389,7 +456,8 @@ const [copiedIndex, setCopiedIndex] = useState(null);
 ))}
 
 {/* Show loading while waiting for response */}
-{loading && (
+{loading && !isInterrupted && (
+
   <div
     className={`w-full max-w-3xl rounded-lg p-4 ${
       darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
@@ -476,21 +544,35 @@ const [copiedIndex, setCopiedIndex] = useState(null);
                                         disabled={!isLoggedIn && messageCount >= 4}
                                     />
 
-                                    <button
-                                        onClick={handleSendMessage}
-                                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full cursor-pointer transition-all duration-300
-                      group
-                      ${darkMode ? " hover:bg-[#1B263B]" : " hover:bg-gray-100"}
-                    `}
-                                    >
-                                        <img
-                                            src="/owlimg.png"
-                                            alt="Send"
-                                            className={`w-8 h-8 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-105
-                        ${darkMode ? "filter brightness-110" : "filter brightness-95"}
-                      `}
-                                        />
-                                    </button>
+{loading ? (
+  <button
+    onClick={handleStopTyping}
+    className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
+        rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+      ${darkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-black hover:bg-gray-400"}
+    `}
+    aria-label="Stop"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+) : (
+  <button
+    onClick={handleSendMessage}
+    className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
+      rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+      ${darkMode ? "bg-[#0f172a] text-white hover:bg-[#1B263B]" : "bg-white text-black hover:bg-gray-100"}
+    `}
+  >
+    <ArrowUpwardIcon
+      className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110"
+      fontSize="medium"
+    />
+  </button>
+)}
+
+
                                 </div>
                             </div>
                             {showModal && (
