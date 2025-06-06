@@ -1,21 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, Fragment } from 'react';
-import Header from '../Components/Header';
-import Sidebar from '../Components/Sidebar';
 import { FiEdit, FiCamera, FiX, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { RiGraduationCapLine, RiMailLine, RiGlobalLine, RiMedalLine } from 'react-icons/ri';
 import { Dialog, Transition } from '@headlessui/react';
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-const UserProfile = ({ darkMode, toggleDarkMode }) => {
+const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
   // User data state
   const [isEditing, setIsEditing] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [userData, setUserData] = useState({
     name: '',
-    email: '', // Initially blank
-    educationLevel: '', // Initially blank
+    email: '',
+    educationLevel: '',
     preferredLanguage: 'English',
     targetExam: 'UGC-NET',
     examAttempt: 'First Attempt',
@@ -23,40 +21,31 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
     subscription: ''
   });
 
-  // Layout state
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
   const [expandedSection, setExpandedSection] = useState(null);
 
-  // Check screen size and set initial sidebar state
   useEffect(() => {
     const handleResize = () => {
       const desktop = window.innerWidth >= 1024;
       setIsDesktop(desktop);
-      setSidebarOpen(desktop);
     };
-    
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const user = auth.currentUser;
         if (!user) return;
 
-        // Get user data from Firestore
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
-        
+
         if (userSnap.exists()) {
           const data = userSnap.data();
           setUserData({
             name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'User',
-            // Only set email and educationLevel if they exist in Firestore
             email: data.email || '',
             educationLevel: data.educationLevel || '',
             preferredLanguage: data.language || 'English',
@@ -66,10 +55,8 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
             subscription: data.plan || 'Premium'
           });
         } else {
-          // Fallback to basic data if no Firestore doc exists
           setUserData({
             name: user.displayName || 'User',
-            // Don't set email and educationLevel initially
             email: '',
             educationLevel: '',
             preferredLanguage: 'English',
@@ -87,13 +74,10 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
     fetchUserData();
   }, []);
 
-  // Toggle functions
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -112,7 +96,7 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.6,
         ease: [0.25, 0.1, 0.25, 1]
       }
@@ -138,7 +122,6 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
       const updatedData = {
         firstName: formData.get('name').split(' ')[0] || '',
         lastName: formData.get('name').split(' ').slice(1).join(' ') || '',
-        // Only include these if they were provided
         ...(formData.get('email') && { email: formData.get('email') }),
         ...(formData.get('educationLevel') && { educationLevel: formData.get('educationLevel') }),
         language: formData.get('preferredLanguage'),
@@ -146,15 +129,12 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
         attempt: formData.get('examAttempt')
       };
 
-      // Update Firestore
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, updatedData);
 
-      // Update local state
       setUserData({
         ...userData,
         name: formData.get('name'),
-        // Only update if they were provided
         ...(formData.get('email') && { email: formData.get('email') }),
         ...(formData.get('educationLevel') && { educationLevel: formData.get('educationLevel') }),
         preferredLanguage: formData.get('preferredLanguage'),
@@ -168,7 +148,6 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
     }
   };
 
-  // Color schemes for light/dark modes with glassmorphism
   const colors = {
     bg: darkMode ? 'bg-gray-900' : 'bg-gray-100',
     text: darkMode ? 'text-gray-100' : 'text-gray-800',
@@ -185,10 +164,10 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
     subtleText: darkMode ? 'text-gray-400' : 'text-gray-500',
     divider: darkMode ? 'border-gray-700 border-opacity-30' : 'border-gray-200 border-opacity-50',
     shadow: darkMode ? 'shadow-lg shadow-black/30' : 'shadow-lg shadow-gray-400/20',
-    placeholder: darkMode ? 'placeholder-gray-400' : 'placeholder-gray-500'
+    placeholder: darkMode ? 'placeholder-gray-400' : 'placeholder-gray-500',
+    statText: darkMode ? '' : 'text-black' // New property for stat text
   };
 
-  // Stats data
   const stats = [
     { label: 'Member Since', value: userData.joinDate, icon: <RiMedalLine className="text-lg" /> },
     { label: 'Subscription', value: userData.subscription, icon: <RiMedalLine className="text-lg" /> },
@@ -197,49 +176,28 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
   ];
 
   return (
-    <div className={`flex flex-col min-h-screen w-full ${colors.bg} ${colors.text}`}>
-      {/* Header */}
-      <Header 
-        onToggleSidebar={toggleSidebar}
-        isLoggedIn={true}
-        onLogout={() => auth.signOut()}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        currentUser={{ 
-          ...userData,
-          uid: auth.currentUser?.uid,
-          plan: userData.subscription
-        }}
-      />
-      
-      <div className="flex flex-1 w-full overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar 
-          isLoggedIn={true}
-          isOpen={sidebarOpen}
-          onClose={toggleSidebar}
-          darkMode={darkMode}
-          currentUser={{ ...userData, plan: userData.subscription }}
-        />
-
-        {/* Main Content */}
-        <motion.main 
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className={`flex-1 w-full overflow-y-auto p-4 lg:p-8 transition-all duration-300 ${colors.bg}`}
-          style={{
-            marginLeft: sidebarOpen && isDesktop ? '16rem' : '0',
-            transition: 'margin-left 0.3s ease'
-          }}
+          className={`w-full max-w-4xl mx-auto ${colors.cardBg} rounded-xl ${colors.border} border ${colors.shadow} overflow-hidden`}
         >
-          <div className="max-w-6xl mx-auto w-full">
-            {/* Profile Header */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-col lg:flex-row gap-6 mb-8"
+          {/* Header with close button only */}
+          <div className="flex justify-end items-center p-4">
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
             >
-              {/* Avatar Section */}
+              <FiX className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Main content */}
+          <div className="p-6 pt-0">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Avatar section */}
               <motion.div
                 className="flex-shrink-0 self-center lg:self-start relative"
                 whileHover="hover"
@@ -261,7 +219,7 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                     <span className="text-sm font-medium text-white">Update Photo</span>
                   </motion.div>
                 </motion.div>
-                <motion.button 
+                <motion.button
                   onClick={() => setIsEditing(!isEditing)}
                   className={`absolute -bottom-2 -right-2 ${colors.primary} ${colors.primaryHover} rounded-full p-2 ${colors.shadow} transition-colors duration-300 flex items-center justify-center`}
                   whileHover={{ scale: 1.1 }}
@@ -271,23 +229,23 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                 </motion.button>
               </motion.div>
 
-              {/* Profile Summary */}
-              <div className="flex-1 w-full">
+              {/* Profile details */}
+              <div className="flex-1">
                 <motion.div variants={itemVariants}>
-                  <h1 className={`text-2xl lg:text-3xl font-bold ${colors.accentText} mb-2`}>
+                  <h1 className={`text-2xl font-bold ${colors.accentText} mb-2`}>
                     {userData.name}
                   </h1>
                   {userData.educationLevel ? (
-                    <motion.p 
-                      className={`text-base lg:text-lg ${colors.subtleText} mb-4 flex items-center gap-1`}
+                    <motion.p
+                      className={`text-base ${colors.subtleText} mb-4 flex items-center gap-1`}
                       variants={itemVariants}
                     >
                       <RiGraduationCapLine />
                       {userData.educationLevel} student
                     </motion.p>
                   ) : (
-                    <motion.p 
-                      className={`text-base lg:text-lg italic ${colors.subtleText} mb-4`}
+                    <motion.p
+                      className={`text-base italic ${colors.subtleText} mb-4`}
                       variants={itemVariants}
                     >
                       Education level not specified
@@ -295,50 +253,36 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                   )}
                 </motion.div>
 
-                {/* Stats Grid */}
-                <motion.div 
-                  className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 w-full"
+                {/* Stats grid */}
+                <motion.div
+                  className="grid grid-cols-2 gap-4 mb-6"
                   variants={containerVariants}
                 >
                   {stats.map((item, index) => (
-                    <motion.div 
+                    <motion.div
                       key={index}
-                      className={`p-4 rounded-lg ${colors.cardBg} ${colors.border} border ${colors.shadow} w-full transition-all duration-200 hover:shadow-xl`}
+                      className={`p-3 rounded-lg ${colors.cardBg} ${colors.border} border ${colors.shadow} transition-all duration-200 hover:shadow-xl`}
                       variants={itemVariants}
                       whileHover={{ y: -4 }}
                     >
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-1">
                         <div className={`p-2 rounded-full ${colors.primary} bg-opacity-20 text-${colors.accentText}`}>
                           {item.icon}
                         </div>
                         <h3 className={`text-xs font-semibold ${colors.accentText}`}>{item.label}</h3>
                       </div>
-                      <p className="text-sm font-medium ml-10">{item.value}</p>
+                      <p className={`text-sm font-medium ml-10 ${colors.statText}`}>{item.value}</p>
                     </motion.div>
                   ))}
                 </motion.div>
 
-                {/* Tabs */}
-                <motion.div 
-                  className="flex border-b mb-6"
-                  variants={itemVariants}
-                >
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-4 py-2 text-sm font-medium ${activeTab === 'overview' ? `${colors.accentText} border-b-2 ${darkMode ? 'border-teal-400' : 'border-teal-600'}` : `${colors.subtleText} hover:${colors.accentText}`}`}
-                  >
-                    Overview
-                  </button>
-                </motion.div>
-
-                {/* Collapsible Sections */}
+                {/* Expandable sections */}
                 <motion.div className="space-y-4" variants={containerVariants}>
-                  {/* Personal Information Section */}
-                  <motion.div 
+                  <motion.div
                     className={`rounded-lg overflow-hidden ${colors.cardBg} ${colors.border} border ${colors.shadow}`}
                     variants={itemVariants}
                   >
-                    <div 
+                    <div
                       className={`p-4 flex justify-between items-center cursor-pointer ${expandedSection === 'personal' ? `${colors.primary} bg-opacity-10` : ''}`}
                       onClick={() => toggleSection('personal')}
                     >
@@ -360,13 +304,13 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                           <div className="space-y-4">
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Email</p>
-                              <p className="text-sm font-medium break-all">
+                              <p className={`text-sm font-medium break-all ${colors.statText}`}>
                                 {userData.email || <span className={`italic ${colors.subtleText}`}>Not provided yet</span>}
                               </p>
                             </div>
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Preferred Language</p>
-                              <p className="text-sm font-medium">{userData.preferredLanguage}</p>
+                              <p className={`text-sm font-medium ${colors.statText}`}>{userData.preferredLanguage}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -374,12 +318,11 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                     </AnimatePresence>
                   </motion.div>
 
-                  {/* Education Details Section */}
-                  <motion.div 
+                  <motion.div
                     className={`rounded-lg overflow-hidden ${colors.cardBg} ${colors.border} border ${colors.shadow}`}
                     variants={itemVariants}
                   >
-                    <div 
+                    <div
                       className={`p-4 flex justify-between items-center cursor-pointer ${expandedSection === 'education' ? `${colors.primary} bg-opacity-10` : ''}`}
                       onClick={() => toggleSection('education')}
                     >
@@ -401,17 +344,17 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                           <div className="space-y-4">
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Education Level</p>
-                              <p className="text-sm font-medium">
+                              <p className={`text-sm font-medium ${colors.statText}`}>
                                 {userData.educationLevel || <span className={`italic ${colors.subtleText}`}>Not provided yet</span>}
                               </p>
                             </div>
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Target Exam</p>
-                              <p className="text-sm font-medium">{userData.targetExam}</p>
+                              <p className={`text-sm font-medium ${colors.statText}`}>{userData.targetExam}</p>
                             </div>
                             <div>
                               <p className={`text-xs ${colors.subtleText}`}>Exam Attempt</p>
-                              <p className="text-sm font-medium">{userData.examAttempt}</p>
+                              <p className={`text-sm font-medium ${colors.statText}`}>{userData.examAttempt}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -420,9 +363,9 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                   </motion.div>
                 </motion.div>
 
-                {/* Action Buttons */}
-                <motion.div 
-                  className="flex flex-wrap gap-3 w-full mt-6"
+                {/* Action buttons */}
+                <motion.div
+                  className="flex flex-wrap gap-3 mt-6"
                   variants={itemVariants}
                 >
                   <motion.button
@@ -434,14 +377,22 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                     <FiEdit className="h-4 w-4" />
                     {isEditing ? 'Cancel Editing' : 'Edit Profile'}
                   </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onClose}
+                    className={`px-4 py-2 rounded-lg text-black ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
+                  >
+                    Close Profile
+                  </motion.button>
                 </motion.div>
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.main>
+        </motion.div>
       </div>
 
-      {/* Modal Edit Form */}
+      {/* Edit Profile Modal */}
       <Transition appear show={isEditing} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={() => setIsEditing(false)}>
           <Transition.Child
@@ -467,162 +418,178 @@ const UserProfile = ({ darkMode, toggleDarkMode }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle ${colors.cardBg} ${colors.border} border ${colors.shadow} backdrop-blur-lg`}>
-                  <div className="flex justify-between items-center mb-4">
-                    <Dialog.Title
-                      as="h3"
-                      className={`text-xl font-bold ${colors.accentText}`}
-                    >
+                <Dialog.Panel
+                  className={`w-full max-w-2xl transform overflow-hidden rounded-2xl p-0 text-left align-middle ${colors.cardBg} ${colors.border} border ${colors.shadow} backdrop-blur-lg`}
+                >
+                  <div className="flex justify-between items-center px-6 pt-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    <Dialog.Title className={`text-xl font-bold ${colors.accentText}`}>
                       Edit Profile
                     </Dialog.Title>
-                    <button 
+                    <button
                       onClick={() => setIsEditing(false)}
-                      className={`p-1 rounded-full ${darkMode ? 'hover:bg-gray-700 hover:bg-opacity-30' : 'hover:bg-gray-200 hover:bg-opacity-50'}`}
+                      className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
                     >
                       <FiX className="h-6 w-6" />
                     </button>
                   </div>
-                  
-                  <form onSubmit={handleEditSubmit}>
-                    <div className="grid grid-cols-1 gap-4 mb-4">
-                      {[
-                        { label: 'Full Name', name: 'name', type: 'text', value: userData.name, icon: <RiMailLine className="text-lg" /> },
-                        { 
-                          label: 'Email', 
-                          name: 'email', 
-                          type: 'email', 
-                          value: userData.email, 
-                          icon: <RiMailLine className="text-lg" />,
-                          placeholder: 'Enter your email',
-                          required: true
-                        },
-                      ].map((field, index) => (
-                        <motion.div key={index} variants={itemVariants}>
-                          <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                            {field.label}
-                          </label>
-                          <div className="relative">
-                            <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
-                              {field.icon}
-                            </div>
-                            <input
-                              type={field.type}
-                              name={field.name}
-                              defaultValue={field.value}
-                              placeholder={field.placeholder}
-                              required={field.required}
-                              className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.placeholder}`}
-                            />
-                          </div>
-                        </motion.div>
-                      ))}
 
-                      <motion.div variants={itemVariants}>
-                        <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                          Education Level
-                        </label>
-                        <div className="relative">
-                          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
-                            <RiGraduationCapLine className="text-lg" />
-                          </div>
-                          <select
-                            name="educationLevel"
-                            defaultValue={userData.educationLevel}
-                            className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} appearance-none`}
-                            required
-                          >
-                            <option value="">Select your education level</option>
-                            {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
-                              <option key={level} value={level}>{level}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </motion.div>
-
-                      <motion.div variants={itemVariants}>
-                        <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                          Preferred Language
-                        </label>
-                        <div className="relative">
-                          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${colors.accentText}`}>
-                            <RiGlobalLine className="text-lg" />
-                          </div>
-                          <select
-                            name="preferredLanguage"
-                            defaultValue={userData.preferredLanguage}
-                            className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} appearance-none`}
-                          >
-                            {['English', 'Hinglish', 'Hindi'].map(lang => (
-                              <option key={lang} value={lang}>{lang}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </motion.div>
-
-                      <motion.div variants={itemVariants}>
-                        <label className={`block text-sm font-medium ${colors.subtleText} mb-2`}>
-                          Target Exam
-                        </label>
-                        <div className="space-y-2">
-                          {['UGC-NET', 'CSIR-NET'].map(exam => (
-                            <label key={exam} className="flex items-center space-x-3">
-                              <input
-                                type="radio"
-                                name="targetExam"
-                                value={exam}
-                                defaultChecked={userData.targetExam === exam}
-                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')} focus:ring-0`}
-                              />
-                              <span className="text-sm">{exam}</span>
+                  <form onSubmit={handleEditSubmit} className="px-6 py-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Personal Information Section */}
+                      <div className="md:col-span-2">
+                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
+                          Personal Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Name Field */}
+                          <div>
+                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                              Full Name
                             </label>
-                          ))}
-                        </div>
-                      </motion.div>
+                            <div className="relative">
+                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
+                                <RiMailLine className="text-lg" />
+                              </span>
+                              <input
+                                type="text"
+                                name="name"
+                                defaultValue={userData.name}
+                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                              />
+                            </div>
+                          </div>
 
-                      <motion.div variants={itemVariants}>
-                        <label className={`block text-sm font-medium ${colors.subtleText} mb-2`}>
-                          Exam Attempt
-                        </label>
-                        <div className="space-y-2">
+                          {/* Email Field */}
+                          <div>
+                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                              Email
+                            </label>
+                            <div className="relative">
+                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
+                                <RiMailLine className="text-lg" />
+                              </span>
+                              <input
+                                type="email"
+                                name="email"
+                                defaultValue={userData.email}
+                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Education Section */}
+                      <div className="md:col-span-2">
+                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
+                          Education Details
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Education Level */}
+                          <div>
+                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                              Education Level
+                            </label>
+                            <div className="relative">
+                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
+                                <RiGraduationCapLine className="text-lg" />
+                              </span>
+                              <select
+                                name="educationLevel"
+                                defaultValue={userData.educationLevel}
+                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                              >
+                                <option value="">Select education level</option>
+                                {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
+                                  <option key={level} value={level}>{level}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Preferred Language */}
+                          <div>
+                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                              Preferred Language
+                            </label>
+                            <div className="relative">
+                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
+                                <RiGlobalLine className="text-lg" />
+                              </span>
+                              <select
+                                name="preferredLanguage"
+                                defaultValue={userData.preferredLanguage}
+                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                              >
+                                {['English', 'Hinglish', 'Hindi'].map(lang => (
+                                  <option key={lang} value={lang}>{lang}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Target Exam */}
+                          <div className="md:col-span-2">
+                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                              Target Exam
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {['UGC-NET', 'CSIR-NET'].map(exam => (
+                                <label key={exam} className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    name="targetExam"
+                                    value={exam}
+                                    defaultChecked={userData.targetExam === exam}
+                                    className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
+                                  />
+                                  <span className={`text-sm ${colors.statText}`}>{exam}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Exam Attempt Section */}
+                      <div className="md:col-span-2">
+                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
+                          Exam Details
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                           {['First Attempt', 'Second Attempt', 'Third Attempt'].map(attempt => (
-                            <label key={attempt} className="flex items-center space-x-3">
+                            <label key={attempt} className="flex items-center space-x-2">
                               <input
                                 type="radio"
                                 name="examAttempt"
                                 value={attempt}
                                 defaultChecked={userData.examAttempt === attempt}
-                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')} focus:ring-0`}
+                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
                               />
-                              <span className="text-sm">{attempt}</span>
+                              <span className={`text-sm ${colors.statText}`}>{attempt}</span>
                             </label>
                           ))}
                         </div>
-                      </motion.div>
+                      </div>
                     </div>
 
-                    <motion.div 
-                      className="flex justify-end gap-3"
-                      variants={itemVariants}
-                    >
-                      <motion.button
+                    {/* Action Buttons */}
+                    <div className={`py-4 border-t ${colors.border} mt-6 flex justify-end gap-3`}>
+                      <button
                         type="button"
                         onClick={() => setIsEditing(false)}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
                         className={`px-4 py-2 rounded-lg ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
                       >
                         Cancel
-                      </motion.button>
-                      <motion.button
+                      </button>
+                      <button
                         type="submit"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
                         className={`px-4 py-2 rounded-lg ${colors.secondary} ${colors.secondaryHover} transition-colors duration-300 font-medium text-sm ${colors.shadow} flex items-center gap-2`}
                       >
                         <FiCheck className="h-4 w-4" />
                         Save Changes
-                      </motion.button>
-                    </motion.div>
+                      </button>
+                    </div>
                   </form>
                 </Dialog.Panel>
               </Transition.Child>
