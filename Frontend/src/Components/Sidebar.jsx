@@ -20,6 +20,7 @@ const Sidebar = ({
   onSelectChat = () => {},
   darkMode = false,
   currentUser = {},
+  onUserProfileClick = () => {},
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -49,8 +50,8 @@ const Sidebar = ({
   };
 
   const handleLogoClick = () => {
-    navigate("/"); // Navigate to home page
-    if (isMobile) onClose(); // Close sidebar if on mobile
+    navigate("/");
+    if (isMobile) onClose();
   };
 
   const handleUpgradeClick = () => {
@@ -193,36 +194,30 @@ const Sidebar = ({
         </div>
       </div>
 
-      {/* User Info Section */}
-      <div className={`border-t ${
-        darkMode ? "border-gray-700" : "border-gray-200"
-      } p-3`}>
+      {/* User Info Section (Updated) */}
+      <div className={`border-t ${darkMode ? "border-gray-700" : "border-gray-200"} p-3`}>
         <button
           className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/userProfile")}
-          aria-label="Go to user profile"
+          onClick={onUserProfileClick}
+          aria-label="Open user profile"
         >
-          <div className="flex items-center space-x-3">
-            <div className={`${
-              darkMode ? "bg-teal-600" : "bg-teal-500"
-            } w-9 h-9 rounded-full flex items-center justify-center text-white`}>
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className={`${darkMode ? "bg-teal-600" : "bg-teal-500"} w-9 h-9 rounded-full flex items-center justify-center text-white overflow-hidden`}>
               {currentUser?.avatar ? (
                 <img 
                   src={currentUser.avatar} 
                   alt="User" 
-                  className="w-full h-full rounded-full object-cover" 
+                  className="w-full h-full object-cover" 
                 />
               ) : (
-                <FiUser />
+                <FiUser className="w-5 h-5" />
               )}
             </div>
-            <div className="text-left">
+            <div className="text-left min-w-0">
               <div className="text-sm font-medium truncate max-w-[120px]">
-                {user?.firstName + " " + user?.lastName || "Guest User"}
+                {(user?.firstName || "") + " " + (user?.lastName || "Guest User")}
               </div>
-              <div className={`text-xs ${
-                darkMode ? "text-teal-400" : "text-teal-600"
-              }`}>
+              <div className={`text-xs truncate max-w-[120px] ${darkMode ? "text-teal-400" : "text-teal-600"}`}>
                 {currentUser?.plan ? `${currentUser.plan} Plan` : "Free Plan"}
               </div>
             </div>
