@@ -77,9 +77,17 @@ const [isInterrupted, setIsInterrupted] = useState(false);
     function formatMarkdown(response) {
         if (typeof response !== "string") return "";
       
-        // Just clean up stray undefined or weird chars, do NOT add asterisks or escape bold markdown
-        return response.replace(/undefined/g, "").trim();
+        return response
+          .replace(/undefined/g, "")
+          // Slightly increase space for double line breaks
+          .replace(/\n{2,}/g, '\n\n')         // Keep Markdown spacing behavior
+          // Add light spacing after single line breaks for smoother readability
+          .replace(/\n/g, '\n&nbsp;\n')       // Just enough spacing
+          .trim();
       }
+      
+      
+      
       
       
 
@@ -366,11 +374,12 @@ const [isInterrupted, setIsInterrupted] = useState(false);
   >
     {msg.role === "bot" ? (
         <>
-      <div className="prose dark:prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {formatMarkdown(msg.content)}
-        </ReactMarkdown>
-      </div>
+     <div className="prose dark:prose-invert max-w-none">
+  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+    {formatMarkdown(msg.content)}
+  </ReactMarkdown>
+</div>
+
       <div className="flex gap-4 mt-2 text-sm text-gray-500">
       <button
     onClick={() => handleFeedback(index, "like")}
@@ -416,14 +425,27 @@ const [isInterrupted, setIsInterrupted] = useState(false);
 
       <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
 
+      {/* ✅ Predefined feedback options */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {["Not satisfied", "Too vague", "Irrelevant", "Incomplete", "Wrong answer"].map((label) => (
+          <button
+            key={label}
+            onClick={() => setCustomRemark(label)}
+            className="bg-[#37474F] text-white text-sm px-3 py-1 rounded hover:bg-[#455A64]"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <textarea
-        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white"
+        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white bg-gray-700"
         placeholder="Write your feedback..."
         value={customRemark}
         onChange={(e) => setCustomRemark(e.target.value)}
       />
 
-      <div className="mt-4 flex justify-end gap-2">  
+      <div className="mt-4 flex justify-end gap-2">
         <button
           onClick={() => setIsModalOpen(false)}
           className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
@@ -433,7 +455,11 @@ const [isInterrupted, setIsInterrupted] = useState(false);
 
         <button
           onClick={() => {
-            sendFeedback(selectedIndex, "dislike", customRemark || "Not satisfied with the response");
+            sendFeedback(
+              selectedIndex,
+              "dislike",
+              customRemark || "Not satisfied with the response"
+            );
             setIsModalOpen(false);
             setCustomRemark("");
           }}
@@ -445,6 +471,7 @@ const [isInterrupted, setIsInterrupted] = useState(false);
     </div>
   </div>
 )}
+
 
 
     </div>
