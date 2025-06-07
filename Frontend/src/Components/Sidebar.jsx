@@ -197,7 +197,7 @@ const Sidebar = ({
       {/* User Info Section (Updated) */}
       <div className={`border-t ${darkMode ? "border-gray-700" : "border-gray-200"} p-3`}>
         <button
-          className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
+          className="w-full cursor-pointer flex items-center justify-between hover:opacity-80 transition-opacity"
           onClick={onUserProfileClick}
           aria-label="Open user profile"
         >
