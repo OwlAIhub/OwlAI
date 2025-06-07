@@ -1,7 +1,29 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, Fragment } from 'react';
-import { FiEdit, FiCamera, FiX, FiCheck, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { RiGraduationCapLine, RiMailLine, RiGlobalLine, RiMedalLine } from 'react-icons/ri';
+import { 
+  FiEdit, 
+  FiCamera, 
+  FiX, 
+  FiCheck, 
+  FiChevronDown, 
+  FiChevronUp, 
+  FiUser,
+  FiMail,
+  FiGlobe,
+  FiAward,
+  FiBook,
+  FiCalendar
+} from 'react-icons/fi';
+import { 
+  RiGraduationCapLine, 
+  RiMailLine, 
+  RiGlobalLine, 
+  RiMedalLine, 
+  RiBookLine,
+  RiUserLine,
+  RiCalendarLine,
+  RiShieldUserLine
+} from 'react-icons/ri';
 import { Dialog, Transition } from '@headlessui/react';
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -165,32 +187,37 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
     divider: darkMode ? 'border-gray-700 border-opacity-30' : 'border-gray-200 border-opacity-50',
     shadow: darkMode ? 'shadow-lg shadow-black/30' : 'shadow-lg shadow-gray-400/20',
     placeholder: darkMode ? 'placeholder-gray-400' : 'placeholder-gray-500',
-    statText: darkMode ? '' : 'text-black' // New property for stat text
+    statText: darkMode ? 'text-gray-100' : 'text-gray-800',
+    iconColor: darkMode ? 'text-gray-100' : 'text-gray-800',
+    iconAccentColor: darkMode ? 'text-teal-400' : 'text-teal-600',
+    iconContainer: darkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100 bg-opacity-80',
+    iconInputColor: darkMode ? 'text-teal-400' : 'text-teal-600'
   };
 
   const stats = [
-    { label: 'Member Since', value: userData.joinDate, icon: <RiMedalLine className="text-lg" /> },
-    { label: 'Subscription', value: userData.subscription, icon: <RiMedalLine className="text-lg" /> },
-    { label: 'Target Exam', value: userData.targetExam, icon: <RiGraduationCapLine className="text-lg" /> },
-    { label: 'Exam Attempt', value: userData.examAttempt, icon: <RiGraduationCapLine className="text-lg" /> }
+    { label: 'Member Since', value: userData.joinDate, icon: <RiCalendarLine className={`text-lg ${colors.iconColor}`} /> },
+    { label: 'Subscription', value: userData.subscription, icon: <RiShieldUserLine className={`text-lg ${colors.iconColor}`} /> },
+    { label: 'Target Exam', value: userData.targetExam, icon: <RiGraduationCapLine className={`text-lg ${colors.iconColor}`} /> },
+    { label: 'Exam Attempt', value: userData.examAttempt, icon: <RiMedalLine className={`text-lg ${colors.iconColor}`} /> }
   ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4">
+        {/* Main profile modal */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className={`w-full max-w-4xl mx-auto ${colors.cardBg} rounded-xl ${colors.border} border ${colors.shadow} overflow-hidden`}
+          className={`w-full mx-auto ${isDesktop ? 'max-w-2xl' : 'max-w-4xl'} ${colors.cardBg} rounded-xl ${colors.border} border ${colors.shadow} overflow-hidden`}
         >
           {/* Header with close button only */}
-          <div className="flex justify-end items-center p-4">
+          <div className="flex text-black justify-end items-center p-4">
             <button
               onClick={onClose}
               className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
             >
-              <FiX className="h-6 w-6" />
+              <FiX className={`h-6 w-6 ${colors.iconColor}`} />
             </button>
           </div>
 
@@ -215,7 +242,7 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                     className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
                     whileHover={{ opacity: 1 }}
                   >
-                    <FiCamera className="h-6 w-6 mb-1 text-white" />
+                    <FiCamera className={`h-6 w-6 mb-1 text-white`} />
                     <span className="text-sm font-medium text-white">Update Photo</span>
                   </motion.div>
                 </motion.div>
@@ -240,7 +267,7 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                       className={`text-base ${colors.subtleText} mb-4 flex items-center gap-1`}
                       variants={itemVariants}
                     >
-                      <RiGraduationCapLine />
+                      <RiGraduationCapLine className={colors.iconColor} />
                       {userData.educationLevel} student
                     </motion.p>
                   ) : (
@@ -266,7 +293,7 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                       whileHover={{ y: -4 }}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <div className={`p-2 rounded-full ${colors.primary} bg-opacity-20 text-${colors.accentText}`}>
+                        <div className={`p-2 rounded-full ${colors.iconContainer} ${colors.iconAccentColor}`}>
                           {item.icon}
                         </div>
                         <h3 className={`text-xs font-semibold ${colors.accentText}`}>{item.label}</h3>
@@ -287,10 +314,13 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                       onClick={() => toggleSection('personal')}
                     >
                       <h3 className={`text-base font-semibold ${colors.accentText} flex items-center gap-2`}>
-                        <RiMailLine />
+                        <RiUserLine className={colors.iconColor} />
                         Personal Information
                       </h3>
-                      {expandedSection === 'personal' ? <FiChevronUp /> : <FiChevronDown />}
+                      {expandedSection === 'personal' ? 
+                        <FiChevronUp className={colors.iconColor} /> : 
+                        <FiChevronDown className={colors.iconColor} />
+                      }
                     </div>
                     <AnimatePresence>
                       {expandedSection === 'personal' && (
@@ -327,10 +357,13 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                       onClick={() => toggleSection('education')}
                     >
                       <h3 className={`text-base font-semibold ${colors.accentText} flex items-center gap-2`}>
-                        <RiGraduationCapLine />
+                        <RiGraduationCapLine className={colors.iconColor} />
                         Education Details
                       </h3>
-                      {expandedSection === 'education' ? <FiChevronUp /> : <FiChevronDown />}
+                      {expandedSection === 'education' ? 
+                        <FiChevronUp className={colors.iconColor} /> : 
+                        <FiChevronDown className={colors.iconColor} />
+                      }
                     </div>
                     <AnimatePresence>
                       {expandedSection === 'education' && (
@@ -372,16 +405,16 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(!isEditing)}
-                    className={`px-4 py-2 rounded-lg ${colors.primary} ${colors.primaryHover} transition-colors duration-300 text-white font-medium ${colors.shadow} flex items-center gap-2 text-sm`}
+                    className={`px-4 py-2 cursor-pointer rounded-lg ${colors.primary} ${colors.primaryHover} transition-colors duration-300 text-white font-medium ${colors.shadow} flex items-center gap-2 text-sm`}
                   >
-                    <FiEdit className="h-4 w-4" />
+                    <FiEdit className="h-4 w-4 text-white" />
                     {isEditing ? 'Cancel Editing' : 'Edit Profile'}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onClose}
-                    className={`px-4 py-2 rounded-lg text-black ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
+                    className={`px-4 py-2 cursor-pointer rounded-lg ${darkMode ? 'text-white' : 'text-black'} ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
                   >
                     Close Profile
                   </motion.button>
@@ -390,213 +423,221 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
             </div>
           </div>
         </motion.div>
-      </div>
 
-      {/* Edit Profile Modal */}
-      <Transition appear show={isEditing} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setIsEditing(false)}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className={`fixed inset-0 ${colors.overlay} backdrop-blur-sm`} />
-          </Transition.Child>
+        {/* Edit Profile Modal */}
+        <Transition appear show={isEditing} as={Fragment}>
+          <Dialog as="div" className="relative z-50" onClose={() => setIsEditing(false)}>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className={`fixed inset-0 ${colors.overlay} backdrop-blur-sm`} />
+            </Transition.Child>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel
-                  className={`w-full max-w-2xl transform overflow-hidden rounded-2xl p-0 text-left align-middle ${colors.cardBg} ${colors.border} border ${colors.shadow} backdrop-blur-lg`}
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
                 >
-                  <div className="flex justify-between items-center px-6 pt-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <Dialog.Title className={`text-xl font-bold ${colors.accentText}`}>
-                      Edit Profile
-                    </Dialog.Title>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
-                    >
-                      <FiX className="h-6 w-6" />
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleEditSubmit} className="px-6 py-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {/* Personal Information Section */}
-                      <div className="md:col-span-2">
-                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
-                          Personal Information
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Name Field */}
-                          <div>
-                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                              Full Name
-                            </label>
-                            <div className="relative">
-                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
-                                <RiMailLine className="text-lg" />
-                              </span>
-                              <input
-                                type="text"
-                                name="name"
-                                defaultValue={userData.name}
-                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Email Field */}
-                          <div>
-                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                              Email
-                            </label>
-                            <div className="relative">
-                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
-                                <RiMailLine className="text-lg" />
-                              </span>
-                              <input
-                                type="email"
-                                name="email"
-                                defaultValue={userData.email}
-                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Education Section */}
-                      <div className="md:col-span-2">
-                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
-                          Education Details
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Education Level */}
-                          <div>
-                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                              Education Level
-                            </label>
-                            <div className="relative">
-                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
-                                <RiGraduationCapLine className="text-lg" />
-                              </span>
-                              <select
-                                name="educationLevel"
-                                defaultValue={userData.educationLevel}
-                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
-                              >
-                                <option value="">Select education level</option>
-                                {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
-                                  <option key={level} value={level}>{level}</option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Preferred Language */}
-                          <div>
-                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                              Preferred Language
-                            </label>
-                            <div className="relative">
-                              <span className={`absolute inset-y-0 left-0 pl-3 flex items-center ${colors.accentText}`}>
-                                <RiGlobalLine className="text-lg" />
-                              </span>
-                              <select
-                                name="preferredLanguage"
-                                defaultValue={userData.preferredLanguage}
-                                className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
-                              >
-                                {['English', 'Hinglish', 'Hindi'].map(lang => (
-                                  <option key={lang} value={lang}>{lang}</option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Target Exam */}
-                          <div className="md:col-span-2">
-                            <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
-                              Target Exam
-                            </label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {['UGC-NET', 'CSIR-NET'].map(exam => (
-                                <label key={exam} className="flex items-center space-x-2">
-                                  <input
-                                    type="radio"
-                                    name="targetExam"
-                                    value={exam}
-                                    defaultChecked={userData.targetExam === exam}
-                                    className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
-                                  />
-                                  <span className={`text-sm ${colors.statText}`}>{exam}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Exam Attempt Section */}
-                      <div className="md:col-span-2">
-                        <h3 className={`text-lg font-semibold ${colors.accentText} mb-4`}>
-                          Exam Details
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          {['First Attempt', 'Second Attempt', 'Third Attempt'].map(attempt => (
-                            <label key={attempt} className="flex items-center space-x-2">
-                              <input
-                                type="radio"
-                                name="examAttempt"
-                                value={attempt}
-                                defaultChecked={userData.examAttempt === attempt}
-                                className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
-                              />
-                              <span className={`text-sm ${colors.statText}`}>{attempt}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className={`py-4 border-t ${colors.border} mt-6 flex justify-end gap-3`}>
+                  <Dialog.Panel
+                    className={`w-full transform overflow-hidden rounded-2xl p-0 text-left align-middle ${colors.cardBg} ${colors.border} border ${colors.shadow} backdrop-blur-lg transition-all ${isDesktop ? 'max-w-md' : 'max-w-lg'}`}
+                  >
+                    <div className="flex justify-between items-center px-6 pt-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+                      <Dialog.Title className={`text-xl font-bold ${colors.accentText} flex items-center gap-2`}>
+                        <FiEdit className={`text-lg ${colors.iconInputColor}`} />
+                        Edit Profile
+                      </Dialog.Title>
                       <button
-                        type="button"
                         onClick={() => setIsEditing(false)}
-                        className={`px-4 py-2 rounded-lg ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow}`}
+                        className={`p-2 rounded-full ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
                       >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className={`px-4 py-2 rounded-lg ${colors.secondary} ${colors.secondaryHover} transition-colors duration-300 font-medium text-sm ${colors.shadow} flex items-center gap-2`}
-                      >
-                        <FiCheck className="h-4 w-4" />
-                        Save Changes
+                        <FiX className={`h-6 w-6 ${colors.iconColor}`} />
                       </button>
                     </div>
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
+
+                    <form onSubmit={handleEditSubmit} className="px-6 py-4">
+                      <div className="grid grid-cols-1 gap-4 mb-4">
+                        {/* Personal Information Section */}
+                        <div>
+                          <h3 className={`text-lg font-semibold ${colors.accentText} mb-3 flex items-center gap-2`}>
+                            <FiUser className={`text-lg ${colors.iconInputColor}`} />
+                            Personal Information
+                          </h3>
+                          <div className="grid grid-cols-1 gap-4">
+                            {/* Name Field */}
+                            <div>
+                              <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                                Full Name
+                              </label>
+                              <div className="relative">
+                                <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none`}>
+                                  <FiUser className={`text-lg ${colors.iconInputColor}`} />
+                                </div>
+                                <input
+                                  type="text"
+                                  name="name"
+                                  defaultValue={userData.name}
+                                  className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                                  placeholder="John Doe"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Email Field */}
+                            <div>
+                              <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                                Email Address
+                              </label>
+                              <div className="relative">
+                                <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none`}>
+                                  <FiMail className={`text-lg ${colors.iconInputColor}`} />
+                                </div>
+                                <input
+                                  type="email"
+                                  name="email"
+                                  defaultValue={userData.email}
+                                  className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                                  placeholder="john@example.com"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Education Section */}
+                        <div>
+                          <h3 className={`text-lg font-semibold ${colors.accentText} mb-3 flex items-center gap-2`}>
+                            <RiGraduationCapLine className={`text-lg ${colors.iconInputColor}`} />
+                            Education Details
+                          </h3>
+                          <div className="grid grid-cols-1 gap-4">
+                            {/* Education Level */}
+                            <div>
+                              <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                                Education Level
+                              </label>
+                              <div className="relative">
+                                <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none`}>
+                                  <FiBook className={`text-lg ${colors.iconInputColor}`} />
+                                </div>
+                                <select
+                                  name="educationLevel"
+                                  defaultValue={userData.educationLevel}
+                                  className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                                >
+                                  <option value="">Select education level</option>
+                                  {['High School', 'Undergraduate', 'Graduate', 'Post Graduate'].map(level => (
+                                    <option key={level} value={level}>{level}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Preferred Language */}
+                            <div>
+                              <label className={`block text-sm font-medium ${colors.subtleText} mb-1`}>
+                                Preferred Language
+                              </label>
+                              <div className="relative">
+                                <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none`}>
+                                  <FiGlobe className={`text-lg ${colors.iconInputColor}`} />
+                                </div>
+                                <select
+                                  name="preferredLanguage"
+                                  defaultValue={userData.preferredLanguage}
+                                  className={`w-full ${colors.inputBg} ${colors.inputBorder} border rounded-lg pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 ${darkMode ? 'focus:ring-teal-500' : 'focus:ring-teal-400'} ${colors.statText}`}
+                                >
+                                  {['English', 'Hinglish', 'Hindi'].map(lang => (
+                                    <option key={lang} value={lang}>{lang}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Target Exam */}
+                            <div>
+                              <label className={`block text-sm font-medium ${colors.subtleText} mb-1 flex items-center gap-2`}>
+                                <FiAward className={`text-lg ${colors.iconInputColor}`} />
+                                Target Exam
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {['UGC-NET', 'CSIR-NET'].map(exam => (
+                                  <label key={exam} className="flex items-center space-x-2">
+                                    <input
+                                      type="radio"
+                                      name="targetExam"
+                                      value={exam}
+                                      defaultChecked={userData.targetExam === exam}
+                                      className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
+                                    />
+                                    <span className={`text-sm ${colors.statText}`}>{exam}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Exam Attempt Section */}
+                        <div>
+                          <h3 className={`text-lg font-semibold ${colors.accentText} mb-3 flex items-center gap-2`}>
+                            <RiMedalLine className={`text-lg ${colors.iconInputColor}`} />
+                            Exam Attempt
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {['First Attempt', 'Second Attempt', 'Third Attempt'].map(attempt => (
+                              <label key={attempt} className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  name="examAttempt"
+                                  value={attempt}
+                                  defaultChecked={userData.examAttempt === attempt}
+                                  className={`h-4 w-4 ${colors.accentText.replace('text', 'accent')}`}
+                                />
+                                <span className={`text-sm ${colors.statText}`}>{attempt}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className={`py-4 border-t ${colors.border} mt-4 flex justify-end gap-3`}>
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(false)}
+                          className={`px-4 py-2 rounded-lg ${colors.cardBg} ${colors.border} border hover:bg-opacity-80 transition-colors duration-300 font-medium text-sm ${colors.shadow} flex items-center gap-2`}
+                        >
+                          <FiX className={`h-4 w-4 ${colors.iconColor}`} />
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className={`px-4 py-2 rounded-lg ${colors.secondary} ${colors.secondaryHover} transition-colors duration-300 font-medium text-sm ${colors.shadow} flex items-center gap-2`}
+                        >
+                          <FiCheck className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-800'}`} />
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
             </div>
-          </div>
-        </Dialog>
-      </Transition>
+          </Dialog>
+        </Transition>
+      </div>
     </div>
   );
 };

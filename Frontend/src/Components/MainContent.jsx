@@ -548,7 +548,7 @@ const [isInterrupted, setIsInterrupted] = useState(false);
   <button
     onClick={handleStopTyping}
     className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
-        rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+        cursor-pointer transition-all duration-300 group shadow-sm
       ${darkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-black hover:bg-gray-400"}
     `}
     aria-label="Stop"
@@ -561,7 +561,7 @@ const [isInterrupted, setIsInterrupted] = useState(false);
   <button
     onClick={handleSendMessage}
     className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
-      rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+      cursor-pointer transition-all duration-300 group shadow-sm
       ${darkMode ? "bg-[#0f172a] text-white hover:bg-[#1B263B]" : "bg-white text-black hover:bg-gray-100"}
     `}
   >
