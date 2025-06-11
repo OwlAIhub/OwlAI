@@ -5,8 +5,9 @@ import { Link } from "react-router-dom";
 import OwlLogo from "./OwlLogo";
 import config from "../Config";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import remarkGfm from "remark-gfm"; // for tables, strikethrough, task lists
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+
 
 const MainContent = ({
     currentChatTitle,
@@ -15,56 +16,25 @@ const MainContent = ({
     toggleSidebar,
     onLogout,
     toggleDarkMode,
+    sessionId,
 }) => {
     const [message, setMessage] = useState("");
     const [messageCount, setMessageCount] = useState(0);
     const [showModal, setShowModal] = useState(false);
+    const [chatMessages, setChatMessages] = useState([]);
     const [windowSize, setWindowSize] = useState({
         width: window.innerWidth,
         height: window.innerHeight,
     });
     const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState("");
-    const [displayedText, setDisplayedText] = useState("");
-    const [copiedIndex, setCopiedIndex] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState(null);
-    const [customRemark, setCustomRemark] = useState("");
-    const [isInterrupted, setIsInterrupted] = useState(false);
-    
-    const getDefaultChats = () => {
-        const newChatId1 = Date.now();
-        const newChatId2 = Date.now() + 1;
-        return [
-            { 
-                id: newChatId1, 
-                title: "Learning Theories", 
-                lastAccessed: new Date().toISOString(),
-                starred: true,
-                messages: [] 
-            },
-            { 
-                id: newChatId2, 
-                title: "NEP 2020 Questions", 
-                lastAccessed: new Date(Date.now() - 86400000).toISOString(),
-                starred: false,
-                messages: []
-            },
-        ];
-    };
+const [response, setResponse] = useState("");
+const [displayedText, setDisplayedText] = useState("");
+const [copiedIndex, setCopiedIndex] = useState(null);
 
-    const [chats, setChats] = useState(() => {
-        const savedChats = localStorage.getItem('chats');
-        return savedChats ? JSON.parse(savedChats) : getDefaultChats();
-    });
-
-    const [activeChatId, setActiveChatId] = useState(() => {
-        const savedActiveChat = localStorage.getItem('activeChatId');
-        const defaultChats = getDefaultChats();
-        return savedActiveChat ? parseInt(savedActiveChat) : defaultChats[0]?.id || null;
-    });
-
-    const chatMessages = chats.find(chat => chat.id === activeChatId)?.messages || [];
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedIndex, setSelectedIndex] = useState(null);
+const [customRemark, setCustomRemark] = useState("");
+const [isInterrupted, setIsInterrupted] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
     const isLoggedIn = !!user;
@@ -72,19 +42,13 @@ const MainContent = ({
     const textareaRef = useRef(null);
     const scrollRef = useRef(null);
 
-    useEffect(() => {
-        localStorage.setItem('chats', JSON.stringify(chats));
-        if (activeChatId) {
-            localStorage.setItem('activeChatId', activeChatId.toString());
-        }
-    }, [chats, activeChatId]);
-
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return "Good Morning";
         if (hour < 18) return "Good Afternoon";
         return "Good Evening";
     };
+
 
     useEffect(() => {
         const handleResize = () => {
@@ -111,30 +75,22 @@ const MainContent = ({
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [chatMessages]);
-
     function formatMarkdown(response) {
         if (typeof response !== "string") return "";
+      
         return response
-            .replace(/undefined/g, "")
-            .replace(/\n{2,}/g, '\n\n')
-            .replace(/\n/g, '\n&nbsp;\n')
-            .trim();
-    }
-
-    const handleNewChat = () => {
-        const defaultChats = getDefaultChats();
-        setChats(defaultChats);
-        setActiveChatId(defaultChats[0]?.id || null);
-        setMessage("");
-        setResponse("");
-        setDisplayedText("");
-        localStorage.setItem('chats', JSON.stringify(defaultChats));
-        localStorage.setItem('activeChatId', defaultChats[0]?.id?.toString() || '');
-    };
-
-    const handleSelectChat = (chatId) => {
-        setActiveChatId(chatId);
-    };
+          .replace(/undefined/g, "")
+          // Slightly increase space for double line breaks
+          .replace(/\n{2,}/g, '\n\n')         // Keep Markdown spacing behavior
+          // Add light spacing after single line breaks for smoother readability
+          .replace(/\n/g, '\n&nbsp;\n')       // Just enough spacing
+          .trim();
+      }
+      
+      
+      
+      
+      
 
     const handleSendMessage = async () => {
         setIsInterrupted(false);
@@ -143,277 +99,219 @@ const MainContent = ({
         const nextCount = messageCount + 1;
     
         if (!isLoggedIn && nextCount > 3) {
-            setShowModal(true);
-            return;
+          setShowModal(true);
+          return;
         }
     
         if (!isLoggedIn) {
-            setMessageCount(nextCount);
+          setMessageCount(nextCount);
         }
     
-        const userMessage = { 
-            role: "user", 
-            content: message, 
-            isMarkdown: true, 
-            feedback: null,
-            timestamp: new Date().toISOString()
-        };
-        
-        setChats(prevChats => 
-            prevChats.map(chat => 
-                chat.id === activeChatId 
-                    ? { 
-                        ...chat, 
-                        messages: [...chat.messages, userMessage],
-                        lastAccessed: new Date().toISOString()
-                    } 
-                    : chat
-            )
-        );
+        const userMessage = { role: "user", content: message, isMarkdown: true, feedback: null };
+        setChatMessages((prev) => [...prev, userMessage]);
     
         setMessage("");
-        setLoading(true);
+        setLoading(true); // Start loading animation
     
         if (isLoggedIn) {
-            try {
-                const res = await fetch(`${config.apiUrl}/ask`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ 
-                        query: message, 
-                        user_id: user.uid,
-                        chat_id: activeChatId
-                    }),
-                });
+
+          try {
+            const res = await fetch(`${config.apiUrl}/ask`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ query: message, user_id: user.uid, session_id: sessionId, }),
+            });
     
-                const data = await res.json();
-                const fullResponse = data.response || "Sorry, no response from AI.";
-                const formattedResponse = formatMarkdown(fullResponse);
-    
-                setResponse(formattedResponse);
-                setDisplayedText("");
-                
-            } catch (err) {
-                const botMessage = {
-                    role: "bot",
-                    content: "Oops! Something went wrong.",
-                    timestamp: new Date().toISOString()
-                };
-                
-                setChats(prevChats => 
-                    prevChats.map(chat => 
-                        chat.id === activeChatId 
-                            ? { 
-                                ...chat, 
-                                messages: [...chat.messages, botMessage],
-                                lastAccessed: new Date().toISOString()
-                            } 
-                            : chat
-                    )
-                );
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            setLoading(false);
-            const dummyAnswers = [
-                "Sure! Here's a simple explanation.",
-                "Of course! Let me help you with that.",
-                "Absolutely, that's a great question!",
-            ];
-            const botMessage = {
-                role: "bot",
-                content: dummyAnswers[(chatMessages.length / 2) % 3 | 0],
-                timestamp: new Date().toISOString()
-            };
+            const data = await res.json();
+            const fullResponse = data.response || "Sorry, no response from AI.";
+            const formattedResponse = formatMarkdown(fullResponse);
+
+            setResponse(formattedResponse); // still animate with typing
+            setDisplayedText(""); // prepare typing
             
-            setChats(prevChats => 
-                prevChats.map(chat => 
-                    chat.id === activeChatId 
-                        ? { 
-                            ...chat, 
-                            messages: [...chat.messages, botMessage],
-                            lastAccessed: new Date().toISOString()
-                        } 
-                        : chat
-                )
-            );
+          } catch (err) {
+            const botMessage = {
+              role: "bot",
+              content: "Oops! Something went wrong.",
+            };
+            setChatMessages((prev) => [...prev, botMessage]);
+          } finally {
+            setLoading(false); // End loading
+          }
+        } else {
+          // For not logged in users, use dummy answers with no loading animation
+          setLoading(false);
+          const dummyAnswers = [
+            "Sure! Here's a simple explanation.",
+            "Of course! Let me help you with that.",
+            "Absolutely, that's a great question!",
+          ];
+          const botMessage = {
+            role: "bot",
+            content: dummyAnswers[(chatMessages.length / 2) % 3 | 0],
+          };
+          setChatMessages((prev) => [...prev, botMessage]);
         }
-    };
+      };
     
-    useEffect(() => {
+      useEffect(() => {
         if (!response) return;
       
         let i = 0;
         setDisplayedText("");
         const interval = setInterval(() => {
-            if (i < response.length) {
-                setDisplayedText((prev) => prev + response[i]);
-                i++;
-            } else {
-                clearInterval(interval);
-                const botMessage = {
-                    role: "bot",
-                    content: response,
-                    isMarkdown: true,
-                    timestamp: new Date().toISOString()
-                };
-                
-                setChats(prevChats => 
-                    prevChats.map(chat => 
-                        chat.id === activeChatId 
-                            ? { 
-                                ...chat, 
-                                messages: [...chat.messages, botMessage],
-                                lastAccessed: new Date().toISOString()
-                            } 
-                            : chat
-                    )
-                );
-                
-                setTimeout(() => {
-                    setDisplayedText("");
-                    setResponse("");
-                }, 200);
-            }
-        }, 10);
+          if (i < response.length) {
+            setDisplayedText((prev) => prev + response[i]);
+            i++;
+          } else {
+            clearInterval(interval);
+            // Add full message to chatMessages
+            setChatMessages((prev) => [
+              ...prev,
+              { role: "bot", content: response, isMarkdown: true },
+            ]);
+            
+            // Small delay before clearing displayedText, so React updates cleanly
+            setTimeout(() => {
+              setDisplayedText("");
+              setResponse(""); // clear response to stop typing effect
+            }, 200);
+          }
+        }, 10); // Adjust speed here
       
         return () => clearInterval(interval);
-    }, [response]);
+      }, [response]);
       
-    const handleFeedback = (index, type) => {
+      const handleFeedback = (index, type) => {
         if (type === "dislike") {
-            setSelectedIndex(index);
-            setIsModalOpen(true);
+          setSelectedIndex(index);
+          setIsModalOpen(true);
         } else {
-            sendFeedback(index, type, "Satisfied with the response");
+          sendFeedback(index, type, "Satisfied with the response");
         }
-    };
+      };
       
-    const sendFeedback = async (index, type, remarks) => {
+      
+      const sendFeedback = async (index, type, remarks) => {
         const score = type === "like" ? 1 : 0;
       
         const feedbackData = {
-            chat_id: activeChatId || "abc-123",
-            user_id: user.uid,
-            usefulness_score: score,
-            content_quality_score: score,
-            remarks: remarks,
-            flagged_reason: null,
+          chat_id: "abc-123",
+          user_id: user.uid,
+          usefulness_score: score,
+          content_quality_score: score,
+          remarks: remarks,
+          flagged_reason: null,
         };
       
         try {
-            await fetch(`${config.apiUrl}/feedback/create`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(feedbackData),
-            });
+          await fetch(`${config.apiUrl}/feedback/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(feedbackData),
+          });
       
-            setChats(prevChats => 
-                prevChats.map(chat => 
-                    chat.id === activeChatId 
-                        ? { 
-                            ...chat, 
-                            messages: chat.messages.map((msg, i) => 
-                                i === index ? { ...msg, feedback: type } : msg
-                            ),
-                            lastAccessed: new Date().toISOString()
-                        } 
-                        : chat
-                )
-            );
+          const updatedMessages = [...chatMessages];
+          updatedMessages[index].feedback = type;
+          setChatMessages(updatedMessages);
         } catch (error) {
-            console.error("Feedback error:", error);
+          console.error("Feedback error:", error);
         }
-    };
+      };
       
-    const handleCopy = async (text, index) => {
+      
+      
+      const handleCopy = async (text, index) => {
         try {
-            await navigator.clipboard.writeText(text);
-            setCopiedIndex(index);
-            setTimeout(() => setCopiedIndex(null), 5000);
+          await navigator.clipboard.writeText(text);
+          setCopiedIndex(index);
+          setTimeout(() => setCopiedIndex(null), 5000); // reset after 2s
         } catch (err) {
-            console.error("Copy failed:", err);
+          console.error("Copy failed:", err);
         }
-    };
+      };
       
-    const handleStopTyping = () => {
+      const handleStopTyping = () => {
         setIsInterrupted(true);
-        setLoading(false);
+        setLoading(false); // this stops the animation
         if (displayedText) {
-            const botMessage = {
-                role: "bot",
-                content: displayedText,
-                isMarkdown: true,
-                timestamp: new Date().toISOString()
-            };
-            
-            setChats(prevChats => 
-                prevChats.map(chat => 
-                    chat.id === activeChatId 
-                        ? { 
-                            ...chat, 
-                            messages: [...chat.messages, botMessage],
-                            lastAccessed: new Date().toISOString()
-                        } 
-                        : chat
-                )
-            );
-            
-            setDisplayedText("");
+          // push whatever is typed till now into chat
+          setChatMessages((prev) => [
+            ...prev,
+            { role: "bot", content: displayedText }
+          ]);
+          setDisplayedText("");
         }
-    };
-
-    const getLogoContainerStyle = () => {
+      };
+      
+      // Calculate dynamic padding based on window size
+      const getLogoContainerStyle = () => {
         if (windowSize.width < 768) {
-            return {
-                marginTop: "4.5rem",
-                marginBottom: "1rem",
-                maxWidth: "90%",
-            };
+          return {
+            marginTop: "4.5rem", // mt-18 equivalent
+            marginBottom: "1rem",
+            maxWidth: "90%",
+          };
         } else {
-            return {
-                marginTop: "2rem",
-                marginBottom: "0.5rem",
-                maxWidth: "28rem",
-            };
+          return {
+            marginTop: "2rem",
+            marginBottom: "0.5rem",
+            maxWidth: "28rem",
+          };
         }
-    };
+      };
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden">
+            {/* Sidebar */}
             <div
                 className={`fixed inset-y-0 z-20 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
-                    ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
-                    transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-                    w-64 md:w-72 border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+          ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
+          transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
+          w-64 md:w-72
+          border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                style={{
+                    willChange: 'transform',
+                    transitionProperty: 'transform, box-shadow',
+                }}
             >
                 <Sidebar
                     isOpen={isSidebarOpen}
+                    isLoggedIn={isLoggedIn}
                     onClose={toggleSidebar}
-                    onNewChat={handleNewChat}
-                    onSelectChat={handleSelectChat}
+                    onNewChat={() => { }}
+                    onSelectChat={() => { }}
+                    onLogout={onLogout}
                     darkMode={darkMode}
-                    currentUser={user}
-                    activeChatId={activeChatId}
-                    chats={chats}
-                    setChats={setChats}
+                    isMobile={false}
                 />
             </div>
 
+            {/* Overlay */}
             {isSidebarOpen && (
-                <div className="fixed inset-0 z-10 bg-black transition-opacity duration-600 ease-in-out opacity-50 md:hidden" 
-                     onClick={toggleSidebar} />
+                <div
+                    className={`fixed inset-0 z-10 bg-black transition-opacity duration-600 ease-in-out ${isSidebarOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
+                        } md:hidden`}
+                    onClick={toggleSidebar}
+                    style={{
+                        willChange: 'opacity',
+                    }}
+                />
             )}
 
-            <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-                ${isSidebarOpen ? 'md:ml-64 lg:ml-72' : 'ml-0'}`}>
-                
+            {/* Main content */}
+            <div
+                className={`flex-1 flex flex-col overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
+          ${isSidebarOpen ? 'md:ml-64 lg:ml-72' : 'ml-0'}`}
+                style={{
+                    willChange: 'margin',
+                }}
+            >
                 <Header
                     currentChatTitle={currentChatTitle}
                     onToggleSidebar={toggleSidebar}
@@ -424,8 +322,8 @@ const MainContent = ({
                 />
 
                 <main
-                    ref={scrollRef}
-                    className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+                    className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${darkMode ? "bg-gray-900" : "bg-gray-50"
+                        }`}
                 >
                     <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
                         {chatMessages.length === 0 && isLoggedIn ? (
@@ -434,7 +332,7 @@ const MainContent = ({
                                     {getGreeting()}, {user.firstName || "there"}!
                                 </h1>
                                 <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                                    Let's prepare together and make today productive.
+                                    Let’s prepare together and make today productive.
                                 </p>
                             </div>
                         ) : chatMessages.length === 0 ? (
@@ -456,168 +354,178 @@ const MainContent = ({
                                 </div>
                             </>
                         ) : null}
+{chatMessages.map((msg, index) => (
+  <div
+    key={index}
+    className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words
+        ${
+        msg.role === "user"
+          ? darkMode
+            ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white self-end"
+            : "bg-gray-200 text-gray-800 self-end"
+          : darkMode
+          ? "text-gray-100 self-start"
+          : "text-gray-900 self-start"
+    }`}
+    style={{
+      boxShadow: darkMode
+        ? "0 2px 10px rgba(255,255,255,0.05)"
+        : "0 2px 10px rgba(0,0,0,0.1)",
+    }}
+  >
+    {msg.role === "bot" ? (
+        <>
+     <div className="prose dark:prose-invert max-w-none">
+  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+    {formatMarkdown(msg.content)}
+  </ReactMarkdown>
+</div>
 
-                        {chatMessages.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words
-                                    ${
-                                        msg.role === "user"
-                                        ? darkMode
-                                            ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white self-end"
-                                            : "bg-gray-200 text-gray-800 self-end"
-                                        : darkMode
-                                        ? "text-gray-100 self-start"
-                                        : "text-gray-900 self-start"
-                                    }`}
-                                style={{
-                                    boxShadow: darkMode
-                                        ? "0 2px 10px rgba(255,255,255,0.05)"
-                                        : "0 2px 10px rgba(0,0,0,0.1)",
-                                }}
-                            >
-                                {msg.role === "bot" ? (
-                                    <>
-                                        <div className="prose dark:prose-invert max-w-none">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                {formatMarkdown(msg.content)}
-                                            </ReactMarkdown>
-                                        </div>
+      <div className="flex gap-4 mt-2 text-sm text-gray-500">
+      <button
+    onClick={() => handleFeedback(index, "like")}
+    className={`hover:text-green-500 transition cursor-pointer ${
+      msg.feedback === "like" ? "text-green-600 font-semibold" : ""
+    }`}
+  >
+    👍 {msg.feedback === "like" && "Thanks!"}
+  </button>
 
-                                        <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                                            <button
-                                                onClick={() => handleFeedback(index, "like")}
-                                                className={`hover:text-green-500 transition cursor-pointer ${
-                                                    msg.feedback === "like" ? "text-green-600 font-semibold" : ""
-                                                }`}
-                                            >
-                                                👍 {msg.feedback === "like" && "Thanks!"}
-                                            </button>
+  <button
+    onClick={() => handleFeedback(index, "dislike")}
+    className={`hover:text-red-500 transition cursor-pointer ${
+      msg.feedback === "dislike" ? "text-red-600 font-semibold" : ""
+    }`}
+  >
+    👎 {msg.feedback === "dislike" && "Noted"}
+  </button>
 
-                                            <button
-                                                onClick={() => handleFeedback(index, "dislike")}
-                                                className={`hover:text-red-500 transition cursor-pointer ${
-                                                    msg.feedback === "dislike" ? "text-red-600 font-semibold" : ""
-                                                }`}
-                                            >
-                                                👎 {msg.feedback === "dislike" && "Noted"}
-                                            </button>
+      <button
+  onClick={() => handleCopy(msg.content, index)}
+  className="hover:text-blue-500 transition flex items-center gap-1 cursor-pointer"
+>
+  {copiedIndex === index ? (
+    <>
+      ✔️ <span className="text-sm">Copied</span>
+    </>
+  ) : (
+    <>
+      📋 <span className="text-sm">Copy</span>
+    </>
+  )}
+</button>
+{isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+    <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
+      >
+        ×
+      </button>
 
-                                            <button
-                                                onClick={() => handleCopy(msg.content, index)}
-                                                className="hover:text-blue-500 transition flex items-center gap-1 cursor-pointer"
-                                            >
-                                                {copiedIndex === index ? (
-                                                    <>
-                                                        ✔️ <span className="text-sm">Copied</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        📋 <span className="text-sm">Copy</span>
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    msg.content
-                                )}
-                            </div>
-                        ))}
+      <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
 
-                        {isModalOpen && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
-                                <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
-                                    <button
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
-                                    >
-                                        ×
-                                    </button>
+      {/* ✅ Predefined feedback options */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {["Not satisfied", "Too vague", "Irrelevant", "Incomplete", "Wrong answer"].map((label) => (
+          <button
+            key={label}
+            onClick={() => setCustomRemark(label)}
+            className="bg-[#37474F] text-white text-sm px-3 py-1 rounded hover:bg-[#455A64]"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-                                    <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
+      <textarea
+        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white bg-gray-700"
+        placeholder="Write your feedback..."
+        value={customRemark}
+        onChange={(e) => setCustomRemark(e.target.value)}
+      />
 
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {["Not satisfied", "Too vague", "Irrelevant", "Incomplete", "Wrong answer"].map((label) => (
-                                            <button
-                                                key={label}
-                                                onClick={() => setCustomRemark(label)}
-                                                className="bg-[#37474F] text-white text-sm px-3 py-1 rounded hover:bg-[#455A64]"
-                                            >
-                                                {label}
-                                            </button>
-                                        ))}
-                                    </div>
+      <div className="mt-4 flex justify-end gap-2">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Cancel
+        </button>
 
-                                    <textarea
-                                        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white bg-gray-700"
-                                        placeholder="Write your feedback..."
-                                        value={customRemark}
-                                        onChange={(e) => setCustomRemark(e.target.value)}
-                                    />
+        <button
+          onClick={() => {
+            sendFeedback(
+              selectedIndex,
+              "dislike",
+              customRemark || "Not satisfied with the response"
+            );
+            setIsModalOpen(false);
+            setCustomRemark("");
+          }}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
-                                    <div className="mt-4 flex justify-end gap-2">
-                                        <button
-                                            onClick={() => setIsModalOpen(false)}
-                                            className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
-                                        >
-                                            Cancel
-                                        </button>
 
-                                        <button
-                                            onClick={() => {
-                                                sendFeedback(
-                                                    selectedIndex,
-                                                    "dislike",
-                                                    customRemark || "Not satisfied with the response"
-                                                );
-                                                setIsModalOpen(false);
-                                                setCustomRemark("");
-                                            }}
-                                            className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
 
-                        {loading && !isInterrupted && (
-                            <div
-                                className={`w-full max-w-3xl rounded-lg p-4 ${
-                                    darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
-                                }`}
-                                style={{
-                                    fontStyle: "italic",
-                                    fontWeight: "500",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "8px",
-                                }}
-                            >
-                                Thinking
-                                <div className="typing-indicator">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </div>
-                        )}
+    </div>
+    </>
+    ) : (
+      msg.content
+    )}
+  </div>
+))}
 
-                        {displayedText && !loading && (
-                            <div
-                                className={`w-full max-w-3xl rounded-lg p-4 ${
-                                    darkMode ? " text-gray-100 self-start" : " text-gray-900 self-start"
-                                }`}
-                                style={{ whiteSpace: "pre-wrap" }}
-                            >
-                                {displayedText}
-                            </div>
-                        )}
+{/* Show loading while waiting for response */}
+{loading && !isInterrupted && (
+
+  <div
+    className={`w-full max-w-3xl rounded-lg p-4 ${
+      darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
+    }`}
+    style={{
+      fontStyle: "italic",
+      fontWeight: "500",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    }}
+  >
+    Thinking
+    <div className="typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+)}
+
+
+{/* Show typing text only if it exists (during typing) */}
+{displayedText && !loading && (
+  <div
+    className={`w-full max-w-3xl rounded-lg p-4 ${
+      darkMode ? " text-gray-100 self-start" : " text-gray-900 self-start"
+    }`}
+    style={{ whiteSpace: "pre-wrap" }}
+  >
+    {displayedText}
+  </div>
+)}
+
+
                     </div>
+
                 </main>
 
+                {/* Message Input */}
                 <div
                     className={`border-t p-4 ${darkMode
                         ? "bg-[#0D1B2A] border-gray-700"
@@ -664,33 +572,35 @@ const MainContent = ({
                                         disabled={!isLoggedIn && messageCount >= 4}
                                     />
 
-                                    {loading ? (
-                                        <button
-                                            onClick={handleStopTyping}
-                                            className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
-                                                cursor-pointer transition-all duration-300 group shadow-sm
-                                            ${darkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-black hover:bg-gray-400"}
-                                            `}
-                                            aria-label="Stop"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={handleSendMessage}
-                                            className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
-                                            cursor-pointer transition-all duration-300 group shadow-sm
-                                            ${darkMode ? "bg-[#0f172a] text-white hover:bg-[#1B263B]" : "bg-white text-black hover:bg-gray-100"}
-                                            `}
-                                        >
-                                            <ArrowUpwardIcon
-                                                className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110"
-                                                fontSize="medium"
-                                            />
-                                        </button>
-                                    )}
+{loading ? (
+  <button
+    onClick={handleStopTyping}
+    className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
+        rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+      ${darkMode ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-300 text-black hover:bg-gray-400"}
+    `}
+    aria-label="Stop"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+) : (
+  <button
+    onClick={handleSendMessage}
+    className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full
+      rounded-full p-1 cursor-pointer transition-all duration-300 group shadow-sm
+      ${darkMode ? "bg-[#0f172a] text-white hover:bg-[#1B263B]" : "bg-white text-black hover:bg-gray-100"}
+    `}
+  >
+    <ArrowUpwardIcon
+      className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110"
+      fontSize="medium"
+    />
+  </button>
+)}
+
+
                                 </div>
                             </div>
                             {showModal && (
@@ -717,38 +627,39 @@ const MainContent = ({
                 </div>
             </div>
             <style>{`
-                .typing-indicator {
-                    display: flex;
-                    gap: 4px;
-                }
+       .typing-indicator {
+  display: flex;
+  gap: 4px;
+}
 
-                .typing-indicator span {
-                    width: 8px;
-                    height: 8px;
-                    background-color: currentColor;
-                    border-radius: 50%;
-                    animation: bounce 1.2s infinite ease-in-out both;
-                }
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: bounce 1.2s infinite ease-in-out both;
+}
 
-                .typing-indicator span:nth-child(1) {
-                    animation-delay: 0s;
-                }
-                .typing-indicator span:nth-child(2) {
-                    animation-delay: 0.2s;
-                }
-                .typing-indicator span:nth-child(3) {
-                    animation-delay: 0.4s;
-                }
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
-                @keyframes bounce {
-                    0%, 80%, 100% {
-                        transform: scale(0);
-                    }
-                    40% {
-                        transform: scale(1);
-                    }
-                }
-            `}</style>
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+      `}</style>
         </div>
     );
 };

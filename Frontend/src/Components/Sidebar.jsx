@@ -14,6 +14,7 @@ import {
 import { FaKiwiBird } from "react-icons/fa";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import config from "../Config";
 
 const Sidebar = ({
   isOpen = false,
@@ -39,6 +40,55 @@ const Sidebar = ({
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      if (!user?.uid) return;
+      try {
+        const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${user.uid}`);
+        const data = await response.json();
+        console.log("Fetched chat sessions:", data);
+        setChats(data?.sessions || []);
+      } catch (error) {
+        console.error("Error fetching chat sessions:", error);
+      }
+    };
+  
+    fetchChats();
+  }, [user?.uid]);
+  
+  const renameChat = async (chatId, newTitle) => {
+    try {
+      const response = await fetch(`${config.apiUrl}/chat/session/rename`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ session_id: chatId, name: newTitle })
+      });
+  
+      if (response.ok) {
+        setChats(prev => prev.map(chat => chat.id === chatId ? { ...chat, title: newTitle } : chat));
+      }
+    } catch (err) {
+      console.error("Rename failed:", err);
+    }
+  };
+
+  const deleteChat = async (chatId) => {
+    try {
+      const response = await fetch(`${config.apiUrl}/chat/session/${chatId}`, {
+        method: 'DELETE'
+      });
+  
+      if (response.ok) {
+        setChats(prev => prev.filter(chat => chat.id !== chatId));
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+  
 
   const toggleStar = (chatId, e) => {
     e.stopPropagation();

@@ -17,6 +17,7 @@ import Questionnaire from "./Components/Questionnaire";
 import { auth } from "./firebase.js";
 import Sidebar from "./Components/Sidebar";
 import { AnimatePresence, motion } from "framer-motion";
+import config from "./Config.js";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -59,6 +60,7 @@ function App() {
     auth
       .signOut()
       .then(() => {
+        localStorage.clear();
         toast.info("You've been signed out.");
         setCurrentChatTitle("Learning Theories");
       })
@@ -71,6 +73,59 @@ function App() {
     if (!authReady) return null;
     return isLoggedIn ? children : <Navigate to="/login" replace />;
   };
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const [sessionId, setSessionId] = useState(null);
+
+  const createNewSession = async () => {
+    const existing = localStorage.getItem("sessionId");
+
+    if (existing) {
+      setSessionId(existing);
+    } else {
+      try {
+        const res = await fetch(`${config.apiUrl}/session/create?user_id=${user.uid}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+        }); const data = await res.json();
+        console.log("Session created:", data.session_id);
+        setSessionId(data.session_id);
+        localStorage.setItem("sessionId", data.session_id);
+      } catch (err) {
+        console.error("Failed to get session ID:", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    createNewSession();
+  }, []);
+
+  const handleNewChat = async () => {
+    try {
+      // Optional: Remove old sessionId
+      localStorage.removeItem("sessionId");
+
+      const res = await fetch(`${config.apiUrl}/session/create?user_id=${user.uid}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+      }); const data = await res.json();
+
+      console.log("New chat session created:", data);
+      setSessionId(data.session_id);
+      localStorage.setItem("sessionId", data.session_id);
+
+      // Reset current chat title if needed
+      setCurrentChatTitle("New Chat");
+    } catch (err) {
+      console.error("Failed to create new session:", err);
+    }
+  };
+
 
   const MainAppContent = () => {
     const location = useLocation();
@@ -83,6 +138,8 @@ function App() {
       }
     }, [location, navigate]);
 
+
+
     return (
       <div className="flex h-full">
         {/* Sidebar */}
@@ -94,6 +151,7 @@ function App() {
               darkMode={darkMode}
               currentUser={{ plan: "Free" }}
               onUserProfileClick={() => setShowProfileModal(true)}
+              onNewChat={handleNewChat}
             />
           )}
         </AnimatePresence>
@@ -105,9 +163,10 @@ function App() {
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
           isLoggedIn={isLoggedIn}
-          onLogin={() => {}}
+          onLogin={() => { }}
           onLogout={handleLogout}
           toggleDarkMode={toggleDarkMode}
+          sessionId={sessionId}
         />
       </div>
     );
@@ -119,7 +178,12 @@ function App() {
         <div className="dark:bg-gray-900 dark:text-white">
           <Routes>
             <Route path="/" element={<Navigate to="/chat" replace />} />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? <Navigate to="/chat" replace /> : <Login />
+              }
+            />
             <Route
               path="/questionnaire"
               element={
@@ -131,9 +195,7 @@ function App() {
             <Route
               path="/chat"
               element={
-                <ProtectedRoute>
-                  <MainAppContent />
-                </ProtectedRoute>
+                <MainAppContent />
               }
             />
             <Route
@@ -169,8 +231,8 @@ function App() {
                   className="w-full max-w-2xl"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <UserProfile 
-                    darkMode={darkMode} 
+                  <UserProfile
+                    darkMode={darkMode}
                     toggleDarkMode={toggleDarkMode}
                     onClose={() => setShowProfileModal(false)}
                   />
@@ -191,10 +253,9 @@ function App() {
             pauseOnHover
             theme={darkMode ? "dark" : "light"}
             toastClassName={() =>
-              `rounded-xl px-4 py-3 border-l-4 shadow-md ${
-                darkMode 
-                  ? "bg-gray-800 text-white border-emerald-400" 
-                  : "bg-white text-gray-900 border-[#52B788]"
+              `rounded-xl px-4 py-3 border-l-4 shadow-md ${darkMode
+                ? "bg-gray-800 text-white border-emerald-400"
+                : "bg-white text-gray-900 border-[#52B788]"
               }`
             }
             bodyClassName="text-sm font-medium"
