@@ -27,7 +27,7 @@ const Header = ({
                 darkMode ? "border-gray-700" : "border-gray-200"
             } shadow-sm`}
         >
-            <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-17 px-4 sm:px-6 lg:px-8">
                 {/* Left - Logo */}
                 <div className="flex items-center space-x-3">
                     <button
@@ -71,7 +71,7 @@ const Header = ({
                 <div className="flex items-center space-x-3">
                     <button
                         onClick={toggleDarkMode}
-                        className="p-2 rounded-full text-teal-600 hover:bg-teal-100 focus:outline-none"
+                        className="p-2 cursor-pointer rounded-full text-teal-600 hover:bg-teal-100 focus:outline-none"
                         aria-label="Toggle dark mode"
                     >
                         {darkMode ? <MdLightMode size={20} /> : <MdDarkMode size={20} />}
@@ -81,7 +81,7 @@ const Header = ({
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileDropdown((prev) => !prev)}
-                                className="flex items-center space-x-2 focus:outline-none"
+                                className="flex cursor-pointer items-center space-x-2 focus:outline-none"
                             >
                                 <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
                                     {firstLetter}
