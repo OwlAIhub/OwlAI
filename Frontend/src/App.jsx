@@ -167,6 +167,7 @@ function App() {
           onLogout={handleLogout}
           toggleDarkMode={toggleDarkMode}
           sessionId={sessionId}
+          onUserProfileClick={() => setShowProfileModal(true)}
         />
       </div>
     );

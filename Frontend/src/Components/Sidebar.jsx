@@ -14,7 +14,7 @@ import {
 import { FaKiwiBird } from "react-icons/fa";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import config from "../Config";
+import config from "../Config"; 
 
 const Sidebar = ({
   isOpen = false,
@@ -47,7 +47,6 @@ const Sidebar = ({
       try {
         const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${user.uid}`);
         const data = await response.json();
-        console.log("Fetched chat sessions:", data);
         setChats(data?.sessions || []);
       } catch (error) {
         console.error("Error fetching chat sessions:", error);
@@ -88,7 +87,6 @@ const Sidebar = ({
       console.error("Delete failed:", err);
     }
   };
-  
 
   const toggleStar = (chatId, e) => {
     e.stopPropagation();
@@ -116,7 +114,15 @@ const Sidebar = ({
 
   const handleProfileClick = (e) => {
     e.preventDefault();
-    onUserProfileClick();
+    e.stopPropagation();
+    onUserProfileClick(); // This triggers the modal to open
+    if (isMobile) onClose();
+  };
+
+  const handleNewChatClick = () => {
+    window.dispatchEvent(new CustomEvent('resetChatRequest'));
+    onNewChat();
+  
     if (isMobile) onClose();
   };
 
@@ -141,7 +147,6 @@ const Sidebar = ({
     }
   };
 
-  // Enhanced color definitions with better light mode visibility
   const colors = {
     light: {
       bg: 'bg-white',
@@ -192,7 +197,7 @@ const Sidebar = ({
       flex flex-col`}>
 
       {/* Header with logo and close button */}
-      <div className={`p-4 flex items-center justify-between border-b ${theme.border}`}>
+      <div className={`p-4 flex items-center justify-between border-b ${theme.border} h-17`}>
         <button 
           onClick={handleLogoClick}
           className="flex items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity"
@@ -222,7 +227,7 @@ const Sidebar = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`ml-2 bg-transparent outline-none w-full text-sm ${theme.text} placeholder-${theme.secondaryText}`}
             placeholder="Search chats..."
-            autoFocus
+            
           />
           {searchQuery && (
             <button 
@@ -239,7 +244,7 @@ const Sidebar = ({
       {/* New Chat Button */}
       <div className="px-3 mb-2">
         <button
-          onClick={onNewChat}
+          onClick={handleNewChatClick}
           className={`w-full cursor-pointer flex items-center justify-center ${theme.primary} ${theme.primaryText} py-2.5 rounded-lg font-medium transition-colors shadow-md`}
         >
           <FiPlus className="mr-2" />
@@ -339,12 +344,12 @@ const Sidebar = ({
         </div>
       </div>
 
-      {/* User Profile Section - Fixed */}
-      <div className={`p-4 border-t ${theme.border}`}>
+      {/* User Profile Section */}
+      <div className={`p-4  h-22 border-t ${theme.border}`}>
         <div className="w-full">
           <button
             onClick={handleProfileClick}
-            className="w-full flex items-center justify-between hover:opacity-80 transition-opacity focus:outline-none"
+            className="w-full cursor-pointer flex items-center justify-between hover:opacity-80 transition-opacity focus:outline-none"
             aria-label="Open user profile"
           >
             <div className="flex items-center space-x-3 min-w-0">
@@ -361,7 +366,7 @@ const Sidebar = ({
               </div>
               <div className="text-left min-w-0">
                 <div className={`text-sm font-medium truncate max-w-[120px] ${theme.text}`}>
-                  {(user?.firstName || "") + " " + (user?.lastName || "Guest User")}
+                  {user?.firstName || "Guest User"}
                 </div>
                 <div className={`text-xs truncate max-w-[120px] ${theme.userPlan}`}>
                   {currentUser?.plan ? `${currentUser.plan} Plan` : "Free Plan"}
