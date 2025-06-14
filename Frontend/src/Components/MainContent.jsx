@@ -17,6 +17,8 @@ const MainContent = ({
   toggleDarkMode,
   sessionId,
   onUserProfileClick,
+  chatId,
+  setSesssionId,
 }) => {
   const [message, setMessage] = useState("");
   const [messageCount, setMessageCount] = useState(0);
@@ -39,6 +41,49 @@ const MainContent = ({
     return savedChats ? JSON.parse(savedChats) : [];
   });
 
+ // In MainContent.jsx
+const [currentChat, setCurrentChat] = useState(null);
+
+useEffect(() => {
+  const savedChat = localStorage.getItem('selectedChat');
+  if (savedChat) {
+    setCurrentChat(JSON.parse(savedChat));
+  }
+}, []);
+
+// 2. Set up event listeners
+useEffect(() => {
+  const handleChatSelected = (e) => {
+    setCurrentChat(e.detail);
+  };
+
+  const handleStorageChange = (e) => {
+    if (e.key === 'selectedChat') {
+      setCurrentChat(e.newValue ? JSON.parse(e.newValue) : null);
+    }
+  };
+
+  window.addEventListener('chatSelected', handleChatSelected);
+  window.addEventListener('storage', handleStorageChange);
+
+  return () => {
+    window.removeEventListener('chatSelected', handleChatSelected);
+    window.removeEventListener('storage', handleStorageChange);
+  };
+}, []);
+
+// 3. Fetch chat history when currentChat changes
+useEffect(() => {
+  if (currentChat?.id) {
+    fetchChatHistory(currentChat.id);
+  } else {
+    setChatMessages([]);
+  }
+}, [currentChat]); // Only runs when currentChat changes
+
+// Debugging
+console.log('Current chat:', currentChat);
+
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = !!user;
   const token = localStorage.getItem("token");
@@ -52,21 +97,86 @@ const MainContent = ({
     );
   }, [chatMessages, sessionId]);
 
+  const fetchChatHistory = async (chatId) => {
+    try {
+      const response = await fetch(`${config.apiUrl}/chat/${chatId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Chat history data:', data);
+        
+        // Transform the API response into chat messages format
+        const messages = [];
+        
+        if (data.data && Array.isArray(data.data)) {
+          data.data.forEach((messageObj) => {
+            // Add user question if exists
+            if (messageObj.question_text) {
+              messages.push({
+                role: 'user',
+                content: messageObj.question_text,
+                isMarkdown: false,
+                feedback: messageObj.feedback_rating,
+                timestamp: messageObj.created_at
+              });
+            }
+            
+            // Add bot response if exists
+            if (messageObj.response_text) {
+              messages.push({
+                role: 'bot',
+                content: messageObj.response_text,
+                isMarkdown: true,
+                feedback: messageObj.feedback_rating,
+                timestamp: messageObj.created_at
+              });
+            }
+          });
+        }
+        
+        // Sort messages by timestamp to ensure correct order
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        setChatMessages(messages);
+      } else {
+        console.error('Failed to fetch chat history');
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+    }
+  };
+
+
   useEffect(() => {
-    const handleSessionChange = () => {
+    const handleNewSession = (event) => {
+      console.log("New session created:", event.detail?.sessionId);
       setChatMessages([]);
       setMessageCount(0);
       setResponse("");
       setDisplayedText("");
       setLoading(false);
     };
-    
-    window.addEventListener('sessionChanged', handleSessionChange);
+  
+    window.addEventListener('newSessionCreated', handleNewSession);
     
     return () => {
-      window.removeEventListener('sessionChanged', handleSessionChange);
+      window.removeEventListener('newSessionCreated', handleNewSession);
     };
   }, []);
+
+// This loads messages when session changes
+useEffect(() => {
+  const savedSessionId = localStorage.getItem("sessionId");
+  if (savedSessionId && savedSessionId !== sessionId) {
+    // Load messages for the new session
+    const savedChats = localStorage.getItem(`chatMessages-${savedSessionId}`);
+    setChatMessages(savedChats ? JSON.parse(savedChats) : []);
+  }
+}, [sessionId]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -104,11 +214,36 @@ const MainContent = ({
   function formatMarkdown(response) {
     if (typeof response !== "string") return "";
   
-    return response
+    // First clean up the response
+    let formatted = response
       .replace(/undefined/g, "")
-      .replace(/\n{2,}/g, '\n\n')
-      .replace(/\n/g, '\n&nbsp;\n')
+      .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
       .trim();
+  
+    // Enhance markdown formatting
+    formatted = formatted
+      // Headers
+      .replace(/^(#+)\s*(.*?)\s*$/gm, (match, hashes, text) => {
+        const level = hashes.length;
+        return `<h${level} class="markdown-header-${level}">${text}</h${level}>`;
+      })
+      // Bold text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic text
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Lists
+      .replace(/^\s*[-*+]\s+(.*)/gm, '<li>$1</li>')
+      // Multiple newlines to paragraph breaks
+      .replace(/\n\n/g, '</p><p>')
+      // Single newlines to line breaks
+      .replace(/\n/g, '<br/>');
+  
+    // Wrap in paragraph tags if not already wrapped
+    if (!formatted.startsWith('<p>')) {
+      formatted = `<p>${formatted}</p>`;
+    }
+  
+    return formatted;
   }
 
   const handleSendMessage = async () => {
@@ -387,10 +522,23 @@ const MainContent = ({
                 {msg.role === "bot" ? (
                   <>
                     <div className="prose dark:prose-invert max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {formatMarkdown(msg.content)}
-                      </ReactMarkdown>
-                    </div>
+  <ReactMarkdown 
+    remarkPlugins={[remarkGfm]}
+    components={{
+      h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-4 text-blue-600 dark:text-blue-400" {...props} />,
+      h2: ({node, ...props}) => <h2 className="text-xl font-bold my-3 text-blue-500 dark:text-blue-300" {...props} />,
+      h3: ({node, ...props}) => <h3 className="text-lg font-semibold my-2 text-blue-400 dark:text-blue-200" {...props} />,
+      p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
+      strong: ({node, ...props}) => <strong className="font-bold text-yellow-600 dark:text-yellow-400" {...props} />,
+      em: ({node, ...props}) => <em className="italic" {...props} />,
+      ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2" {...props} />,
+      ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2" {...props} />,
+      li: ({node, ...props}) => <li className="my-1" {...props} />,
+    }}
+  >
+    {msg.content}
+  </ReactMarkdown>
+</div>
 
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <button
@@ -425,6 +573,64 @@ const MainContent = ({
                           </>
                         )}
                       </button>
+                      {isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+    <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
+      >
+        ×
+      </button>
+
+      <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
+
+      {/* ✅ Predefined feedback options */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {["Not satisfied", "Too vague", "Irrelevant", "Incomplete", "Wrong answer"].map((label) => (
+          <button
+            key={label}
+            onClick={() => setCustomRemark(label)}
+            className="bg-[#37474F] text-white text-sm px-3 py-1 rounded hover:bg-[#455A64]"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <textarea
+        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white bg-gray-700"
+        placeholder="Write your feedback..."
+        value={customRemark}
+        onChange={(e) => setCustomRemark(e.target.value)}
+      />
+
+      <div className="mt-4 flex justify-end gap-2">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            sendFeedback(
+              selectedIndex,
+              "dislike",
+              customRemark || "Not satisfied with the response"
+            );
+            setIsModalOpen(false);
+            setCustomRemark("");
+          }}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
                     </div>
                   </>
                 ) : (
@@ -602,6 +808,53 @@ const MainContent = ({
             transform: scale(1);
           }
         }
+
+        .markdown-header-1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: #3b82f6;
+}
+
+.markdown-header-2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.75rem 0;
+  color: #60a5fa;
+}
+
+.markdown-header-3 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  color: #93c5fd;
+}
+
+.dark .markdown-header-1 {
+  color: #60a5fa;
+}
+
+.dark .markdown-header-2 {
+  color: #93c5fd;
+}
+
+.dark .markdown-header-3 {
+  color: #bfdbfe;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.prose strong {
+  font-weight: bold;
+  color: #d97706;
+}
+
+.dark .prose strong {
+  color: #f59e0b;
+}
       `}</style>
     </div>
   );

@@ -9,30 +9,38 @@ import {
   FiUser,
   FiSearch,
   FiChevronRight,
-  FiCreditCard
+  FiCreditCard,
+  FiEdit2,
+  FiTrash2
 } from "react-icons/fi";
 import { FaKiwiBird } from "react-icons/fa";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import config from "../Config"; 
+import { toast } from "react-toastify";
 
 const Sidebar = ({
   isOpen = false,
   onClose = () => {},
-  onNewChat = () => {},
-  onSelectChat = () => {},
+  onNewChat,
   darkMode = false,
   currentUser = {},
   activeChatId = null,
   chats = [],
   setChats = () => {},
   onUserProfileClick = () => {},
+  onNewSessionCreated,
+  onChatSelect
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editedTitle, setEditedTitle] = useState("");
   const navigate = useNavigate();
+  const[chatStore, setChatStore] = useState([]);
   const userData = localStorage.getItem("user");
   const user = userData ? JSON.parse(userData) : null;
+  console.log("onChatSelect prop:", onChatSelect); // Should log a function
 
   useEffect(() => {
     const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
@@ -47,7 +55,18 @@ const Sidebar = ({
       try {
         const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${user.uid}`);
         const data = await response.json();
-        setChats(data?.sessions || []);
+        if (data.status === "success") {
+          const formattedChats = data.data.map(session => ({
+            id: session.session_id,
+            title: session.title,
+            lastUpdated: session.last_updated,
+            numChats: session.num_chats,
+            startTime: session.start_time
+          }));
+          console.log("Fetched chats:", formattedChats);
+          setChats(formattedChats);
+          setChatStore(formattedChats);
+        }
       } catch (error) {
         console.error("Error fetching chat sessions:", error);
       }
@@ -63,14 +82,18 @@ const Sidebar = ({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ session_id: chatId, name: newTitle })
+        body: JSON.stringify({ session_id: chatId, new_name: newTitle })
       });
   
       if (response.ok) {
         setChats(prev => prev.map(chat => chat.id === chatId ? { ...chat, title: newTitle } : chat));
+        setChatStore(prev => prev.map(chat => chat.id === chatId ? { ...chat, title: newTitle } : chat));
+        setEditingChatId(null);
+        toast.success("Chat renamed successfully");
       }
     } catch (err) {
       console.error("Rename failed:", err);
+      toast.error("Failed to rename chat");
     }
   };
 
@@ -82,9 +105,43 @@ const Sidebar = ({
   
       if (response.ok) {
         setChats(prev => prev.filter(chat => chat.id !== chatId));
+        setChatStore(prev => prev.filter(chat => chat.id !== chatId));
+        toast.success("Chat deleted successfully");
+        
+        // If the deleted chat was the active one, clear the selection
+        if (activeChatId === chatId) {
+          onSelectChat(null);
+        }
       }
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Failed to delete chat");
+    }
+  };
+
+  const handleEditClick = (chatId, currentTitle, e) => {
+    e.stopPropagation();
+    setEditingChatId(chatId);
+    setEditedTitle(currentTitle);
+  };
+
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleBlur = (chatId) => {
+    if (editedTitle.trim()) {
+      renameChat(chatId, editedTitle);
+    } else {
+      setEditingChatId(null);
+    }
+  };
+
+  const handleKeyPress = (e, chatId) => {
+    if (e.key === 'Enter' && editedTitle.trim()) {
+      renameChat(chatId, editedTitle);
+    } else if (e.key === 'Escape') {
+      setEditingChatId(null);
     }
   };
 
@@ -97,10 +154,11 @@ const Sidebar = ({
     );
   };
 
-  const handleChatSelect = (chatId) => {
-    onSelectChat(chatId);
-    if (isMobile) onClose();
-  };
+  // const handleChatSelect = (chatId, chatTitle) => {
+  //   console.log("Selected chat:", chatId, chatTitle);
+  //   onSelectChat(chatId, chatTitle);
+  //       if (isMobile) onClose();
+  // };
 
   const handleLogoClick = () => {
     navigate("/");
@@ -115,23 +173,80 @@ const Sidebar = ({
   const handleProfileClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onUserProfileClick(); // This triggers the modal to open
+    onUserProfileClick();
     if (isMobile) onClose();
   };
 
-  const handleNewChatClick = () => {
-    window.dispatchEvent(new CustomEvent('resetChatRequest'));
-    onNewChat();
+  const createNewSession = async (userId) => {
+    try {
+      const res = await fetch(`${config.apiUrl}/session/create?user_id=${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      return data.session_id;
+    } catch (err) {
+      console.error("Failed to create session:", err);
+      toast.error("Failed to create chat session");
+      return null;
+    }
+  };
+
+  const handleNewChatClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      toast.error("Please log in to start a new chat");
+      return;
+    }
+  
+    try {
+      localStorage.removeItem("sessionId");
+      const newSessionId = await createNewSession(user.uid);
+      
+      if (newSessionId) {
+        localStorage.setItem("sessionId", newSessionId);
+        toast.success("New chat started!");
+        
+        window.dispatchEvent(new CustomEvent('newSessionCreated', {
+          detail: { sessionId: newSessionId }
+        }));
+        
+        if (onNewSessionCreated) {
+          onNewSessionCreated(newSessionId);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to start new chat:", err);
+      toast.error("Failed to start new chat");
+    }
   
     if (isMobile) onClose();
   };
 
-  const filteredChats = chats.filter(chat =>
+  // In Sidebar.jsx (when a chat is clicked)
+const handleChatClick = (chat) => {
+  // 1. Store the full chat data in localStorage
+  localStorage.setItem("selectedChat", JSON.stringify(chat));
+  
+  // 2. Dispatch a custom event to notify MainContent immediately
+  window.dispatchEvent(new CustomEvent("chatSelected", { 
+    detail: chat 
+  }));
+  
+  // 3. Close sidebar if mobile
+  if (isMobile) onClose();
+};
+
+
+
+  const filteredChats = chatStore.filter(chat =>
     chat?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const starredChats = filteredChats.filter(chat => chat?.starred);
-  const regularChats = filteredChats.filter(chat => !chat?.starred);
+  const regularChats = searchQuery.trim() ? filteredChats : chatStore;
 
   const formatLastAccessed = (dateString) => {
     if (!dateString) return "";
@@ -227,7 +342,6 @@ const Sidebar = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`ml-2 bg-transparent outline-none w-full text-sm ${theme.text} placeholder-${theme.secondaryText}`}
             placeholder="Search chats..."
-            
           />
           {searchQuery && (
             <button 
@@ -267,42 +381,6 @@ const Sidebar = ({
 
       {/* Chat List */}
       <div className={`flex-1 overflow-y-auto py-2 px-1 scrollbar-thin ${theme.scrollbar}`}>
-        {starredChats.length > 0 && (
-          <div className="mb-4">
-            <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.accent}`}>
-              <FiStar className="mr-2" /> Starred
-            </div>
-            {starredChats.map(chat => (
-              <div
-                key={chat.id}
-                onClick={() => handleChatSelect(chat.id)}
-                className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                  activeChatId === chat.id
-                    ? theme.activeBg
-                    : theme.hoverBg
-                }`}
-                aria-label={`Open chat: ${chat.title}`}
-              >
-                <div className="flex items-center min-w-0">
-                  <FiMessageSquare className={`mr-2 flex-shrink-0 ${theme.icon}`} />
-                  <span className={`truncate ${theme.text}`}>{chat.title}</span>
-                </div>
-                <button
-                  onClick={(e) => toggleStar(chat.id, e)}
-                  className="ml-2 hover:text-yellow-500"
-                  aria-label={chat.starred ? "Unstar chat" : "Star chat"}
-                >
-                  {chat.starred ? (
-                    <StarIcon className={theme.star} fontSize="small" />
-                  ) : (
-                    <StarBorderIcon fontSize="small" className={theme.icon} />
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
         <div className="mb-4">
           <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.secondaryText}`}>
             <FiClock className="mr-2" /> Recent
@@ -311,7 +389,25 @@ const Sidebar = ({
             regularChats.map(chat => (
               <div
                 key={chat.id}
-                onClick={() => handleChatSelect(chat.id)}
+             // In Sidebar.jsx
+onClick={() => {
+  // 1. Create the chat object
+  const selectedChat = {
+    id: chat.id,
+    title: chat.title
+  };
+
+  // 2. Store in localStorage (for persistence)
+  localStorage.setItem('selectedChat', JSON.stringify(selectedChat));
+
+  // 3. Dispatch event to notify MainContent immediately
+  window.dispatchEvent(new CustomEvent('chatSelected', {
+    detail: selectedChat
+  }));
+
+  // 4. Close sidebar if mobile
+  if (isMobile) onClose();
+}}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
                   activeChatId === chat.id
                     ? theme.activeBg
@@ -319,21 +415,43 @@ const Sidebar = ({
                 }`}
                 aria-label={`Open chat: ${chat.title}`}
               >
-                <div className="flex items-center min-w-0">
+                <div className="flex items-center min-w-0 flex-1">
                   <FiMessageSquare className={`mr-2 flex-shrink-0 ${theme.icon}`} />
-                  <span className={`truncate ${theme.text}`}>{chat.title}</span>
-                </div>
-                <button
-                  onClick={(e) => toggleStar(chat.id, e)}
-                  className="ml-2 hover:text-yellow-500"
-                  aria-label={chat.starred ? "Unstar chat" : "Star chat"}
-                >
-                  {chat.starred ? (
-                    <StarIcon className={theme.star} fontSize="small" />
+                  {editingChatId === chat.id ? (
+                    <input
+                      type="text"
+                      value={editedTitle}
+                      onChange={handleTitleChange}
+                      onBlur={() => handleTitleBlur(chat.id)}
+                      onKeyDown={(e) => handleKeyPress(e, chat.id)}
+                      autoFocus
+                      className={`flex-1 bg-transparent outline-none ${theme.text}`}
+                    />
                   ) : (
-                    <StarBorderIcon fontSize="small" className={theme.icon} />
+                    <span className={`truncate ${theme.text}`}>{chat.title}</span>
                   )}
-                </button>
+                </div>
+                <div className="flex items-center ml-2">
+                  <button
+                    onClick={(e) => handleEditClick(chat.id, chat.title, e)}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label="Edit chat title"
+                  >
+                    <FiEdit2 size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("Are you sure you want to delete this chat?")) {
+                        deleteChat(chat.id);
+                      }
+                    }}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label="Delete chat"
+                  >
+                    <FiTrash2 size={14} />
+                  </button>
+                </div>
               </div>
             ))
           ) : (

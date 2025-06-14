@@ -27,14 +27,79 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
+  const [sessionId, setSessionId] = useState(null);
+  const [selectedChatId, setSelectedChatId] = useState(null); // State to store clicked chat ID
 
+
+  // Function to create new session
+  const createNewSession = async (userId) => {
+    try {
+      const res = await fetch(`${config.apiUrl}/session/create?user_id=${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+      });
+      
+      const data = await res.json();
+      console.log("Session created:", data.session_id);
+      setSessionId(data.session_id);
+      localStorage.setItem("sessionId", data.session_id);
+      return data.session_id;
+    } catch (err) {
+      console.error("Failed to create session:", err);
+      toast.error("Failed to create chat session");
+      return null;
+    }
+  };
+
+  // Authentication state change handler
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      const wasLoggedIn = isLoggedIn;
       setIsLoggedIn(!!user);
       setAuthReady(true);
+
+      if (user && !wasLoggedIn) {
+        // User just logged in - create new session
+        console.log("User logged in, creating new session...");
+        
+        // Clear any existing session data
+        localStorage.removeItem("sessionId");
+        setSessionId(null);
+        
+        // Create new session for the logged-in user
+        await createNewSession(user.uid);
+        
+        // Store user data
+        localStorage.setItem("user", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        }));
+        
+        setCurrentChatTitle("Learning Theories");
+      } else if (!user && wasLoggedIn) {
+        // User logged out - clear session data
+        console.log("User logged out, clearing session data...");
+        localStorage.removeItem("sessionId");
+        localStorage.removeItem("user");
+        setSessionId(null);
+        setCurrentChatTitle("Learning Theories");
+      } else if (user && wasLoggedIn) {
+        // User was already logged in - check if session exists
+        const existingSessionId = localStorage.getItem("sessionId");
+        if (!existingSessionId) {
+          console.log("Existing user without session, creating new session...");
+          await createNewSession(user.uid);
+        } else {
+          setSessionId(existingSessionId);
+        }
+      }
     });
+    
     return () => unsubscribe();
-  }, []);
+  }, [isLoggedIn]); // Add isLoggedIn as dependency to track login state changes
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -63,69 +128,48 @@ function App() {
         localStorage.clear();
         toast.info("You've been signed out.");
         setCurrentChatTitle("Learning Theories");
+        setSessionId(null);
       })
       .catch(() => {
         toast.error("Failed to sign out.");
       });
   };
 
+  const handleNewChat = async () => {
+    console.log("Starting new chat...");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      toast.error("Please log in to start a new chat");
+      return;
+    }
+  
+    try {
+      // Clear previous session data
+      localStorage.removeItem("sessionId");
+      setSessionId(null);
+  
+      // Create new session
+      const newSessionId = await createNewSession(user.uid);
+      
+      if (newSessionId) {
+        setSessionId(newSessionId);
+        setCurrentChatTitle("New Chat");
+        toast.success("New chat started!");
+        
+        // Dispatch both events to ensure all components catch it
+        window.dispatchEvent(new CustomEvent('newSessionCreated'));
+        window.dispatchEvent(new CustomEvent('sessionChanged'));
+      }
+    } catch (err) {
+      console.error("Failed to create new session:", err);
+      toast.error("Failed to start new chat");
+    }
+  };
+
   const ProtectedRoute = ({ children }) => {
     if (!authReady) return null;
     return isLoggedIn ? children : <Navigate to="/login" replace />;
   };
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  const [sessionId, setSessionId] = useState(null);
-
-  const createNewSession = async () => {
-    const existing = localStorage.getItem("sessionId");
-
-    if (existing) {
-      setSessionId(existing);
-    } else {
-      try {
-        const res = await fetch(`${config.apiUrl}/session/create?user_id=${user.uid}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-        }); const data = await res.json();
-        console.log("Session created:", data.session_id);
-        setSessionId(data.session_id);
-        localStorage.setItem("sessionId", data.session_id);
-      } catch (err) {
-        console.error("Failed to get session ID:", err);
-      }
-    }
-  };
-
-  useEffect(() => {
-    createNewSession();
-  }, []);
-
-  const handleNewChat = async () => {
-    try {
-      // Optional: Remove old sessionId
-      localStorage.removeItem("sessionId");
-
-      const res = await fetch(`${config.apiUrl}/session/create?user_id=${user.uid}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-      }); const data = await res.json();
-
-      console.log("New chat session created:", data);
-      setSessionId(data.session_id);
-      localStorage.setItem("sessionId", data.session_id);
-
-      // Reset current chat title if needed
-      setCurrentChatTitle("New Chat");
-    } catch (err) {
-      console.error("Failed to create new session:", err);
-    }
-  };
-
 
   const MainAppContent = () => {
     const location = useLocation();
@@ -137,8 +181,6 @@ function App() {
         navigate(location.pathname, { replace: true, state: {} });
       }
     }, [location, navigate]);
-
-
 
     return (
       <div className="flex h-full">
@@ -152,7 +194,7 @@ function App() {
               currentUser={{ plan: "Free" }}
               onUserProfileClick={() => setShowProfileModal(true)}
               onNewChat={handleNewChat}
-            />
+                          />
           )}
         </AnimatePresence>
 
@@ -167,6 +209,7 @@ function App() {
           onLogout={handleLogout}
           toggleDarkMode={toggleDarkMode}
           sessionId={sessionId}
+          setSesssionId={setSessionId}
           onUserProfileClick={() => setShowProfileModal(true)}
         />
       </div>
