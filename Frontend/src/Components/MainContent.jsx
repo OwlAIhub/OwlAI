@@ -418,7 +418,7 @@ useEffect(() => {
         className={`fixed inset-y-0 z-20 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
           ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
           transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-          w-64 md:w-72
+          w-64 lg:w-72
           border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
         style={{
           willChange: 'transform',
