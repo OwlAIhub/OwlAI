@@ -22,28 +22,33 @@ import { toast } from "react-toastify";
 const Sidebar = ({
   isOpen = false,
   onClose = () => {},
-  onNewChat,
+  onNewChat = () => {},
+  onSelectChat = () => {},
   darkMode = false,
   currentUser = {},
   activeChatId = null,
   chats = [],
   setChats = () => {},
   onUserProfileClick = () => {},
-  onNewSessionCreated,
-  onChatSelect
+  onNewSessionCreated
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [editingChatId, setEditingChatId] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
+  const [isMidRange, setIsMidRange] = useState(false);
   const navigate = useNavigate();
-  const[chatStore, setChatStore] = useState([]);
+  const [chatStore, setChatStore] = useState([]);
   const userData = localStorage.getItem("user");
   const user = userData ? JSON.parse(userData) : null;
-  console.log("onChatSelect prop:", onChatSelect); // Should log a function
 
   useEffect(() => {
-    const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsMidRange(width >= 750 && width <= 1000);
+    };
+    
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
@@ -61,9 +66,9 @@ const Sidebar = ({
             title: session.title,
             lastUpdated: session.last_updated,
             numChats: session.num_chats,
-            startTime: session.start_time
+            startTime: session.start_time,
+            starred: session.starred || false
           }));
-          console.log("Fetched chats:", formattedChats);
           setChats(formattedChats);
           setChatStore(formattedChats);
         }
@@ -108,7 +113,6 @@ const Sidebar = ({
         setChatStore(prev => prev.filter(chat => chat.id !== chatId));
         toast.success("Chat deleted successfully");
         
-        // If the deleted chat was the active one, clear the selection
         if (activeChatId === chatId) {
           onSelectChat(null);
         }
@@ -152,29 +156,44 @@ const Sidebar = ({
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
+    setChatStore(prevChats => 
+      prevChats.map(chat =>
+        chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
+      )
+    );
   };
 
-  // const handleChatSelect = (chatId, chatTitle) => {
-  //   console.log("Selected chat:", chatId, chatTitle);
-  //   onSelectChat(chatId, chatTitle);
-  //       if (isMobile) onClose();
-  // };
+  const handleChatClick = (chat) => {
+    localStorage.setItem("selectedChat", JSON.stringify(chat));
+    window.dispatchEvent(new CustomEvent("chatSelected", { detail: chat }));
+    onSelectChat(chat.id);
+    if (isMobile || isMidRange) onClose();
+  };
 
   const handleLogoClick = () => {
     navigate("/");
-    if (isMobile) onClose();
+    if (isMobile || isMidRange) onClose();
   };
 
   const handleUpgradeClick = () => {
     navigate("/subscription");
-    if (isMobile) onClose();
+    if (isMobile || isMidRange) onClose();
   };
 
   const handleProfileClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Added logout handling
+    if (!user) {
+      alert("Please log in to access your profile.");
+      navigate("/login");
+      if (isMobile || isMidRange) onClose();
+      return;
+    }
+    
     onUserProfileClick();
-    if (isMobile) onClose();
+    if (isMobile || isMidRange) onClose();
   };
 
   const createNewSession = async (userId) => {
@@ -196,9 +215,11 @@ const Sidebar = ({
     e.preventDefault();
     e.stopPropagation();
     
-    const user = JSON.parse(localStorage.getItem("user"));
+    // Added logout handling
     if (!user) {
-      toast.error("Please log in to start a new chat");
+      alert("Please log in to start a new chat.");
+      navigate("/login");
+      if (isMobile || isMidRange) onClose();
       return;
     }
   
@@ -223,30 +244,15 @@ const Sidebar = ({
       toast.error("Failed to start new chat");
     }
   
-    if (isMobile) onClose();
+    if (isMobile || isMidRange) onClose();
   };
-
-  // In Sidebar.jsx (when a chat is clicked)
-const handleChatClick = (chat) => {
-  // 1. Store the full chat data in localStorage
-  localStorage.setItem("selectedChat", JSON.stringify(chat));
-  
-  // 2. Dispatch a custom event to notify MainContent immediately
-  window.dispatchEvent(new CustomEvent("chatSelected", { 
-    detail: chat 
-  }));
-  
-  // 3. Close sidebar if mobile
-  if (isMobile) onClose();
-};
-
-
 
   const filteredChats = chatStore.filter(chat =>
     chat?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const regularChats = searchQuery.trim() ? filteredChats : chatStore;
+  const starredChats = filteredChats.filter(chat => chat?.starred);
+  const regularChats = filteredChats.filter(chat => !chat?.starred);
 
   const formatLastAccessed = (dateString) => {
     if (!dateString) return "";
@@ -304,18 +310,19 @@ const handleChatClick = (chat) => {
   const theme = darkMode ? colors.dark : colors.light;
 
   return (
-    <div className={`fixed inset-y-0 z-20 ${theme.bg} 
-      ${isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
-      transition-all duration-300 ease-in-out
-      w-64 md:w-72
-      border-r ${theme.border}
-      flex flex-col`}>
-
+    <div 
+      className={`fixed inset-y-0 z-20 ${theme.bg} 
+        ${isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
+        transition-all duration-300 ease-in-out
+        w-64 lg:w-72
+        border-r ${theme.border}
+        flex flex-col`}
+    >
       {/* Header with logo and close button */}
       <div className={`p-4 flex items-center justify-between border-b ${theme.border} h-17`}>
         <button 
           onClick={handleLogoClick}
-          className="flex items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity"
+          className="flex cursor-pointer items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity"
           aria-label="Go to home page"
         >
           <div className={`${theme.primary} p-2 rounded-full`}>
@@ -325,7 +332,7 @@ const handleChatClick = (chat) => {
         </button>
         <button
           onClick={onClose}
-          className={`p-1 rounded-full ${theme.hoverBg} transition-colors`}
+          className={`p-1 rounded-full ${theme.hoverBg} transition-colors lg:hidden`}
           aria-label="Close sidebar"
         >
           <FiX className={`text-xl ${theme.text}`} />
@@ -366,11 +373,19 @@ const handleChatClick = (chat) => {
         </button>
       </div>
 
-      {/* Upgrade Button */}
-      {currentUser?.plan !== "Premium" && (
+      {/* Upgrade Button with logout handling */}
+      {user && currentUser?.plan !== "Premium" && (
         <div className="px-3 mb-2">
           <button
-            onClick={handleUpgradeClick}
+            onClick={() => {
+              if (!user) {
+                alert("Please log in to upgrade your plan.");
+                navigate("/login");
+                if (isMobile || isMidRange) onClose();
+                return;
+              }
+              handleUpgradeClick();
+            }}
             className={`w-full flex cursor-pointer items-center justify-center ${theme.primary} ${theme.primaryText} py-2.5 rounded-lg font-medium shadow-md transition-colors`}
           >
             <FiCreditCard className="mr-2" />
@@ -381,33 +396,15 @@ const handleChatClick = (chat) => {
 
       {/* Chat List */}
       <div className={`flex-1 overflow-y-auto py-2 px-1 scrollbar-thin ${theme.scrollbar}`}>
-        <div className="mb-4">
-          <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.secondaryText}`}>
-            <FiClock className="mr-2" /> Recent
-          </div>
-          {regularChats.length > 0 ? (
-            regularChats.map(chat => (
+        {starredChats.length > 0 && (
+          <div className="mb-4">
+            <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.accent}`}>
+              <FiStar className="mr-2" /> Starred
+            </div>
+            {starredChats.map(chat => (
               <div
                 key={chat.id}
-             // In Sidebar.jsx
-onClick={() => {
-  // 1. Create the chat object
-  const selectedChat = {
-    id: chat.id,
-    title: chat.title
-  };
-
-  // 2. Store in localStorage (for persistence)
-  localStorage.setItem('selectedChat', JSON.stringify(selectedChat));
-
-  // 3. Dispatch event to notify MainContent immediately
-  window.dispatchEvent(new CustomEvent('chatSelected', {
-    detail: selectedChat
-  }));
-
-  // 4. Close sidebar if mobile
-  if (isMobile) onClose();
-}}
+                onClick={() => handleChatClick(chat)}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
                   activeChatId === chat.id
                     ? theme.activeBg
@@ -432,6 +429,86 @@ onClick={() => {
                   )}
                 </div>
                 <div className="flex items-center ml-2">
+                  <button
+                    onClick={(e) => toggleStar(chat.id, e)}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label={chat.starred ? "Unstar chat" : "Star chat"}
+                  >
+                    {chat.starred ? (
+                      <StarIcon className={theme.star} fontSize="small" />
+                    ) : (
+                      <StarBorderIcon fontSize="small" className={theme.icon} />
+                    )}
+                  </button>
+                  <button
+                    onClick={(e) => handleEditClick(chat.id, chat.title, e)}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label="Edit chat title"
+                  >
+                    <FiEdit2 size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("Are you sure you want to delete this chat?")) {
+                        deleteChat(chat.id);
+                      }
+                    }}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label="Delete chat"
+                  >
+                    <FiTrash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mb-4">
+          <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.secondaryText}`}>
+            <FiClock className="mr-2" /> Recent
+          </div>
+          {regularChats.length > 0 ? (
+            regularChats.map(chat => (
+              <div
+                key={chat.id}
+                onClick={() => handleChatClick(chat)}
+                className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                  activeChatId === chat.id
+                    ? theme.activeBg
+                    : theme.hoverBg
+                }`}
+                aria-label={`Open chat: ${chat.title}`}
+              >
+                <div className="flex items-center min-w-0 flex-1">
+                  <FiMessageSquare className={`mr-2 flex-shrink-0 ${theme.icon}`} />
+                  {editingChatId === chat.id ? (
+                    <input
+                      type="text"
+                      value={editedTitle}
+                      onChange={handleTitleChange}
+                      onBlur={() => handleTitleBlur(chat.id)}
+                      onKeyDown={(e) => handleKeyPress(e, chat.id)}
+                      autoFocus
+                      className={`flex-1 bg-transparent outline-none ${theme.text}`}
+                    />
+                  ) : (
+                    <span className={`truncate ${theme.text}`}>{chat.title}</span>
+                  )}
+                </div>
+                <div className="flex items-center ml-2">
+                  <button
+                    onClick={(e) => toggleStar(chat.id, e)}
+                    className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+                    aria-label={chat.starred ? "Unstar chat" : "Star chat"}
+                  >
+                    {chat.starred ? (
+                      <StarIcon className={theme.star} fontSize="small" />
+                    ) : (
+                      <StarBorderIcon fontSize="small" className={theme.icon} />
+                    )}
+                  </button>
                   <button
                     onClick={(e) => handleEditClick(chat.id, chat.title, e)}
                     className={`p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
@@ -463,7 +540,7 @@ onClick={() => {
       </div>
 
       {/* User Profile Section */}
-      <div className={`p-4  h-22 border-t ${theme.border}`}>
+      <div className={`p-4 h-22 border-t ${theme.border}`}>
         <div className="w-full">
           <button
             onClick={handleProfileClick}
@@ -472,7 +549,7 @@ onClick={() => {
           >
             <div className="flex items-center space-x-3 min-w-0">
               <div className={`${theme.primary} w-9 h-9 rounded-full flex items-center justify-center text-white overflow-hidden`}>
-                {currentUser?.avatar ? (
+                {user && currentUser?.avatar ? (
                   <img 
                     src={currentUser.avatar} 
                     alt="User" 
@@ -487,7 +564,7 @@ onClick={() => {
                   {user?.firstName || "Guest User"}
                 </div>
                 <div className={`text-xs truncate max-w-[120px] ${theme.userPlan}`}>
-                  {currentUser?.plan ? `${currentUser.plan} Plan` : "Free Plan"}
+                  {user ? (currentUser?.plan ? `${currentUser.plan} Plan` : "Free Plan") : "Login Required"}
                 </div>
               </div>
             </div>

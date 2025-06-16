@@ -280,7 +280,7 @@ export default function Login() {
   const handleLogin = () => setShowPhoneForm(true);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 bg-gray-50 dark:bg-[#0D1B2A]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8 bg-gray-50 dark:bg-[#0D1B2A]">
       <div className="max-w-md w-full space-y-8 text-center">
         <div>
           <h1
