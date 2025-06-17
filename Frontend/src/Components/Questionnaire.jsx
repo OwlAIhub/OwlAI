@@ -857,7 +857,7 @@ export default function Questionnaire() {
                                     ? "Processing..."
                                     : "Continue for Paper 1"}
                             </button>
-                            <button
+                            {/* <button
                                 onClick={
                                     popupLoading ? undefined : handleLogout
                                 }
@@ -874,7 +874,7 @@ export default function Questionnaire() {
                                 {popupLoading === "logout"
                                     ? "Processing..."
                                     : "Log out"}
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>

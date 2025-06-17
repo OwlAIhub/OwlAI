@@ -5,6 +5,8 @@ import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import Logo from "../assets/owl_AI_logo.png";
+
 
 const Header = ({
     currentChatTitle,
@@ -77,7 +79,7 @@ const Header = ({
                         className="flex items-center cursor-pointer"
                     >
                         <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
-                            <FaKiwiBird className="text-white text-lg" />
+                            <img src={Logo} alt="" />
                         </div>
                         <span className="ml-2 text-xl font-bold text-teal-700 hidden sm:inline">
                             Owl AI
@@ -145,7 +147,7 @@ const Header = ({
                                     </div>
                                     <button
                                         onClick={onLogout}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                                     >
                                         <FiLogOut className="mr-2" /> Sign out
                                     </button>
@@ -154,7 +156,7 @@ const Header = ({
                         </div>
                     ) : (
                         <Link to="/login">
-                            <button className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-full text-sm font-medium">
+                            <button className="px-4 py-1.5 bg-teal-600 cursor-pointer hover:bg-teal-700 text-white rounded-full text-sm font-medium">
                                 Sign In
                             </button>
                         </Link>
