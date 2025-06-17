@@ -30,7 +30,8 @@ const Sidebar = ({
   chats = [],
   setChats = () => {},
   onUserProfileClick = () => {},
-  onNewSessionCreated
+  onNewSessionCreated,
+  setSesssionId,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -39,9 +40,11 @@ const Sidebar = ({
   const [isMidRange, setIsMidRange] = useState(false);
   const navigate = useNavigate();
   const [chatStore, setChatStore] = useState([]);
-  const userData = localStorage.getItem("user");
-  const user = userData ? JSON.parse(userData) : null;
+  const userData = localStorage.getItem("userProfile");
 
+  const user = userData ? JSON.parse(userData) : null;
+  const Student = localStorage.getItem("user");
+  const studentData = userData ? JSON.parse(Student) : null;
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
@@ -54,31 +57,44 @@ const Sidebar = ({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      if (!user?.uid) return;
-      try {
-        const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${user.uid}`);
-        const data = await response.json();
-        if (data.status === "success") {
-          const formattedChats = data.data.map(session => ({
-            id: session.session_id,
-            title: session.title,
-            lastUpdated: session.last_updated,
-            numChats: session.num_chats,
-            startTime: session.start_time,
-            starred: session.starred || false
-          }));
-          setChats(formattedChats);
-          setChatStore(formattedChats);
-        }
-      } catch (error) {
-        console.error("Error fetching chat sessions:", error);
+// In Sidebar.jsx
+useEffect(() => {
+  const fetchChats = async () => {
+    if (!studentData?.uid) return;
+    try {
+      const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${studentData.uid}`);
+      const data = await response.json();
+      if (data.status === "success") {
+        const formattedChats = data.data.map(session => ({
+          id: session.session_id,
+          title: session.title,
+          lastUpdated: session.last_updated,
+          numChats: session.num_chats,
+          startTime: session.start_time,
+          starred: session.starred || false
+        }));
+        setChats(formattedChats);
+        setChatStore(formattedChats);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching chat sessions:", error);
+    }
+  };
+
+  // Add event listener for new chat messages
+  const handleNewChatMessage = () => {
+    fetchChats(); // Refresh the chat list
+  };
+
+  window.addEventListener('newChatMessage', handleNewChatMessage);
   
-    fetchChats();
-  }, [user?.uid]);
+  // Initial fetch
+  fetchChats();
+
+  return () => {
+    window.removeEventListener('newChatMessage', handleNewChatMessage);
+  };
+}, [user?.uid]);
   
   const renameChat = async (chatId, newTitle) => {
     try {
@@ -215,8 +231,11 @@ const Sidebar = ({
     e.preventDefault();
     e.stopPropagation();
     
-    // Added logout handling
-    if (!user) {
+    // Clear any selected chat
+    localStorage.removeItem("selectedChat");
+    
+    // Handle unauthenticated users
+    if (!studentData) {
       alert("Please log in to start a new chat.");
       navigate("/login");
       if (isMobile || isMidRange) onClose();
@@ -224,20 +243,38 @@ const Sidebar = ({
     }
   
     try {
+      // Clear existing session data
       localStorage.removeItem("sessionId");
-      const newSessionId = await createNewSession(user.uid);
+      
+      // Create new session
+      const newSessionId = await createNewSession(studentData.uid);
+      // console.log("New session created:", newSessionId);
       
       if (newSessionId) {
+        // Update session ID in state and storage
         localStorage.setItem("sessionId", newSessionId);
+        
+        // IMPORTANT: Fix the typo in the prop name and call it
+        if (setSesssionId) {
+          setSesssionId(newSessionId);
+        } else {
+          console.error("setSessionId prop is missing");
+        }
+        
         toast.success("New chat started!");
         
+        // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('newSessionCreated', {
           detail: { sessionId: newSessionId }
         }));
         
+        // Callback if provided
         if (onNewSessionCreated) {
           onNewSessionCreated(newSessionId);
         }
+        
+        // Clear any existing chat messages in the UI
+        window.dispatchEvent(new CustomEvent('clearChatMessages'));
       }
     } catch (err) {
       console.error("Failed to start new chat:", err);
@@ -374,7 +411,7 @@ const Sidebar = ({
       </div>
 
       {/* Upgrade Button with logout handling */}
-      {user && currentUser?.plan !== "Premium" && (
+      {/* {user && currentUser?.plan !== "Premium" && (
         <div className="px-3 mb-2">
           <button
             onClick={() => {
@@ -392,7 +429,7 @@ const Sidebar = ({
             Upgrade Plan
           </button>
         </div>
-      )}
+      )} */}
 
       {/* Chat List */}
       <div className={`flex-1 overflow-y-auto py-2 px-1 scrollbar-thin ${theme.scrollbar}`}>

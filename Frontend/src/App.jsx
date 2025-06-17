@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -24,12 +24,25 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode ? JSON.parse(savedMode) : true;
+  });  const [showProfileModal, setShowProfileModal] = useState(false);
   const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
   const [sessionId, setSessionId] = useState(null);
   const [selectedChatId, setSelectedChatId] = useState(null); // State to store clicked chat ID
 
+  useEffect(() => {
+    // Apply dark mode class on initial load
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Save to localStorage whenever darkMode changes
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
 
   // Function to create new session
   const createNewSession = async (userId) => {
@@ -42,7 +55,7 @@ function App() {
       });
       
       const data = await res.json();
-      console.log("Session created:", data.session_id);
+      // console.log("Session created:", data.session_id);
       setSessionId(data.session_id);
       localStorage.setItem("sessionId", data.session_id);
       return data.session_id;
@@ -62,7 +75,7 @@ function App() {
 
       if (user && !wasLoggedIn) {
         // User just logged in - create new session
-        console.log("User logged in, creating new session...");
+        // console.log("User logged in, creating new session...");
         
         // Clear any existing session data
         localStorage.removeItem("sessionId");
@@ -81,7 +94,7 @@ function App() {
         setCurrentChatTitle("Learning Theories");
       } else if (!user && wasLoggedIn) {
         // User logged out - clear session data
-        console.log("User logged out, clearing session data...");
+        // console.log("User logged out, clearing session data...");
         localStorage.removeItem("sessionId");
         localStorage.removeItem("user");
         setSessionId(null);
@@ -90,7 +103,7 @@ function App() {
         // User was already logged in - check if session exists
         const existingSessionId = localStorage.getItem("sessionId");
         if (!existingSessionId) {
-          console.log("Existing user without session, creating new session...");
+          // console.log("Existing user without session, creating new session...");
           await createNewSession(user.uid);
         } else {
           setSessionId(existingSessionId);
@@ -117,26 +130,38 @@ function App() {
   };
 
   const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
-    document.documentElement.classList.toggle('dark');
+    setDarkMode((prev) => {
+      const newMode = !prev;
+      if (newMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return newMode;
+    });
   };
 
-  const handleLogout = () => {
-    auth
-      .signOut()
-      .then(() => {
-        localStorage.clear();
-        toast.info("You've been signed out.");
-        setCurrentChatTitle("Learning Theories");
-        setSessionId(null);
-      })
-      .catch(() => {
-        toast.error("Failed to sign out.");
-      });
-  };
+const handleLogout = () => {
+  auth
+    .signOut()
+    .then(() => {
+      localStorage.clear();
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+      //clear all local storage items
+      localStorage.removeItem("user");
+      localStorage.clear();
+      toast.info("You've been signed out.");
+      setCurrentChatTitle("Learning Theories");
+      setSessionId(null);
+    })
+    .catch(() => {
+      toast.error("Failed to sign out.");
+    });
+};
 
   const handleNewChat = async () => {
-    console.log("Starting new chat...");
+    // console.log("Starting new chat...");
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       toast.error("Please log in to start a new chat");
@@ -146,6 +171,7 @@ function App() {
     try {
       // Clear previous session data
       localStorage.removeItem("sessionId");
+      localStorage.removeItem("selectedChat");
       setSessionId(null);
   
       // Create new session
@@ -171,6 +197,28 @@ function App() {
     return isLoggedIn ? children : <Navigate to="/login" replace />;
   };
 
+  useEffect(() => {
+    if (!sessionId) {
+  
+      const initAnonymousSession = async () => {
+        try {
+          const res = await fetch(`${config.apiUrl}/session/init-anon`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          console.log("Anonymous session initialized:", data);
+          localStorage.setItem("anonymousSessionId", data.session_id);
+          localStorage.setItem("anonymousUserId", data.user_id);
+        } catch (err) {
+            console.error("Failed to initialize anonymous session:", err);
+        }
+      };
+      initAnonymousSession();
+  
+    }
+  }, [sessionId]); 
+
   const MainAppContent = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -194,6 +242,8 @@ function App() {
               currentUser={{ plan: "Free" }}
               onUserProfileClick={() => setShowProfileModal(true)}
               onNewChat={handleNewChat}
+              sessionId={sessionId}
+              setSesssionId={setSessionId}
                           />
           )}
         </AnimatePresence>
