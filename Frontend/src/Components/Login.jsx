@@ -434,12 +434,12 @@ export default function Login() {
               >
                 Change your exam to UGC-NET
               </button>
-              <button
+              {/* <button
                 onClick={handleLogout}
                 className="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
               >
                 Log out
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

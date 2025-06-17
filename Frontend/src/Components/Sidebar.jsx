@@ -18,6 +18,8 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import config from "../Config"; 
 import { toast } from "react-toastify";
+import Logo from "../assets/owl_AI_logo.png";
+
 
 const Sidebar = ({
   isOpen = false,
@@ -362,8 +364,8 @@ useEffect(() => {
           className="flex cursor-pointer items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity"
           aria-label="Go to home page"
         >
-          <div className={`${theme.primary} p-2 rounded-full`}>
-            <FaKiwiBird className="text-white text-lg" />
+          <div className={`${theme.primary}  rounded-full w-10`}>
+            <img src={Logo} alt="" />
           </div>
           <span className={`font-bold text-lg ${theme.text}`}>Owl AI</span>
         </button>

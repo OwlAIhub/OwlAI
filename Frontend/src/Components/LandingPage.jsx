@@ -16,6 +16,7 @@ import FeatureImage1 from "../assets/image1.avif";
 import FeatureImage2 from "../assets/image2.avif";
 import FeatureImage3 from "../assets/image3.avif";
 import FeatureImage4 from "../assets/image4.avif";
+import { useState } from "react";
 
 const prompts = [
     {
@@ -46,10 +47,17 @@ const features = [
     },
 ];
 const LandingPage = () => {
+    const [inputValue, setInputValue] = useState("");
     const currentYear = new Date().getFullYear();
     const handlePromptClick = (query) => {
-        // Redirect to chatbot or handle search
-        window.location.href = `/chatbot?query=${encodeURIComponent(query)}`;
+        setInputValue(query);
+    };
+
+    const handleAskClick = () => {
+        if (inputValue.trim()) {
+            localStorage.setItem('presetQuery', inputValue);
+            window.location.href = '/chat';
+        }
     };
 
     return (
@@ -130,28 +138,38 @@ const LandingPage = () => {
 
                     {/* Search Bar */}
                     <div className="relative w-full max-w-2xl mb-6">
-                        <input
-                            type="text"
-                            placeholder="Aaj konsa topic cover karna chahte ho? 🤔"
-                            className="w-full py-4 px-6 pr-16 rounded-full border border-gray-300 text-gray-800 shadow-sm placeholder-gray-500 placeholder:text-xs md:placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
-                        />
-                        <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#FFC107] text-black px-6 py-1 rounded-full font-semibold">
-                            Ask
-                        </button>
+                <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Aaj konsa topic cover karna chahte ho? 🤔"
+                    className="w-full py-4 px-6 pr-16 rounded-full border border-gray-300 text-gray-800 shadow-sm placeholder-gray-500 placeholder:text-xs md:placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleAskClick();
+                        }
+                    }}
+                />
+                <button 
+                    onClick={handleAskClick}
+                    className="absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 bg-[#FFC107] text-black px-6 py-1 rounded-full font-semibold"
+                >
+                    Ask
+                </button>
                     </div>
 
                     {/* Prompt Buttons */}
-                    <div className="flex flex-wrap justify-center gap-3">
-                        {prompts.map((prompt, i) => (
-                            <button
-                                key={i}
-                                onClick={() => handlePromptClick(prompt.query)}
-                                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
-                            >
-                                {prompt.label}
-                            </button>
-                        ))}
-                    </div>
+                    <div className="flex flex-wrap justify-center gap-3 cursor-pointer">
+                {prompts.map((prompt, i) => (
+                    <button
+                        key={i}
+                        onClick={() => handlePromptClick(prompt.query)}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
+                    >
+                        {prompt.label}
+                    </button>
+                ))}
+            </div>
                 </div>
             </section>
 
@@ -531,7 +549,7 @@ const LandingPage = () => {
                                 </li>
                                 <li>
                                     <Link to="/login">
-                                        <span className="text-gray-400 hover:text-white">
+                                        <span className="text-gray-400 hover:text-white cursor-pointer">
                                             Get Started
                                         </span>
                                     </Link>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Link } from "react-router-dom";
-import OwlLogo from "./OwlLogo";
+import OwlLogo from "../assets/owlMascot.png"
 import config from "../Config";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -172,6 +172,13 @@ useEffect(() => {
     };
   }, []);
 
+  useEffect(() => {
+    const presetQuery = localStorage.getItem('presetQuery');
+    if (presetQuery) {
+      setMessage(presetQuery);
+    }
+  }, []);
+
 // This loads messages when session changes
 useEffect(() => {
   const savedSessionId = localStorage.getItem("sessionId");
@@ -249,6 +256,9 @@ const anonymousSessionId = localStorage.getItem("anonymousSessionId") ;
 
     const userMessage = { role: "user", content: message, isMarkdown: true, feedback: null };
     setChatMessages((prev) => [...prev, userMessage]);
+
+          localStorage.removeItem('presetQuery');
+
 
     setMessage("");
     setLoading(true);
@@ -424,7 +434,7 @@ useEffect(() => {
   const getLogoContainerStyle = () => {
     if (windowSize.width < 768) {
       return {
-        marginTop: "4.5rem",
+        // marginTop: "4.5rem",
         marginBottom: "1rem",
         maxWidth: "90%",
       };
@@ -438,8 +448,8 @@ useEffect(() => {
   };
 
   return (
-    <div className="relative flex w-full h-screen overflow-hidden">
-      {/* Sidebar */}
+<div className="relative flex w-full h-screen overflow-hidden">
+{/* Sidebar */}
       <div
         className={`fixed inset-y-0 z-20 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
           ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
@@ -509,7 +519,7 @@ useEffect(() => {
 ) : chatMessages.length === 0 ? (
   <>
     <div className="flex justify-center items-center" style={getLogoContainerStyle()}>
-      <OwlLogo />
+      <img src={OwlLogo} alt="logo" className="w-2/4" />
     </div>
     <div className="text-center space-y-4 px-4 mt-2 md:mt-0">
       <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
@@ -525,12 +535,12 @@ useEffect(() => {
 {chatMessages.length === 0 && (
   <div className={`max-w-3xl mx-auto mt-20 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
     <h3 className="text-lg font-medium mb-3">Try asking me:</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 cursor-pointer">
       {predefinedPrompts.map((prompt, index) => (
         <button
           key={index}
           onClick={() => setMessage(prompt)}
-          className={`p-3 rounded-lg text-left transition-all hover:scale-[1.02] ${
+          className={`p-3 rounded-lg text-left transition-all hover:scale-[1.02] cursor-pointer ${
             darkMode 
               ? "bg-gray-800 hover:bg-gray-700 border border-gray-700" 
               : "bg-white hover:bg-gray-100 border border-gray-200"
@@ -735,13 +745,15 @@ useEffect(() => {
           </div>
         </main>
         {/* Message Input */}
-        <div
-          className={`border-t p-4 ${
-            darkMode
-              ? "bg-[#0D1B2A] border-gray-700"
-              : "bg-gradient-to-r from-gray-50 via-gray-100 to-gray-200 border-gray-200"
-          }`}
-        >
+        <div className={`fixed bottom-0 left-0 right-0 border-t p-4 ${
+      darkMode
+        ? "bg-[#0D1B2A] border-gray-700"
+        : "bg-gradient-to-r from-gray-50 via-gray-100 to-gray-200 border-gray-200"
+    } ${isSidebarOpen ? 'md:left-64 lg:left-72' : 'left-0'}`}
+    style={{
+      transition: 'left 0.7s cubic-bezier(0.25,0.1,0.25,1.1)',
+      willChange: 'left'
+    }}>
           <div className="max-w-3xl mx-auto">
             <div className="relative">
               <div className="relative flex items-center">
@@ -771,18 +783,24 @@ useEffect(() => {
                   </button>
 
                   <textarea
-                    ref={textareaRef}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask your Owl AI anything..."
-                    rows={1}
-                    className={`w-full py-3 pl-10 pr-12 rounded-2xl shadow-sm resize-none overflow-y-auto max-h-[150px] no-scrollbar focus:outline-none focus:ring-2 ${
-                      darkMode
-                        ? "bg-[#1B263B] text-white placeholder-gray-400 focus:ring-[#009688] border border-[#0D1B2A]"
-                        : "bg-white text-gray-900 placeholder-gray-500 focus:ring-[#009688] border border-gray-200"
-                    }`}
-                    disabled={!isLoggedIn && messageCount >= 4}
-                  />
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Ask your Owl AI anything..."
+            rows={1}
+            className={`w-full py-3 pl-10 pr-12 rounded-2xl shadow-sm resize-none overflow-y-auto max-h-[150px] no-scrollbar focus:outline-none focus:ring-2 ${
+              darkMode
+                ? "bg-[#1B263B] text-white placeholder-gray-400 focus:ring-[#009688] border border-[#0D1B2A]"
+                : "bg-white text-gray-900 placeholder-gray-500 focus:ring-[#009688] border border-gray-200"
+            }`}
+            disabled={!isLoggedIn && messageCount >= 4}
+          />
 
                   {loading ? (
                     <button
