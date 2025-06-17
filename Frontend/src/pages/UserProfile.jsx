@@ -66,6 +66,7 @@ const UserProfile = ({ darkMode, toggleDarkMode, onClose }) => {
 
         if (userSnap.exists()) {
           const data = userSnap.data();
+          console.log('User data:', data);
           setUserData({
             name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'User',
             email: data.email || '',
