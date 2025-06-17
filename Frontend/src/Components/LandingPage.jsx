@@ -94,7 +94,7 @@ const LandingPage = () => {
                         </a>
                     </div>
 
-                    <Link to="/login">
+                    <Link to="/chat">
                         <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
                             Get Started
                         </button>
