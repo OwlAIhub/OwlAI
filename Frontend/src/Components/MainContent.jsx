@@ -17,6 +17,7 @@ const MainContent = ({
   toggleDarkMode,
   sessionId,
   onUserProfileClick,
+  setSesssionId,
 }) => {
   const [message, setMessage] = useState("");
   const [messageCount, setMessageCount] = useState(0);
@@ -33,11 +34,55 @@ const MainContent = ({
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [customRemark, setCustomRemark] = useState("");
   const [isInterrupted, setIsInterrupted] = useState(false);
+  const [chatId, setChatId] = useState(null);
 
   const [chatMessages, setChatMessages] = useState(() => {
     const savedChats = localStorage.getItem(`chatMessages-${sessionId}`);
     return savedChats ? JSON.parse(savedChats) : [];
   });
+
+ // In MainContent.jsx
+const [currentChat, setCurrentChat] = useState(null);
+
+useEffect(() => {
+  const savedChat = localStorage.getItem('selectedChat');
+  if (savedChat) {
+    setCurrentChat(JSON.parse(savedChat));
+  }
+}, []);
+
+// 2. Set up event listeners
+useEffect(() => {
+  const handleChatSelected = (e) => {
+    setCurrentChat(e.detail);
+  };
+
+  const handleStorageChange = (e) => {
+    if (e.key === 'selectedChat') {
+      setCurrentChat(e.newValue ? JSON.parse(e.newValue) : null);
+    }
+  };
+
+  window.addEventListener('chatSelected', handleChatSelected);
+  window.addEventListener('storage', handleStorageChange);
+
+  return () => {
+    window.removeEventListener('chatSelected', handleChatSelected);
+    window.removeEventListener('storage', handleStorageChange);
+  };
+}, []);
+
+// 3. Fetch chat history when currentChat changes
+useEffect(() => {
+  if (currentChat?.id) {
+    fetchChatHistory(currentChat.id);
+  } else {
+    setChatMessages([]);
+  }
+}, [currentChat]); // Only runs when currentChat changes
+
+// Debugging
+// console.log('Current chat:', currentChat);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = !!user;
@@ -52,21 +97,90 @@ const MainContent = ({
     );
   }, [chatMessages, sessionId]);
 
+  const fetchChatHistory = async (chatId) => {
+    try {
+      const response = await fetch(`${config.apiUrl}/chat/${chatId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update session ID to match the chat being loaded
+        localStorage.setItem("sessionId", chatId);
+        setSesssionId(chatId);
+        
+        // Transform the API response into chat messages format
+        const messages = [];
+        
+        if (data.data && Array.isArray(data.data)) {
+          data.data.forEach((messageObj) => {
+            if (messageObj.question_text) {
+              messages.push({
+                role: 'user',
+                content: messageObj.question_text,
+                isMarkdown: false,
+                feedback: messageObj.feedback_rating,
+                timestamp: messageObj.created_at
+              });
+            }
+            
+            if (messageObj.response_text) {
+              messages.push({
+                role: 'bot',
+                content: messageObj.response_text,
+                isMarkdown: true,
+                feedback: messageObj.feedback_rating,
+                timestamp: messageObj.created_at
+              });
+            }
+          });
+        }
+        
+        // Sort messages by timestamp to ensure correct order
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setChatMessages(messages);
+        
+        // Store messages under the new session ID
+        localStorage.setItem(`chatMessages-${chatId}`, JSON.stringify(messages));
+      } else {
+        console.error('Failed to fetch chat history');
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+    }
+  };
+
+  // console.log("Current session ID:", sessionId);
+
   useEffect(() => {
-    const handleSessionChange = () => {
+    const handleNewSession = (event) => {
+      // console.log("New session created:", event.detail?.sessionId);
       setChatMessages([]);
       setMessageCount(0);
       setResponse("");
       setDisplayedText("");
       setLoading(false);
     };
-    
-    window.addEventListener('sessionChanged', handleSessionChange);
+  
+    window.addEventListener('newSessionCreated', handleNewSession);
     
     return () => {
-      window.removeEventListener('sessionChanged', handleSessionChange);
+      window.removeEventListener('newSessionCreated', handleNewSession);
     };
   }, []);
+
+// This loads messages when session changes
+useEffect(() => {
+  const savedSessionId = localStorage.getItem("sessionId");
+  if (savedSessionId && savedSessionId !== sessionId) {
+    // Load messages for the new session
+    const savedChats = localStorage.getItem(`chatMessages-${savedSessionId}`);
+    setChatMessages(savedChats ? JSON.parse(savedChats) : []);
+  }
+}, [sessionId]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -101,16 +215,23 @@ const MainContent = ({
     }
   }, [chatMessages]);
 
-  function formatMarkdown(response) {
-    if (typeof response !== "string") return "";
-  
-    return response
-      .replace(/undefined/g, "")
-      .replace(/\n{2,}/g, '\n\n')
-      .replace(/\n/g, '\n&nbsp;\n')
-      .trim();
-  }
+  const [predefinedPrompts] = useState([
+  "Paper 1 ka syllabus itna zyada hai... Kahaan se shuru karun?",
+  "What is Teaching Aptitude?",
+  "Enthnocentrism vs cultural relativism samjhao mujhe?",
+]);
 
+function formatMarkdown(response) {
+  if (typeof response !== "string") return "";
+  
+  // Clean up the response but keep markdown intact
+  return response
+    .replace(/undefined/g, "")
+    .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
+    .trim();
+}
+const anonymousUserId = localStorage.getItem("anonymousUserId") ;
+const anonymousSessionId = localStorage.getItem("anonymousSessionId") ;
   const handleSendMessage = async () => {
     setIsInterrupted(false);
     if (!message.trim()) return;
@@ -134,18 +255,28 @@ const MainContent = ({
 
     if (isLoggedIn) {
       try {
+        const Id = localStorage.getItem("sessionId");
         const res = await fetch(`${config.apiUrl}/ask`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            // Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ query: message, user_id: user.uid, session_id: sessionId }),
+          body: JSON.stringify({ query: message, user_id: user.uid, session_id:Id }),
         });
 
         const data = await res.json();
         const fullResponse = data.response || "Sorry, no response from AI.";
+        const chatId = data.chat_id;
+        setChatId(chatId);
         const formattedResponse = formatMarkdown(fullResponse);
+
+        window.dispatchEvent(new CustomEvent('newChatMessage', {
+          detail: {
+            sessionId: Id,
+            message: message // First message as potential title
+          }
+        }));
 
         setResponse(formattedResponse);
         setDisplayedText("");
@@ -160,45 +291,75 @@ const MainContent = ({
         setLoading(false);
       }
     } else {
-      setLoading(false);
-      const dummyAnswers = [
-        "Sure! Here's a simple explanation.",
-        "Of course! Let me help you with that.",
-        "Absolutely, that's a great question!",
-      ];
-      const botMessage = {
-        role: "bot",
-        content: dummyAnswers[(chatMessages.length / 2) % 3 | 0],
-      };
-      setChatMessages((prev) => [...prev, botMessage]);
+      setLoading(true);
+      try {
+        // Make API call to get AI response
+        const res = await fetch(`${config.apiUrl}/ask`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ 
+            query: message, 
+            user_id: anonymousUserId, 
+            session_id: anonymousSessionId 
+          }),
+        });
+    
+        if (!res.ok) {
+          throw new Error(`API request failed with status ${res.status}`);
+        }
+    
+        const data = await res.json();
+        const fullResponse = data.response || "Sorry, I couldn't generate a response.";
+        const formattedResponse = formatMarkdown(fullResponse);
+    
+        const botMessage = {
+          role: "bot",
+          content: formattedResponse,
+        };
+        setChatMessages((prev) => [...prev, botMessage]);
+    
+      } catch (err) {
+        console.error("Error fetching AI response:", err);
+        
+        const botMessage = {
+          role: "bot",
+          content: "I'm having trouble connecting to the server. Please try again later.",
+        };
+        setChatMessages((prev) => [...prev, botMessage]);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  useEffect(() => {
-    if (!response) return;
-  
-    let i = 0;
-    setDisplayedText("");
-    const interval = setInterval(() => {
-      if (i < response.length) {
-        setDisplayedText((prev) => prev + response[i]);
-        i++;
-      } else {
-        clearInterval(interval);
-        setChatMessages((prev) => [
-          ...prev,
-          { role: "bot", content: response, isMarkdown: true },
-        ]);
-        
-        setTimeout(() => {
-          setDisplayedText("");
-          setResponse("");
-        }, 200);
-      }
-    }, 10);
-  
-    return () => clearInterval(interval);
-  }, [response]);
+useEffect(() => {
+  if (!response) return;
+
+  let i = 0;
+  setDisplayedText("");
+  const interval = setInterval(() => {
+    if (i < response.length) {
+      setDisplayedText((prev) => prev + response[i]);
+      i++;
+    } else {
+      clearInterval(interval);
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "bot", content: response, isMarkdown: true },
+      ]);
+      
+      setTimeout(() => {
+        setDisplayedText("");
+        setResponse("");
+      }, 200);
+    }
+  }, 10);
+
+  return () => clearInterval(interval);
+}, [response]);
 
   const handleFeedback = (index, type) => {
     if (type === "dislike") {
@@ -213,11 +374,11 @@ const MainContent = ({
     const score = type === "like" ? 1 : 0;
   
     const feedbackData = {
-      chat_id: "abc-123",
+      chat_id: chatId,
       user_id: user.uid,
       usefulness_score: score,
       content_quality_score: score,
-      remarks: remarks,
+      msg: remarks,
       flagged_reason: null,
     };
   
@@ -283,7 +444,7 @@ const MainContent = ({
         className={`fixed inset-y-0 z-20 ${darkMode ? 'bg-gray-900' : 'bg-white'} 
           ${isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'} 
           transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-          w-64 md:w-72
+          w-64 lg:w-72
           border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
         style={{
           willChange: 'transform',
@@ -336,34 +497,51 @@ const MainContent = ({
               }`}
         >
           <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
-            {chatMessages.length === 0 && isLoggedIn ? (
-              <div className="text-center space-y-6 px-4">
-                <h1 className={`text-3xl md:text-4xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
-                  {getGreeting()}, {user.firstName || "there"}!
-                </h1>
-                <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  Let's prepare together and make today productive.
-                </p>
-              </div>
-            ) : chatMessages.length === 0 ? (
-              <>
-                <div
-                  className="flex justify-center items-center"
-                  style={getLogoContainerStyle()}
-                >
-                  <OwlLogo />
-                </div>
+         {chatMessages.length === 0 && isLoggedIn ? (
+  <div className="text-center space-y-6 px-4">
+    <h1 className={`text-3xl md:text-4xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+      {getGreeting()}, {user.firstName || "there"}!
+    </h1>
+    <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+      Let's prepare together and make today productive.
+    </p>
+  </div>
+) : chatMessages.length === 0 ? (
+  <>
+    <div className="flex justify-center items-center" style={getLogoContainerStyle()}>
+      <OwlLogo />
+    </div>
+    <div className="text-center space-y-4 px-4 mt-2 md:mt-0">
+      <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+        How may I help you?
+      </h1>
+      <p className={`text-base md:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+        Start your preparation with OwlAI and unlock your potential!
+      </p>
+    </div>
+  </>
+) : null}
 
-                <div className="text-center space-y-4 px-4 mt-2 md:mt-0">
-                  <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
-                    How may I help you?
-                  </h1>
-                  <p className={`text-base md:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                    Start your preparation with OwlAI and unlock your potential!
-                  </p>
-                </div>
-              </>
-            ) : null}
+{chatMessages.length === 0 && (
+  <div className={`max-w-3xl mx-auto mt-20 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+    <h3 className="text-lg font-medium mb-3">Try asking me:</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {predefinedPrompts.map((prompt, index) => (
+        <button
+          key={index}
+          onClick={() => setMessage(prompt)}
+          className={`p-3 rounded-lg text-left transition-all hover:scale-[1.02] ${
+            darkMode 
+              ? "bg-gray-800 hover:bg-gray-700 border border-gray-700" 
+              : "bg-white hover:bg-gray-100 border border-gray-200"
+          }`}
+        >
+          {prompt}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
             {chatMessages.map((msg, index) => (
               <div
@@ -387,10 +565,23 @@ const MainContent = ({
                 {msg.role === "bot" ? (
                   <>
                     <div className="prose dark:prose-invert max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {formatMarkdown(msg.content)}
-                      </ReactMarkdown>
-                    </div>
+  <ReactMarkdown 
+    remarkPlugins={[remarkGfm]}
+    components={{
+      h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-4 text-blue-600 dark:text-blue-400" {...props} />,
+      h2: ({node, ...props}) => <h2 className="text-xl font-bold my-3 text-blue-500 dark:text-blue-300" {...props} />,
+      h3: ({node, ...props}) => <h3 className="text-lg font-semibold my-2 text-blue-400 dark:text-blue-200" {...props} />,
+      p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
+      strong: ({node, ...props}) => <strong className="font-bold text-yellow-600 dark:text-yellow-400" {...props} />,
+      em: ({node, ...props}) => <em className="italic" {...props} />,
+      ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2" {...props} />,
+      ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2" {...props} />,
+      li: ({node, ...props}) => <li className="my-1" {...props} />,
+    }}
+  >
+    {msg.content}
+  </ReactMarkdown>
+</div>
 
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <button
@@ -425,6 +616,64 @@ const MainContent = ({
                           </>
                         )}
                       </button>
+                      {isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+    <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
+      >
+        ×
+      </button>
+
+      <h2 className="text-lg font-semibold mb-4 text-white">Tell us what went wrong</h2>
+
+      {/* ✅ Predefined feedback options */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {["Not satisfied", "Too vague", "Irrelevant", "Incomplete", "Wrong answer"].map((label) => (
+          <button
+            key={label}
+            onClick={() => setCustomRemark(label)}
+            className="bg-[#37474F] text-white text-sm px-3 py-1 rounded hover:bg-[#455A64]"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <textarea
+        className="w-full h-24 border rounded p-2 text-sm border-[#009688] text-white bg-gray-700"
+        placeholder="Write your feedback..."
+        value={customRemark}
+        onChange={(e) => setCustomRemark(e.target.value)}
+      />
+
+      <div className="mt-4 flex justify-end gap-2">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            sendFeedback(
+              selectedIndex,
+              "dislike",
+              customRemark || "Not satisfied with the response"
+            );
+            setIsModalOpen(false);
+            setCustomRemark("");
+          }}
+          className="px-4 py-1 text-sm rounded bg-[#009688] text-white hover:bg-[#00796B]"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
                     </div>
                   </>
                 ) : (
@@ -455,19 +704,36 @@ const MainContent = ({
               </div>
             )}
 
-            {displayedText && !loading && (
-              <div
-                className={`w-full max-w-3xl rounded-lg p-4 ${
-                  darkMode ? " text-gray-100 self-start" : " text-gray-900 self-start"
-                }`}
-                style={{ whiteSpace: "pre-wrap" }}
-              >
-                {displayedText}
-              </div>
-            )}
+{displayedText && !loading && (
+  <div className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words ${
+    darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
+  }`} style={{
+    boxShadow: darkMode
+      ? "0 2px 10px rgba(255,255,255,0.05)"
+      : "0 2px 10px rgba(0,0,0,0.1)",
+  }}>
+    <div className="prose dark:prose-invert max-w-none">
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-4 text-blue-600 dark:text-blue-400" {...props} />,
+          h2: ({node, ...props}) => <h2 className="text-xl font-bold my-3 text-blue-500 dark:text-blue-300" {...props} />,
+          h3: ({node, ...props}) => <h3 className="text-lg font-semibold my-2 text-blue-400 dark:text-blue-200" {...props} />,
+          p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
+          strong: ({node, ...props}) => <strong className="font-bold text-yellow-600 dark:text-yellow-400" {...props} />,
+          em: ({node, ...props}) => <em className="italic" {...props} />,
+          ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2" {...props} />,
+          ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2" {...props} />,
+          li: ({node, ...props}) => <li className="my-1" {...props} />,
+        }}
+      >
+        {displayedText}
+      </ReactMarkdown>
+    </div>
+  </div>
+)}
           </div>
         </main>
-
         {/* Message Input */}
         <div
           className={`border-t p-4 ${
@@ -602,6 +868,65 @@ const MainContent = ({
             transform: scale(1);
           }
         }
+
+        .markdown-header-1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: #3b82f6;
+}
+
+.markdown-header-2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.75rem 0;
+  color: #60a5fa;
+}
+
+.markdown-header-3 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  color: #93c5fd;
+}
+
+.dark .markdown-header-1 {
+  color: #60a5fa;
+}
+
+.dark .markdown-header-2 {
+  color: #93c5fd;
+}
+
+.dark .markdown-header-3 {
+  color: #bfdbfe;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.prose strong {
+  font-weight: bold;
+  color: #d97706;
+}
+
+.dark .prose strong {
+  color: #f59e0b;
+}
+  .prompt-button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prompt-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .prompt-button:hover {
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+}
       `}</style>
     </div>
   );

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { FaChevronDown, FaKiwiBird } from "react-icons/fa";
 import { FiMenu, FiSearch, FiLogOut } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const Header = ({
     currentChatTitle,
@@ -12,9 +14,41 @@ const Header = ({
     toggleDarkMode,
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    useEffect(() => {
+        let isMounted = true; // Flag to track mounted state
+        
+        const fetchUserData = async () => {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+    
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (isMounted) { // Only update state if component is still mounted
+                    if (userSnap.exists()) {
+                        localStorage.setItem("userProfile", JSON.stringify(userSnap.data()));
+                    } else {
+                        console.error("No user data found");
+                        localStorage.removeItem("userProfile"); // Clear stale data
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                if (isMounted) {
+                    localStorage.removeItem("userProfile"); // Clear stale data on error
+                }
+            }
+        };
+    
+        fetchUserData();
+    
+        return () => {
+            isMounted = false; // Cleanup function
+        };
+    }, [auth.currentUser?.uid]); // Add dependency on user ID
+    const userData = localStorage.getItem("userProfile");
 
-    // Get user from localStorage
-    const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
 
     const firstLetter = user?.firstName?.[0]?.toUpperCase() || "G";
@@ -52,7 +86,7 @@ const Header = ({
                 </div>
 
                 {/* Center - Title or Search */}
-                <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
+                {/* <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
                     {currentChatTitle ? (
                         <h1 className="text-lg font-semibold truncate text-center text-gray-700 dark:text-gray-200">
                             {currentChatTitle}
@@ -65,7 +99,7 @@ const Header = ({
                             </span>
                         </div>
                     )}
-                </div>
+                </div> */}
 
                 {/* Right - Dark mode + Profile */}
                 <div className="flex items-center space-x-3">
