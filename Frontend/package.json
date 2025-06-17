@@ -30,6 +30,7 @@
     "firebase": "^11.8.1",
     "framer-motion": "^12.16.0",
     "gsap": "^3.13.0",
+    "lucide-react": "^0.513.0",
     "postcss": "^8.5.3",
     "react": "^19.1.0",
     "react-circular-progressbar": "^2.2.0",
