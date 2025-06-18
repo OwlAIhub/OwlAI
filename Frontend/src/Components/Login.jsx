@@ -280,7 +280,7 @@ export default function Login() {
   const handleLogin = () => setShowPhoneForm(true);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 bg-gray-50 dark:bg-[#0D1B2A]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8 bg-gray-50 dark:bg-[#0D1B2A]">
       <div className="max-w-md w-full space-y-8 text-center">
         <div>
           <h1
@@ -434,12 +434,12 @@ export default function Login() {
               >
                 Change your exam to UGC-NET
               </button>
-              <button
+              {/* <button
                 onClick={handleLogout}
                 className="px-6 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
               >
                 Log out
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { FaChevronDown, FaKiwiBird } from "react-icons/fa";
 import { FiMenu, FiSearch, FiLogOut } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import Logo from "../assets/owl_AI_logo.png";
+
 
 const Header = ({
     currentChatTitle,
@@ -12,9 +16,41 @@ const Header = ({
     toggleDarkMode,
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    useEffect(() => {
+        let isMounted = true; // Flag to track mounted state
+        
+        const fetchUserData = async () => {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+    
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (isMounted) { // Only update state if component is still mounted
+                    if (userSnap.exists()) {
+                        localStorage.setItem("userProfile", JSON.stringify(userSnap.data()));
+                    } else {
+                        console.error("No user data found");
+                        localStorage.removeItem("userProfile"); // Clear stale data
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                if (isMounted) {
+                    localStorage.removeItem("userProfile"); // Clear stale data on error
+                }
+            }
+        };
+    
+        fetchUserData();
+    
+        return () => {
+            isMounted = false; // Cleanup function
+        };
+    }, [auth.currentUser?.uid]); // Add dependency on user ID
+    const userData = localStorage.getItem("userProfile");
 
-    // Get user from localStorage
-    const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
 
     const firstLetter = user?.firstName?.[0]?.toUpperCase() || "G";
@@ -27,7 +63,7 @@ const Header = ({
                 darkMode ? "border-gray-700" : "border-gray-200"
             } shadow-sm`}
         >
-            <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-17 px-4 sm:px-6 lg:px-8">
                 {/* Left - Logo */}
                 <div className="flex items-center space-x-3">
                     <button
@@ -43,7 +79,7 @@ const Header = ({
                         className="flex items-center cursor-pointer"
                     >
                         <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
-                            <FaKiwiBird className="text-white text-lg" />
+                            <img src={Logo} alt="" />
                         </div>
                         <span className="ml-2 text-xl font-bold text-teal-700 hidden sm:inline">
                             Owl AI
@@ -52,7 +88,7 @@ const Header = ({
                 </div>
 
                 {/* Center - Title or Search */}
-                <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
+                {/* <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
                     {currentChatTitle ? (
                         <h1 className="text-lg font-semibold truncate text-center text-gray-700 dark:text-gray-200">
                             {currentChatTitle}
@@ -65,13 +101,13 @@ const Header = ({
                             </span>
                         </div>
                     )}
-                </div>
+                </div> */}
 
                 {/* Right - Dark mode + Profile */}
                 <div className="flex items-center space-x-3">
                     <button
                         onClick={toggleDarkMode}
-                        className="p-2 rounded-full text-teal-600 hover:bg-teal-100 focus:outline-none"
+                        className="p-2 cursor-pointer rounded-full text-teal-600 hover:bg-teal-100 focus:outline-none"
                         aria-label="Toggle dark mode"
                     >
                         {darkMode ? <MdLightMode size={20} /> : <MdDarkMode size={20} />}
@@ -81,7 +117,7 @@ const Header = ({
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileDropdown((prev) => !prev)}
-                                className="flex items-center space-x-2 focus:outline-none"
+                                className="flex cursor-pointer items-center space-x-2 focus:outline-none"
                             >
                                 <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
                                     {firstLetter}
@@ -111,7 +147,7 @@ const Header = ({
                                     </div>
                                     <button
                                         onClick={onLogout}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                                     >
                                         <FiLogOut className="mr-2" /> Sign out
                                     </button>
@@ -120,7 +156,7 @@ const Header = ({
                         </div>
                     ) : (
                         <Link to="/login">
-                            <button className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-full text-sm font-medium">
+                            <button className="px-4 py-1.5 bg-teal-600 cursor-pointer hover:bg-teal-700 text-white rounded-full text-sm font-medium">
                                 Sign In
                             </button>
                         </Link>
