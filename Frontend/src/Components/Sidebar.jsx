@@ -19,6 +19,8 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import config from "../Config"; 
 import { toast } from "react-toastify";
 import Logo from "../assets/owl_AI_logo.png";
+import { useCallback } from 'react';
+
 
 
 const Sidebar = ({
@@ -60,43 +62,48 @@ const Sidebar = ({
   }, []);
 
 // In Sidebar.jsx
-useEffect(() => {
-  const fetchChats = async () => {
-    if (!studentData?.uid) return;
-    try {
-      const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${studentData.uid}`);
-      const data = await response.json();
-      if (data.status === "success") {
-        const formattedChats = data.data.map(session => ({
-          id: session.session_id,
-          title: session.title,
-          lastUpdated: session.last_updated,
-          numChats: session.num_chats,
-          startTime: session.start_time,
-          starred: session.starred || false
-        }));
-        setChats(formattedChats);
-        setChatStore(formattedChats);
-      }
-    } catch (error) {
-      console.error("Error fetching chat sessions:", error);
+const fetchChats = useCallback(async () => {
+  if (!studentData?.uid) return;
+  
+  try {
+    const response = await fetch(`${config.apiUrl}/chat/sidebar/sessions?user_id=${studentData.uid}`);
+    const data = await response.json();
+    
+    if (data.status === "success") {
+      const formattedChats = data.data.map(session => ({
+        id: session.session_id,
+        title: session.title,
+        lastUpdated: session.last_updated,
+        numChats: session.num_chats,
+        startTime: session.start_time,
+        starred: session.starred || false
+      }));
+      
+      setChats(formattedChats);
+      setChatStore(formattedChats);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching chat sessions:", error);
+  }
+}, [studentData?.uid]);
 
-  // Add event listener for new chat messages
+useEffect(() => {
+  const debounceFetch = setTimeout(() => {
+    fetchChats();
+  }, 300);
+
   const handleNewChatMessage = () => {
-    fetchChats(); // Refresh the chat list
+    clearTimeout(debounceFetch);
+    fetchChats();
   };
 
   window.addEventListener('newChatMessage', handleNewChatMessage);
   
-  // Initial fetch
-  fetchChats();
-
   return () => {
+    clearTimeout(debounceFetch);
     window.removeEventListener('newChatMessage', handleNewChatMessage);
   };
-}, [user?.uid]);
+}, [fetchChats]);
   
   const renameChat = async (chatId, newTitle) => {
     try {

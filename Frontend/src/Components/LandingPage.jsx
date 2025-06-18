@@ -49,6 +49,7 @@ const features = [
 const LandingPage = () => {
     const [inputValue, setInputValue] = useState("");
     const currentYear = new Date().getFullYear();
+    
     const handlePromptClick = (query) => {
         setInputValue(query);
     };
@@ -103,7 +104,7 @@ const LandingPage = () => {
                     </div>
 
                     <Link to="/chat">
-                        <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
+                        <button className="bg-teal-600 cursor-pointer hover:bg-teal-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
                             Get Started
                         </button>
                     </Link>
