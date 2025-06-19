@@ -31,6 +31,10 @@ const prompts = [
         label: "Enthnocentrism vs cultural relativism samjhao mujhe?",
         query: "Enthnocentrism vs cultural relativism samjhao mujhe?",
     },
+    {
+        label: "Different types of Pollutants?",
+        query: "Different types of Pollutants?",
+    },
 ];
 const features = [
     {
@@ -49,15 +53,21 @@ const features = [
 const LandingPage = () => {
     const [inputValue, setInputValue] = useState("");
     const currentYear = new Date().getFullYear();
-    
+    const [showError, setShowError] = useState(false);
+
     const handlePromptClick = (query) => {
         setInputValue(query);
+        setShowError(false);
     };
 
     const handleAskClick = () => {
+        if (!inputValue.trim()) {
+            setShowError(true);
+            return;
+        }
         if (inputValue.trim()) {
             localStorage.setItem('presetQuery', inputValue);
-            window.location.href = '/chat';
+        window.location.href = '/chat';
         }
     };
 
@@ -142,12 +152,16 @@ const LandingPage = () => {
                 <input
                     type="text"
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => {
+                        setInputValue(e.target.value);
+                        setShowError(false); 
+                    }}                    
                     placeholder="Aaj konsa topic cover karna chahte ho? 🤔"
                     className="w-full py-4 px-6 pr-16 rounded-full border border-gray-300 text-gray-800 shadow-sm placeholder-gray-500 placeholder:text-xs md:placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             handleAskClick();
+
                         }
                     }}
                 />
@@ -157,7 +171,13 @@ const LandingPage = () => {
                 >
                     Ask
                 </button>
+              
                     </div>
+                    {showError && (
+                <div className="text-red-500 text-sm mb-4 animate-fade-in">
+                    Please ask something to continue !!
+                </div>
+            )}
 
                     {/* Prompt Buttons */}
                     <div className="flex flex-wrap justify-center gap-3 cursor-pointer">
@@ -165,13 +185,14 @@ const LandingPage = () => {
                     <button
                         key={i}
                         onClick={() => handlePromptClick(prompt.query)}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
+                        className="bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
                     >
                         {prompt.label}
                     </button>
                 ))}
             </div>
                 </div>
+                
             </section>
 
             {/* About Section */}

@@ -362,6 +362,7 @@ const scrollToBottom = () => {
   "Paper 1 ka syllabus itna zyada hai... Kahaan se shuru karun?",
   "What is Teaching Aptitude?",
   "Enthnocentrism vs cultural relativism samjhao mujhe?",
+  "Different types of Pollutants?"
 ]);
 
 function formatMarkdown(response) {
