@@ -3,7 +3,7 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-apiKey: "AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM",
+apiKey: "AIzaSyChervEXPg9unoA8LQOYN73kQV2zkQrkY0",
 authDomain: "owl-ai-1ef31.firebaseapp.com",
 projectId: "owl-ai-1ef31",
 storageBucket: "owl-ai-1ef31.firebasestorage.app",

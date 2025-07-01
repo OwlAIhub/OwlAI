@@ -31,6 +31,10 @@ const prompts = [
         label: "Enthnocentrism vs cultural relativism samjhao mujhe?",
         query: "Enthnocentrism vs cultural relativism samjhao mujhe?",
     },
+    {
+        label: "Different types of Pollutants?",
+        query: "Different types of Pollutants?",
+    },
 ];
 const features = [
     {
@@ -49,14 +53,21 @@ const features = [
 const LandingPage = () => {
     const [inputValue, setInputValue] = useState("");
     const currentYear = new Date().getFullYear();
+    const [showError, setShowError] = useState(false);
+
     const handlePromptClick = (query) => {
         setInputValue(query);
+        setShowError(false);
     };
 
     const handleAskClick = () => {
+        if (!inputValue.trim()) {
+            setShowError(true);
+            return;
+        }
         if (inputValue.trim()) {
-            localStorage.setItem('presetQuery', inputValue);
-            window.location.href = '/chat';
+            localStorage.setItem("presetQuery", inputValue);
+            window.location.href = "/chat";
         }
     };
 
@@ -83,7 +94,7 @@ const LandingPage = () => {
                             Home
                         </a>
                         <a
-                            href="#owl_AI"
+                            href="#features"
                             className="text-gray-700 hover:text-teal-600 font-medium"
                         >
                             Owl AI
@@ -95,15 +106,21 @@ const LandingPage = () => {
                             Exams
                         </a>
                         <a
-                            href="#about"
+                            href="#owl_AI"
                             className="text-gray-700 hover:text-teal-600 font-medium"
                         >
                             About Us
                         </a>
+                        <a
+                            href="#contact"
+                            className="text-gray-700 hover:text-teal-600 font-medium"
+                        >
+                            Contact Us
+                        </a>
                     </div>
 
                     <Link to="/chat">
-                        <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
+                        <button className="bg-teal-600 cursor-pointer hover:bg-teal-700 text-white px-6 py-2 rounded-full font-medium transition-colors">
                             Get Started
                         </button>
                     </Link>
@@ -138,38 +155,46 @@ const LandingPage = () => {
 
                     {/* Search Bar */}
                     <div className="relative w-full max-w-2xl mb-6">
-                <input
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Aaj konsa topic cover karna chahte ho? 🤔"
-                    className="w-full py-4 px-6 pr-16 rounded-full border border-gray-300 text-gray-800 shadow-sm placeholder-gray-500 placeholder:text-xs md:placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            handleAskClick();
-                        }
-                    }}
-                />
-                <button 
-                    onClick={handleAskClick}
-                    className="absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 bg-[#FFC107] text-black px-6 py-1 rounded-full font-semibold"
-                >
-                    Ask
-                </button>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => {
+                                setInputValue(e.target.value);
+                                setShowError(false);
+                            }}
+                            placeholder="Aaj konsa topic cover karna chahte ho? 🤔"
+                            className="w-full py-4 px-6 pr-16 rounded-full border border-gray-300 text-gray-800 shadow-sm placeholder-gray-500 placeholder:text-xs md:placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleAskClick();
+                                }
+                            }}
+                        />
+                        <button
+                            onClick={handleAskClick}
+                            className="absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 bg-[#FFC107] text-black px-6 py-1 rounded-full font-semibold"
+                        >
+                            Ask
+                        </button>
                     </div>
+                    {showError && (
+                        <div className="text-red-500 text-sm mb-4 animate-fade-in">
+                            Please ask something to continue !!
+                        </div>
+                    )}
 
                     {/* Prompt Buttons */}
                     <div className="flex flex-wrap justify-center gap-3 cursor-pointer">
-                {prompts.map((prompt, i) => (
-                    <button
-                        key={i}
-                        onClick={() => handlePromptClick(prompt.query)}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
-                    >
-                        {prompt.label}
-                    </button>
-                ))}
-            </div>
+                        {prompts.map((prompt, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handlePromptClick(prompt.query)}
+                                className="bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-800 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium transition"
+                            >
+                                {prompt.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -470,6 +495,250 @@ const LandingPage = () => {
                             <span className="text-xs text-red-500 mt-1">
                                 + 50 more exams coming soon
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {/* Contact Us Section - Add this before the Footer section */}
+            <section id="contact" className="py-12 bg-white">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-4xl mx-auto text-center mb-12">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                            Have Questions? Get in Touch!
+                        </h2>
+                        <p className="text-lg text-gray-600">
+                            Our team is here to help you with any questions
+                            about Owl AI and your exam preparation journey.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 md:mx-10 gap-12 items-start">
+                        {/* Left - Contact Form */}
+                        <div className="bg-gray-50 p-8 rounded-xl shadow-sm ">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                Send us a message
+                            </h3>
+                            <form className="space-y-4">
+                                <div>
+                                    <label
+                                        htmlFor="name"
+                                        className="block text-sm font-medium text-gray-700 mb-1"
+                                    >
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                        placeholder="Your name"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="email"
+                                        className="block text-sm font-medium text-gray-700 mb-1"
+                                    >
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                        placeholder="your@email.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="exam"
+                                        className="block text-sm font-medium text-gray-700 mb-1"
+                                    >
+                                        Which exam are you preparing for?
+                                    </label>
+                                    <select
+                                        id="exam"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    >
+                                        <option value="">Select an exam</option>
+                                        <option value="ugc-net">UGC NET</option>
+                                        <option value="ssc">SSC</option>
+                                        <option value="csir">CSIR</option>
+                                        <option value="ctet">CTET</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="message"
+                                        className="block text-sm font-medium text-gray-700 mb-1"
+                                    >
+                                        Your Message
+                                    </label>
+                                    <textarea
+                                        id="message"
+                                        rows="4"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                        placeholder="How can we help you?"
+                                    ></textarea>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-6 rounded-full transition-colors"
+                                >
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Right - Contact Information */}
+                        <div className="space-y-12 p-2 ">
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                    Contact Information
+                                </h3>
+                                <p className="text-gray-600 mb-6">
+                                    Reach out to us through any of these
+                                    channels. We typically respond within 24
+                                    hours.
+                                </p>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-start">
+                                        <div className="flex-shrink-0 bg-teal-100 p-3 rounded-full">
+                                            <svg
+                                                className="w-5 h-5 text-teal-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div className="ml-4">
+                                            <h4 className="text-sm font-medium text-gray-900">
+                                                Email
+                                            </h4>
+                                            <a
+                                                href="mailto:hello@owlai.bot"
+                                                className="text-teal-600 hover:text-teal-700 text-sm"
+                                            >
+                                                hello@owlai.bot
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start">
+                                        <div className="flex-shrink-0 bg-teal-100 p-3 rounded-full">
+                                            <svg
+                                                className="w-5 h-5 text-teal-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div className="ml-4">
+                                            <h4 className="text-sm font-medium text-gray-900">
+                                                Phone
+                                            </h4>
+                                            <a
+                                                href="tel:+911234567890"
+                                                className="text-teal-600 hover:text-teal-700 text-sm"
+                                            >
+                                                +91 12345 67890
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start">
+                                        <div className="flex-shrink-0 bg-teal-100 p-3 rounded-full">
+                                            <svg
+                                                className="w-5 h-5 text-teal-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                                ></path>
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div className="ml-4">
+                                            <h4 className="text-sm font-medium text-gray-900">
+                                                Office
+                                            </h4>
+                                            <p className="text-gray-600 text-sm">
+                                                123 AI Street, Tech Park
+                                                <br />
+                                                New Delhi 201XXX
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                                    Follow Us
+                                </h3>
+                                <div className="flex space-x-4">
+                                    <a
+                                        href="#"
+                                        className="bg-gray-100 hover:bg-gray-200 p-3 rounded-full transition-colors"
+                                    >
+                                        <svg
+                                            className="w-5 h-5 text-gray-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                                        </svg>
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="bg-gray-100 hover:bg-gray-200 p-3 rounded-full transition-colors"
+                                    >
+                                        <svg
+                                            className="w-5 h-5 text-gray-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path>
+                                        </svg>
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="bg-gray-100 hover:bg-gray-200 p-3 rounded-full transition-colors"
+                                    >
+                                        <svg
+                                            className="w-5 h-5 text-gray-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

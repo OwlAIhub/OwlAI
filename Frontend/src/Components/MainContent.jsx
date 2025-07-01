@@ -7,6 +7,9 @@ import config from "../Config";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import OwlLoader from "./OwlLoader";
+import { useLocation } from "react-router-dom";
+
 
 const MainContent = ({
   currentChatTitle,
@@ -35,14 +38,23 @@ const MainContent = ({
   const [customRemark, setCustomRemark] = useState("");
   const [isInterrupted, setIsInterrupted] = useState(false);
   const [chatId, setChatId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
-  const [chatMessages, setChatMessages] = useState(() => {
-    const savedChats = localStorage.getItem(`chatMessages-${sessionId}`);
-    return savedChats ? JSON.parse(savedChats) : [];
-  });
+//   const [chatMessages, setChatMessages] = useState([]);
 
- // In MainContent.jsx
-const [currentChat, setCurrentChat] = useState(null);
+//  // In MainContent.jsx
+// const [currentChat, setCurrentChat] = useState(null);
+const [currentChat, setCurrentChat] = useState(() => {
+  const savedChat = localStorage.getItem('selectedChat');
+  return savedChat ? JSON.parse(savedChat) : null;
+});
+
+const [chatMessages, setChatMessages] = useState(() => {
+  const savedMessages = localStorage.getItem(`chatMessages-${sessionId}`);
+  return savedMessages ? JSON.parse(savedMessages) : [];
+});
 
 useEffect(() => {
   const savedChat = localStorage.getItem('selectedChat');
@@ -53,33 +65,44 @@ useEffect(() => {
 
 // 2. Set up event listeners
 useEffect(() => {
-  const handleChatSelected = (e) => {
-    setCurrentChat(e.detail);
-  };
-
   const handleStorageChange = (e) => {
     if (e.key === 'selectedChat') {
       setCurrentChat(e.newValue ? JSON.parse(e.newValue) : null);
     }
   };
 
-  window.addEventListener('chatSelected', handleChatSelected);
   window.addEventListener('storage', handleStorageChange);
-
-  return () => {
-    window.removeEventListener('chatSelected', handleChatSelected);
-    window.removeEventListener('storage', handleStorageChange);
-  };
+  return () => window.removeEventListener('storage', handleStorageChange);
 }, []);
 
+// useEffect(() => {
+//   const loadMessages = async () => {
+//     if (currentChat?.id) {
+//       await fetchChatHistory(currentChat.id);
+//     } else {
+//       const savedChats = localStorage.getItem(`chatMessages-${sessionId}`);
+//       setChatMessages(savedChats ? JSON.parse(savedChats) : []);
+//     }
+//   };
+
+//   loadMessages();
+// }, [currentChat, sessionId]);
+
 // 3. Fetch chat history when currentChat changes
-useEffect(() => {
-  if (currentChat?.id) {
-    fetchChatHistory(currentChat.id);
-  } else {
-    setChatMessages([]);
-  }
-}, [currentChat]); // Only runs when currentChat changes
+// useEffect(() => {
+//   const loadMessages = async () => {
+//     if (currentChat?.id) {
+//       // If we have a current chat, fetch its history
+//       await fetchChatHistory(currentChat.id);
+//     } else {
+//       // Otherwise check for sessionId messages
+//       const savedChats = localStorage.getItem(`chatMessages-${sessionId}`);
+//       setChatMessages(savedChats ? JSON.parse(savedChats) : []);
+//     }
+//   };
+
+//   loadMessages();
+// }, [currentChat, sessionId]);
 
 // Debugging
 // console.log('Current chat:', currentChat);
@@ -90,6 +113,8 @@ useEffect(() => {
   const textareaRef = useRef(null);
   const scrollRef = useRef(null);
 
+ 
+
   useEffect(() => {
     localStorage.setItem(
       `chatMessages-${sessionId}`,
@@ -97,8 +122,84 @@ useEffect(() => {
     );
   }, [chatMessages, sessionId]);
 
-  const fetchChatHistory = async (chatId) => {
+
+  //   try {
+  //     const response = await fetch(`${config.apiUrl}/chat/${chatId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+      
+  //     if (response.ok) {
+  //       const data = await response.json();
+        
+  //       // Update session ID to match the chat being loaded
+  //       localStorage.setItem("sessionId", chatId);
+  //       setSesssionId(chatId);
+        
+  //       // Transform the API response into chat messages format
+  //       const messages = [];
+        
+  //       if (data.data && Array.isArray(data.data)) {
+  //         data.data.forEach((messageObj) => {
+  //           if (messageObj.question_text) {
+  //             messages.push({
+  //               role: 'user',
+  //               content: messageObj.question_text,
+  //               isMarkdown: false,
+  //               feedback: messageObj.feedback_rating,
+  //               timestamp: messageObj.created_at
+  //             });
+  //           }
+            
+  //           if (messageObj.response_text) {
+  //             messages.push({
+  //               role: 'bot',
+  //               content: messageObj.response_text,
+  //               isMarkdown: true,
+  //               feedback: messageObj.feedback_rating,
+  //               timestamp: messageObj.created_at
+  //             });
+  //           }
+  //         });
+  //       }
+        
+  //       // Sort messages by timestamp to ensure correct order
+  //       messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  //       setChatMessages(messages);
+        
+  //       // Store messages under the new session ID
+  //       localStorage.setItem(`chatMessages-${chatId}`, JSON.stringify(messages));
+  //     } else {
+  //       console.error('Failed to fetch chat history');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching chat history:', error);
+  //   }
+  // };
+
+  // console.log("Current session ID:", sessionId);
+
+  const fetchChatHistory = React.useCallback(async (chatId) => {
+    // Check if we already have messages for this chat in state
+    if (chatMessages.some(msg => msg.chatId === chatId))
+       {
+      return;
+    }
+  
     try {
+      const cacheKey = `chatHistory-${chatId}`;
+      const cachedData = localStorage.getItem(cacheKey);
+      
+      // Return cached data if it's fresh (less than 5 minutes old)
+      if (cachedData) {
+        const { timestamp, data } = JSON.parse(cachedData);
+        if (Date.now() - timestamp < 300000) { // 5 minutes
+          processChatHistory(data);
+          return;
+        }
+      }
+  
       const response = await fetch(`${config.apiUrl}/chat/${chatId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -108,52 +209,77 @@ useEffect(() => {
       if (response.ok) {
         const data = await response.json();
         
-        // Update session ID to match the chat being loaded
-        localStorage.setItem("sessionId", chatId);
-        setSesssionId(chatId);
-        
-        // Transform the API response into chat messages format
-        const messages = [];
-        
-        if (data.data && Array.isArray(data.data)) {
-          data.data.forEach((messageObj) => {
-            if (messageObj.question_text) {
-              messages.push({
-                role: 'user',
-                content: messageObj.question_text,
-                isMarkdown: false,
-                feedback: messageObj.feedback_rating,
-                timestamp: messageObj.created_at
-              });
-            }
-            
-            if (messageObj.response_text) {
-              messages.push({
-                role: 'bot',
-                content: messageObj.response_text,
-                isMarkdown: true,
-                feedback: messageObj.feedback_rating,
-                timestamp: messageObj.created_at
-              });
-            }
-          });
-        }
-        
-        // Sort messages by timestamp to ensure correct order
-        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        setChatMessages(messages);
-        
-        // Store messages under the new session ID
-        localStorage.setItem(`chatMessages-${chatId}`, JSON.stringify(messages));
+        // Cache the response
+        localStorage.setItem(cacheKey, JSON.stringify({
+          timestamp: Date.now(),
+          data
+        }));
+  
+        processChatHistory(data);
       } else {
         console.error('Failed to fetch chat history');
       }
     } catch (error) {
       console.error('Error fetching chat history:', error);
+    } finally {
+      setIsHistoryLoaded(true);
     }
+  }, [chatMessages, token]);
+  
+  const processChatHistory = (data) => {
+    // Update session ID to match the chat being loaded
+    localStorage.setItem("sessionId", data.chat_id);
+    setSesssionId(data.chat_id);
+    
+    // Transform the API response into chat messages format
+    const messages = [];
+    
+    if (data.data && Array.isArray(data.data)) {
+      data.data.forEach((messageObj) => {
+        if (messageObj.question_text) {
+          messages.push({
+            role: 'user',
+            content: messageObj.question_text,
+            isMarkdown: false,
+            feedback: messageObj.feedback_rating,
+            timestamp: messageObj.created_at,
+            chatId: data.chat_id
+          });
+        }
+        
+        if (messageObj.response_text) {
+          messages.push({
+            role: 'bot',
+            content: messageObj.response_text,
+            isMarkdown: true,
+            feedback: messageObj.feedback_rating,
+            timestamp: messageObj.created_at,
+            chatId: data.chat_id
+          });
+        }
+      });
+    }
+    
+    // Sort messages by timestamp to ensure correct order
+    messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    setChatMessages(messages);
+    
+    // Store messages under the new session ID
+    localStorage.setItem(`chatMessages-${data.chat_id}`, JSON.stringify(messages));
   };
-
-  // console.log("Current session ID:", sessionId);
+  
+  // Optimized useEffect for loading chat history
+  useEffect(() => {
+    // Only run this effect when the location pathname changes or currentChat changes
+    if (!currentChat?.id || isHistoryLoaded) return;
+  
+    // Debounce the fetch call
+    const timer = setTimeout(() => {
+      fetchChatHistory(currentChat.id);
+    }, 300);
+  
+    return () => clearTimeout(timer);
+  }, [currentChat?.id, location.pathname, fetchChatHistory, isHistoryLoaded]);
 
   useEffect(() => {
     const handleNewSession = (event) => {
@@ -188,6 +314,16 @@ useEffect(() => {
     setChatMessages(savedChats ? JSON.parse(savedChats) : []);
   }
 }, [sessionId]);
+
+const messagesEndRef = useRef(null);
+
+useEffect(() => {
+  scrollToBottom();
+}, [chatMessages, displayedText]);
+
+const scrollToBottom = () => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+};
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -226,6 +362,7 @@ useEffect(() => {
   "Paper 1 ka syllabus itna zyada hai... Kahaan se shuru karun?",
   "What is Teaching Aptitude?",
   "Enthnocentrism vs cultural relativism samjhao mujhe?",
+  "Different types of Pollutants?"
 ]);
 
 function formatMarkdown(response) {
@@ -366,7 +503,7 @@ useEffect(() => {
         setResponse("");
       }, 200);
     }
-  }, 10);
+  }, 1);
 
   return () => clearInterval(interval);
 }, [response]);
@@ -446,6 +583,22 @@ useEffect(() => {
       };
     }
   };
+  useEffect(() => {
+    const hasData = sessionId || currentChat || 
+                   localStorage.getItem("sessionId") || 
+                   localStorage.getItem("selectedChat") || anonymousSessionId || anonymousUserId
+  
+    if (!hasData) {
+      setIsLoading(false);
+    } else {
+      const timer = setTimeout(() => setIsLoading(false), 1500); 
+      return () => clearTimeout(timer);
+    }
+  }, [sessionId, currentChat]);
+  
+  if (isLoading) {
+    return <OwlLoader darkMode={darkMode} />;
+  }
 
   return (
 <div className="relative flex w-full h-screen overflow-hidden">
@@ -684,6 +837,8 @@ useEffect(() => {
     </div>
   </div>
 )}
+          <div ref={messagesEndRef} />
+
                     </div>
                   </>
                 ) : (
@@ -758,7 +913,7 @@ useEffect(() => {
             <div className="relative">
               <div className="relative flex items-center">
                 <div className="relative flex-grow">
-                  <button
+                  {/* <button
                     className={`absolute left-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${
                       darkMode
                         ? "text-[#FFC107] hover:bg-[#1B263B]"
@@ -780,7 +935,7 @@ useEffect(() => {
                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                       />
                     </svg>
-                  </button>
+                  </button> */}
 
                   <textarea
             ref={textareaRef}

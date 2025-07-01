@@ -8,6 +8,8 @@ import {
 } from '../firebase.js';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import config from '../Config.js';
+import axios from 'axios';
 
 export default function Login() {
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -129,107 +131,82 @@ export default function Login() {
     }
   };
 
-  // Only show sign-in toast for existing users, not after questionnaire
   const handleVerifyOTP = async () => {
     if (!confirmationResult || !otpComplete) {
       toast.error('Please enter a complete OTP.');
       return;
     }
+    
     setIsVerifyingOTP(true);
+    
     try {
+      // Verify OTP with Firebase
       const result = await confirmationResult.confirm(fullOtp);
       const user = result.user;
-      const uid = user.uid;
-
-      // Store token
       const token = await user.getIdToken();
+      
+      // Store token
       localStorage.setItem('token', token);
-
-      // Firestore user doc reference
-      const userRef = doc(db, 'users', uid);
-      let userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        // New user: create Firestore doc with questionnaireFilled: false and phone
-        await setDoc(userRef, {
-          phone: phone,
-          createdAt: new Date().toISOString(),
-          questionnaireFilled: false,
-          csirBlocked: false
-        });
-        // Store user info in localStorage for new user
-        localStorage.setItem('user', JSON.stringify({
-          uid,
-          phone: phone,
-          questionnaireFilled: false,
-          createdAt: new Date().toISOString(),
-          csirBlocked: false
-        }));
-        // Navigate to questionnaire (do not show sign-in toast yet)
-        navigate('/questionnaire');
-      } else {
-        // Existing user: check questionnaireFilled and csirBlocked
-        const data = userSnap.data();
-        // Store user info in localStorage
-        localStorage.setItem('user', JSON.stringify({
-          uid,
-          phone: data.phone,
-          ...data
-        }));
-
-        // If user is blocked due to CSIR-NET, show popup
-        if (data.csirBlocked) {
-          setCsirUserData({ uid, phone: data.phone, ...data });
-          setShowCSIRPopup(true);
-          setIsVerifyingOTP(false);
-          return;
-        }
-
-        if (data.questionnaireFilled) {
-          // Pass state to show toast only once in /chat
-          navigate('/chat', { state: { showSignInToast: true } });
-        } else {
-          // If user is returning from CSIR-NET block, skip to curriculum step
-          // and prefill previous data except curriculum/subjects
-          if (
-            data.curriculum === '' &&
-            Array.isArray(data.selectedSubjects) &&
-            data.selectedSubjects.length === 0 &&
-            data.csirBlocked === false
-          ) {
-            // User just changed from CSIR-NET to UGC-NET, so go to questionnaire with step=3 and prefill
-            navigate('/questionnaire', {
-              state: {
-                step: 3,
-                prefill: {
-                  firstName: data.firstName || '',
-                  lastName: data.lastName || '',
-                  language: data.language || '',
-                  attempt: data.attempt || '',
-                  heardFrom: data.heardFrom || '',
-                  examCycle: data.examCycle || '',
-                  // curriculum and selectedSubjects intentionally left blank
-                }
-              }
-            });
-          } else {
-            // Normal flow
-            navigate('/questionnaire');
+  
+      // First check if mobile number is registered
+      try {
+        const checkResponse = await axios.get(`${config.apiUrl}/user/check-mobile/${phone}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
+        });
+  
+        // If mobile is registered, get user details
+        if (checkResponse.data.registered) {
+          const userResponse = await axios.get(`${config.apiUrl}/users/${phone}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+  
+          const userData = userResponse.data;
+          localStorage.setItem('user', JSON.stringify(userData));
+  
+          if (userData.csirBlocked) {
+            setCsirUserData(userData);
+            setShowCSIRPopup(true);
+            return;
+          }
+  
+          // Navigate based on questionnaire status
+          navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
+            state: { showSignInToast: true }
+          });
+        } else {
+          // Mobile not registered - navigate to questionnaire first
+          navigate('/questionnaire', {
+            state: { 
+              newUser: true,
+              phone: phone,
+              uid: user.uid,
+              token: token
+            }
+          });
         }
+      } catch (error) {
+        console.error('Error checking mobile registration:', error);
+        toast.error('Failed to verify account status');
       }
     } catch (err) {
+      // Handle OTP verification errors
       if (err.code === 'auth/invalid-verification-code') {
         toast.error('Invalid OTP, please check and try again.');
       } else if (err.code === 'auth/code-expired') {
         toast.error('OTP has expired, please request a new one.');
       } else {
-        toast.error('Failed to verify OTP: ' + err.message);
+        console.error('Error verifying OTP:', err);
+        toast.error('Failed to verify OTP: ' + (err.response?.data?.message || err.message));
       }
     } finally {
       setIsVerifyingOTP(false);
     }
   };
+
 
   // Handler for "Change your exam to UGC-NET" in popup
   const handleChangeExamToUGCNet = async () => {
