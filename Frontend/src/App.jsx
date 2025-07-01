@@ -1,5 +1,4 @@
-
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -33,6 +32,8 @@ function App() {
   const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
   const [sessionId, setSessionId] = useState(null);
   const [selectedChatId, setSelectedChatId] = useState(null); // State to store clicked chat ID
+  const sessionCreatedRef = useRef(false);
+
 
   useEffect(() => {
     // Apply dark mode class on initial load
@@ -48,7 +49,9 @@ function App() {
 
   // Function to create new session
   const createNewSession = async (userId) => {
+    if (sessionCreatedRef.current) return;
     try {
+      sessionCreatedRef.current = true;
       const res = await fetch(`${config.apiUrl}/session/create?user_id=${userId}`, {
         method: "POST",
         headers: {
@@ -200,8 +203,8 @@ const handleLogout = () => {
   };
 
   useEffect(() => {
-    if (!sessionId) {
-  
+    // Check if we already have an anonymous session and if no logged-in session exists
+    if (!localStorage.getItem("anonymousSessionId") && !localStorage.getItem("anonymousSessionInitialized")) {
       const initAnonymousSession = async () => {
         try {
           const res = await fetch(`${config.apiUrl}/session/init-anon`, {
@@ -210,16 +213,20 @@ const handleLogout = () => {
           });
           const data = await res.json();
           console.log("Anonymous session initialized:", data);
+          
+          // Store session data
           localStorage.setItem("anonymousSessionId", data.session_id);
           localStorage.setItem("anonymousUserId", data.user_id);
+          
+          localStorage.setItem("anonymousSessionInitialized", "true");
         } catch (err) {
-            console.error("Failed to initialize anonymous session:", err);
+          console.error("Failed to initialize anonymous session:", err);
         }
       };
-      initAnonymousSession();
   
+      initAnonymousSession();
     }
-  }, [sessionId]); 
+  }, [sessionId]); // Only runs when sessionId changes 
 
   const MainAppContent = () => {
     const location = useLocation();
