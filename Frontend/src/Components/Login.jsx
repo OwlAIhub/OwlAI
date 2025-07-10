@@ -148,7 +148,6 @@ export default function Login() {
       // Store token
       localStorage.setItem('token', token);
   
-      // First check if mobile number is registered
       try {
         const checkResponse = await axios.get(`${config.apiUrl}/user/check-mobile/${phone}`, {
           headers: {
@@ -178,7 +177,6 @@ export default function Login() {
             state: { showSignInToast: true }
           });
         } else {
-          // Mobile not registered - navigate to questionnaire first
           navigate('/questionnaire', {
             state: { 
               newUser: true,
@@ -190,7 +188,8 @@ export default function Login() {
         }
       } catch (error) {
         console.error('Error checking mobile registration:', error);
-        toast.error('Failed to verify account status');
+        localStorage.setItem('user', JSON.stringify(userData));
+
       }
     } catch (err) {
       // Handle OTP verification errors
