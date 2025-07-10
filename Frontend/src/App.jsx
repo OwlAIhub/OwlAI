@@ -36,6 +36,7 @@ function App() {
   const sessionCreatedRef = useRef(false);
 
 
+  
   useEffect(() => {
     // Apply dark mode class on initial load
     if (darkMode) {
@@ -237,6 +238,8 @@ const handleLogout = () => {
       if (location.state?.showSignInToast) {
         toast.success("Signed in successfully! 🚀");
         navigate(location.pathname, { replace: true, state: {} });
+        window.location.reload(); // Reload to apply changes
+        console.log("User signed in, reloading page...");
       }
     }, [location, navigate]);
 

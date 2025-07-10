@@ -42,6 +42,7 @@ const MainContent = ({
   const location = useLocation();
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
+  
 //   const [chatMessages, setChatMessages] = useState([]);
 
 //  // In MainContent.jsx

@@ -24,7 +24,6 @@ export default function Login() {
   const [csirUserData, setCsirUserData] = useState(null);
   const navigate = useNavigate();
 
-  // Redirect logged-in users away from /login
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -125,7 +124,7 @@ export default function Login() {
       toast.success('OTP sent!');
     } catch (err) {
       console.error('Error sending OTP:', err.code, err.message);
-      toast.error(err.message || 'Failed to send OTP');
+      toast.error('Failed to send OTP');
     } finally {
       setIsSendingOTP(false);
     }
@@ -173,9 +172,20 @@ export default function Login() {
           }
   
           // Navigate based on questionnaire status
-          navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
-            state: { showSignInToast: true }
-          });
+          // navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
+          //   state: { showSignInToast: true }
+          // });
+          if (userData.questionnaireFilled) {
+            console.log('User already registered, navigating to chat');
+            window.location.reload();
+            navigate('/chat', {
+              state: { showSignInToast: true }              
+            });
+          } else {
+            navigate('/questionnaire',{
+              state: {showSignInToast: true,}
+            })
+          }
         } else {
           navigate('/questionnaire', {
             state: { 
@@ -199,7 +209,6 @@ export default function Login() {
         toast.error('OTP has expired, please request a new one.');
       } else {
         console.error('Error verifying OTP:', err);
-        toast.error('Failed to verify OTP: ' + (err.response?.data?.message || err.message));
       }
     } finally {
       setIsVerifyingOTP(false);

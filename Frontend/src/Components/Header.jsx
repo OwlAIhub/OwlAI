@@ -17,7 +17,7 @@ const Header = ({
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     useEffect(() => {
-        let isMounted = true; // Flag to track mounted state
+        let isMounted = true; 
         
         const fetchUserData = async () => {
             try {
@@ -50,7 +50,6 @@ const Header = ({
         };
     }, [auth.currentUser?.uid]); // Add dependency on user ID
     const userData = localStorage.getItem("userProfile");
-
     const user = userData ? JSON.parse(userData) : null;
 
     const firstLetter = user?.firstName?.[0]?.toUpperCase() || "G";
