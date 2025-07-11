@@ -6,8 +6,9 @@ import {
   Route,
   Navigate,
   useLocation,
-  useNavigate,
 } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+
 import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -73,53 +74,24 @@ function App() {
     }
   };
 
-  // Authentication state change handler
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      const wasLoggedIn = isLoggedIn;
-      setIsLoggedIn(!!user);
-      setAuthReady(true);
+useEffect(() => {
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    const wasLoggedIn = isLoggedIn;
+    setIsLoggedIn(!!user);
+    setAuthReady(true);
 
-      if (user && !wasLoggedIn) {
-        // User just logged in - create new session
-        // console.log("User logged in, creating new session...");
-        
-        // Clear any existing session data
-        localStorage.removeItem("sessionId");
-        setSessionId(null);
-        
-        // Create new session for the logged-in user
-        await createNewSession(user.uid);
-        
-        // Store user data
-        localStorage.setItem("user", JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName
-        }));
-        
-        setCurrentChatTitle("Learning Theories");
-      } else if (!user && wasLoggedIn) {
-        // User logged out - clear session data
-        // console.log("User logged out, clearing session data...");
-        localStorage.removeItem("sessionId");
-        localStorage.removeItem("user");
-        setSessionId(null);
-        setCurrentChatTitle("Learning Theories");
-      } else if (user && wasLoggedIn) {
-        // User was already logged in - check if session exists
-        const existingSessionId = localStorage.getItem("sessionId");
-        if (!existingSessionId) {
-          // console.log("Existing user without session, creating new session...");
-          await createNewSession(user.uid);
-        } else {
-          setSessionId(existingSessionId);
-        }
-      }
-    });
-    
-    return () => unsubscribe();
-  }, [isLoggedIn]); // Add isLoggedIn as dependency to track login state changes
+    if (user && !wasLoggedIn) {
+      // Just create session, don't navigate
+      createNewSession(user.uid);
+    } else if (!user && wasLoggedIn) {
+      // Handle logout cleanup
+      localStorage.removeItem("sessionId");
+      localStorage.removeItem("user");
+      setSessionId(null);
+    }
+  });
+  return () => unsubscribe();
+}, [isLoggedIn]); // Remove navigate from dependencies
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -234,14 +206,14 @@ const handleLogout = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    useEffect(() => {
-      if (location.state?.showSignInToast) {
-        toast.success("Signed in successfully! 🚀");
-        navigate(location.pathname, { replace: true, state: {} });
-        window.location.reload(); // Reload to apply changes
-        console.log("User signed in, reloading page...");
-      }
-    }, [location, navigate]);
+    // useEffect(() => {
+    //   if (location.state?.showSignInToast) {
+    //     toast.success("Signed in successfully! 🚀");
+    //     navigate(location.pathname, { replace: true, state: {} });
+    //     window.location.reload(); // Reload to apply changes
+    //     console.log("User signed in, reloading page...");
+    //   }
+    // }, [location, navigate]);
 
     return (
       <div className="flex h-full">

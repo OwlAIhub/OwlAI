@@ -20,7 +20,9 @@ import config from "../Config";
 import { toast } from "react-toastify";
 import Logo from "../assets/owl_AI_logo.png";
 import { useCallback } from 'react';
-
+import { auth, db } from '../firebase.js';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from "firebase/auth";
 
 
 const Sidebar = ({
@@ -44,11 +46,49 @@ const Sidebar = ({
   const [isMidRange, setIsMidRange] = useState(false);
   const navigate = useNavigate();
   const [chatStore, setChatStore] = useState([]);
-  const userData = localStorage.getItem("userProfile");
-
-  const user = userData ? JSON.parse(userData) : null;
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const ss = localStorage.getItem("userProfile");
   const Student = localStorage.getItem("user");
-  const studentData = userData ? JSON.parse(Student) : null;
+  const studentData = ss ? JSON.parse(Student) : null;
+  useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+          if (firebaseUser) {
+              try {
+                  const userRef = doc(db, 'users', firebaseUser.uid);
+                  const userSnap = await getDoc(userRef);
+                  
+                  if (userSnap.exists()) {
+                      const userData = userSnap.data();
+                      localStorage.setItem("userProfile", JSON.stringify(userData));
+                      setUser(userData);
+                  } else {
+                      console.log("No user data found");
+                      localStorage.removeItem("userProfile");
+                      setUser(null);
+                  }
+              } catch (error) {
+                  console.error("Error fetching user data:", error);
+                  localStorage.removeItem("userProfile");
+                  setUser(null);
+              }
+          } else {
+              localStorage.removeItem("userProfile");
+              setUser(null);
+          }
+          setLoading(false);
+      });
+
+      return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+      const cachedUser = localStorage.getItem("userProfile");
+      if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
+      }
+  }, []);
+
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
