@@ -132,7 +132,6 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error checking user profile:', error);
-      toast.error('Failed to load user data');
     }
   };
 
@@ -188,7 +187,7 @@ export default function Login() {
       } else if (err.code === 'auth/code-expired') {
         toast.error('OTP expired. Please request a new one.');
       } else {
-        toast.error('OTP verification failed');
+        console.error('Error verifying OTP:', err);
       }
     } finally {
       setIsVerifyingOTP(false);
