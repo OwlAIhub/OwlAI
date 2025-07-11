@@ -114,7 +114,11 @@ useEffect(() => {
   const textareaRef = useRef(null);
   const scrollRef = useRef(null);
 
- 
+  console.log("User Data:", user);
+  // console.log("Is LIS Logged In:", isLoggedIn);
+  // if (isLoggedIn && !user) {
+  //     window.location.reload();
+  // }
 
   useEffect(() => {
     localStorage.setItem(

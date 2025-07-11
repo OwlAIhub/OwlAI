@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaChevronDown, FaKiwiBird } from "react-icons/fa";
 import { FiMenu, FiSearch, FiLogOut } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { auth, db } from '../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import Logo from "../assets/owl_AI_logo.png";
-
+import { onAuthStateChanged } from "firebase/auth";
 
 const Header = ({
     currentChatTitle,
@@ -14,46 +14,65 @@ const Header = ({
     onLogout,
     darkMode,
     toggleDarkMode,
+    isLoggedIn,
 }) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        let isMounted = true; 
-        
-        const fetchUserData = async () => {
-            try {
-                const user = auth.currentUser;
-                if (!user) return;
-    
-                const userRef = doc(db, 'users', user.uid);
-                const userSnap = await getDoc(userRef);
-                
-                if (isMounted) { // Only update state if component is still mounted
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                try {
+                    const userRef = doc(db, 'users', firebaseUser.uid);
+                    const userSnap = await getDoc(userRef);
+                    
                     if (userSnap.exists()) {
-                        localStorage.setItem("userProfile", JSON.stringify(userSnap.data()));
+                        const userData = userSnap.data();
+                        localStorage.setItem("userProfile", JSON.stringify(userData));
+                        setUser(userData);
                     } else {
-                        console.error("No user data found");
-                        localStorage.removeItem("userProfile"); // Clear stale data
+                        console.log("No user data found");
+                        localStorage.removeItem("userProfile");
+                        setUser(null);
                     }
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    localStorage.removeItem("userProfile");
+                    setUser(null);
                 }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                if (isMounted) {
-                    localStorage.removeItem("userProfile"); // Clear stale data on error
-                }
+            } else {
+                localStorage.removeItem("userProfile");
+                setUser(null);
             }
-        };
-    
-        fetchUserData();
-    
-        return () => {
-            isMounted = false; // Cleanup function
-        };
-    }, [auth.currentUser?.uid]); // Add dependency on user ID
-    const userData = localStorage.getItem("userProfile");
-    const user = userData ? JSON.parse(userData) : null;
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const cachedUser = localStorage.getItem("userProfile");
+        if (cachedUser) {
+            setUser(JSON.parse(cachedUser));
+        }
+    }, []);
 
     const firstLetter = user?.firstName?.[0]?.toUpperCase() || "G";
 
+    if (loading && isLoggedIn) {
+        return (
+            <header className={`sticky top-0 z-40 ${
+                darkMode ? "bg-gray-900" : "bg-white"
+            } border-b ${
+                darkMode ? "border-gray-700" : "border-gray-200"
+            } shadow-sm h-17`}>
+                <div className="flex items-center justify-between h-full px-4">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                </div>
+            </header>
+        );
+    }
     return (
         <header
             className={`sticky top-0 z-40 ${

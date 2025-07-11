@@ -24,6 +24,7 @@ export default function Login() {
   const [csirUserData, setCsirUserData] = useState(null);
   const navigate = useNavigate();
 
+  // Redirect logged-in users away from /login
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -101,6 +102,39 @@ export default function Login() {
       toast.error('Failed to load reCAPTCHA, please try again.');
     });
   };
+  const checkUserProfile = async (uid) => {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(userRef);
+      
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        if (userData.csirBlocked) {
+          setCsirUserData(userData);
+          setShowCSIRPopup(true);
+          return;
+        }
+        
+        navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
+          state: { showSignInToast: true }
+        });
+      } else {
+        // New user - navigate to questionnaire
+        navigate('/questionnaire', {
+          state: { 
+            newUser: true,
+            phone: phone.replace('+91', ''),
+            uid: uid
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error checking user profile:', error);
+      toast.error('Failed to load user data');
+    }
+  };
 
   const handleSendOTP = async () => {
     if (!isValidPhone(phone)) {
@@ -124,96 +158,43 @@ export default function Login() {
       toast.success('OTP sent!');
     } catch (err) {
       console.error('Error sending OTP:', err.code, err.message);
-      toast.error('Failed to send OTP');
+      toast.error(err.message || 'Failed to send OTP');
     } finally {
       setIsSendingOTP(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!confirmationResult || !otpComplete) {
-      toast.error('Please enter a complete OTP.');
-      return;
-    }
+    if (!confirmationResult || !otpComplete) return;
     
     setIsVerifyingOTP(true);
     
     try {
-      // Verify OTP with Firebase
       const result = await confirmationResult.confirm(fullOtp);
       const user = result.user;
-      const token = await user.getIdToken();
       
-      // Store token
+      // Get Firebase ID token
+      const token = await user.getIdToken();
       localStorage.setItem('token', token);
-  
-      try {
-        const checkResponse = await axios.get(`${config.apiUrl}/user/check-mobile/${phone}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-  
-        // If mobile is registered, get user details
-        if (checkResponse.data.registered) {
-          const userResponse = await axios.get(`${config.apiUrl}/users/${phone}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-  
-          const userData = userResponse.data;
-          localStorage.setItem('user', JSON.stringify(userData));
-  
-          if (userData.csirBlocked) {
-            setCsirUserData(userData);
-            setShowCSIRPopup(true);
-            return;
-          }
-  
-          // Navigate based on questionnaire status
-          // navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
-          //   state: { showSignInToast: true }
-          // });
-          if (userData.questionnaireFilled) {
-            console.log('User already registered, navigating to chat');
-            window.location.reload();
-            navigate('/chat', {
-              state: { showSignInToast: true }              
-            });
-          } else {
-            navigate('/questionnaire',{
-              state: {showSignInToast: true,}
-            })
-          }
-        } else {
-          navigate('/questionnaire', {
-            state: { 
-              newUser: true,
-              phone: phone,
-              uid: user.uid,
-              token: token
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Error checking mobile registration:', error);
-        localStorage.setItem('user', JSON.stringify(userData));
-
-      }
+      
+      // Check user profile in Firestore
+      await checkUserProfile(user.uid);
+      
     } catch (err) {
-      // Handle OTP verification errors
+      console.error('OTP verification error:', err);
+      
       if (err.code === 'auth/invalid-verification-code') {
-        toast.error('Invalid OTP, please check and try again.');
+        toast.error('Invalid OTP code');
       } else if (err.code === 'auth/code-expired') {
-        toast.error('OTP has expired, please request a new one.');
+        toast.error('OTP expired. Please request a new one.');
       } else {
-        console.error('Error verifying OTP:', err);
+        toast.error('OTP verification failed');
       }
     } finally {
       setIsVerifyingOTP(false);
     }
   };
+
 
 
   // Handler for "Change your exam to UGC-NET" in popup
