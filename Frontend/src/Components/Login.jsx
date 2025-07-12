@@ -116,7 +116,8 @@ export default function Login() {
           setShowCSIRPopup(true);
           return;
         }
-        
+        console.log("User data aygya yrr:", userData);
+        console.log("hi",userData.questionnaireFilled)
         navigate(userData.questionnaireFilled ? '/chat' : '/questionnaire', {
           state: { showSignInToast: true }
         });
@@ -177,11 +178,11 @@ export default function Login() {
       localStorage.setItem('token', token);
       
       // Check user profile in Firestore
+      console.log("checking user profile for uid:", user.uid);
       await checkUserProfile(user.uid);
-      
+      console.log("User profile checked successfully");
     } catch (err) {
       console.error('OTP verification error:', err);
-      
       if (err.code === 'auth/invalid-verification-code') {
         toast.error('Invalid OTP code');
       } else if (err.code === 'auth/code-expired') {
