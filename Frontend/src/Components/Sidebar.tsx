@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+// FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
+// import { auth, db } from "../firebase";
+// import { doc, getDoc } from "firebase/firestore";
+// import { onAuthStateChanged } from "firebase/auth";
 import { SidebarHeader } from "@/components/features/sidebar/SidebarHeader";
 import { SidebarSearch } from "@/components/features/sidebar/SidebarSearch";
 import { SidebarChatList } from "@/components/features/sidebar/SidebarChatList";
@@ -63,38 +64,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
+  // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            setUser({
-              uid: firebaseUser.uid,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              email: userData.email,
-              plan: userData.plan,
-              avatar: userData.avatar,
-            });
-          } else {
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || "",
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
-        setUser(null);
-      }
+    // Mock user for design work
+    setUser({
+      uid: "mock-user-id",
+      firstName: "Guest",
+      lastName: "User",
+      email: "guest@example.com",
+      plan: "Free",
+      avatar: "",
     });
-
-    return () => unsubscribe();
   }, []);
 
   const handleNewChat = () => {

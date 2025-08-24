@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { auth, db } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+// FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
+// import { auth, db } from "../firebase";
+// import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ProfileHeader } from "@/components/features/profile/ProfileHeader";
 import { ProfileSection } from "@/components/features/profile/ProfileSection";
 import { ProfileStats } from "@/components/features/profile/ProfileStats";
@@ -32,54 +33,20 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
+  // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          setUserData({
-            name:
-              `${data.firstName || ""} ${data.lastName || ""}`.trim() || "User",
-            email: data.email || "",
-            educationLevel: data.educationLevel || "",
-            preferredLanguage: data.language || "English",
-            targetExam: data.targetExam || "UGC-NET",
-            examAttempt: data.attempt || "First Attempt",
-            joinDate: data.createdAt
-              ? new Date(data.createdAt).toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })
-              : "January 2023",
-            subscription: data.plan || "Premium",
-          });
-        } else {
-          setUserData({
-            name: user.displayName || "User",
-            email: "",
-            educationLevel: "",
-            preferredLanguage: "English",
-            targetExam: "UGC-NET",
-            examAttempt: "First Attempt",
-            joinDate: new Date().toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-            }),
-            subscription: "Premium",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
+    // Mock user data for design work
+    const mockUserData = {
+      name: "Guest User",
+      email: "guest@example.com",
+      educationLevel: "Post Graduate",
+      preferredLanguage: "English",
+      targetExam: "UGC-NET",
+      examAttempt: "First Attempt",
+      joinDate: "January 2024",
+      subscription: "Free",
     };
-
-    fetchUserData();
+    setUserData(mockUserData);
   }, []);
 
   const toggleSection = (section: string) => {
@@ -91,19 +58,13 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
   };
 
   const handleSave = async () => {
+    // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
     try {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        firstName: userData.name.split(" ")[0] || "",
-        lastName: userData.name.split(" ").slice(1).join(" ") || "",
-      });
-
+      // Mock save for design work
+      console.log("Mock save:", userData);
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating user data:", error);
+      console.error("Error saving user data:", error);
     }
   };
 
@@ -112,8 +73,8 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
   };
 
   const stats = {
-    totalSessions: 12,
-    totalQuestions: 45,
+    totalSessions: 24,
+    totalQuestions: 156,
     joinDate: userData.joinDate,
   };
 
@@ -222,10 +183,10 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
                 </ProfileSection>
 
                 <ProfileSection
-                  title="Education Details"
+                  title="Academic Information"
                   icon={RiGraduationCapLine}
-                  isExpanded={expandedSection === "education"}
-                  onToggle={() => toggleSection("education")}
+                  isExpanded={expandedSection === "academic"}
+                  onToggle={() => toggleSection("academic")}
                   darkMode={darkMode}
                 >
                   <div className="space-y-4">
@@ -242,15 +203,7 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
                           darkMode ? "text-gray-200" : "text-gray-800"
                         }`}
                       >
-                        {userData.educationLevel || (
-                          <span
-                            className={`italic ${
-                              darkMode ? "text-gray-400" : "text-gray-600"
-                            }`}
-                          >
-                            Not provided yet
-                          </span>
-                        )}
+                        {userData.educationLevel || "Not specified"}
                       </p>
                     </div>
                     <div>
@@ -302,22 +255,6 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
                           darkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
-                        Subscription Plan
-                      </p>
-                      <p
-                        className={`text-sm font-medium ${
-                          darkMode ? "text-gray-200" : "text-gray-800"
-                        }`}
-                      >
-                        {userData.subscription}
-                      </p>
-                    </div>
-                    <div>
-                      <p
-                        className={`text-xs ${
-                          darkMode ? "text-gray-400" : "text-gray-600"
-                        }`}
-                      >
                         Member Since
                       </p>
                       <p
@@ -326,6 +263,22 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
                         }`}
                       >
                         {userData.joinDate}
+                      </p>
+                    </div>
+                    <div>
+                      <p
+                        className={`text-xs ${
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Subscription
+                      </p>
+                      <p
+                        className={`text-sm font-medium ${
+                          darkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      >
+                        {userData.subscription}
                       </p>
                     </div>
                   </div>

@@ -58,17 +58,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
               <a
-                href="#features"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection("features");
-                }}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
-              >
-                Features
-                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
-              </a>
-              <a
                 href="#about"
                 onClick={(e) => {
                   e.preventDefault();
@@ -80,14 +69,47 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
               <a
-                href="#contact"
+                href="#why-choose"
                 onClick={(e) => {
                   e.preventDefault();
-                  scrollToSection("contact");
+                  scrollToSection("why-choose");
                 }}
                 className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
               >
-                Contact
+                Why Choose Us
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
+              <a
+                href="#exams"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("exams");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                Exams
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("testimonials");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                Testimonials
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
+              <a
+                href="#features"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("features");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                Features
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
             </div>
@@ -137,7 +159,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
           <div
             className={`md:hidden transition-all duration-300 ease-in-out ${
               isMobileMenuOpen
-                ? "max-h-64 opacity-100"
+                ? "max-h-96 opacity-100"
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
@@ -147,16 +169,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
               >
                 Home
-              </a>
-              <a
-                href="#features"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection("features");
-                }}
-                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
-              >
-                Features
               </a>
               <a
                 href="#about"
@@ -169,14 +181,44 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 About
               </a>
               <a
-                href="#contact"
+                href="#why-choose"
                 onClick={(e) => {
                   e.preventDefault();
-                  scrollToSection("contact");
+                  scrollToSection("why-choose");
                 }}
                 className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
               >
-                Contact
+                Why Choose Us
+              </a>
+              <a
+                href="#exams"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("exams");
+                }}
+                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
+              >
+                Exams
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("testimonials");
+                }}
+                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
+              >
+                Testimonials
+              </a>
+              <a
+                href="#features"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("features");
+                }}
+                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
+              >
+                Features
               </a>
               <div className="pt-4 space-y-3 border-t border-gray-100">
                 <Link

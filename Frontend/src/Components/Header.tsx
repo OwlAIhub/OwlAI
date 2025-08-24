@@ -3,10 +3,11 @@ import { FaChevronDown } from "react-icons/fa";
 import { FiMenu, FiLogOut, FiSearch } from "react-icons/fi";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+// FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
+// import { auth, db } from "../firebase";
+// import { doc, getDoc } from "firebase/firestore";
 import Logo from "../assets/owl_AI_logo.png";
-import { onAuthStateChanged } from "firebase/auth";
+// import { onAuthStateChanged } from "firebase/auth";
 
 interface UserData {
   firstName: string;
@@ -36,35 +37,17 @@ const Header = ({
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-
-          if (userSnap.exists()) {
-            const userData = userSnap.data() as UserData;
-            localStorage.setItem("userProfile", JSON.stringify(userData));
-            setUser(userData);
-          } else {
-            console.log("No user data found");
-            localStorage.removeItem("userProfile");
-            setUser(null);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-          localStorage.removeItem("userProfile");
-          setUser(null);
-        }
-      } else {
-        localStorage.removeItem("userProfile");
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    // Mock user for design work
+    const mockUser = {
+      firstName: "Guest",
+      lastName: "User",
+      email: "guest@example.com",
+    };
+    localStorage.setItem("userProfile", JSON.stringify(mockUser));
+    setUser(mockUser);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
