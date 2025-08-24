@@ -6,7 +6,7 @@ import OwlLogo from "../assets/owlMascot.png"
 import config from "../Config";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { ArrowUp } from "lucide-react";
 import OwlLoader from "./OwlLoader";
 import { useLocation } from "react-router-dom";
 
@@ -983,9 +983,8 @@ useEffect(() => {
                         ${darkMode ? "bg-[#0f172a] text-white hover:bg-[#1B263B]" : "bg-white text-black hover:bg-gray-100"}
                       `}
                     >
-                      <ArrowUpwardIcon
-                        className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110"
-                        fontSize="medium"
+                      <ArrowUp
+                        className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 w-5 h-5"
                       />
                     </button>
                   )}

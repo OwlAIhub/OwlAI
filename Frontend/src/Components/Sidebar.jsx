@@ -14,8 +14,7 @@ import {
   FiTrash2
 } from "react-icons/fi";
 import { FaKiwiBird } from "react-icons/fa";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
+import { Star } from "lucide-react";
 import config from "../Config"; 
 import { toast } from "react-toastify";
 import Logo from "../assets/owl_AI_logo.png";
@@ -521,9 +520,9 @@ useEffect(() => {
                     aria-label={chat.starred ? "Unstar chat" : "Star chat"}
                   >
                     {chat.starred ? (
-                      <StarIcon className={theme.star} fontSize="small" />
+                      <Star className={`${theme.star} w-4 h-4 fill-current`} />
                     ) : (
-                      <StarBorderIcon fontSize="small" className={theme.icon} />
+                      <Star className={`${theme.icon} w-4 h-4`} />
                     )}
                   </button>
                   <button
@@ -590,9 +589,9 @@ useEffect(() => {
                     aria-label={chat.starred ? "Unstar chat" : "Star chat"}
                   >
                     {chat.starred ? (
-                      <StarIcon className={theme.star} fontSize="small" />
+                      <Star className={`${theme.star} w-4 h-4 fill-current`} />
                     ) : (
-                      <StarBorderIcon fontSize="small" className={theme.icon} />
+                      <Star className={`${theme.icon} w-4 h-4`} />
                     )}
                   </button>
                   <button
