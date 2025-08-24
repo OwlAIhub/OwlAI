@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProps, ChatSession, User } from '@/types';
-import { api } from '@/services/api';
-import { storage, deviceUtils } from '@/utils';
-import { STORAGE_KEYS } from '@/constants';
+import { SidebarProps, ChatSession, User } from "@/types";
+import { api } from "@/services/api";
+import { storage, deviceUtils } from "@/utils";
+import { STORAGE_KEYS } from "@/constants";
 import { toast } from "react-toastify";
-import { auth, db } from '@/firebase.js';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from "@/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   SidebarHeader,
@@ -14,17 +14,14 @@ import {
   NewChatButton,
   ChatList,
   UserProfileSection,
-} from './';
+} from "./";
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = false,
   onClose = () => {},
-  onNewChat = () => {},
   onSelectChat = () => {},
-  darkMode = false,
   currentUser = {},
   activeChatId = null,
-  chats = [],
   setChats = () => {},
   onUserProfileClick = () => {},
   setSesssionId,
@@ -37,8 +34,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isMidRange, setIsMidRange] = useState(false);
   const [chatStore, setChatStore] = useState<ChatSession[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  
+  const [, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const studentData = storage.get<User>(STORAGE_KEYS.USER);
 
@@ -47,9 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const userRef = doc(db, 'users', firebaseUser.uid);
+          const userRef = doc(db, "users", firebaseUser.uid);
           const userSnap = await getDoc(userRef);
-          
+
           if (userSnap.exists()) {
             const userData = userSnap.data() as User;
             storage.set(STORAGE_KEYS.USER_PROFILE, userData);
@@ -84,11 +81,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Screen size detection
   useEffect(() => {
     const checkScreenSize = () => {
-      const width = window.innerWidth;
       setIsMobile(deviceUtils.isMobile());
       setIsMidRange(deviceUtils.isMidRange());
     };
-    
+
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
@@ -97,20 +93,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Chat fetching
   const fetchChats = useCallback(async () => {
     if (!studentData?.uid) return;
-    
+
     try {
-      const response = await api.session.getChatSessions(studentData.uid);
-      
+      const response = await api.chat.getChatSessions(studentData.uid);
+
       if (response.status === "success" && response.data) {
-        const formattedChats: ChatSession[] = response.data.map(session => ({
-          id: session.session_id || session.id,
-          title: session.title,
-          lastUpdated: session.last_updated || session.lastUpdated,
-          numChats: session.num_chats || session.numChats,
-          startTime: session.start_time || session.startTime,
-          starred: session.starred || false
-        }));
-        
+        const formattedChats: ChatSession[] = response.data.map(
+          (session: any) => ({
+            id: session.session_id || session.id,
+            title: session.title,
+            lastUpdated: session.last_updated || session.lastUpdated,
+            numChats: session.num_chats || session.numChats,
+            startTime: session.start_time || session.startTime,
+            starred: session.starred || false,
+          })
+        );
+
         setChats(formattedChats);
         setChatStore(formattedChats);
       }
@@ -129,11 +127,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       fetchChats();
     };
 
-    window.addEventListener('newChatMessage', handleNewChatMessage);
-    
+    window.addEventListener("newChatMessage", handleNewChatMessage);
+
     return () => {
       clearTimeout(debounceFetch);
-      window.removeEventListener('newChatMessage', handleNewChatMessage);
+      window.removeEventListener("newChatMessage", handleNewChatMessage);
     };
   }, [fetchChats]);
 
@@ -142,13 +140,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       const response = await api.session.renameSession(chatId, newTitle);
 
-      if (response.status === 'success') {
-        setChats(prev => prev.map(chat => 
-          chat.id === chatId ? { ...chat, title: newTitle } : chat
-        ));
-        setChatStore(prev => prev.map(chat => 
-          chat.id === chatId ? { ...chat, title: newTitle } : chat
-        ));
+      if (response.status === "success") {
+        setChats((prev) =>
+          prev.map((chat) =>
+            chat.id === chatId ? { ...chat, title: newTitle } : chat
+          )
+        );
+        setChatStore((prev) =>
+          prev.map((chat) =>
+            chat.id === chatId ? { ...chat, title: newTitle } : chat
+          )
+        );
         setEditingChatId(null);
         toast.success("Chat renamed successfully");
       }
@@ -162,11 +164,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       const response = await api.session.deleteSession(chatId);
 
-      if (response.status === 'success') {
-        setChats(prev => prev.filter(chat => chat.id !== chatId));
-        setChatStore(prev => prev.filter(chat => chat.id !== chatId));
+      if (response.status === "success") {
+        setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+        setChatStore((prev) => prev.filter((chat) => chat.id !== chatId));
         toast.success("Chat deleted successfully");
-        
+
         if (activeChatId === chatId) {
           onSelectChat(null);
         }
@@ -197,14 +199,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!user) {
       alert("Please log in to access your profile.");
       navigate("/login");
       if (isMobile || isMidRange) onClose();
       return;
     }
-    
+
     onUserProfileClick();
     if (isMobile || isMidRange) onClose();
   };
@@ -212,9 +214,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleNewChatClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     storage.remove(STORAGE_KEYS.SELECTED_CHAT);
-    
+
     if (!studentData) {
       alert("Please log in to start a new chat.");
       navigate("/login");
@@ -224,23 +226,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     try {
       storage.remove(STORAGE_KEYS.SESSION_ID);
-      
+
       const newSessionId = await createNewSession(studentData.uid);
-      
+
       if (newSessionId) {
         storage.set(STORAGE_KEYS.SESSION_ID, newSessionId);
-        
+
         if (setSesssionId) {
           setSesssionId(newSessionId);
         }
-        
+
         toast.success("New chat started!");
-        
-        window.dispatchEvent(new CustomEvent('newSessionCreated', {
-          detail: { sessionId: newSessionId }
-        }));
-        
-        window.dispatchEvent(new CustomEvent('clearChatMessages'));
+
+        window.dispatchEvent(
+          new CustomEvent("newSessionCreated", {
+            detail: { sessionId: newSessionId },
+          })
+        );
+
+        window.dispatchEvent(new CustomEvent("clearChatMessages"));
       }
     } catch (err) {
       console.error("Failed to start new chat:", err);
@@ -259,19 +263,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleStarToggle = (chatId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setChats(prevChats => 
-      prevChats.map(chat =>
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
-    setChatStore(prevChats => 
-      prevChats.map(chat =>
+    setChatStore((prevChats) =>
+      prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
   };
 
-  const handleEditStart = (chatId: string, currentTitle: string, e: React.MouseEvent) => {
+  const handleEditStart = (
+    chatId: string,
+    currentTitle: string,
+    e: React.MouseEvent
+  ) => {
     e.stopPropagation();
     setEditingChatId(chatId);
     setEditedTitle(currentTitle);
@@ -294,44 +302,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleClearSearch = () => {
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   return (
-    <div 
-      className={`fixed inset-y-0 z-20 ${
-        darkMode ? 'bg-gray-900' : 'bg-white'
-      } ${
-        isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
-      } transition-all duration-300 ease-in-out w-64 lg:w-72 border-r ${
-        darkMode ? 'border-gray-700' : 'border-gray-200'
-      } flex flex-col`}
+    <div
+      className={`fixed inset-y-0 z-20 bg-background border-r transition-all duration-300 ease-in-out w-64 lg:w-72 flex flex-col ${
+        isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"
+      }`}
     >
       {/* Header */}
-      <SidebarHeader
-        onLogoClick={handleLogoClick}
-        onClose={onClose}
-        darkMode={darkMode}
-      />
+      <SidebarHeader onLogoClick={handleLogoClick} onClose={onClose} />
 
       {/* Search */}
       <SearchBar
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onClearSearch={handleClearSearch}
-        darkMode={darkMode}
       />
 
       {/* New Chat Button */}
       <NewChatButton
-        onNewChat={handleNewChatClick}
-        darkMode={darkMode}
+        onNewChat={() => handleNewChatClick({} as React.MouseEvent)}
       />
 
       {/* Chat List */}
       <ChatList
         chats={chatStore}
-        darkMode={darkMode}
         activeChatId={activeChatId}
         searchQuery={searchQuery}
         editingChatId={editingChatId}
@@ -349,8 +346,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <UserProfileSection
         user={user}
         currentUser={currentUser}
-        onProfileClick={handleProfileClick}
-        darkMode={darkMode}
+        onProfileClick={() => handleProfileClick({} as React.MouseEvent)}
       />
     </div>
   );

@@ -12,7 +12,9 @@ const AnimatedOwlLogo = () => {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleColorChange = (e) => setIsDarkMode(e.matches);
+    const handleColorChange = (e: {
+      matches: boolean | ((prevState: boolean) => boolean);
+    }) => setIsDarkMode(e.matches);
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
 
     setIsDarkMode(mediaQuery.matches);
@@ -36,15 +38,27 @@ const AnimatedOwlLogo = () => {
     };
   }, []);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: {
+    currentTarget: {
+      getBoundingClientRect: () => {
+        left: any;
+        top: any;
+        width: any;
+        height: any;
+      };
+    };
+    clientX: number;
+    clientY: number;
+  }) => {
     if (isMobile) return;
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
 
     const rotateRange = 6;
-    rotateY.set(((x / width) - 0.5) * 2 * rotateRange);
-    rotateX.set(((y / height) - 0.5) * -2 * rotateRange);
+    rotateY.set((x / width - 0.5) * 2 * rotateRange);
+    rotateX.set((y / height - 0.5) * -2 * rotateRange);
     scale.set(1.02);
   };
 

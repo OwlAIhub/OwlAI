@@ -1,12 +1,14 @@
-import React from 'react';
-import { User } from '@/types';
-import { Button } from '@/components/ui/button';
-import OwlLogo from '@/assets/owlMascot.png';
-import { PREDEFINED_PROMPTS } from '@/constants';
-import { dateUtils } from '@/utils';
+import React from "react";
+import { User } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import OwlLogo from "@/assets/owlMascot.png";
+import { PREDEFINED_PROMPTS } from "@/constants";
+import { dateUtils } from "@/utils";
+import { cn } from "@/lib/utils";
 
 interface WelcomeScreenProps {
-  darkMode: boolean;
   isLoggedIn: boolean;
   user?: User | null;
   windowSize: { width: number; height: number };
@@ -14,75 +16,118 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
-  darkMode,
   isLoggedIn,
   user,
   windowSize,
   onPromptClick,
 }) => {
-  const getLogoContainerStyle = () => {
-    if (windowSize.width < 768) {
-      return {
-        marginBottom: "1rem",
-        maxWidth: "90%",
-      };
-    } else {
-      return {
-        marginTop: "2rem",
-        marginBottom: "0.5rem",
-        maxWidth: "28rem",
-      };
-    }
-  };
+  const isMobile = windowSize.width < 768;
 
   return (
-    <div className="text-center space-y-6 px-4">
-      {/* Logged in user greeting */}
-      {isLoggedIn ? (
-        <>
-          <h1 className={`text-3xl md:text-4xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
-            {dateUtils.getGreeting()}, {user?.firstName || "there"}!
-          </h1>
-          <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-            Let's prepare together and make today productive.
-          </p>
-        </>
-      ) : (
-        <>
-          {/* Anonymous user welcome */}
-          <div className="flex justify-center items-center" style={getLogoContainerStyle()}>
-            <img src={OwlLogo} alt="OwlAI Mascot" className="w-2/4" />
-          </div>
-          <div className="space-y-4 mt-2 md:mt-0">
-            <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
-              How may I help you?
-            </h1>
-            <p className={`text-base md:text-lg ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-              Start your preparation with OwlAI and unlock your potential!
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 py-8">
+      <div className="max-w-4xl mx-auto text-center space-y-8">
+        {/* User greeting section */}
+        {isLoggedIn ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                {dateUtils.getGreeting()}, {user?.firstName || "there"}!
+              </h1>
+              <Badge
+                variant="secondary"
+                className="bg-owl-primary/10 text-owl-primary border-owl-primary/20"
+              >
+                Welcome back
+              </Badge>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Let's continue your preparation journey and make today productive.
             </p>
           </div>
-        </>
-      )}
-
-      {/* Predefined prompts */}
-      <div className={`max-w-3xl mx-auto mt-20 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-        <h3 className="text-lg font-medium mb-3">Try asking me:</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {PREDEFINED_PROMPTS.map((prompt, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              onClick={() => onPromptClick(prompt)}
-              className={`p-3 h-auto text-left transition-all hover:scale-[1.02] cursor-pointer ${
-                darkMode 
-                  ? "bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300" 
-                  : "bg-white hover:bg-gray-100 border-gray-200 text-gray-600"
-              }`}
+        ) : (
+          <div className="space-y-6">
+            {/* Logo section */}
+            <div
+              className={cn("flex justify-center", isMobile ? "mb-4" : "mb-6")}
             >
-              {prompt}
-            </Button>
-          ))}
+              <div
+                className={cn("relative", isMobile ? "w-32 h-32" : "w-48 h-48")}
+              >
+                <img
+                  src={OwlLogo}
+                  alt="OwlAI Mascot"
+                  className="w-full h-full object-contain drop-shadow-lg"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-owl-primary/5 to-transparent rounded-full"></div>
+              </div>
+            </div>
+
+            {/* Welcome message */}
+            <div className="space-y-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                How may I help you?
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Start your preparation with{" "}
+                <span className="text-owl-primary font-semibold">OwlAI</span>{" "}
+                and unlock your potential!
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Predefined prompts section */}
+        <div className="mt-12 space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">
+              Try asking me:
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Choose from these popular questions to get started
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            {PREDEFINED_PROMPTS.map((prompt, index) => (
+              <Card
+                key={index}
+                className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 border-muted"
+                onClick={() => onPromptClick(prompt)}
+              >
+                <CardContent className="p-4">
+                  <Button
+                    variant="ghost"
+                    className="w-full h-auto p-0 text-left text-sm text-muted-foreground group-hover:text-foreground transition-colors"
+                  >
+                    <span className="line-clamp-3">{prompt}</span>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+
+        {/* Call to action for anonymous users */}
+        {!isLoggedIn && (
+          <div className="mt-12 p-6 bg-muted/30 rounded-lg border border-dashed border-muted">
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">
+                Want unlimited access?
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Log in to remove message limits and save your conversation
+                history
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 border-owl-primary text-owl-primary hover:bg-owl-primary hover:text-white"
+              >
+                Create Free Account
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

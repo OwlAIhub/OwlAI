@@ -9,16 +9,16 @@ export interface User {
   lastName: string;
   email: string;
   avatar?: string;
-  plan?: 'free' | 'premium';
+  plan?: "free" | "premium";
   joinDate?: string;
 }
 
 // Chat Types
 export interface ChatMessage {
-  role: 'user' | 'bot';
+  role: "user" | "bot";
   content: string;
   isMarkdown?: boolean;
-  feedback?: 'like' | 'dislike' | null;
+  feedback?: "like" | "dislike" | null;
   timestamp?: string;
   chatId?: string;
 }
@@ -43,7 +43,7 @@ export interface UIState {
 
 // API Types
 export interface ApiResponse<T = any> {
-  status: 'success' | 'error';
+  status: "success" | "error";
   data?: T;
   message?: string;
   error?: string;
@@ -73,11 +73,11 @@ export interface SidebarProps extends ThemeProps {
   isOpen: boolean;
   onClose: () => void;
   onNewChat: () => void;
-  onSelectChat: (chatId: string) => void;
+  onSelectChat: (chatId: string | null) => void;
   currentUser: Partial<User>;
   activeChatId?: string | null;
   chats: ChatSession[];
-  setChats: (chats: ChatSession[]) => void;
+  setChats: (chats: ChatSession[] | ((prev: ChatSession[]) => ChatSession[])) => void;
   onUserProfileClick: () => void;
   setSesssionId: (id: string) => void;
 }
@@ -130,12 +130,12 @@ export interface AppConfig {
 }
 
 // Utility Types
-export type LoadingState = 'idle' | 'loading' | 'success' | 'error';
+export type LoadingState = "idle" | "loading" | "success" | "error";
 
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
-export type ChatRole = 'user' | 'bot';
+export type ChatRole = "user" | "bot";
 
-export type FeedbackType = 'like' | 'dislike';
+export type FeedbackType = "like" | "dislike";
 
-export type PlanType = 'free' | 'premium';
+export type PlanType = "free" | "premium";

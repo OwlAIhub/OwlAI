@@ -3,7 +3,7 @@ import { User, LoadingState } from '@/types';
 import { api } from '@/services/api';
 import { storage } from '@/utils';
 import { STORAGE_KEYS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants';
-import { auth } from '@/firebase.js';
+import { auth } from '@/firebase';
 import { toast } from 'react-toastify';
 
 interface UseAuthReturn {

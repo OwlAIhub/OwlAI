@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { storage } from '@/utils';
-import { STORAGE_KEYS } from '@/constants';
+import { useState, useEffect } from "react";
+import { storage } from "@/utils";
+import { STORAGE_KEYS } from "@/constants";
 
 interface UseThemeReturn {
   darkMode: boolean;
@@ -17,13 +17,13 @@ export const useTheme = (): UseThemeReturn => {
   // Apply dark mode to document and save to storage
   const setDarkMode = (mode: boolean) => {
     setDarkModeState(mode);
-    
+
     if (mode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
-    
+
     storage.set(STORAGE_KEYS.DARK_MODE, mode);
   };
 
@@ -35,9 +35,9 @@ export const useTheme = (): UseThemeReturn => {
   // Apply initial dark mode on mount
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, []);
 

@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import { storage } from '@/utils';
-import { STORAGE_KEYS } from '@/constants';
-import { toast } from 'react-toastify';
+import { useState } from "react";
+import { storage } from "@/utils";
+import { STORAGE_KEYS } from "@/constants";
+import { toast } from "react-toastify";
 
 interface UseChatSessionReturn {
   currentChatTitle: string;
   setCurrentChatTitle: (title: string) => void;
   selectedChatId: string | null;
   setSelectedChatId: (id: string | null) => void;
-  handleNewChat: (createSession: (userId: string) => Promise<string | null>, userId?: string) => Promise<void>;
+  handleNewChat: (
+    createSession: (userId: string) => Promise<string | null>,
+    userId?: string
+  ) => Promise<void>;
 }
 
 export const useChatSession = (): UseChatSessionReturn => {
@@ -20,7 +23,7 @@ export const useChatSession = (): UseChatSessionReturn => {
     userId?: string
   ) => {
     const user = storage.get(STORAGE_KEYS.USER);
-    
+
     if (!user || !userId) {
       toast.error("Please log in to start a new chat");
       return;
@@ -33,14 +36,14 @@ export const useChatSession = (): UseChatSessionReturn => {
 
       // Create new session
       const newSessionId = await createSession(userId);
-      
+
       if (newSessionId) {
         setCurrentChatTitle("New Chat");
         toast.success("New chat started!");
-        
+
         // Dispatch events to notify other components
-        window.dispatchEvent(new CustomEvent('newSessionCreated'));
-        window.dispatchEvent(new CustomEvent('sessionChanged'));
+        window.dispatchEvent(new CustomEvent("newSessionCreated"));
+        window.dispatchEvent(new CustomEvent("sessionChanged"));
       }
     } catch (err) {
       console.error("Failed to create new session:", err);

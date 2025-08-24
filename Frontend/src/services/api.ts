@@ -3,19 +3,19 @@
  * Centralized API calls with proper error handling and types
  */
 
-import { 
-  ApiResponse, 
-  ChatApiResponse, 
+import {
+  ApiResponse,
+  ChatApiResponse,
   SessionCreateResponse,
   ChatSession,
-  FeedbackData 
-} from '@/types';
-import { API_ENDPOINTS } from '@/constants';
+  FeedbackData,
+} from "@/types";
+import { API_ENDPOINTS } from "@/constants";
 
 // Get API base URL from config
 const getApiUrl = (): string => {
   // Dynamically import config to avoid circular dependencies
-  return (window as any).APP_CONFIG?.apiUrl || 'http://localhost:8000';
+  return (window as any).APP_CONFIG?.apiUrl || "http://localhost:8000";
 };
 
 /**
@@ -29,7 +29,7 @@ async function apiRequest<T>(
     const url = `${getApiUrl()}${endpoint}`;
     const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options.headers,
       },
       ...options,
@@ -41,14 +41,14 @@ async function apiRequest<T>(
 
     const data = await response.json();
     return {
-      status: 'success',
+      status: "success",
       data,
     };
   } catch (error) {
-    console.error('API Request failed:', error);
+    console.error("API Request failed:", error);
     return {
-      status: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      status: "error",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -61,12 +61,12 @@ export const chatApi = {
    * Send a message to the AI
    */
   async sendMessage(
-    query: string, 
-    userId: string, 
+    query: string,
+    userId: string,
     sessionId: string
   ): Promise<ApiResponse<ChatApiResponse>> {
     return apiRequest<ChatApiResponse>(API_ENDPOINTS.ASK, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         query,
         user_id: userId,
@@ -82,7 +82,10 @@ export const chatApi = {
     chatId: string,
     token?: string
   ): Promise<ApiResponse<any>> {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
     return apiRequest<any>(`${API_ENDPOINTS.CHAT_HISTORY}/${chatId}`, {
       headers,
     });
@@ -105,10 +108,12 @@ export const sessionApi = {
   /**
    * Create a new chat session
    */
-  async createSession(userId: string): Promise<ApiResponse<SessionCreateResponse>> {
+  async createSession(
+    userId: string
+  ): Promise<ApiResponse<SessionCreateResponse>> {
     return apiRequest<SessionCreateResponse>(
       `${API_ENDPOINTS.SESSION_CREATE}?user_id=${userId}`,
-      { method: 'POST' }
+      { method: "POST" }
     );
   },
 
@@ -117,7 +122,7 @@ export const sessionApi = {
    */
   async initAnonymousSession(): Promise<ApiResponse<SessionCreateResponse>> {
     return apiRequest<SessionCreateResponse>(API_ENDPOINTS.SESSION_INIT_ANON, {
-      method: 'POST',
+      method: "POST",
     });
   },
 
@@ -125,11 +130,11 @@ export const sessionApi = {
    * Rename a chat session
    */
   async renameSession(
-    sessionId: string, 
+    sessionId: string,
     newName: string
   ): Promise<ApiResponse<void>> {
     return apiRequest<void>(API_ENDPOINTS.SESSION_RENAME, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify({
         session_id: sessionId,
         new_name: newName,
@@ -142,7 +147,7 @@ export const sessionApi = {
    */
   async deleteSession(sessionId: string): Promise<ApiResponse<void>> {
     return apiRequest<void>(`${API_ENDPOINTS.SESSION_DELETE}/${sessionId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
@@ -156,7 +161,7 @@ export const feedbackApi = {
    */
   async submitFeedback(feedbackData: FeedbackData): Promise<ApiResponse<void>> {
     return apiRequest<void>(API_ENDPOINTS.FEEDBACK_CREATE, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(feedbackData),
     });
   },

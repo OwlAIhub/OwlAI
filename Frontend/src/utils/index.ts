@@ -2,7 +2,7 @@
  * Utility Functions
  */
 
-import { STORAGE_KEYS, BREAKPOINTS } from '@/constants';
+import { STORAGE_KEYS, BREAKPOINTS } from "@/constants";
 
 /**
  * Local Storage Utilities
@@ -21,7 +21,7 @@ export const storage = {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error('Failed to save to localStorage:', error);
+      console.error("Failed to save to localStorage:", error);
     }
   },
 
@@ -29,7 +29,7 @@ export const storage = {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Failed to remove from localStorage:', error);
+      console.error("Failed to remove from localStorage:", error);
     }
   },
 
@@ -37,7 +37,7 @@ export const storage = {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('Failed to clear localStorage:', error);
+      console.error("Failed to clear localStorage:", error);
     }
   },
 };
@@ -50,12 +50,14 @@ export const dateUtils = {
    * Format relative time (e.g., "2h ago", "3d ago")
    */
   formatRelativeTime: (dateString: string): string => {
-    if (!dateString) return '';
-    
+    if (!dateString) return "";
+
     const now = new Date();
     const date = new Date(dateString);
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 24) {
       return `${diffInHours}h ago`;
     } else {
@@ -69,9 +71,9 @@ export const dateUtils = {
    */
   getGreeting: (): string => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
   },
 };
 
@@ -119,7 +121,7 @@ export const stringUtils = {
    */
   truncate: (str: string, maxLength: number): string => {
     if (str.length <= maxLength) return str;
-    return str.slice(0, maxLength) + '...';
+    return str.slice(0, maxLength) + "...";
   },
 
   /**
@@ -146,7 +148,7 @@ export const asyncUtils = {
    * Create a delay/sleep function
    */
   delay: (ms: number): Promise<void> => {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
   /**
@@ -155,7 +157,7 @@ export const asyncUtils = {
   debounce: <T extends (...args: any[]) => void>(
     func: T,
     wait: number
-  ): (...args: Parameters<T>) => void => {
+  ): ((...args: Parameters<T>) => void) => {
     let timeout: NodeJS.Timeout;
     return (...args: Parameters<T>) => {
       clearTimeout(timeout);
@@ -178,11 +180,11 @@ export const domUtils = {
     } catch {
       // Fallback for older browsers
       try {
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(textArea);
         return true;
       } catch {
@@ -196,7 +198,7 @@ export const domUtils = {
    */
   scrollToElement: (element: HTMLElement | null): void => {
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   },
 
@@ -238,11 +240,11 @@ export const formatUtils = {
    * Format markdown response
    */
   formatMarkdown: (response: string): string => {
-    if (typeof response !== 'string') return '';
-    
+    if (typeof response !== "string") return "";
+
     return response
-      .replace(/undefined/g, '')
-      .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
+      .replace(/undefined/g, "")
+      .replace(/\n{3,}/g, "\n\n") // Replace 3+ newlines with 2
       .trim();
   },
 
@@ -250,14 +252,14 @@ export const formatUtils = {
    * Format user display name
    */
   formatUserName: (firstName?: string, lastName?: string): string => {
-    if (!firstName) return 'Guest User';
+    if (!firstName) return "Guest User";
     return lastName ? `${firstName} ${lastName}` : firstName;
   },
 };
 
 // Export new utilities
-export * from './persistence';
-export { deviceUtils as deviceUtilsAdvanced } from './device';
+export * from "./persistence";
+export { deviceUtils as deviceUtilsAdvanced } from "./device";
 
 /**
  * Re-export all utilities

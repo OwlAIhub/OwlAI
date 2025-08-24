@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from '@/constants';
+import { STORAGE_KEYS } from "@/constants";
 
 export interface PersistenceOptions {
   prefix?: string;
@@ -10,10 +10,11 @@ export interface PersistenceOptions {
 }
 
 const defaultOptions: Required<PersistenceOptions> = {
-  prefix: 'owlai_',
+  prefix: "owlai_",
   serialize: JSON.stringify,
   deserialize: JSON.parse,
-  storage: typeof window !== 'undefined' ? window.localStorage : ({} as Storage),
+  storage:
+    typeof window !== "undefined" ? window.localStorage : ({} as Storage),
   version: 1,
   migrate: (data) => data,
 };
@@ -37,7 +38,10 @@ class PersistenceManager {
     try {
       const serialized = this.options.serialize(value);
       this.options.storage.setItem(this.getKey(key), serialized);
-      this.options.storage.setItem(this.getVersionKey(key), String(this.options.version));
+      this.options.storage.setItem(
+        this.getVersionKey(key),
+        String(this.options.version)
+      );
     } catch (error) {
       console.error(`Failed to persist data for key "${key}":`, error);
     }
@@ -48,7 +52,9 @@ class PersistenceManager {
       const serialized = this.options.storage.getItem(this.getKey(key));
       if (serialized === null) return null;
 
-      const storedVersion = this.options.storage.getItem(this.getVersionKey(key));
+      const storedVersion = this.options.storage.getItem(
+        this.getVersionKey(key)
+      );
       const version = storedVersion ? parseInt(storedVersion, 10) : 1;
 
       let data = this.options.deserialize(serialized);
@@ -79,7 +85,7 @@ class PersistenceManager {
   clear(): void {
     try {
       const keysToRemove: string[] = [];
-      
+
       for (let i = 0; i < this.options.storage.length; i++) {
         const key = this.options.storage.key(i);
         if (key && key.startsWith(this.options.prefix)) {
@@ -87,11 +93,11 @@ class PersistenceManager {
         }
       }
 
-      keysToRemove.forEach(key => {
+      keysToRemove.forEach((key) => {
         this.options.storage.removeItem(key);
       });
     } catch (error) {
-      console.error('Failed to clear persisted data:', error);
+      console.error("Failed to clear persisted data:", error);
     }
   }
 
@@ -104,12 +110,16 @@ class PersistenceManager {
     try {
       for (let i = 0; i < this.options.storage.length; i++) {
         const key = this.options.storage.key(i);
-        if (key && key.startsWith(this.options.prefix) && !key.endsWith('_version')) {
+        if (
+          key &&
+          key.startsWith(this.options.prefix) &&
+          !key.endsWith("_version")
+        ) {
           count++;
         }
       }
     } catch (error) {
-      console.error('Failed to calculate storage size:', error);
+      console.error("Failed to calculate storage size:", error);
     }
     return count;
   }
@@ -117,20 +127,23 @@ class PersistenceManager {
 
 // Create singleton instances
 export const localStorage = new PersistenceManager({
-  storage: typeof window !== 'undefined' ? window.localStorage : ({} as Storage),
+  storage:
+    typeof window !== "undefined" ? window.localStorage : ({} as Storage),
   version: 1,
 });
 
 export const sessionStorage = new PersistenceManager({
-  storage: typeof window !== 'undefined' ? window.sessionStorage : ({} as Storage),
-  prefix: 'owlai_session_',
+  storage:
+    typeof window !== "undefined" ? window.sessionStorage : ({} as Storage),
+  prefix: "owlai_session_",
   version: 1,
 });
 
 // Secure storage for sensitive data (uses encryption if available)
 export const secureStorage = new PersistenceManager({
-  storage: typeof window !== 'undefined' ? window.localStorage : ({} as Storage),
-  prefix: 'owlai_secure_',
+  storage:
+    typeof window !== "undefined" ? window.localStorage : ({} as Storage),
+  prefix: "owlai_secure_",
   serialize: (value) => {
     // Basic obfuscation - in production, use proper encryption
     return btoa(JSON.stringify(value));
@@ -174,9 +187,9 @@ export const clearAllData = (): void => {
   localStorage.clear();
   sessionStorage.clear();
   secureStorage.clear();
-  
+
   // Also clear any additional storage keys
-  Object.values(STORAGE_KEYS).forEach(key => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     try {
       window.localStorage.removeItem(key);
       window.sessionStorage.removeItem(key);

@@ -1,14 +1,17 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { ChatMessage } from '@/types';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { ThumbsUp, ThumbsDown, Copy, Check } from "lucide-react";
+import { ChatMessage } from "@/types";
+import { Button } from "@/components/ui/button";
+import { TypingIndicator } from "@/components/ui/loading";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
-  darkMode: boolean;
   copiedIndex: number | null;
-  onFeedback: (index: number, type: 'like' | 'dislike') => void;
+  onFeedback: (index: number, type: "like" | "dislike") => void;
   onCopy: (text: string, index: number) => void;
   displayedText?: string;
   loading?: boolean;
@@ -16,154 +19,197 @@ interface ChatMessagesProps {
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
-  darkMode,
   copiedIndex,
   onFeedback,
   onCopy,
   displayedText,
   loading,
 }) => {
+  const MessageCard: React.FC<{
+    children: React.ReactNode;
+    isUser: boolean;
+    className?: string;
+  }> = ({ children, isUser, className }) => (
+    <div
+      className={cn(
+        "flex w-full mb-6",
+        isUser ? "justify-end" : "justify-start"
+      )}
+    >
+      <Card
+        className={cn(
+          "max-w-[85%] sm:max-w-3xl shadow-sm border-0",
+          isUser ? "bg-owl-primary text-white" : "bg-muted/50",
+          className
+        )}
+      >
+        <CardContent className="p-4 sm:p-6">{children}</CardContent>
+      </Card>
+    </div>
+  );
+
+  const ThinkingIndicator: React.FC = () => (
+    <div className="flex items-center gap-3 text-muted-foreground animate-fade-in-up">
+      <span className="text-sm font-medium">Thinking</span>
+      <TypingIndicator />
+    </div>
+  );
+
+  const BotActions: React.FC<{ message: ChatMessage; index: number }> = ({
+    message,
+    index,
+  }) => (
+    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onFeedback(index, "like")}
+        className={cn(
+          "h-8 px-3 text-xs gap-1.5 hover:bg-green-500/10 hover:text-green-600",
+          message.feedback === "like" && "bg-green-500/10 text-green-600"
+        )}
+      >
+        <ThumbsUp className="h-3 w-3" />
+        {message.feedback === "like" ? "Thanks!" : "Helpful"}
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onFeedback(index, "dislike")}
+        className={cn(
+          "h-8 px-3 text-xs gap-1.5 hover:bg-red-500/10 hover:text-red-600",
+          message.feedback === "dislike" && "bg-red-500/10 text-red-600"
+        )}
+      >
+        <ThumbsDown className="h-3 w-3" />
+        {message.feedback === "dislike" ? "Noted" : "Not helpful"}
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onCopy(message.content, index)}
+        className="h-8 px-3 text-xs gap-1.5 hover:bg-blue-500/10 hover:text-blue-600"
+      >
+        {copiedIndex === index ? (
+          <>
+            <Check className="h-3 w-3" />
+            Copied!
+          </>
+        ) : (
+          <>
+            <Copy className="h-3 w-3" />
+            Copy
+          </>
+        )}
+      </Button>
+    </div>
+  );
+
+  const MarkdownContent: React.FC<{ content: string }> = ({ content }) => (
+    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-headings:text-owl-accent prose-strong:text-owl-primary prose-code:text-owl-primary prose-pre:bg-muted prose-pre:border">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ node, ...props }) => (
+            <h1
+              className="text-xl sm:text-2xl font-bold my-4 text-owl-accent"
+              {...props}
+            />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2
+              className="text-lg sm:text-xl font-bold my-3 text-owl-accent/80"
+              {...props}
+            />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3
+              className="text-base sm:text-lg font-semibold my-2 text-owl-accent/70"
+              {...props}
+            />
+          ),
+          p: ({ node, ...props }) => (
+            <p
+              className="my-3 leading-relaxed text-sm sm:text-base"
+              {...props}
+            />
+          ),
+          strong: ({ node, ...props }) => (
+            <strong className="font-bold text-owl-primary" {...props} />
+          ),
+          em: ({ node, ...props }) => (
+            <em className="italic text-muted-foreground" {...props} />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul className="list-disc pl-6 my-3 space-y-1" {...props} />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol className="list-decimal pl-6 my-3 space-y-1" {...props} />
+          ),
+          li: ({ node, ...props }) => (
+            <li className="text-sm sm:text-base" {...props} />
+          ),
+          code: ({ node, inline, className, children, ...props }: any) =>
+            inline ? (
+              <code
+                className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono"
+                {...props}
+              >
+                {children}
+              </code>
+            ) : (
+              <code
+                className="block bg-muted p-3 rounded-lg text-xs font-mono overflow-x-auto"
+                {...props}
+              >
+                {children}
+              </code>
+            ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className="border-l-4 border-owl-primary/30 pl-4 py-2 my-4 bg-muted/30 rounded-r"
+              {...props}
+            />
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-0 px-4 sm:px-6">
       {/* Render all messages */}
-      {messages.map((msg, index) => (
-        <div
-          key={index}
-          className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words
-            ${msg.role === "user"
-              ? darkMode
-                ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white self-end"
-                : "bg-gray-200 text-gray-800 self-end"
-              : darkMode
-              ? "text-gray-100 self-start"
-              : "text-gray-900 self-start"
-            }`}
-          style={{
-            boxShadow: darkMode
-              ? "0 2px 10px rgba(255,255,255,0.05)"
-              : "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          {msg.role === "bot" ? (
-            <>
-              <div className="prose dark:prose-invert max-w-none">
-                <ReactMarkdown 
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-4 text-blue-600 dark:text-blue-400" {...props} />,
-                    h2: ({node, ...props}) => <h2 className="text-xl font-bold my-3 text-blue-500 dark:text-blue-300" {...props} />,
-                    h3: ({node, ...props}) => <h3 className="text-lg font-semibold my-2 text-blue-400 dark:text-blue-200" {...props} />,
-                    p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
-                    strong: ({node, ...props}) => <strong className="font-bold text-yellow-600 dark:text-yellow-400" {...props} />,
-                    em: ({node, ...props}) => <em className="italic" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2" {...props} />,
-                    li: ({node, ...props}) => <li className="my-1" {...props} />,
-                  }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
-              </div>
-
-              {/* Bot message actions */}
-              <div className="flex gap-4 mt-2 text-sm text-gray-500">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFeedback(index, "like")}
-                  className={`hover:text-green-500 transition cursor-pointer ${
-                    msg.feedback === "like" ? "text-green-600 font-semibold" : ""
-                  }`}
-                >
-                  👍 {msg.feedback === "like" && "Thanks!"}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFeedback(index, "dislike")}
-                  className={`hover:text-red-500 transition cursor-pointer ${
-                    msg.feedback === "dislike" ? "text-red-600 font-semibold" : ""
-                  }`}
-                >
-                  👎 {msg.feedback === "dislike" && "Noted"}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onCopy(msg.content, index)}
-                  className="hover:text-blue-500 transition flex items-center gap-1 cursor-pointer"
-                >
-                  {copiedIndex === index ? (
-                    <>
-                      ✔️ <span className="text-sm">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      📋 <span className="text-sm">Copy</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </>
+      {messages.map((message, index) => (
+        <MessageCard key={index} isUser={message.role === "user"}>
+          {message.role === "user" ? (
+            <div className="text-sm sm:text-base font-medium">
+              {message.content}
+            </div>
           ) : (
-            msg.content
+            <>
+              <MarkdownContent content={message.content} />
+              <BotActions message={message} index={index} />
+            </>
           )}
-        </div>
+        </MessageCard>
       ))}
 
       {/* Loading indicator */}
       {loading && (
-        <div
-          className={`w-full max-w-3xl rounded-lg p-4 ${
-            darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
-          }`}
-          style={{
-            fontStyle: "italic",
-            fontWeight: "500",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          Thinking
-          <div className="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
+        <MessageCard isUser={false}>
+          <ThinkingIndicator />
+        </MessageCard>
       )}
 
       {/* Streaming text display */}
       {displayedText && !loading && (
-        <div className={`w-fit max-w-3xl rounded-xl mb-4 px-4 py-2 text-md break-words ${
-          darkMode ? "text-gray-100 self-start" : "text-gray-900 self-start"
-        }`} style={{
-          boxShadow: darkMode
-            ? "0 2px 10px rgba(255,255,255,0.05)"
-            : "0 2px 10px rgba(0,0,0,0.1)",
-        }}>
-          <div className="prose dark:prose-invert max-w-none">
-            <ReactMarkdown 
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({node, ...props}) => <h1 className="text-2xl font-bold my-4 text-blue-600 dark:text-blue-400" {...props} />,
-                h2: ({node, ...props}) => <h2 className="text-xl font-bold my-3 text-blue-500 dark:text-blue-300" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-lg font-semibold my-2 text-blue-400 dark:text-blue-200" {...props} />,
-                p: ({node, ...props}) => <p className="my-3 leading-relaxed" {...props} />,
-                strong: ({node, ...props}) => <strong className="font-bold text-yellow-600 dark:text-yellow-400" {...props} />,
-                em: ({node, ...props}) => <em className="italic" {...props} />,
-                ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2" {...props} />,
-                ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2" {...props} />,
-                li: ({node, ...props}) => <li className="my-1" {...props} />,
-              }}
-            >
-              {displayedText}
-            </ReactMarkdown>
-          </div>
-        </div>
+        <MessageCard isUser={false}>
+          <MarkdownContent content={displayedText} />
+        </MessageCard>
       )}
     </div>
   );

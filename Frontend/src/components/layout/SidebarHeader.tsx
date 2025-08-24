@@ -1,51 +1,46 @@
-import React from 'react';
-import { FiX } from "react-icons/fi";
-import { Button } from '@/components/ui/button';
-import Logo from '@/assets/owl_AI_logo.png';
+import React from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Logo from "@/assets/owl_AI_logo.png";
 
 interface SidebarHeaderProps {
   onLogoClick: () => void;
   onClose: () => void;
-  darkMode: boolean;
   showCloseButton?: boolean;
 }
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   onLogoClick,
   onClose,
-  darkMode,
   showCloseButton = true,
 }) => {
-  const theme = {
-    border: darkMode ? 'border-gray-700' : 'border-gray-200',
-    text: darkMode ? 'text-gray-100' : 'text-gray-800',
-    hoverBg: darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100',
-    primary: 'bg-owl-primary',
-  };
-
   return (
-    <div className={`p-4 flex items-center justify-between border-b ${theme.border} h-17`}>
+    <div className="flex items-center justify-between p-4 border-b h-17">
       <Button
         onClick={onLogoClick}
         variant="ghost"
-        className="flex items-center space-x-3 focus:outline-none hover:opacity-80 transition-opacity p-0 h-auto"
+        className="flex items-center gap-3 h-auto p-0 hover:opacity-80 transition-opacity"
         aria-label="Go to home page"
       >
-        <div className={`${theme.primary} rounded-full w-10 overflow-hidden`}>
-          <img src={Logo} alt="OwlAI Logo" className="w-full h-full object-cover" />
+        <div className="bg-owl-primary rounded-full w-10 h-10 overflow-hidden flex-shrink-0">
+          <img
+            src={Logo}
+            alt="OwlAI Logo"
+            className="w-full h-full object-cover"
+          />
         </div>
-        <span className={`font-bold text-lg ${theme.text}`}>Owl AI</span>
+        <span className="font-bold text-lg text-foreground">Owl AI</span>
       </Button>
-      
+
       {showCloseButton && (
         <Button
           onClick={onClose}
           variant="ghost"
           size="sm"
-          className={`p-1 rounded-full ${theme.hoverBg} transition-colors lg:hidden`}
+          className="h-8 w-8 p-0 lg:hidden"
           aria-label="Close sidebar"
         >
-          <FiX className={`text-xl ${theme.text}`} />
+          <X className="h-4 w-4" />
         </Button>
       )}
     </div>

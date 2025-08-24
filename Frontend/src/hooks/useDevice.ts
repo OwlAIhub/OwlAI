@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { deviceUtils } from '@/utils';
+import { useState, useEffect } from "react";
+import { deviceUtils } from "@/utils";
 
 interface UseDeviceReturn {
   isMobile: boolean;
@@ -28,7 +28,7 @@ export const useDevice = (): UseDeviceReturn => {
         width: window.innerWidth,
         height: window.innerHeight,
       };
-      
+
       setWindowSize(newSize);
       setDeviceState({
         isMobile: deviceUtils.isMobile(),
@@ -38,8 +38,8 @@ export const useDevice = (): UseDeviceReturn => {
       });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return {

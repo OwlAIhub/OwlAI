@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { MainContentProps, ChatMessage, User } from '@/types';
-import { api } from '@/services/api';
-import { storage, formatUtils, domUtils } from '@/utils';
-import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from '@/constants';
-import { toast } from "react-toastify";
-import Header from "@/Components/Header"; // Keep old import for now
-import OwlLoader from "@/Components/OwlLoader"; // Keep old import for now
-import { ChatMessages, WelcomeScreen, MessageInput, FeedbackModal } from './';
+import { MainContentProps, ChatMessage, User } from "@/types";
+import { api } from "@/services/api";
+import { storage, formatUtils, domUtils } from "@/utils";
+import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from "@/constants";
+import Header from "@/Components/Header";
+import OwlLoader from "@/Components/OwlLoader";
+import { ChatMessages, WelcomeScreen, MessageInput, FeedbackModal } from "./";
 
 export const MainContent: React.FC<MainContentProps> = ({
   currentChatTitle,
@@ -17,7 +16,6 @@ export const MainContent: React.FC<MainContentProps> = ({
   onLogout,
   toggleDarkMode,
   sessionId,
-  onUserProfileClick,
   setSesssionId,
 }) => {
   // State Management
@@ -39,18 +37,20 @@ export const MainContent: React.FC<MainContentProps> = ({
   const [chatId, setChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
-  
+
   const location = useLocation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   // Chat state
-  const [currentChat, setCurrentChat] = useState(() => {
-    const savedChat = storage.get(STORAGE_KEYS.SELECTED_CHAT);
-    return savedChat;
+  const [currentChat, setCurrentChat] = useState<{ id: string } | null>(() => {
+    const savedChat = storage.get<{ id: string }>(STORAGE_KEYS.SELECTED_CHAT);
+    return savedChat || null;
   });
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-    const savedMessages = storage.get(`chatMessages-${sessionId}`);
+    const savedMessages = storage.get<ChatMessage[]>(
+      `chatMessages-${sessionId}`
+    );
     return savedMessages || [];
   });
 
@@ -67,8 +67,8 @@ export const MainContent: React.FC<MainContentProps> = ({
   }, [chatMessages, sessionId]);
 
   useEffect(() => {
-    const savedChat = storage.get(STORAGE_KEYS.SELECTED_CHAT);
-    if (savedChat) {
+    const savedChat = storage.get<{ id: string }>(STORAGE_KEYS.SELECTED_CHAT);
+    if (savedChat && typeof savedChat.id === "string") {
       setCurrentChat(savedChat);
     }
   }, []);
@@ -80,8 +80,8 @@ export const MainContent: React.FC<MainContentProps> = ({
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -93,21 +93,24 @@ export const MainContent: React.FC<MainContentProps> = ({
       setLoading(false);
     };
 
-    window.addEventListener('newSessionCreated', handleNewSession);
-    return () => window.removeEventListener('newSessionCreated', handleNewSession);
+    window.addEventListener("newSessionCreated", handleNewSession);
+    return () =>
+      window.removeEventListener("newSessionCreated", handleNewSession);
   }, []);
 
   useEffect(() => {
-    const presetQuery = storage.get(STORAGE_KEYS.PRESET_QUERY);
+    const presetQuery = storage.get<string>(STORAGE_KEYS.PRESET_QUERY);
     if (presetQuery) {
       setMessage(presetQuery);
     }
   }, []);
 
   useEffect(() => {
-    const savedSessionId = storage.get(STORAGE_KEYS.SESSION_ID);
+    const savedSessionId = storage.get<string>(STORAGE_KEYS.SESSION_ID);
     if (savedSessionId && savedSessionId !== sessionId) {
-      const savedChats = storage.get(`chatMessages-${savedSessionId}`);
+      const savedChats = storage.get<ChatMessage[]>(
+        `chatMessages-${savedSessionId}`
+      );
       setChatMessages(savedChats || []);
     }
   }, [sessionId]);
@@ -124,77 +127,87 @@ export const MainContent: React.FC<MainContentProps> = ({
       });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Chat history fetching
-  const fetchChatHistory = useCallback(async (chatId: string) => {
-    if (chatMessages.some(msg => msg.chatId === chatId)) {
-      return;
-    }
+  const fetchChatHistory = useCallback(
+    async (chatId: string) => {
+      if (chatMessages.some((msg) => msg.chatId === chatId)) {
+        return;
+      }
 
-    try {
-      const cacheKey = `chatHistory-${chatId}`;
-      const cachedData = storage.get(cacheKey);
-      
-      if (cachedData) {
-        const { timestamp, data } = cachedData;
-        if (Date.now() - timestamp < MESSAGE_LIMITS.CACHE_DURATION) {
-          processChatHistory(data);
-          return;
+      try {
+        const cacheKey = `chatHistory-${chatId}`;
+        const cachedData = storage.get<any>(cacheKey);
+
+        if (cachedData) {
+          const { timestamp, data } = cachedData;
+          if (Date.now() - timestamp < MESSAGE_LIMITS.CACHE_DURATION) {
+            processChatHistory(data);
+            return;
+          }
         }
-      }
 
-      const response = await api.chat.getChatHistory(chatId, token);
-      
-      if (response.status === 'success' && response.data) {
-        storage.set(cacheKey, {
-          timestamp: Date.now(),
-          data: response.data
-        });
-        processChatHistory(response.data);
+        const response = await api.chat.getChatHistory(
+          chatId,
+          typeof token === "string" ? token : undefined
+        );
+
+        if (response.status === "success" && response.data) {
+          storage.set(cacheKey, {
+            timestamp: Date.now(),
+            data: response.data,
+          });
+          processChatHistory(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      } finally {
+        setIsHistoryLoaded(true);
       }
-    } catch (error) {
-      console.error('Error fetching chat history:', error);
-    } finally {
-      setIsHistoryLoaded(true);
-    }
-  }, [chatMessages, token]);
+    },
+    [chatMessages, token]
+  );
 
   const processChatHistory = (data: any) => {
     storage.set(STORAGE_KEYS.SESSION_ID, data.chat_id);
     setSesssionId(data.chat_id);
-    
+
     const messages: ChatMessage[] = [];
-    
+
     if (data.data && Array.isArray(data.data)) {
       data.data.forEach((messageObj: any) => {
         if (messageObj.question_text) {
           messages.push({
-            role: 'user',
+            role: "user",
             content: messageObj.question_text,
             isMarkdown: false,
             feedback: messageObj.feedback_rating,
             timestamp: messageObj.created_at,
-            chatId: data.chat_id
+            chatId: data.chat_id,
           });
         }
-        
+
         if (messageObj.response_text) {
           messages.push({
-            role: 'bot',
+            role: "bot",
             content: messageObj.response_text,
             isMarkdown: true,
             feedback: messageObj.feedback_rating,
             timestamp: messageObj.created_at,
-            chatId: data.chat_id
+            chatId: data.chat_id,
           });
         }
       });
     }
-    
-    messages.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+
+    messages.sort(
+      (a, b) =>
+        new Date(a.timestamp || 0).getTime() -
+        new Date(b.timestamp || 0).getTime()
+    );
     setChatMessages(messages);
     storage.set(`chatMessages-${data.chat_id}`, messages);
   };
@@ -203,7 +216,9 @@ export const MainContent: React.FC<MainContentProps> = ({
     if (!currentChat?.id || isHistoryLoaded) return;
 
     const timer = setTimeout(() => {
-      fetchChatHistory(currentChat.id);
+      if (typeof currentChat.id === "string") {
+        fetchChatHistory(currentChat.id);
+      }
     }, 300);
 
     return () => clearTimeout(timer);
@@ -211,10 +226,13 @@ export const MainContent: React.FC<MainContentProps> = ({
 
   // Loading state management
   useEffect(() => {
-    const hasData = sessionId || currentChat || 
-                   storage.get(STORAGE_KEYS.SESSION_ID) || 
-                   storage.get(STORAGE_KEYS.SELECTED_CHAT) || 
-                   anonymousSessionId || anonymousUserId;
+    const hasData =
+      sessionId ||
+      currentChat ||
+      storage.get(STORAGE_KEYS.SESSION_ID) ||
+      storage.get(STORAGE_KEYS.SELECTED_CHAT) ||
+      anonymousSessionId ||
+      anonymousUserId;
 
     if (!hasData) {
       setIsLoading(false);
@@ -240,11 +258,11 @@ export const MainContent: React.FC<MainContentProps> = ({
       setMessageCount(nextCount);
     }
 
-    const userMessage: ChatMessage = { 
-      role: "user", 
-      content: message, 
-      isMarkdown: true, 
-      feedback: null 
+    const userMessage: ChatMessage = {
+      role: "user",
+      content: message,
+      isMarkdown: true,
+      feedback: null,
     };
     setChatMessages((prev) => [...prev, userMessage]);
 
@@ -254,36 +272,50 @@ export const MainContent: React.FC<MainContentProps> = ({
     setLoading(true);
 
     const currentUserId = isLoggedIn ? user?.uid : anonymousUserId;
-    const currentSessionId = isLoggedIn ? storage.get(STORAGE_KEYS.SESSION_ID) : anonymousSessionId;
+    const currentSessionId = isLoggedIn
+      ? storage.get(STORAGE_KEYS.SESSION_ID)
+      : anonymousSessionId;
 
     try {
-      const response = await api.chat.sendMessage(message, currentUserId, currentSessionId);
-      
-      if (response.status === 'success' && response.data) {
-        const fullResponse = response.data.response || "Sorry, no response from AI.";
+      const response = await api.chat.sendMessage(
+        message as string,
+        currentUserId as string,
+        currentSessionId as string
+      );
+
+      if (response.status === "success" && response.data) {
+        const fullResponse =
+          response.data.response || "Sorry, no response from AI.";
         const chatId = response.data.chat_id;
         setChatId(chatId);
         const formattedResponse = formatUtils.formatMarkdown(fullResponse);
 
         if (isLoggedIn) {
-          window.dispatchEvent(new CustomEvent('newChatMessage', {
-            detail: {
-              sessionId: currentSessionId,
-              message: message
-            }
-          }));
+          window.dispatchEvent(
+            new CustomEvent("newChatMessage", {
+              detail: {
+                sessionId: currentSessionId,
+                message: message,
+              },
+            })
+          );
         }
 
         setResponse(formattedResponse);
         setDisplayedText("");
       } else {
-        throw new Error(response.error || 'API request failed');
+        throw new Error(
+          typeof response.error === "string"
+            ? response.error
+            : "API request failed"
+        );
       }
     } catch (err) {
       console.error("Error sending message:", err);
       const botMessage: ChatMessage = {
         role: "bot",
-        content: "I'm having trouble connecting to the server. Please try again later.",
+        content:
+          "I'm having trouble connecting to the server. Please try again later.",
       };
       setChatMessages((prev) => [...prev, botMessage]);
     } finally {
@@ -307,7 +339,7 @@ export const MainContent: React.FC<MainContentProps> = ({
           ...prev,
           { role: "bot", content: response, isMarkdown: true },
         ]);
-        
+
         setTimeout(() => {
           setDisplayedText("");
           setResponse("");
@@ -319,7 +351,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   }, [response]);
 
   // Feedback handling
-  const handleFeedback = (index: number, type: 'like' | 'dislike') => {
+  const handleFeedback = (index: number, type: "like" | "dislike") => {
     if (type === "dislike") {
       setSelectedIndex(index);
       setIsModalOpen(true);
@@ -328,7 +360,11 @@ export const MainContent: React.FC<MainContentProps> = ({
     }
   };
 
-  const sendFeedback = async (index: number, type: 'like' | 'dislike', remarks: string) => {
+  const sendFeedback = async (
+    index: number,
+    type: "like" | "dislike",
+    remarks: string
+  ) => {
     if (!chatId || !user?.uid) return;
 
     const score = type === "like" ? 1 : 0;
@@ -365,7 +401,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     if (displayedText) {
       setChatMessages((prev) => [
         ...prev,
-        { role: "bot", content: displayedText }
+        { role: "bot", content: displayedText },
       ]);
       setDisplayedText("");
     }
@@ -395,9 +431,10 @@ export const MainContent: React.FC<MainContentProps> = ({
   return (
     <div className="relative flex w-full h-screen overflow-hidden">
       {/* Main content */}
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-        ${isSidebarOpen ? 'md:ml-64 lg:ml-72' : 'ml-0'}`}>
-        
+      <div
+        className={`flex-1 flex flex-col overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
+        ${isSidebarOpen ? "md:ml-64 lg:ml-72" : "ml-0"}`}
+      >
         <Header
           currentChatTitle={currentChatTitle}
           onToggleSidebar={toggleSidebar}
@@ -407,15 +444,15 @@ export const MainContent: React.FC<MainContentProps> = ({
           toggleDarkMode={toggleDarkMode}
         />
 
-        <main className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${
-          darkMode ? "bg-gray-900" : "bg-gray-50"
-        }`}>
+        <main
+          className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${
+            darkMode ? "bg-gray-900" : "bg-gray-50"
+          }`}
+        >
           <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
-            
             {/* Welcome Screen */}
             {chatMessages.length === 0 && (
               <WelcomeScreen
-                darkMode={darkMode}
                 isLoggedIn={isLoggedIn}
                 user={user}
                 windowSize={windowSize}
@@ -426,7 +463,6 @@ export const MainContent: React.FC<MainContentProps> = ({
             {/* Chat Messages */}
             <ChatMessages
               messages={chatMessages}
-              darkMode={darkMode}
               copiedIndex={copiedIndex}
               onFeedback={handleFeedback}
               onCopy={handleCopy}
@@ -437,14 +473,13 @@ export const MainContent: React.FC<MainContentProps> = ({
             <div ref={messagesEndRef} />
           </div>
         </main>
-        
+
         {/* Message Input */}
         <MessageInput
           message={message}
           setMessage={setMessage}
           onSendMessage={handleSendMessage}
           onStopTyping={handleStopTyping}
-          darkMode={darkMode}
           isSidebarOpen={isSidebarOpen}
           loading={loading}
           isLoggedIn={isLoggedIn}
@@ -461,7 +496,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         customRemark={customRemark}
         setCustomRemark={setCustomRemark}
         onSubmit={handleFeedbackSubmit}
-        darkMode={darkMode}
       />
 
       {/* Typing animation styles */}

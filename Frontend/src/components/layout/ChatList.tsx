@@ -1,47 +1,33 @@
-import React from 'react';
-import { 
-  FiMessageSquare, 
-  FiStar, 
-  FiClock, 
-  FiEdit2, 
-  FiTrash2,
-  FiX 
-} from "react-icons/fi";
-import { Star } from "lucide-react";
-import { ChatSession } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React from "react";
+import { MessageSquare, Star, Clock, Edit2, Trash2 } from "lucide-react";
+import { ChatSession } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface ChatListProps {
   chats: ChatSession[];
-  darkMode: boolean;
   activeChatId?: string | null;
   searchQuery: string;
   editingChatId: string | null;
   editedTitle: string;
   onChatClick: (chat: ChatSession) => void;
   onStarToggle: (chatId: string, e: React.MouseEvent) => void;
-  onEditStart: (chatId: string, currentTitle: string, e: React.MouseEvent) => void;
+  onEditStart: (
+    chatId: string,
+    currentTitle: string,
+    e: React.MouseEvent
+  ) => void;
   onEditChange: (value: string) => void;
   onEditSubmit: (chatId: string) => void;
   onEditCancel: () => void;
   onDelete: (chatId: string) => void;
 }
 
-interface ThemeColors {
-  text: string;
-  secondaryText: string;
-  hoverBg: string;
-  activeBg: string;
-  icon: string;
-  star: string;
-  accent: string;
-  scrollbar: string;
-}
-
 export const ChatList: React.FC<ChatListProps> = ({
   chats,
-  darkMode,
   activeChatId,
   searchQuery,
   editingChatId,
@@ -54,43 +40,33 @@ export const ChatList: React.FC<ChatListProps> = ({
   onEditCancel,
   onDelete,
 }) => {
-  const theme: ThemeColors = {
-    text: darkMode ? 'text-gray-100' : 'text-gray-800',
-    secondaryText: darkMode ? 'text-gray-400' : 'text-gray-600',
-    hoverBg: darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100',
-    activeBg: darkMode ? 'bg-gray-800' : 'bg-gray-100',
-    icon: darkMode ? 'text-gray-400' : 'text-gray-500',
-    star: darkMode ? 'text-yellow-400' : 'text-yellow-500',
-    accent: darkMode ? 'text-teal-400' : 'text-teal-600',
-    scrollbar: darkMode ? 'scrollbar-thumb-gray-700' : 'scrollbar-thumb-gray-300',
-  };
-
-  const filteredChats = chats.filter(chat =>
+  const filteredChats = chats.filter((chat) =>
     chat?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const starredChats = filteredChats.filter(chat => chat?.starred);
-  const regularChats = filteredChats.filter(chat => !chat?.starred);
+  const starredChats = filteredChats.filter((chat) => chat?.starred);
+  const regularChats = filteredChats.filter((chat) => !chat?.starred);
 
   const handleKeyPress = (e: React.KeyboardEvent, chatId: string) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       onEditSubmit(chatId);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       onEditCancel();
     }
   };
 
-  const renderChatItem = (chat: ChatSession) => (
+  const ChatItem: React.FC<{ chat: ChatSession }> = ({ chat }) => (
     <div
-      key={chat.id}
       onClick={() => onChatClick(chat)}
-      className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-        activeChatId === chat.id ? theme.activeBg : theme.hoverBg
-      }`}
+      className={cn(
+        "group flex items-center justify-between rounded-lg px-3 py-2.5 cursor-pointer transition-colors",
+        "hover:bg-muted/50",
+        activeChatId === chat.id && "bg-muted"
+      )}
       aria-label={`Open chat: ${chat.title}`}
     >
-      <div className="flex items-center min-w-0 flex-1">
-        <FiMessageSquare className={`mr-2 flex-shrink-0 ${theme.icon}`} />
+      <div className="flex items-center min-w-0 flex-1 gap-2">
+        <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         {editingChatId === chat.id ? (
           <Input
             type="text"
@@ -99,27 +75,30 @@ export const ChatList: React.FC<ChatListProps> = ({
             onBlur={() => onEditSubmit(chat.id)}
             onKeyDown={(e) => handleKeyPress(e, chat.id)}
             autoFocus
-            className={`flex-1 bg-transparent border-none outline-none ${theme.text} focus:ring-0 p-0 h-auto`}
+            className="h-auto p-0 border-none bg-transparent focus-visible:ring-0 text-sm"
           />
         ) : (
-          <span className={`truncate ${theme.text}`}>{chat.title}</span>
+          <span className="text-sm truncate text-foreground">{chat.title}</span>
         )}
       </div>
-      
-      <div className="flex items-center ml-2 space-x-1">
+
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         {/* Star button */}
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) => onStarToggle(chat.id, e)}
-          className={`p-1 h-auto hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+          className="h-7 w-7 p-0"
           aria-label={chat.starred ? "Unstar chat" : "Star chat"}
         >
-          {chat.starred ? (
-            <Star className={`${theme.star} w-4 h-4 fill-current`} />
-          ) : (
-            <Star className={`${theme.icon} w-4 h-4`} />
-          )}
+          <Star
+            className={cn(
+              "h-3.5 w-3.5",
+              chat.starred
+                ? "text-yellow-500 fill-yellow-500"
+                : "text-muted-foreground"
+            )}
+          />
         </Button>
 
         {/* Edit button */}
@@ -127,15 +106,15 @@ export const ChatList: React.FC<ChatListProps> = ({
           variant="ghost"
           size="sm"
           onClick={(e) => onEditStart(chat.id, chat.title, e)}
-          className={`p-1 h-auto hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+          className="h-7 w-7 p-0"
           aria-label="Edit chat title"
         >
-          <FiEdit2 size={14} />
+          <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
 
         {/* Delete button */}
         <Button
-          variant="ghost" 
+          variant="ghost"
           size="sm"
           onClick={(e) => {
             e.stopPropagation();
@@ -143,40 +122,67 @@ export const ChatList: React.FC<ChatListProps> = ({
               onDelete(chat.id);
             }
           }}
-          className={`p-1 h-auto hover:bg-gray-200 dark:hover:bg-gray-700 ${theme.icon}`}
+          className="h-7 w-7 p-0 hover:text-destructive"
           aria-label="Delete chat"
         >
-          <FiTrash2 size={14} />
+          <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
     </div>
   );
 
-  return (
-    <div className={`flex-1 overflow-y-auto py-2 px-1 scrollbar-thin ${theme.scrollbar}`}>
-      {/* Starred Chats Section */}
-      {starredChats.length > 0 && (
-        <div className="mb-4">
-          <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.accent}`}>
-            <FiStar className="mr-2" /> Starred
-          </div>
-          {starredChats.map(renderChatItem)}
-        </div>
+  const SectionHeader: React.FC<{
+    icon: React.ReactNode;
+    title: string;
+    accent?: boolean;
+  }> = ({ icon, title, accent = false }) => (
+    <div
+      className={cn(
+        "flex items-center gap-2 px-3 py-2 text-xs font-medium uppercase tracking-wider",
+        accent ? "text-owl-accent" : "text-muted-foreground"
       )}
+    >
+      {icon}
+      {title}
+    </div>
+  );
 
-      {/* Recent Chats Section */}
-      <div className="mb-4">
-        <div className={`text-xs uppercase tracking-wider mb-2 flex items-center px-3 py-1 ${theme.secondaryText}`}>
-          <FiClock className="mr-2" /> Recent
-        </div>
-        {regularChats.length > 0 ? (
-          regularChats.map(renderChatItem)
-        ) : (
-          <div className={`text-center py-4 text-sm ${theme.secondaryText}`}>
-            {searchQuery ? "No matching chats" : "No recent chats"}
+  return (
+    <ScrollArea className="flex-1 px-2">
+      <div className="space-y-1">
+        {/* Starred Chats Section */}
+        {starredChats.length > 0 && (
+          <div className="space-y-1">
+            <SectionHeader
+              icon={<Star className="h-3 w-3" />}
+              title="Starred"
+              accent
+            />
+            <div className="space-y-0.5">
+              {starredChats.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+              ))}
+            </div>
+            {regularChats.length > 0 && <Separator className="my-3" />}
           </div>
         )}
+
+        {/* Recent Chats Section */}
+        <div className="space-y-1">
+          <SectionHeader icon={<Clock className="h-3 w-3" />} title="Recent" />
+          {regularChats.length > 0 ? (
+            <div className="space-y-0.5">
+              {regularChats.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-sm text-muted-foreground">
+              {searchQuery ? "No matching chats" : "No recent chats"}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };

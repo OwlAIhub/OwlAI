@@ -1,8 +1,14 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X } from 'lucide-react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { MessageCircle, ThumbsDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -10,15 +16,14 @@ interface FeedbackModalProps {
   customRemark: string;
   setCustomRemark: (remark: string) => void;
   onSubmit: () => void;
-  darkMode: boolean;
 }
 
 const FEEDBACK_OPTIONS = [
-  "Not satisfied", 
-  "Too vague", 
-  "Irrelevant", 
-  "Incomplete", 
-  "Wrong answer"
+  { label: "Not satisfied", icon: "😞" },
+  { label: "Too vague", icon: "❓" },
+  { label: "Irrelevant", icon: "🔄" },
+  { label: "Incomplete", icon: "📝" },
+  { label: "Wrong answer", icon: "❌" },
 ];
 
 export const FeedbackModal: React.FC<FeedbackModalProps> = ({
@@ -27,85 +32,98 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   customRemark,
   setCustomRemark,
   onSubmit,
-  darkMode,
 }) => {
-  if (!isOpen) return null;
+  const handleQuickFeedback = (feedback: string) => {
+    setCustomRemark(customRemark ? `${customRemark}, ${feedback}` : feedback);
+  };
+
+  const handleSubmit = () => {
+    if (customRemark.trim()) {
+      onSubmit();
+    }
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <Card className={`w-96 relative shadow-lg ${
-        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-      }`}>
-        <CardHeader className="relative">
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="sm"
-            className="absolute top-2 right-2"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          
-          <CardTitle className={`text-lg font-semibold ${
-            darkMode ? "text-white" : "text-gray-900"
-          }`}>
-            Tell us what went wrong
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {/* Predefined feedback options */}
-          <div className="flex flex-wrap gap-2">
-            {FEEDBACK_OPTIONS.map((label) => (
-              <Button
-                key={label}
-                variant="outline"
-                size="sm"
-                onClick={() => setCustomRemark(label)}
-                className={`text-sm ${
-                  darkMode 
-                    ? "bg-gray-700 text-white hover:bg-gray-600 border-gray-600" 
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
-                }`}
-              >
-                {label}
-              </Button>
-            ))}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader className="text-center space-y-3">
+          <div className="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+            <ThumbsDown className="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
 
-          {/* Custom feedback textarea */}
-          <Textarea
-            placeholder="Write your feedback..."
-            value={customRemark}
-            onChange={(e) => setCustomRemark(e.target.value)}
-            className={`resize-none ${
-              darkMode 
-                ? "bg-gray-700 text-white border-owl-primary focus:border-owl-primary" 
-                : "bg-white text-gray-900 border-gray-300 focus:border-owl-primary"
-            }`}
-            rows={3}
-          />
+          <DialogTitle className="text-xl font-semibold">
+            Help us improve
+          </DialogTitle>
+
+          <p className="text-sm text-muted-foreground">
+            We appreciate your feedback. Let us know what went wrong so we can
+            do better.
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Quick feedback options */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Quick feedback</span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {FEEDBACK_OPTIONS.map((option) => (
+                <Button
+                  key={option.label}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickFeedback(option.label)}
+                  className={cn(
+                    "h-auto py-2 px-3 text-xs gap-2 hover:bg-muted",
+                    customRemark.includes(option.label) &&
+                      "bg-muted border-owl-primary"
+                  )}
+                >
+                  <span>{option.icon}</span>
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom feedback */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              Additional details (optional)
+            </label>
+
+            <Textarea
+              placeholder="Tell us more about what went wrong..."
+              value={customRemark}
+              onChange={(e) => setCustomRemark(e.target.value)}
+              className="min-h-[100px] resize-none focus-visible:ring-owl-primary"
+              rows={4}
+            />
+
+            <div className="text-xs text-muted-foreground">
+              Your feedback helps us improve our AI responses
+            </div>
+          </div>
 
           {/* Action buttons */}
-          <div className="flex justify-end gap-2">
-            <Button
-              onClick={onClose}
-              variant="outline"
-              size="sm"
-            >
-              Cancel
+          <div className="flex justify-between items-center gap-3">
+            <Button onClick={onClose} variant="outline" className="flex-1">
+              Skip for now
             </Button>
 
             <Button
-              onClick={onSubmit}
-              size="sm"
-              className="bg-owl-primary hover:bg-owl-primary-dark text-white"
+              onClick={handleSubmit}
+              disabled={!customRemark.trim()}
+              className="flex-1 bg-owl-primary hover:bg-owl-primary-dark"
             >
-              Submit
+              Submit Feedback
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

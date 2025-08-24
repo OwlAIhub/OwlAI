@@ -1,30 +1,21 @@
-import React from 'react';
-import { FiUser, FiChevronRight } from "react-icons/fi";
-import { User } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React from "react";
+import { ChevronRight } from "lucide-react";
+import { User } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface UserProfileSectionProps {
   user: User | null;
   currentUser: Partial<User>;
   onProfileClick: () => void;
-  darkMode: boolean;
 }
 
 export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   user,
   currentUser,
   onProfileClick,
-  darkMode,
 }) => {
-  const theme = {
-    border: darkMode ? 'border-gray-700' : 'border-gray-200',
-    text: darkMode ? 'text-gray-100' : 'text-gray-800',
-    userPlan: darkMode ? 'text-teal-400' : 'text-teal-600',
-    icon: darkMode ? 'text-gray-400' : 'text-gray-500',
-    primary: darkMode ? 'bg-teal-700' : 'bg-teal-600',
-  };
-
   const getUserDisplayName = () => {
     return user?.firstName || "Guest User";
   };
@@ -38,42 +29,47 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
     return user?.firstName?.[0]?.toUpperCase() || "G";
   };
 
+  const getPlanVariant = () => {
+    if (!user) return "outline";
+    const plan = currentUser?.plan?.toLowerCase();
+    if (plan === "pro" || plan === "premium") return "default";
+    return "secondary";
+  };
+
   return (
-    <div className={`p-4 border-t ${theme.border}`}>
-      <div className="w-full">
-        <Button
-          onClick={onProfileClick}
-          variant="ghost"
-          className="w-full flex items-center justify-between hover:opacity-80 transition-opacity focus:outline-none p-0 h-auto"
-          aria-label="Open user profile"
-        >
-          <div className="flex items-center space-x-3 min-w-0">
-            <Avatar className="w-9 h-9">
-              {user && currentUser?.avatar ? (
-                <AvatarImage 
-                  src={currentUser.avatar} 
-                  alt="User Avatar"
-                />
-              ) : (
-                <AvatarFallback className={`${theme.primary} text-white`}>
-                  {getUserInitial()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            
-            <div className="text-left min-w-0">
-              <div className={`text-sm font-medium truncate max-w-[120px] ${theme.text}`}>
-                {getUserDisplayName()}
-              </div>
-              <div className={`text-xs truncate max-w-[120px] ${theme.userPlan}`}>
-                {getUserPlan()}
-              </div>
+    <div className="p-4 border-t">
+      <Button
+        onClick={onProfileClick}
+        variant="ghost"
+        className="w-full justify-between h-auto p-3 hover:bg-muted/50"
+        aria-label="Open user profile"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <Avatar className="h-9 w-9">
+            {user && currentUser?.avatar ? (
+              <AvatarImage src={currentUser.avatar} alt="User Avatar" />
+            ) : (
+              <AvatarFallback className="bg-owl-primary text-white font-medium">
+                {getUserInitial()}
+              </AvatarFallback>
+            )}
+          </Avatar>
+
+          <div className="text-left min-w-0 flex-1">
+            <div className="text-sm font-medium truncate">
+              {getUserDisplayName()}
             </div>
+            <Badge
+              variant={getPlanVariant()}
+              className="text-xs mt-1 h-auto py-0.5 px-2"
+            >
+              {getUserPlan()}
+            </Badge>
           </div>
-          
-          <FiChevronRight className={theme.icon} />
-        </Button>
-      </div>
+        </div>
+
+        <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+      </Button>
     </div>
   );
 };

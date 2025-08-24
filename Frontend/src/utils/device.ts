@@ -9,7 +9,7 @@ export const BREAKPOINTS = {
   md: 768,
   lg: 1024,
   xl: 1280,
-  '2xl': 1400,
+  "2xl": 1400,
 } as const;
 
 export type Breakpoint = keyof typeof BREAKPOINTS;
@@ -18,13 +18,13 @@ export type Breakpoint = keyof typeof BREAKPOINTS;
 export const deviceUtils = {
   // Get current window width
   getWindowWidth: (): number => {
-    if (typeof window === 'undefined') return 0;
+    if (typeof window === "undefined") return 0;
     return window.innerWidth;
   },
 
   // Get current window height
   getWindowHeight: (): number => {
-    if (typeof window === 'undefined') return 0;
+    if (typeof window === "undefined") return 0;
     return window.innerHeight;
   },
 
@@ -69,22 +69,22 @@ export const deviceUtils = {
   // Get current breakpoint
   getCurrentBreakpoint: (): Breakpoint => {
     const width = deviceUtils.getWindowWidth();
-    
-    if (width < BREAKPOINTS.xs) return 'xs';
-    if (width < BREAKPOINTS.sm) return 'xs';
-    if (width < BREAKPOINTS.md) return 'sm';
-    if (width < BREAKPOINTS.lg) return 'md';
-    if (width < BREAKPOINTS.xl) return 'lg';
-    if (width < BREAKPOINTS['2xl']) return 'xl';
-    return '2xl';
+
+    if (width < BREAKPOINTS.xs) return "xs";
+    if (width < BREAKPOINTS.sm) return "xs";
+    if (width < BREAKPOINTS.md) return "sm";
+    if (width < BREAKPOINTS.lg) return "md";
+    if (width < BREAKPOINTS.xl) return "lg";
+    if (width < BREAKPOINTS["2xl"]) return "xl";
+    return "2xl";
   },
 
   // Check if device has touch capability
   isTouchDevice: (): boolean => {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     return (
-      'ontouchstart' in window ||
+      "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
       // @ts-ignore
       navigator.msMaxTouchPoints > 0
@@ -93,29 +93,29 @@ export const deviceUtils = {
 
   // Check if user prefers reduced motion
   prefersReducedMotion: (): boolean => {
-    if (typeof window === 'undefined') return false;
-    
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (typeof window === "undefined") return false;
+
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   },
 
   // Check if user prefers dark mode
   prefersDarkMode: (): boolean => {
-    if (typeof window === 'undefined') return false;
-    
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (typeof window === "undefined") return false;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   },
 
   // Get device pixel ratio
   getDevicePixelRatio: (): number => {
-    if (typeof window === 'undefined') return 1;
-    
+    if (typeof window === "undefined") return 1;
+
     return window.devicePixelRatio || 1;
   },
 
   // Check if device is in landscape mode
   isLandscape: (): boolean => {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     return window.innerWidth > window.innerHeight;
   },
 
@@ -125,15 +125,19 @@ export const deviceUtils = {
   },
 
   // Get orientation
-  getOrientation: (): 'landscape' | 'portrait' => {
-    return deviceUtils.isLandscape() ? 'landscape' : 'portrait';
+  getOrientation: (): "landscape" | "portrait" => {
+    return deviceUtils.isLandscape() ? "landscape" : "portrait";
   },
 
   // Check if browser supports specific features
   supports: {
     localStorage: (): boolean => {
       try {
-        return typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null;
+        return (
+          typeof window !== "undefined" &&
+          "localStorage" in window &&
+          window.localStorage !== null
+        );
       } catch {
         return false;
       }
@@ -141,20 +145,25 @@ export const deviceUtils = {
 
     sessionStorage: (): boolean => {
       try {
-        return typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null;
+        return (
+          typeof window !== "undefined" &&
+          "sessionStorage" in window &&
+          window.sessionStorage !== null
+        );
       } catch {
         return false;
       }
     },
 
     webGL: (): boolean => {
-      if (typeof window === 'undefined') return false;
-      
+      if (typeof window === "undefined") return false;
+
       try {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         return !!(
           window.WebGLRenderingContext &&
-          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+          (canvas.getContext("webgl") ||
+            canvas.getContext("experimental-webgl"))
         );
       } catch {
         return false;
@@ -162,55 +171,55 @@ export const deviceUtils = {
     },
 
     webWorkers: (): boolean => {
-      return typeof window !== 'undefined' && typeof Worker !== 'undefined';
+      return typeof window !== "undefined" && typeof Worker !== "undefined";
     },
 
     serviceWorkers: (): boolean => {
-      return typeof window !== 'undefined' && 'serviceWorker' in navigator;
+      return typeof window !== "undefined" && "serviceWorker" in navigator;
     },
 
     intersectionObserver: (): boolean => {
-      return typeof window !== 'undefined' && 'IntersectionObserver' in window;
+      return typeof window !== "undefined" && "IntersectionObserver" in window;
     },
 
     requestIdleCallback: (): boolean => {
-      return typeof window !== 'undefined' && 'requestIdleCallback' in window;
+      return typeof window !== "undefined" && "requestIdleCallback" in window;
     },
   },
 
   // Get user agent info
   getUserAgent: () => {
-    if (typeof window === 'undefined') return '';
+    if (typeof window === "undefined") return "";
     return navigator.userAgent;
   },
 
   // Detect browser
   getBrowser: (): string => {
-    if (typeof window === 'undefined') return 'unknown';
-    
+    if (typeof window === "undefined") return "unknown";
+
     const ua = navigator.userAgent;
-    
-    if (ua.includes('Chrome')) return 'chrome';
-    if (ua.includes('Firefox')) return 'firefox';
-    if (ua.includes('Safari')) return 'safari';
-    if (ua.includes('Edge')) return 'edge';
-    if (ua.includes('Opera')) return 'opera';
-    
-    return 'unknown';
+
+    if (ua.includes("Chrome")) return "chrome";
+    if (ua.includes("Firefox")) return "firefox";
+    if (ua.includes("Safari")) return "safari";
+    if (ua.includes("Edge")) return "edge";
+    if (ua.includes("Opera")) return "opera";
+
+    return "unknown";
   },
 
   // Detect OS
   getOS: (): string => {
-    if (typeof window === 'undefined') return 'unknown';
-    
+    if (typeof window === "undefined") return "unknown";
+
     const ua = navigator.userAgent;
-    
-    if (ua.includes('Windows')) return 'windows';
-    if (ua.includes('Mac')) return 'macos';
-    if (ua.includes('Linux')) return 'linux';
-    if (ua.includes('Android')) return 'android';
-    if (ua.includes('iOS')) return 'ios';
-    
-    return 'unknown';
+
+    if (ua.includes("Windows")) return "windows";
+    if (ua.includes("Mac")) return "macos";
+    if (ua.includes("Linux")) return "linux";
+    if (ua.includes("Android")) return "android";
+    if (ua.includes("iOS")) return "ios";
+
+    return "unknown";
   },
 };
