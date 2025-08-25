@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import OwlLogo from "../assets/owlMascot.png";
 import OwlLoader from "./OwlLoader";
 import { ChatMessage } from "@/components/features/chat/ChatMessage";
-import { MessageInput } from "@/components/features/chat/MessageInput";
+import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { useChat } from "@/hooks/useChat";
 
 interface MainContentProps {
@@ -20,20 +20,26 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({
-  currentChatTitle,
   darkMode,
-  isSidebarOpen,
-  toggleSidebar,
-  onLogout,
-  toggleDarkMode,
   sessionId,
-  onUserProfileClick,
   setSessionId,
   isLoggedIn,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentChat, setCurrentChat] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Placeholders for the animated input
+  const placeholders = [
+    "What is Research Methodology?",
+    "Explain Teaching Aptitude concepts",
+    "How to solve Logical Reasoning questions?",
+    "What is Communication in education?",
+    "Explain UGC NET syllabus",
+    "How to prepare for competitive exams?",
+    "What are the types of research?",
+    "Explain educational psychology",
+  ];
 
   // Use chat hook for all chat functionality
   const {
@@ -43,7 +49,6 @@ const MainContent: React.FC<MainContentProps> = ({
     loading,
     isInterrupted,
     copiedIndex,
-    messageCount,
     handleSendMessage,
     handleCopyMessage,
     handleFeedback,
@@ -88,6 +93,18 @@ const MainContent: React.FC<MainContentProps> = ({
       localStorage.removeItem("presetQuery");
     }
   }, [setMessage]);
+
+  // Handlers for PlaceholdersAndVanishInput
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+  };
+
+  const handleInputSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (message.trim() && !loading) {
+      handleSendMessage();
+    }
+  };
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -182,20 +199,13 @@ const MainContent: React.FC<MainContentProps> = ({
         </div>
 
         {/* Message Input */}
-        <MessageInput
-          message={message}
-          setMessage={setMessage}
-          onSendMessage={handleSendMessage}
-          onStopTyping={() => {}}
-          isSidebarOpen={isSidebarOpen}
-          loading={loading}
-          isLoggedIn={isLoggedIn}
-          messageCount={messageCount}
-          showModal={false}
-          setShowModal={() => {}}
-          darkMode={darkMode}
-          disabled={!isLoggedIn && messageCount >= 4}
-        />
+        <div className="p-4 border-t border-gray-100">
+          <PlaceholdersAndVanishInput
+            placeholders={placeholders}
+            onChange={handleInputChange}
+            onSubmit={handleInputSubmit}
+          />
+        </div>
       </div>
     </div>
   );
