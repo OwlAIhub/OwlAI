@@ -331,7 +331,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-6 leading-tight">
             Your AI Learning{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
@@ -342,7 +342,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             </span>
           </h1>
 
-          <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-black mb-10 max-w-2xl mx-auto leading-relaxed">
             Get instant answers to your study questions. Powered by advanced AI
             to help you excel in your UGC NET and competitive exams.
           </p>
@@ -358,7 +358,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                   setShowError(false);
                 }}
                 placeholder="Ask about UGC NET, CSIR-NET, SSC, CTET..."
-                className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20 placeholder-gray-500"
+                className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20 placeholder-gray-500 text-black"
               />
               <button
                 onClick={onAskClick}
@@ -378,19 +378,19 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
           <div className="flex flex-wrap justify-center items-center gap-6 mb-10">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-gray-600 text-sm font-medium">
+              <span className="text-black text-sm font-medium">
                 10,000+ Students Helped
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <span className="text-gray-600 text-sm font-medium">
+              <span className="text-black text-sm font-medium">
                 24/7 AI Support
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <span className="text-gray-600 text-sm font-medium">
+              <span className="text-black text-sm font-medium">
                 95% Success Rate
               </span>
             </div>
@@ -398,28 +398,24 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
 
           {/* Social Proof */}
           <div className="mb-10">
-            <p className="text-gray-500 text-sm mb-4">
-              Trusted by students from
-            </p>
+            <p className="text-black text-sm mb-4">Trusted by students from</p>
             <div className="flex flex-wrap justify-center items-center gap-6 opacity-60">
-              <div className="text-gray-400 font-semibold text-base">
+              <div className="text-black font-semibold text-base">
                 Delhi University
               </div>
-              <div className="text-gray-400 font-semibold text-base">JNU</div>
-              <div className="text-gray-400 font-semibold text-base">BHU</div>
-              <div className="text-gray-400 font-semibold text-base">AMU</div>
-              <div className="text-gray-400 font-semibold text-base">
-                +50 More
-              </div>
+              <div className="text-black font-semibold text-base">JNU</div>
+              <div className="text-black font-semibold text-base">BHU</div>
+              <div className="text-black font-semibold text-base">AMU</div>
+              <div className="text-black font-semibold text-base">+50 More</div>
             </div>
           </div>
 
           {/* Popular Questions */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-semibold text-black mb-4">
               Popular Questions
             </h2>
-            <p className="text-gray-500 mb-6 text-sm">
+            <p className="text-black mb-6 text-sm">
               Get started with these commonly asked UGC NET questions
             </p>
 
@@ -460,10 +456,10 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                   className="group p-4 bg-white rounded-xl text-left hover:bg-gray-50 transition-all duration-200 border border-gray-100 hover:border-gray-200"
                 >
                   <div className="space-y-2">
-                    <p className="text-gray-900 font-medium text-sm group-hover:text-teal-600 transition-colors">
+                    <p className="text-black font-medium text-sm group-hover:text-teal-600 transition-colors">
                       {prompt.label}
                     </p>
-                    <p className="text-gray-500 text-xs leading-relaxed">
+                    <p className="text-black text-xs leading-relaxed">
                       {prompt.description}
                     </p>
                   </div>

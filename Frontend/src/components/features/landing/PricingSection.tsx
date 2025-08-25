@@ -61,12 +61,12 @@ const plans = [
       "Early access to features",
     ],
     icon: <IconBolt className="w-5 h-5" />,
-    gradient: "from-purple-500 to-purple-600",
-    bgGradient: "from-purple-50 to-purple-100",
+    gradient: "from-black to-gray-800",
+    bgGradient: "from-gray-50 to-gray-100",
     popular: false,
     buttonText: "Go Premium",
     buttonStyle:
-      "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700",
+      "bg-gradient-to-r from-black to-gray-800 hover:from-gray-800 hover:to-gray-900",
   },
 ];
 
