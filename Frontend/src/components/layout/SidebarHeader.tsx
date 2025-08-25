@@ -22,7 +22,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         className="flex items-center gap-3 h-auto p-0 hover:opacity-80 transition-opacity"
         aria-label="Go to home page"
       >
-        <div className="bg-owl-primary rounded-full w-10 h-10 overflow-hidden flex-shrink-0">
+        <div className="bg-teal-600 rounded-full w-10 h-10 overflow-hidden flex-shrink-0">
           <img
             src={Logo}
             alt="OwlAI Logo"

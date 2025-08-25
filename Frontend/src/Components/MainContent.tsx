@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
 import OwlLogo from "../assets/owlMascot.png";
 import OwlLoader from "./OwlLoader";
 import { ChatMessage } from "@/components/features/chat/ChatMessage";
@@ -16,7 +14,9 @@ interface MainContentProps {
   toggleDarkMode: () => void;
   sessionId: string | null;
   onUserProfileClick: () => void;
-  setSesssionId: (id: string) => void;
+  setSessionId: (id: string | null) => void;
+  isLoggedIn: boolean;
+  onNewChat: () => void;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -28,17 +28,12 @@ const MainContent: React.FC<MainContentProps> = ({
   toggleDarkMode,
   sessionId,
   onUserProfileClick,
-  setSesssionId,
+  setSessionId,
+  isLoggedIn,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentChat, setCurrentChat] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Get user data
-  const user = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")!)
-    : null;
-  const isLoggedIn = !!user;
 
   // Use chat hook for all chat functionality
   const {
@@ -52,7 +47,7 @@ const MainContent: React.FC<MainContentProps> = ({
     handleSendMessage,
     handleCopyMessage,
     handleFeedback,
-  } = useChat(sessionId, setSesssionId, isLoggedIn);
+  } = useChat(sessionId, setSessionId, isLoggedIn);
 
   // Load chat data
   useEffect(() => {
@@ -123,59 +118,9 @@ const MainContent: React.FC<MainContentProps> = ({
   };
 
   return (
-    <div className="relative flex w-full h-screen overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 z-20 ${
-          darkMode ? "bg-gray-900" : "bg-white"
-        } 
-          ${isSidebarOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"} 
-          transition-all duration-800 ease-[cubic-bezier(0.25,0.1,0.25,1.1)]
-          w-64 lg:w-72
-          border-r ${darkMode ? "border-gray-700" : "border-gray-200"}`}
-        style={{
-          willChange: "transform",
-          transitionProperty: "transform, box-shadow",
-        }}
-      >
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={toggleSidebar}
-          darkMode={darkMode}
-          currentUser={{ plan: "Free" }}
-          onUserProfileClick={onUserProfileClick}
-          onNewChat={() => {}}
-          onSelectChat={() => {}}
-        />
-      </div>
-
-      {/* Overlay */}
-      {isSidebarOpen && (
-        <div
-          className={`fixed inset-0 z-10 bg-black transition-opacity duration-600 ease-in-out ${
-            isSidebarOpen ? "opacity-50" : "opacity-0 pointer-events-none"
-          } md:hidden`}
-          onClick={toggleSidebar}
-          style={{ willChange: "opacity" }}
-        />
-      )}
-
+    <div className="flex flex-col h-full">
       {/* Main content */}
-      <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "lg:ml-0" : "ml-0"
-        }`}
-      >
-        {/* Header */}
-        <Header
-          currentChatTitle={currentChatTitle}
-          onToggleSidebar={toggleSidebar}
-          onLogout={onLogout}
-          toggleDarkMode={toggleDarkMode}
-          isLoggedIn={isLoggedIn}
-          darkMode={darkMode}
-        />
-
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {chatMessages.length === 0 ? (
@@ -185,17 +130,15 @@ const MainContent: React.FC<MainContentProps> = ({
                 alt="Owl AI"
                 className="w-24 h-24 mb-6 opacity-80"
               />
-              <h1 className="text-3xl font-bold mb-2 text-[#009688]">
+              <h1 className="text-3xl font-bold mb-2 text-teal-600">
                 {getGreeting()}! 👋
               </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-md">
+              <p className="text-lg text-black mb-8 max-w-md">
                 I'm your AI learning assistant. Ask me anything about your
                 studies, and I'll help you understand concepts better!
               </p>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Try asking me:
-                </p>
+                <p className="text-sm text-black">Try asking me:</p>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
                     "Explain Research Methodology",
@@ -206,7 +149,7 @@ const MainContent: React.FC<MainContentProps> = ({
                     <button
                       key={suggestion}
                       onClick={() => setMessage(suggestion)}
-                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg text-sm text-white transition-colors"
                     >
                       {suggestion}
                     </button>

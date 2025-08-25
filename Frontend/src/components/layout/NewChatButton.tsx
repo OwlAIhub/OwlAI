@@ -16,7 +16,7 @@ export const NewChatButton: React.FC<NewChatButtonProps> = ({
       <Button
         onClick={onNewChat}
         disabled={disabled}
-        className="w-full bg-owl-primary hover:bg-owl-primary-dark text-white shadow-sm"
+        className="w-full bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
         size="default"
       >
         <Plus className="mr-2 h-4 w-4" />

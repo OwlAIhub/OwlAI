@@ -49,7 +49,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
             {user && currentUser?.avatar ? (
               <AvatarImage src={currentUser.avatar} alt="User Avatar" />
             ) : (
-              <AvatarFallback className="bg-owl-primary text-white font-medium">
+              <AvatarFallback className="bg-teal-600 text-white font-medium">
                 {getUserInitial()}
               </AvatarFallback>
             )}

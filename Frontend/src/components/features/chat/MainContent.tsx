@@ -444,11 +444,7 @@ export const MainContent: React.FC<MainContentProps> = ({
           toggleDarkMode={toggleDarkMode}
         />
 
-        <main
-          className={`flex-1 overflow-auto p-4 md:p-6 flex flex-col ${
-            darkMode ? "bg-gray-900" : "bg-gray-50"
-          }`}
-        >
+        <main className="flex-1 overflow-auto p-4 md:p-6 flex flex-col bg-white">
           <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
             {/* Welcome Screen */}
             {chatMessages.length === 0 && (

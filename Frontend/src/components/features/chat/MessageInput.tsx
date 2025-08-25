@@ -80,7 +80,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         disabled={!message.trim() || loading || disabled}
         className={`p-3 rounded-lg transition-colors ${
           message.trim() && !loading && !disabled
-            ? `${colors.bg.primary} text-white ${colors.hover.bgPrimary}`
+            ? "bg-teal-600 text-white hover:bg-teal-700"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
       >

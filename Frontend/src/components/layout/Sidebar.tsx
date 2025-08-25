@@ -307,7 +307,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className={`fixed inset-y-0 z-20 bg-background border-r transition-all duration-300 ease-in-out w-64 lg:w-72 flex flex-col ${
+      className={`fixed inset-y-0 z-20 bg-white border-r border-gray-100 transition-all duration-300 ease-in-out w-64 lg:w-72 flex flex-col ${
         isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"
       }`}
     >

@@ -121,7 +121,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-2 border-owl-primary text-owl-primary hover:bg-owl-primary hover:text-white"
+                className="mt-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white"
               >
                 Create Free Account
               </Button>

@@ -6,14 +6,13 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import MainContent from "./Components/MainContent";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile.jsx";
 import Login from "./Components/Login";
 import Questionnaire from "./Components/Questionnaire";
-import Sidebar from "./Components/Sidebar";
+import { ChatLayout } from "./Components/ChatLayout";
 import { AnimatePresence, motion } from "framer-motion";
 import config from "./config";
 import LandingPage from "./Components/LandingPage.jsx";
@@ -192,7 +191,7 @@ function App() {
   };
 
   // Wrapper function to match Sidebar component's expected type
-  const handleSetSessionId = (id: string) => {
+  const handleSetSessionId = (id: string | null) => {
     setSessionId(id);
   };
 
@@ -231,45 +230,20 @@ function App() {
   }, [sessionId]); // Only runs when sessionId changes
 
   const MainAppContent = () => {
-    // useEffect(() => {
-    //   if (location.state?.showSignInToast) {
-    //     toast.success("Signed in successfully! 🚀");
-    //     navigate(location.pathname, { replace: true, state: {} });
-    //     window.location.reload(); // Reload to apply changes
-    //     console.log("User signed in, reloading page...");
-    //   }
-    // }, [location, navigate]);
-
     return (
-      <div className="flex h-full">
-        {/* Sidebar */}
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <Sidebar
-              isOpen={isSidebarOpen}
-              onClose={toggleSidebar}
-              darkMode={darkMode}
-              currentUser={{ plan: "Free" }}
-              onUserProfileClick={() => setShowProfileModal(true)}
-              onNewChat={handleNewChat}
-              setSesssionId={handleSetSessionId}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <MainContent
-          currentChatTitle={currentChatTitle}
-          darkMode={darkMode}
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          onLogout={handleLogout}
-          toggleDarkMode={toggleDarkMode}
-          sessionId={sessionId}
-          setSesssionId={handleSetSessionId}
-          onUserProfileClick={() => setShowProfileModal(true)}
-        />
-      </div>
+      <ChatLayout
+        darkMode={darkMode}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+        currentChatTitle={currentChatTitle}
+        isLoggedIn={isLoggedIn}
+        sessionId={sessionId}
+        setSessionId={handleSetSessionId}
+        onLogout={handleLogout}
+        toggleDarkMode={toggleDarkMode}
+        onUserProfileClick={() => setShowProfileModal(true)}
+        onNewChat={handleNewChat}
+      />
     );
   };
 

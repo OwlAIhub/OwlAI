@@ -81,7 +81,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                   onClick={() => handleFeedback("like")}
                   className={`text-xs px-2 py-1 rounded ${
                     message.feedback === "like"
-                      ? "bg-green-500 text-white"
+                      ? "bg-teal-600 text-white"
                       : "opacity-70 hover:opacity-100"
                   }`}
                 >
@@ -91,7 +91,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                   onClick={() => handleFeedback("dislike")}
                   className={`text-xs px-2 py-1 rounded ${
                     message.feedback === "dislike"
-                      ? "bg-red-500 text-white"
+                      ? "bg-teal-600 text-white"
                       : "opacity-70 hover:opacity-100"
                   }`}
                 >
@@ -127,7 +127,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     <button
                       key={label}
                       onClick={() => setCustomRemark(label)}
-                      className={`${colors.bg.assistantMessage} text-white text-sm px-3 py-1 rounded hover:opacity-80`}
+                      className="bg-teal-600 text-white text-sm px-3 py-1 rounded hover:bg-teal-700"
                     >
                       {label}
                     </button>
@@ -144,14 +144,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className={`px-4 py-1 text-sm rounded ${colors.bg.primary} text-white ${colors.hover.bgPrimary}`}
+                    className="px-4 py-1 text-sm rounded bg-teal-600 text-white hover:bg-teal-700"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={handleSubmitFeedback}
-                    className={`px-4 py-1 text-sm rounded ${colors.bg.primary} text-white ${colors.hover.bgPrimary}`}
+                    className="px-4 py-1 text-sm rounded bg-teal-600 text-white hover:bg-teal-700"
                   >
                     Submit
                   </button>

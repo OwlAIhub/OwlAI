@@ -61,13 +61,7 @@ const Header = ({
 
   if (loading && isLoggedIn) {
     return (
-      <header
-        className={`sticky top-0 z-40 ${
-          darkMode ? "bg-gray-900" : "bg-white"
-        } border-b ${
-          darkMode ? "border-gray-700" : "border-gray-200"
-        } shadow-sm h-17`}
-      >
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm h-17">
         <div className="flex items-center justify-between h-full px-4">
           <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
         </div>
@@ -75,11 +69,7 @@ const Header = ({
     );
   }
   return (
-    <header
-      className={`sticky top-0 z-40 ${
-        darkMode ? "bg-gray-900" : "bg-white"
-      } border-b ${darkMode ? "border-gray-700" : "border-gray-200"} shadow-sm`}
-    >
+    <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
       <div className="flex items-center justify-between h-17 px-4 sm:px-6 lg:px-8">
         {/* Left - Logo */}
         <div className="flex items-center space-x-3">
@@ -107,7 +97,7 @@ const Header = ({
         {/* Center - Title or Search */}
         <div className="flex-1 mx-4 max-w-xl hidden md:flex items-center justify-center">
           {currentChatTitle ? (
-            <h1 className="text-lg font-semibold truncate text-center text-gray-700 dark:text-gray-200">
+            <h1 className="text-lg font-semibold truncate text-center text-black">
               {currentChatTitle}
             </h1>
           ) : (
@@ -145,24 +135,16 @@ const Header = ({
               </button>
 
               {showProfileDropdown && (
-                <div
-                  className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-2 border ${
-                    darkMode
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
-                  }`}
-                >
-                  <div className="px-4 py-2 border-b border-gray-300 dark:border-gray-700">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Signed in as
-                    </p>
-                    <p className="text-sm font-medium text-teal-500 truncate">
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-2 border bg-white border-gray-100">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-xs text-gray-500">Signed in as</p>
+                    <p className="text-sm font-medium text-black truncate">
                       {user.firstName + " " + user.lastName}
                     </p>
                   </div>
                   <button
                     onClick={onLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    className="flex items-center w-full px-4 py-2 text-sm text-black hover:bg-gray-50 cursor-pointer"
                   >
                     <FiLogOut className="mr-2" /> Sign out
                   </button>

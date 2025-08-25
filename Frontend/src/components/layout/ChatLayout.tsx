@@ -31,7 +31,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   onNewChat,
 }) => {
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       {/* Sidebar with responsive behavior */}
       <AnimatePresence mode="wait">
         {isSidebarOpen && (
