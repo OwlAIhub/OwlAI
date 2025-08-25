@@ -6,12 +6,13 @@ import {
   Shield,
   Zap,
   Target,
-  GraduationCap,
-  Users,
-  Brain,
   Globe,
 } from "lucide-react";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
+import ugcNetLogo from "@/assets/ugc-net.png";
+import csirNetLogo from "@/assets/csir.png";
+import sscLogo from "@/assets/ssc.png";
+import ctetLogo from "@/assets/ctet.png";
 
 export const ExamSupportSection: React.FC = () => {
   const examCards = [
@@ -84,7 +85,7 @@ export const ExamSupportSection: React.FC = () => {
     {
       name: "UGC-NET",
       category: "Assistant Professor & JRF",
-      icon: <GraduationCap className="w-6 h-6 text-teal-600" />,
+      image: ugcNetLogo,
       subjects: ["Computer Science", "Mathematics", "Physics", "Chemistry"],
       description:
         "National Eligibility Test for Assistant Professor and JRF positions in universities and colleges.",
@@ -92,7 +93,7 @@ export const ExamSupportSection: React.FC = () => {
     {
       name: "CSIR-NET",
       category: "Scientific Research",
-      icon: <Brain className="w-6 h-6 text-teal-600" />,
+      image: csirNetLogo,
       subjects: ["Life Sciences", "Physical Sciences", "Chemical Sciences"],
       description:
         "Council of Scientific & Industrial Research National Eligibility Test for research positions.",
@@ -100,7 +101,7 @@ export const ExamSupportSection: React.FC = () => {
     {
       name: "SSC CGL",
       category: "Government Services",
-      icon: <Users className="w-6 h-6 text-teal-600" />,
+      image: sscLogo,
       subjects: ["General Studies", "Quantitative Aptitude", "English"],
       description:
         "Staff Selection Commission Combined Graduate Level for government job opportunities.",
@@ -108,7 +109,7 @@ export const ExamSupportSection: React.FC = () => {
     {
       name: "CTET",
       category: "Teaching Certification",
-      icon: <BookOpen className="w-6 h-6 text-teal-600" />,
+      image: ctetLogo,
       subjects: ["Child Development", "Pedagogy", "Language", "Mathematics"],
       description:
         "Central Teacher Eligibility Test for teaching positions in schools.",
@@ -116,7 +117,7 @@ export const ExamSupportSection: React.FC = () => {
   ];
 
   return (
-    <section id="exams" className="min-h-screen flex items-center bg-gray-50">
+    <section id="exams" className="min-h-screen flex items-center bg-white">
       <div className="container mx-auto px-6 py-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -166,8 +167,12 @@ export const ExamSupportSection: React.FC = () => {
               className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300 hover:border-teal-300"
             >
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center">
-                  {exam.icon}
+                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                  <img
+                    src={exam.image}
+                    alt={exam.name}
+                    className="w-8 h-8 object-contain"
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-gray-900 mb-1">

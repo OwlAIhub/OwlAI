@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "@/assets/owl_AI_logo.png";
 import owlMascot from "@/assets/owlMascot.png";
+import { useLenis } from "@/hooks/useLenis";
 
 interface LandingHeaderProps {
   inputValue: string;
@@ -19,19 +20,27 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
   onAskClick,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { lenis } = useLenis();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    if (element) {
+    if (element && lenis) {
+      lenis.scrollTo(element, {
+        offset: -80, // Account for fixed navbar height
+        duration: 1.5,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+    } else if (element) {
+      // Fallback to native smooth scroll if Lenis is not available
       element.scrollIntoView({ behavior: "smooth" });
     }
     setIsMobileMenuOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <>
       {/* Navigation */}
-      <nav className="bg-slate-50/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100/50">
+      <nav className="bg-gray-100/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -240,7 +249,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-16 pb-20 px-6 min-h-screen flex items-center">
+      <section className="pt-32 pb-20 px-6 min-h-screen flex items-center bg-gray-100">
         <div className="max-w-6xl mx-auto text-center w-full">
           {/* Floating Mascot */}
           <div className="flex justify-center mb-10">
@@ -400,6 +409,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 };

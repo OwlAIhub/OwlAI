@@ -1,144 +1,171 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 import {
-  BrainCog,
-  Languages,
-  BookOpen,
-  Zap,
-  Shield,
-  Target,
-  Clock,
-  Users,
-  Award,
-  Sparkles,
-} from "lucide-react";
-import { CardSpotlight } from "@/components/ui/card-spotlight";
+  IconBrain,
+  IconLanguage,
+  IconBook,
+  IconBolt,
+  IconShield,
+  IconTarget,
+  IconClock,
+  IconUsers,
+  IconSparkles,
+} from "@tabler/icons-react";
+import { motion } from "framer-motion";
 
 export const WhyChooseSection: React.FC = () => {
-  const features = [
-    {
-      icon: <BookOpen className="w-8 h-8 text-teal-600" />,
-      title: "Thousands of Solutions",
-      description:
-        "Access a vast database of solved problems, explanations, and study materials covering all major competitive exam topics with detailed step-by-step solutions.",
-      color: "#0d9488",
-    },
-    {
-      icon: <BrainCog className="w-8 h-8 text-teal-600" />,
-      title: "AI-Powered Doubt Resolution",
-      description:
-        "Get instant, accurate answers to your questions with our advanced AI that understands context and provides comprehensive explanations tailored to your level.",
-      color: "#059669",
-    },
-    {
-      icon: <Languages className="w-8 h-8 text-teal-600" />,
-      title: "Language Flexibility",
-      description:
-        "Study in your preferred language with our multi-language support system. Get explanations and answers in English, Hindi, and other regional languages.",
-      color: "#7c3aed",
-    },
-    {
-      icon: <Zap className="w-8 h-8 text-teal-600" />,
-      title: "Lightning Fast Responses",
-      description:
-        "Get answers in seconds, not minutes. Our optimized AI delivers instant responses to keep your study momentum going.",
-      color: "#dc2626",
-    },
-    {
-      icon: <Shield className="w-8 h-8 text-teal-600" />,
-      title: "100% Secure & Private",
-      description:
-        "Your data is protected with enterprise-grade security. Your study sessions and questions remain completely private and secure.",
-      color: "#2563eb",
-    },
-    {
-      icon: <Target className="w-8 h-8 text-teal-600" />,
-      title: "Exam-Focused Content",
-      description:
-        "Content specifically curated for competitive exams like UGC-NET, CSIR-NET, SSC, and CTET with latest syllabus coverage.",
-      color: "#ea580c",
-    },
-    {
-      icon: <Clock className="w-8 h-8 text-teal-600" />,
-      title: "24/7 Availability",
-      description:
-        "Study anytime, anywhere. Our AI assistant is always ready to help you learn, even during late-night study sessions.",
-      color: "#0891b2",
-    },
-    {
-      icon: <Users className="w-8 h-8 text-teal-600" />,
-      title: "Community Learning",
-      description:
-        "Join thousands of students preparing for the same exams. Share insights and learn from the collective knowledge.",
-      color: "#be185d",
-    },
-    {
-      icon: <Award className="w-8 h-8 text-teal-600" />,
-      title: "Proven Success Rate",
-      description:
-        "Join thousands of successful students who have cleared their competitive exams with the help of Owl AI.",
-      color: "#16a34a",
-    },
-  ];
-
   return (
-    <section id="why-choose" className="min-h-screen bg-gray-50 py-20">
+    <section id="why-choose" className="min-h-screen bg-white py-20">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Why Choose{" "}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center space-x-2 bg-teal-50 px-4 py-2 rounded-full border border-teal-200 mb-6"
+          >
+            <IconSparkles className="text-teal-600 w-4 h-4" />
+            <span className="text-teal-700 text-sm font-medium">
+              Why Choose Owl AI
+            </span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+          >
+            Experience{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
-                Owl AI
+                AI-Driven Learning
               </span>
               <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
               <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-teal-200 rounded-full opacity-60"></div>
             </span>
-            ?
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Experience the power of AI-driven learning with our comprehensive
-            features designed for competitive exam success.
-          </p>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed"
+          >
+            Discover the power of comprehensive features designed for
+            competitive exam success. Built for students, by students, with
+            cutting-edge AI technology.
+          </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {features.map((feature, index) => (
-            <CardSpotlight
-              key={index}
-              className="bg-white border-gray-200 hover:border-teal-300 transition-colors duration-300"
-              color={feature.color}
-              radius={300}
-            >
-              <div className="relative z-10">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    {feature.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardSpotlight>
-          ))}
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center space-x-2 bg-teal-50 px-8 py-4 rounded-full border border-teal-200">
-            <Sparkles className="w-5 h-5 text-teal-600" />
-            <span className="text-sm font-medium text-teal-800">
-              Ready to transform your exam preparation? Start learning with Owl
-              AI today!
-            </span>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <FeaturesSectionDemo />
+        </motion.div>
       </div>
     </section>
+  );
+};
+
+export function FeaturesSectionDemo() {
+  const features = [
+    {
+      title: "AI-Powered Learning",
+      description:
+        "Advanced artificial intelligence that understands your learning style and provides personalized explanations for complex topics.",
+      icon: <IconBrain />,
+    },
+    {
+      title: "Multi-Language Support",
+      description:
+        "Study in English, Hindi, or regional languages. Get explanations and answers in your preferred language for better understanding.",
+      icon: <IconLanguage />,
+    },
+    {
+      title: "Comprehensive Solutions",
+      description:
+        "Access thousands of solved problems, step-by-step explanations, and study materials covering all major competitive exam topics.",
+      icon: <IconBook />,
+    },
+    {
+      title: "Instant Responses",
+      description:
+        "Get answers in seconds, not minutes. Our optimized AI delivers lightning-fast responses to keep your study momentum going.",
+      icon: <IconBolt />,
+    },
+    {
+      title: "100% Secure & Private",
+      description:
+        "Your data is protected with enterprise-grade security. Your study sessions and questions remain completely private and secure.",
+      icon: <IconShield />,
+    },
+    {
+      title: "Exam-Focused Content",
+      description:
+        "Content specifically curated for UGC-NET, CSIR-NET, SSC, CTET, and other competitive exams with latest syllabus coverage.",
+      icon: <IconTarget />,
+    },
+    {
+      title: "24/7 Availability",
+      description:
+        "Study anytime, anywhere. Our AI assistant is always ready to help you learn, even during late-night study sessions.",
+      icon: <IconClock />,
+    },
+    {
+      title: "Community Learning",
+      description:
+        "Join thousands of students preparing for the same exams. Share insights and learn from the collective knowledge.",
+      icon: <IconUsers />,
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 py-10 max-w-7xl mx-auto">
+      {features.map((feature, index) => (
+        <Feature key={feature.title} {...feature} index={index} />
+      ))}
+    </div>
+  );
+}
+
+const Feature = ({
+  title,
+  description,
+  icon,
+  index,
+}: {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  index: number;
+}) => {
+  return (
+    <div
+      className={cn(
+        "flex flex-col lg:border-r py-10 relative group/feature border-gray-200",
+        (index === 0 || index === 4) && "lg:border-l border-gray-200",
+        index < 4 && "lg:border-b border-gray-200"
+      )}
+    >
+      {index < 4 && (
+        <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-gray-100 to-transparent pointer-events-none" />
+      )}
+      {index >= 4 && (
+        <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-gray-100 to-transparent pointer-events-none" />
+      )}
+      <div className="mb-4 relative z-10 px-10 text-gray-600">{icon}</div>
+      <div className="text-lg font-bold mb-2 relative z-10 px-10">
+        <div className="absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-gray-300 group-hover/feature:bg-teal-500 transition-all duration-200 origin-center" />
+        <span className="group-hover/feature:translate-x-2 transition duration-200 inline-block text-gray-800">
+          {title}
+        </span>
+      </div>
+      <p className="text-sm text-gray-600 max-w-xs relative z-10 px-10">
+        {description}
+      </p>
+    </div>
   );
 };

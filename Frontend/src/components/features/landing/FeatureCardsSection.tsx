@@ -32,7 +32,7 @@ const featureCards = [
 
 export const FeatureCardsSection: React.FC = () => {
   return (
-    <section id="features" className="min-h-screen flex items-center bg-gray-50">
+    <section id="features" className="min-h-screen flex items-center bg-white">
       <div className="container mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">

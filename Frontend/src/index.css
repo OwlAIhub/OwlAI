@@ -157,6 +157,21 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Ensure smooth scrolling works with Lenis */
+    scroll-behavior: smooth;
+  }
+  
+  /* Disable native smooth scroll when Lenis is active */
+  html.has-lenis {
+    scroll-behavior: auto;
+  }
+  
+  html.has-lenis body {
+    overflow: auto;
+  }
+  
+  html.has-lenis [data-lenis-prevent] {
+    overscroll-behavior: contain;
   }
 }
 

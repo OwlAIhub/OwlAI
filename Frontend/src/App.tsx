@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import config from "./config";
 import LandingPage from "./Components/LandingPage.jsx";
 import { logger } from "./utils/logger";
+import { LenisProvider } from "./components/providers/LenisProvider";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -273,97 +274,101 @@ function App() {
   };
 
   return (
-    <Router>
-      <div
-        className={`${
-          darkMode ? "dark bg-gray-900" : "bg-gray-50"
-        } min-h-screen`}
-      >
-        <div className="dark:bg-gray-900 dark:text-white">
-          <Routes>
-            <Route path="/OwlAi" element={<LandingPage />} />
-            <Route path="/" element={<Navigate to="/OwlAi" replace />} />
-            <Route
-              path="/login"
-              element={isLoggedIn ? <Navigate to="/chat" replace /> : <Login />}
-            />
-            <Route
-              path="/questionnaire"
-              element={
-                <ProtectedRoute>
-                  <Questionnaire />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/chat" element={<MainAppContent />} />
-            <Route
-              path="/subscription"
-              element={
-                <ProtectedRoute>
-                  <SubscriptionPlans
-                    darkMode={darkMode}
-                    onClose={() => window.history.back()}
-                  />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/OwlAi" replace />} />
-          </Routes>
-        </div>
+    <LenisProvider>
+      <Router>
+        <div
+          className={`${
+            darkMode ? "dark bg-gray-900" : "bg-gray-50"
+          } min-h-screen`}
+        >
+          <div className="dark:bg-gray-900 dark:text-white">
+            <Routes>
+              <Route path="/OwlAi" element={<LandingPage />} />
+              <Route path="/" element={<Navigate to="/OwlAi" replace />} />
+              <Route
+                path="/login"
+                element={
+                  isLoggedIn ? <Navigate to="/chat" replace /> : <Login />
+                }
+              />
+              <Route
+                path="/questionnaire"
+                element={
+                  <ProtectedRoute>
+                    <Questionnaire />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/chat" element={<MainAppContent />} />
+              <Route
+                path="/subscription"
+                element={
+                  <ProtectedRoute>
+                    <SubscriptionPlans
+                      darkMode={darkMode}
+                      onClose={() => window.history.back()}
+                    />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/OwlAi" replace />} />
+            </Routes>
+          </div>
 
-        {/* User Profile Modal */}
-        <AnimatePresence>
-          {showProfileModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-              onClick={() => setShowProfileModal(false)}
-            >
+          {/* User Profile Modal */}
+          <AnimatePresence>
+            {showProfileModal && (
               <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 20, opacity: 0 }}
-                transition={{ type: "spring", damping: 25 }}
-                className="w-full max-w-2xl"
-                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setShowProfileModal(false)}
               >
-                <UserProfile
-                  darkMode={darkMode}
-                  onClose={() => setShowProfileModal(false)}
-                />
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 20, opacity: 0 }}
+                  transition={{ type: "spring", damping: 25 }}
+                  className="w-full max-w-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <UserProfile
+                    darkMode={darkMode}
+                    onClose={() => setShowProfileModal(false)}
+                  />
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
 
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={darkMode ? "dark" : "light"}
-          toastClassName={() =>
-            `rounded-xl px-4 py-3 border-l-4 shadow-md ${
-              darkMode
-                ? "bg-gray-800 text-white border-emerald-400"
-                : "bg-white text-gray-900 border-[#52B788]"
-            }`
-          }
-          className="text-sm font-medium"
-          progressClassName={`${
-            darkMode ? "bg-emerald-400" : "bg-[#52B788]"
-          } h-1 rounded-b`}
-          closeButton={false}
-        />
-      </div>
-    </Router>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme={darkMode ? "dark" : "light"}
+            toastClassName={() =>
+              `rounded-xl px-4 py-3 border-l-4 shadow-md ${
+                darkMode
+                  ? "bg-gray-800 text-white border-emerald-400"
+                  : "bg-white text-gray-900 border-[#52B788]"
+              }`
+            }
+            className="text-sm font-medium"
+            progressClassName={`${
+              darkMode ? "bg-emerald-400" : "bg-[#52B788]"
+            } h-1 rounded-b`}
+            closeButton={false}
+          />
+        </div>
+      </Router>
+    </LenisProvider>
   );
 }
 
