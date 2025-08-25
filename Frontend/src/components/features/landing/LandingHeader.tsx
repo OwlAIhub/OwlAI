@@ -121,6 +121,39 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 Features
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("faq");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                FAQ
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
+              <a
+                href="#pricing"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("pricing");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                Pricing
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
+              <a
+                href="#contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("contact");
+                }}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
+              >
+                Contact Us
+                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
+              </a>
             </div>
 
             {/* Desktop Auth Buttons */}
@@ -228,6 +261,16 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
               >
                 Features
+              </a>
+              <a
+                href="#contact"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection("contact");
+                }}
+                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
+              >
+                Contact Us
               </a>
               <div className="pt-4 space-y-3 border-t border-gray-100">
                 <Link

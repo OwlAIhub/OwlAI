@@ -15,17 +15,18 @@ import { motion } from "framer-motion";
 
 export const WhyChooseSection: React.FC = () => {
   return (
-    <section id="why-choose" className="min-h-screen bg-white py-20">
+    <section id="why-choose" className="py-20 bg-white">
       <div className="container mx-auto px-6">
+        {/* Header Section */}
         <div className="text-center mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center space-x-2 bg-teal-50 px-4 py-2 rounded-full border border-teal-200 mb-6"
+            className="inline-flex items-center space-x-2 bg-teal-50 px-3 py-1.5 rounded-full border border-teal-200 mb-4"
           >
-            <IconSparkles className="text-teal-600 w-4 h-4" />
-            <span className="text-teal-700 text-sm font-medium">
+            <IconSparkles className="text-teal-600 w-3 h-3" />
+            <span className="text-teal-700 text-xs font-medium">
               Why Choose Owl AI
             </span>
           </motion.div>
@@ -34,15 +35,14 @@ export const WhyChooseSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+            className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           >
             Experience{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
                 AI-Driven Learning
               </span>
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
-              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-teal-200 rounded-full opacity-60"></div>
+              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
             </span>
           </motion.h2>
 
@@ -50,7 +50,7 @@ export const WhyChooseSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            className="text-base text-gray-600 max-w-2xl mx-auto"
           >
             Discover the power of comprehensive features designed for
             competitive exam success. Built for students, by students, with
@@ -145,8 +145,8 @@ const Feature = ({
   return (
     <div
       className={cn(
-        "flex flex-col lg:border-r py-10 relative group/feature border-gray-200",
-        (index === 0 || index === 4) && "lg:border-l border-gray-200",
+        "flex flex-col lg:border-r py-10 relative group/feature border-gray-200 h-64",
+        index === 4 && "lg:border-l border-gray-200",
         index < 4 && "lg:border-b border-gray-200"
       )}
     >
@@ -163,7 +163,7 @@ const Feature = ({
           {title}
         </span>
       </div>
-      <p className="text-sm text-gray-600 max-w-xs relative z-10 px-10">
+      <p className="text-sm text-gray-600 max-w-xs relative z-10 px-10 flex-1">
         {description}
       </p>
     </div>

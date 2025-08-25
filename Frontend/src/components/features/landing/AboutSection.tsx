@@ -4,23 +4,20 @@ import AboutImage from "@/assets/about_section.png";
 
 export const AboutSection: React.FC = () => {
   return (
-    <section
-      id="about"
-      className="min-h-screen flex items-center bg-white pt-20"
-    >
-      <div className="container mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+    <section id="about" className="py-20 bg-white">
+      <div className="container mx-auto px-6">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             About{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
                 Owl AI
               </span>
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
-              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-teal-200 rounded-full opacity-60"></div>
+              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
             </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base text-gray-600 max-w-2xl mx-auto">
             Discover how Owl AI revolutionizes your exam preparation with
             cutting-edge technology and personalized learning experiences.
           </p>

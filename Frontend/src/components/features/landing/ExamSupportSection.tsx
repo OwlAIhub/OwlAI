@@ -117,20 +117,20 @@ export const ExamSupportSection: React.FC = () => {
   ];
 
   return (
-    <section id="exams" className="min-h-screen flex items-center bg-white">
-      <div className="container mx-auto px-6 py-16">
+    <section id="exams" className="py-20 bg-white">
+      <div className="container mx-auto px-6">
+        {/* Header Section */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Supporting Multiple{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
                 Exams
               </span>
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
-              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-teal-200 rounded-full opacity-60"></div>
+              <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
             </span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-base text-gray-600 max-w-2xl mx-auto">
             Get specialized support for various competitive examinations with
             comprehensive study materials and AI-powered assistance.
           </p>

@@ -5,6 +5,9 @@ import { WhyChooseSection } from "@/components/features/landing/WhyChooseSection
 import { ExamSupportSection } from "@/components/features/landing/ExamSupportSection";
 import { TestimonialsSection } from "@/components/features/landing/TestimonialsSection";
 import { FeatureCardsSection } from "@/components/features/landing/FeatureCardsSection";
+import { FAQSection } from "@/components/features/landing/FAQSection";
+import { PricingSection } from "@/components/features/landing/PricingSection";
+import { ContactUsSection } from "@/components/features/landing/ContactUsSection";
 import { LandingFooter } from "@/components/features/landing/LandingFooter";
 
 const LandingPage = () => {
@@ -38,6 +41,9 @@ const LandingPage = () => {
       <ExamSupportSection />
       <TestimonialsSection />
       <FeatureCardsSection />
+      <FAQSection />
+      <PricingSection />
+      <ContactUsSection />
 
       <LandingFooter currentYear={currentYear} />
     </div>
