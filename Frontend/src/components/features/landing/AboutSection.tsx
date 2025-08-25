@@ -4,7 +4,10 @@ import AboutImage from "@/assets/about_section.png";
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="about" className="min-h-screen flex items-center bg-white">
+    <section
+      id="about"
+      className="min-h-screen flex items-center bg-white pt-20"
+    >
       <div className="container mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">

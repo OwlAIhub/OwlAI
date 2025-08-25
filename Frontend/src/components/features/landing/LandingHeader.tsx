@@ -26,7 +26,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
     const element = document.getElementById(sectionId);
     if (element && lenis) {
       lenis.scrollTo(element, {
-        offset: -80, // Account for fixed navbar height
+        offset: -68, // Account for fixed navbar height with extra padding
         duration: 1.5,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       });
