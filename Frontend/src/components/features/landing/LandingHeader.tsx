@@ -37,6 +37,19 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
     setIsMobileMenuOpen(false);
   };
 
+  const scrollToTop = () => {
+    if (lenis) {
+      lenis.scrollTo(0, {
+        duration: 1.5,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+    } else {
+      // Fallback to native smooth scroll if Lenis is not available
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       {/* Navigation */}
@@ -61,6 +74,10 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             <div className="hidden md:flex space-x-8">
               <a
                 href="#"
+                onClick={e => {
+                  e.preventDefault();
+                  scrollToTop();
+                }}
                 className="text-gray-900 text-sm font-medium transition-colors relative group"
               >
                 Home
@@ -208,6 +225,10 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             <div className="py-4 space-y-3 border-t border-gray-100 mt-4">
               <a
                 href="#"
+                onClick={e => {
+                  e.preventDefault();
+                  scrollToTop();
+                }}
                 className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
               >
                 Home

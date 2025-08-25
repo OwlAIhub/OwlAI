@@ -16,6 +16,7 @@ import { ChatLayout } from "./Components/ChatLayout";
 import { AnimatePresence, motion } from "framer-motion";
 import config from "./config";
 import LandingPage from "./Components/LandingPage.jsx";
+import { NotFoundPage } from "@/components/features/error";
 import { logger } from "./utils/logger";
 import { LenisProvider } from "./components/providers/LenisProvider";
 
@@ -288,7 +289,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<Navigate to="/OwlAi" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
 

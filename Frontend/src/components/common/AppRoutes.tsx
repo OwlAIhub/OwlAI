@@ -8,6 +8,7 @@ import SubscriptionPlans from "@/pages/SubscriptionPlans";
 import Login from "@/Components/Login";
 import Questionnaire from "@/Components/Questionnaire";
 import LandingPage from "@/Components/LandingPage";
+import { NotFoundPage } from "@/components/features/error";
 
 interface AppRoutesProps {
   // Auth state
@@ -100,8 +101,8 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
         }
       />
 
-      {/* Catch all */}
-      <Route path="*" element={<Navigate to="/OwlAi" replace />} />
+      {/* 404 Page */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
