@@ -336,8 +336,8 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                   setInputValue(e.target.value);
                   setShowError(false);
                 }}
-                placeholder="Ask your question here..."
-                className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20"
+                placeholder="Ask about UGC NET, CSIR-NET, SSC, CTET..."
+                className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20 placeholder-gray-500"
               />
               <button
                 onClick={onAskClick}
