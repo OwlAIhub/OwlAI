@@ -75,7 +75,7 @@ const Header = ({
         <div className="flex items-center space-x-3">
           <button
             onClick={onToggleSidebar}
-            className="md:hidden p-2 rounded-md text-black focus:outline-none"
+            className="p-2 rounded-md text-black focus:outline-none hover:bg-gray-100"
             aria-label="Toggle sidebar"
           >
             <FiMenu size={20} />

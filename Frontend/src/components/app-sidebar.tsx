@@ -2,16 +2,12 @@
 
 import * as React from "react";
 import {
-  BookOpen,
-  Bot,
   Brain,
   GraduationCap,
   MessageSquare,
   Settings2,
   SquareTerminal,
   Target,
-  Trophy,
-  Users,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -72,29 +68,6 @@ const data = {
       ],
     },
     {
-      title: "Study Materials",
-      url: "/materials",
-      icon: BookOpen,
-      items: [
-        {
-          title: "UGC NET Papers",
-          url: "/materials/ugc-net",
-        },
-        {
-          title: "CSIR-NET Papers",
-          url: "/materials/csir-net",
-        },
-        {
-          title: "SSC CGL",
-          url: "/materials/ssc-cgl",
-        },
-        {
-          title: "CTET",
-          url: "/materials/ctet",
-        },
-      ],
-    },
-    {
       title: "Practice Tests",
       url: "/tests",
       icon: SquareTerminal,
@@ -114,52 +87,6 @@ const data = {
         {
           title: "Performance",
           url: "/tests/performance",
-        },
-      ],
-    },
-    {
-      title: "AI Tutor",
-      url: "/tutor",
-      icon: Bot,
-      items: [
-        {
-          title: "Personal Tutor",
-          url: "/tutor/personal",
-        },
-        {
-          title: "Study Plans",
-          url: "/tutor/plans",
-        },
-        {
-          title: "Progress Tracking",
-          url: "/tutor/progress",
-        },
-        {
-          title: "Doubt Sessions",
-          url: "/tutor/doubts",
-        },
-      ],
-    },
-    {
-      title: "Community",
-      url: "/community",
-      icon: Users,
-      items: [
-        {
-          title: "Study Groups",
-          url: "/community/groups",
-        },
-        {
-          title: "Discussions",
-          url: "/community/discussions",
-        },
-        {
-          title: "Peer Learning",
-          url: "/community/peer",
-        },
-        {
-          title: "Success Stories",
-          url: "/community/stories",
         },
       ],
     },
@@ -187,28 +114,7 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "UGC NET Preparation",
-      url: "/exams/ugc-net",
-      icon: GraduationCap,
-    },
-    {
-      name: "CSIR-NET Preparation",
-      url: "/exams/csir-net",
-      icon: Brain,
-    },
-    {
-      name: "SSC CGL Preparation",
-      url: "/exams/ssc-cgl",
-      icon: Target,
-    },
-    {
-      name: "CTET Preparation",
-      url: "/exams/ctet",
-      icon: Trophy,
-    },
-  ],
+  projects: [],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
