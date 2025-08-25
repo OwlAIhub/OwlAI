@@ -134,7 +134,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   // Chat history fetching
   const fetchChatHistory = useCallback(
     async (chatId: string) => {
-      if (chatMessages.some((msg) => msg.chatId === chatId)) {
+      if (chatMessages.some(msg => msg.chatId === chatId)) {
         return;
       }
 
@@ -264,7 +264,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       isMarkdown: true,
       feedback: null,
     };
-    setChatMessages((prev) => [...prev, userMessage]);
+    setChatMessages(prev => [...prev, userMessage]);
 
     storage.remove(STORAGE_KEYS.PRESET_QUERY);
 
@@ -317,7 +317,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         content:
           "I'm having trouble connecting to the server. Please try again later.",
       };
-      setChatMessages((prev) => [...prev, botMessage]);
+      setChatMessages(prev => [...prev, botMessage]);
     } finally {
       setLoading(false);
     }
@@ -331,11 +331,11 @@ export const MainContent: React.FC<MainContentProps> = ({
     setDisplayedText("");
     const interval = setInterval(() => {
       if (i < response.length) {
-        setDisplayedText((prev) => prev + response[i]);
+        setDisplayedText(prev => prev + response[i]);
         i++;
       } else {
         clearInterval(interval);
-        setChatMessages((prev) => [
+        setChatMessages(prev => [
           ...prev,
           { role: "bot", content: response, isMarkdown: true },
         ]);
@@ -399,7 +399,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     setIsInterrupted(true);
     setLoading(false);
     if (displayedText) {
-      setChatMessages((prev) => [
+      setChatMessages(prev => [
         ...prev,
         { role: "bot", content: displayedText },
       ]);

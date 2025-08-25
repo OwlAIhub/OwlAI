@@ -16,9 +16,10 @@ import {
 interface UserProfileProps {
   darkMode: boolean;
   onClose: () => void;
+  onLogout?: () => void;
 }
 
-const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
+const UserProfile = ({ darkMode, onClose, onLogout }: UserProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
     name: "",
@@ -283,6 +284,25 @@ const UserProfile = ({ darkMode, onClose }: UserProfileProps) => {
                     </div>
                   </div>
                 </ProfileSection>
+
+                {/* Logout Button */}
+                {onLogout && (
+                  <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => {
+                        onLogout();
+                        onClose();
+                      }}
+                      className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                        darkMode
+                          ? "bg-red-600 hover:bg-red-700 text-white"
+                          : "bg-red-600 hover:bg-red-700 text-white"
+                      }`}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </Transition.Child>

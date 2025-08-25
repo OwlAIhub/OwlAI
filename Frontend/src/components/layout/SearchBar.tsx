@@ -22,7 +22,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Input
           type="text"
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={e => onSearchChange(e.target.value)}
           className={cn(
             "pl-9 pr-9 bg-muted/50 border-none focus-visible:ring-2 focus-visible:ring-owl-primary",
             "placeholder:text-muted-foreground"

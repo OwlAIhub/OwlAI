@@ -59,7 +59,7 @@ export async function retryWithBackoff<T>(
       }
 
       const delay = baseDelay * Math.pow(2, attempt);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 
@@ -144,7 +144,7 @@ export function createLazyLoader<T>(
 
     if (loading) return loading;
 
-    loading = loader().then((result) => {
+    loading = loader().then(result => {
       cached = result;
       loading = null;
       return result;
@@ -186,7 +186,7 @@ export async function processArrayNonBlocking<T, R>(
     results.push(...chunkResults);
 
     if (delayBetweenChunks > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delayBetweenChunks));
+      await new Promise(resolve => setTimeout(resolve, delayBetweenChunks));
     }
   }
 

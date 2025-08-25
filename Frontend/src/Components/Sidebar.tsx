@@ -88,8 +88,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       starred: false,
     };
 
-    setChatStore((prev) => [newChat, ...prev]);
-    setChats((prev) => [newChat, ...(Array.isArray(prev) ? prev : [])]);
+    setChatStore(prev => [newChat, ...prev]);
+    setChats(prev => [newChat, ...(Array.isArray(prev) ? prev : [])]);
 
     if (setSesssionId) {
       setSesssionId(newChat.id);
@@ -100,35 +100,35 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleStarToggle = (chatId: string) => {
-    setChatStore((prev) =>
-      prev.map((chat) =>
+    setChatStore(prev =>
+      prev.map(chat =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
-    setChats((prev) =>
-      (Array.isArray(prev) ? prev : []).map((chat) =>
+    setChats(prev =>
+      (Array.isArray(prev) ? prev : []).map(chat =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
   };
 
   const handleRenameChat = (chatId: string, newTitle: string) => {
-    setChatStore((prev) =>
-      prev.map((chat) =>
+    setChatStore(prev =>
+      prev.map(chat =>
         chat.id === chatId ? { ...chat, title: newTitle } : chat
       )
     );
-    setChats((prev) =>
-      (Array.isArray(prev) ? prev : []).map((chat) =>
+    setChats(prev =>
+      (Array.isArray(prev) ? prev : []).map(chat =>
         chat.id === chatId ? { ...chat, title: newTitle } : chat
       )
     );
   };
 
   const handleDeleteChat = (chatId: string) => {
-    setChatStore((prev) => prev.filter((chat) => chat.id !== chatId));
-    setChats((prev) =>
-      (Array.isArray(prev) ? prev : []).filter((chat) => chat.id !== chatId)
+    setChatStore(prev => prev.filter(chat => chat.id !== chatId));
+    setChats(prev =>
+      (Array.isArray(prev) ? prev : []).filter(chat => chat.id !== chatId)
     );
 
     if (activeChatId === chatId) {

@@ -85,7 +85,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
 // Specialized button variants
 export const PrimaryAnimatedButton: React.FC<
   Omit<AnimatedButtonProps, "variant">
-> = (props) => (
+> = props => (
   <AnimatedButton
     variant="default"
     className="bg-owl-primary hover:bg-owl-primary-dark"
@@ -94,9 +94,9 @@ export const PrimaryAnimatedButton: React.FC<
   />
 );
 
-export const GlowButton: React.FC<Omit<AnimatedButtonProps, "animation">> = (
-  props
-) => (
+export const GlowButton: React.FC<
+  Omit<AnimatedButtonProps, "animation">
+> = props => (
   <AnimatedButton
     animation="glow"
     className="bg-owl-primary hover:bg-owl-primary-dark shadow-lg"
@@ -106,7 +106,7 @@ export const GlowButton: React.FC<Omit<AnimatedButtonProps, "animation">> = (
 
 export const FloatingActionButton: React.FC<
   Omit<AnimatedButtonProps, "animation" | "size">
-> = (props) => (
+> = props => (
   <AnimatedButton
     size="sm"
     animation="float"

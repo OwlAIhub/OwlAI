@@ -149,7 +149,7 @@ export const useApi = <T>(
       retryCountRef.current++;
 
       // Add delay before retry
-      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
 
       return execute(...lastArgsRef.current);
     } else {

@@ -141,7 +141,6 @@ export const FeatureCardsSection: React.FC = () => {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );

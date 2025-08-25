@@ -87,8 +87,8 @@ export const SubscriptionHeader: React.FC<SubscriptionHeaderProps> = ({
         variants={itemVariants}
         className={`text-xl ${colors.secondaryText} mb-12 max-w-3xl mx-auto`}
       >
-        Unlock the full potential of Owl AI with our premium features. Choose the
-        plan that best fits your learning needs and accelerate your exam
+        Unlock the full potential of Owl AI with our premium features. Choose
+        the plan that best fits your learning needs and accelerate your exam
         preparation journey.
       </motion.p>
 
@@ -102,7 +102,9 @@ export const SubscriptionHeader: React.FC<SubscriptionHeaderProps> = ({
             variants={itemVariants}
             className={`p-6 rounded-xl border-2 border-[${colors.cardBorder}] bg-[${colors.cardBg}] hover:border-[${colors.primary}] transition-colors duration-300`}
           >
-            <div className={`w-12 h-12 rounded-full bg-[${colors.primary}] flex items-center justify-center mx-auto mb-4`}>
+            <div
+              className={`w-12 h-12 rounded-full bg-[${colors.primary}] flex items-center justify-center mx-auto mb-4`}
+            >
               <feature.icon className="w-6 h-6 text-white" />
             </div>
             <h3 className={`text-lg font-semibold mb-2 ${colors.text}`}>

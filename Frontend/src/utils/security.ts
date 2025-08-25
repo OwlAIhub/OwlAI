@@ -159,7 +159,7 @@ export async function hashData(data: string): Promise<string> {
   const dataBuffer = encoder.encode(data);
   const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -191,7 +191,7 @@ export function isValidUrl(url: string): boolean {
 
     return (
       allowedProtocols.includes(parsed.protocol) &&
-      allowedDomains.some((domain) => parsed.hostname === domain)
+      allowedDomains.some(domain => parsed.hostname === domain)
     );
   } catch {
     return false;
@@ -213,9 +213,12 @@ export function getSecurityHeaders(): Record<string, string> {
 }
 
 // Cleanup old data periodically
-setInterval(() => {
-  apiRateLimiter.cleanup();
-  authRateLimiter.cleanup();
-  messageRateLimiter.cleanup();
-  csrfProtection.cleanup();
-}, 30 * 60 * 1000); // Every 30 minutes
+setInterval(
+  () => {
+    apiRateLimiter.cleanup();
+    authRateLimiter.cleanup();
+    messageRateLimiter.cleanup();
+    csrfProtection.cleanup();
+  },
+  30 * 60 * 1000
+); // Every 30 minutes

@@ -77,7 +77,9 @@ export interface SidebarProps extends ThemeProps {
   currentUser: Partial<User>;
   activeChatId?: string | null;
   chats: ChatSession[];
-  setChats: (chats: ChatSession[] | ((prev: ChatSession[]) => ChatSession[])) => void;
+  setChats: (
+    chats: ChatSession[] | ((prev: ChatSession[]) => ChatSession[])
+  ) => void;
   onUserProfileClick: () => void;
   setSesssionId: (id: string) => void;
 }

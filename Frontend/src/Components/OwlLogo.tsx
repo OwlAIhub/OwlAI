@@ -89,13 +89,13 @@ const AnimatedOwlLogo = () => {
             shouldReduceMotion
               ? {}
               : isMobile
-              ? {
-                  y: [0, -5, 0, 5, 0],
-                  scale: [1, 1.015, 1],
-                }
-              : {
-                  y: [0, -2, 0, 2, 0],
-                }
+                ? {
+                    y: [0, -5, 0, 5, 0],
+                    scale: [1, 1.015, 1],
+                  }
+                : {
+                    y: [0, -2, 0, 2, 0],
+                  }
           }
           transition={{
             duration: isMobile ? 6 : 8,

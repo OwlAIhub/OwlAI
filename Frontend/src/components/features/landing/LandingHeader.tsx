@@ -28,7 +28,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
       lenis.scrollTo(element, {
         offset: -68, // Account for fixed navbar height with extra padding
         duration: 1.5,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       });
     } else if (element) {
       // Fallback to native smooth scroll if Lenis is not available
@@ -68,7 +68,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#about"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("about");
                 }}
@@ -79,7 +79,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#why-choose"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("why-choose");
                 }}
@@ -90,7 +90,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#exams"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("exams");
                 }}
@@ -101,7 +101,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#testimonials"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("testimonials");
                 }}
@@ -112,7 +112,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#features"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("features");
                 }}
@@ -123,7 +123,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#faq"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("faq");
                 }}
@@ -134,7 +134,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#pricing"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("pricing");
                 }}
@@ -145,7 +145,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#contact"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("contact");
                 }}
@@ -214,7 +214,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#about"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("about");
                 }}
@@ -224,7 +224,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#why-choose"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("why-choose");
                 }}
@@ -234,7 +234,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#exams"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("exams");
                 }}
@@ -244,7 +244,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#testimonials"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("testimonials");
                 }}
@@ -254,7 +254,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#features"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("features");
                 }}
@@ -264,7 +264,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <a
                 href="#contact"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   scrollToSection("contact");
                 }}
@@ -332,7 +332,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               <input
                 type="text"
                 value={inputValue}
-                onChange={(e) => {
+                onChange={e => {
                   setInputValue(e.target.value);
                   setShowError(false);
                 }}

@@ -40,12 +40,12 @@ export const ChatList: React.FC<ChatListProps> = ({
   onEditCancel,
   onDelete,
 }) => {
-  const filteredChats = chats.filter((chat) =>
+  const filteredChats = chats.filter(chat =>
     chat?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const starredChats = filteredChats.filter((chat) => chat?.starred);
-  const regularChats = filteredChats.filter((chat) => !chat?.starred);
+  const starredChats = filteredChats.filter(chat => chat?.starred);
+  const regularChats = filteredChats.filter(chat => !chat?.starred);
 
   const handleKeyPress = (e: React.KeyboardEvent, chatId: string) => {
     if (e.key === "Enter") {
@@ -71,9 +71,9 @@ export const ChatList: React.FC<ChatListProps> = ({
           <Input
             type="text"
             value={editedTitle}
-            onChange={(e) => onEditChange(e.target.value)}
+            onChange={e => onEditChange(e.target.value)}
             onBlur={() => onEditSubmit(chat.id)}
-            onKeyDown={(e) => handleKeyPress(e, chat.id)}
+            onKeyDown={e => handleKeyPress(e, chat.id)}
             autoFocus
             className="h-auto p-0 border-none bg-transparent focus-visible:ring-0 text-sm"
           />
@@ -87,7 +87,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) => onStarToggle(chat.id, e)}
+          onClick={e => onStarToggle(chat.id, e)}
           className="h-7 w-7 p-0"
           aria-label={chat.starred ? "Unstar chat" : "Star chat"}
         >
@@ -105,7 +105,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) => onEditStart(chat.id, chat.title, e)}
+          onClick={e => onEditStart(chat.id, chat.title, e)}
           className="h-7 w-7 p-0"
           aria-label="Edit chat title"
         >
@@ -116,7 +116,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             if (window.confirm("Are you sure you want to delete this chat?")) {
               onDelete(chat.id);
@@ -159,7 +159,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               accent
             />
             <div className="space-y-0.5">
-              {starredChats.map((chat) => (
+              {starredChats.map(chat => (
                 <ChatItem key={chat.id} chat={chat} />
               ))}
             </div>
@@ -172,7 +172,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           <SectionHeader icon={<Clock className="h-3 w-3" />} title="Recent" />
           {regularChats.length > 0 ? (
             <div className="space-y-0.5">
-              {regularChats.map((chat) => (
+              {regularChats.map(chat => (
                 <ChatItem key={chat.id} chat={chat} />
               ))}
             </div>

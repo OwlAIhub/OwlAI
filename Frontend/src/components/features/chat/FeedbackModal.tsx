@@ -70,7 +70,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {FEEDBACK_OPTIONS.map((option) => (
+              {FEEDBACK_OPTIONS.map(option => (
                 <Button
                   key={option.label}
                   variant="outline"
@@ -98,7 +98,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <Textarea
               placeholder="Tell us more about what went wrong..."
               value={customRemark}
-              onChange={(e) => setCustomRemark(e.target.value)}
+              onChange={e => setCustomRemark(e.target.value)}
               className="min-h-[100px] resize-none focus-visible:ring-owl-primary"
               rows={4}
             />

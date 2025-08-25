@@ -98,7 +98,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     case "UPDATE_SESSION":
       return {
         ...state,
-        sessions: state.sessions.map((session) =>
+        sessions: state.sessions.map(session =>
           session.id === action.payload.id
             ? { ...session, ...action.payload.updates }
             : session

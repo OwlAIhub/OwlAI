@@ -148,7 +148,7 @@ export const asyncUtils = {
    * Create a delay/sleep function
    */
   delay: (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   },
 
   /**

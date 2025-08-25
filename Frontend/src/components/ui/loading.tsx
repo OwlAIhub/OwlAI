@@ -25,7 +25,7 @@ export const Loading: React.FC<LoadingProps> = ({
       case "dots":
         return (
           <div className="flex items-center gap-1">
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2].map(i => (
               <div
                 key={i}
                 className={cn(
@@ -33,8 +33,8 @@ export const Loading: React.FC<LoadingProps> = ({
                   size === "sm"
                     ? "w-1.5 h-1.5"
                     : size === "lg"
-                    ? "w-3 h-3"
-                    : "w-2 h-2"
+                      ? "w-3 h-3"
+                      : "w-2 h-2"
                 )}
                 style={{
                   animationDelay: `${i * 0.2}s`,
@@ -63,8 +63,8 @@ export const Loading: React.FC<LoadingProps> = ({
                 size === "sm"
                   ? "w-8 h-8"
                   : size === "lg"
-                  ? "w-16 h-16"
-                  : "w-12 h-12"
+                    ? "w-16 h-16"
+                    : "w-12 h-12"
               )}
             />
             <div
@@ -73,8 +73,8 @@ export const Loading: React.FC<LoadingProps> = ({
                 size === "sm"
                   ? "w-6 h-6"
                   : size === "lg"
-                  ? "w-12 h-12"
-                  : "w-8 h-8"
+                    ? "w-12 h-12"
+                    : "w-8 h-8"
               )}
               style={{ animationDelay: "0.5s" }}
             />

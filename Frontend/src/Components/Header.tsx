@@ -121,7 +121,7 @@ const Header = ({
           {user ? (
             <div className="relative">
               <button
-                onClick={() => setShowProfileDropdown((prev) => !prev)}
+                onClick={() => setShowProfileDropdown(prev => !prev)}
                 className="flex cursor-pointer items-center space-x-2 focus:outline-none"
               >
                 <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold">

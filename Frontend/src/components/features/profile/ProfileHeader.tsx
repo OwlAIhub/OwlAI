@@ -88,7 +88,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <input
               type="text"
               value={editedName}
-              onChange={(e) => setEditedName(e.target.value)}
+              onChange={e => setEditedName(e.target.value)}
               className={`text-2xl font-bold ${colors.text} bg-transparent border-b-2 border-[#009688] focus:outline-none text-center`}
               placeholder="Enter your name"
             />

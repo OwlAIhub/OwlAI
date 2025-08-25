@@ -56,7 +56,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         <textarea
           ref={textareaRef}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={e => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Ask about UGC NET topics like 'What is Teaching Aptitude?' or 'Explain Research Methodology'..."
           className={`w-full p-3 pr-12 border rounded-lg resize-none focus:outline-none focus:ring-2 ${

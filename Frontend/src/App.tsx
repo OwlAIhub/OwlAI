@@ -135,6 +135,9 @@ function App() {
     setCurrentChatTitle("Learning Theories");
     setSessionId(null);
 
+    // Redirect to landing page
+    window.location.href = "/OwlAi";
+
     // Mock logout for development
     // auth
     //   .signOut()
@@ -305,11 +308,12 @@ function App() {
                   exit={{ y: 20, opacity: 0 }}
                   transition={{ type: "spring", damping: 25 }}
                   className="w-full max-w-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={e => e.stopPropagation()}
                 >
                   <UserProfile
                     darkMode={darkMode}
                     onClose={() => setShowProfileModal(false)}
+                    onLogout={handleLogout}
                   />
                 </motion.div>
               </motion.div>

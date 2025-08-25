@@ -42,7 +42,7 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
 
-  const filteredChats = chats.filter((chat) =>
+  const filteredChats = chats.filter(chat =>
     chat.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -93,7 +93,7 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
         </div>
       ) : (
         <div className="space-y-1 p-2">
-          {filteredChats.map((chat) => (
+          {filteredChats.map(chat => (
             <div
               key={chat.id}
               className={`group relative rounded-lg p-3 cursor-pointer transition-colors ${
@@ -102,8 +102,8 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
                     ? "bg-teal-600 text-white"
                     : "bg-teal-100 text-teal-900"
                   : darkMode
-                  ? "hover:bg-gray-700 text-gray-200"
-                  : "hover:bg-gray-100 text-gray-700"
+                    ? "hover:bg-gray-700 text-gray-200"
+                    : "hover:bg-gray-100 text-gray-700"
               }`}
               onClick={() => onSelectChat(chat.id)}
             >
@@ -115,9 +115,9 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
                       <input
                         type="text"
                         value={editedTitle}
-                        onChange={(e) => setEditedTitle(e.target.value)}
+                        onChange={e => setEditedTitle(e.target.value)}
                         onBlur={handleEditSave}
-                        onKeyDown={(e) => {
+                        onKeyDown={e => {
                           if (e.key === "Enter") handleEditSave();
                           if (e.key === "Escape") handleEditCancel();
                         }}
@@ -141,7 +141,7 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
 
                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       onStarToggle(chat.id);
                     }}
@@ -156,7 +156,7 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
                     )}
                   </button>
                   <button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleEditStart(chat);
                     }}
@@ -167,7 +167,7 @@ export const SidebarChatList: React.FC<SidebarChatListProps> = ({
                     <FiEdit2 className="w-3 h-3" />
                   </button>
                   <button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       onDeleteChat(chat.id);
                     }}

@@ -123,7 +123,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     "Irrelevant",
                     "Incomplete",
                     "Wrong answer",
-                  ].map((label) => (
+                  ].map(label => (
                     <button
                       key={label}
                       onClick={() => setCustomRemark(label)}
@@ -138,7 +138,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                   className={`w-full h-24 border rounded p-2 text-sm ${colors.border.primary} text-white bg-gray-700`}
                   placeholder="Write your feedback..."
                   value={customRemark}
-                  onChange={(e) => setCustomRemark(e.target.value)}
+                  onChange={e => setCustomRemark(e.target.value)}
                 />
 
                 <div className="mt-4 flex justify-end gap-2">

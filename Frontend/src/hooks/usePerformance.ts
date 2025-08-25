@@ -107,9 +107,12 @@ export const usePerformance = (): UsePerformanceReturn => {
           window.requestIdleCallback ||
           ((cb: () => void) => {
             const start = Date.now();
-            return setTimeout(() => {
-              cb();
-            }, Math.max(0, 50 - (Date.now() - start)));
+            return setTimeout(
+              () => {
+                cb();
+              },
+              Math.max(0, 50 - (Date.now() - start))
+            );
           });
 
         const handle = requestIdleCallback(callback, { timeout });

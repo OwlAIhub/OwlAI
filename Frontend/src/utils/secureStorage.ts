@@ -71,7 +71,7 @@ class SecureStorage {
       const combined = new Uint8Array(
         atob(encryptedData)
           .split("")
-          .map((char) => char.charCodeAt(0))
+          .map(char => char.charCodeAt(0))
       );
 
       const iv = combined.slice(0, 12);
@@ -158,7 +158,7 @@ class SecureStorage {
           keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach((key) => this.options.storage!.removeItem(key));
+      keysToRemove.forEach(key => this.options.storage!.removeItem(key));
     } catch (error) {
       console.error("Failed to clear secure storage:", error);
     }

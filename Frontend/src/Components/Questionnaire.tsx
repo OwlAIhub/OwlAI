@@ -54,7 +54,7 @@ export default function Questionnaire() {
   >(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
       setAuthReady(true);
       if (user) {
         checkExistingProfile(user.uid);
@@ -160,7 +160,7 @@ export default function Questionnaire() {
                 <input
                   type="text"
                   value={formData.firstName}
-                  onChange={(e) => updateFormData("firstName", e.target.value)}
+                  onChange={e => updateFormData("firstName", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009688] focus:border-transparent"
                   placeholder="Enter your first name"
                 />
@@ -172,7 +172,7 @@ export default function Questionnaire() {
                 <input
                   type="text"
                   value={formData.lastName}
-                  onChange={(e) => updateFormData("lastName", e.target.value)}
+                  onChange={e => updateFormData("lastName", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009688] focus:border-transparent"
                   placeholder="Enter your last name"
                 />
@@ -191,7 +191,7 @@ export default function Questionnaire() {
             isActive={isActive}
           >
             <div className="grid grid-cols-1 gap-4">
-              {languages.map((language) => (
+              {languages.map(language => (
                 <button
                   key={language}
                   onClick={() => updateFormData("language", language)}
@@ -218,7 +218,7 @@ export default function Questionnaire() {
             isActive={isActive}
           >
             <div className="grid grid-cols-1 gap-4">
-              {curricula.map((curriculum) => (
+              {curricula.map(curriculum => (
                 <button
                   key={curriculum.value}
                   onClick={() => updateFormData("curriculum", curriculum.value)}
@@ -245,7 +245,8 @@ export default function Questionnaire() {
         );
 
       case 4:
-        const subjects = formData.curriculum === "UGC-NET" ? ugcNetSubjects : csirNetSubjects;
+        const subjects =
+          formData.curriculum === "UGC-NET" ? ugcNetSubjects : csirNetSubjects;
         return (
           <QuestionnaireStep
             step={currentStep}
@@ -256,18 +257,21 @@ export default function Questionnaire() {
           >
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
-                {subjects.map((subject) => (
+                {subjects.map(subject => (
                   <label key={subject} className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       checked={formData.selectedSubjects.includes(subject)}
-                      onChange={(e) => {
+                      onChange={e => {
                         if (e.target.checked) {
-                          updateFormData("selectedSubjects", [...formData.selectedSubjects, subject]);
+                          updateFormData("selectedSubjects", [
+                            ...formData.selectedSubjects,
+                            subject,
+                          ]);
                         } else {
                           updateFormData(
                             "selectedSubjects",
-                            formData.selectedSubjects.filter((s) => s !== subject)
+                            formData.selectedSubjects.filter(s => s !== subject)
                           );
                         }
                       }}
@@ -285,7 +289,9 @@ export default function Questionnaire() {
                   <input
                     type="text"
                     value={formData.otherSubject}
-                    onChange={(e) => updateFormData("otherSubject", e.target.value)}
+                    onChange={e =>
+                      updateFormData("otherSubject", e.target.value)
+                    }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009688] focus:border-transparent"
                     placeholder="Enter your subject"
                   />
@@ -296,7 +302,8 @@ export default function Questionnaire() {
         );
 
       case 5:
-        const attempts = formData.language === "Hinglish" ? attemptsHinglish : attemptsEnglish;
+        const attempts =
+          formData.language === "Hinglish" ? attemptsHinglish : attemptsEnglish;
         return (
           <QuestionnaireStep
             step={currentStep}
@@ -306,7 +313,7 @@ export default function Questionnaire() {
             isActive={isActive}
           >
             <div className="grid grid-cols-1 gap-4">
-              {attempts.map((attempt) => (
+              {attempts.map(attempt => (
                 <button
                   key={attempt.value}
                   onClick={() => updateFormData("attempt", attempt.value)}
@@ -316,7 +323,9 @@ export default function Questionnaire() {
                       : "border-gray-300 hover:border-gray-400"
                   }`}
                 >
-                  <div className="font-medium text-gray-900">{attempt.label}</div>
+                  <div className="font-medium text-gray-900">
+                    {attempt.label}
+                  </div>
                 </button>
               ))}
             </div>
@@ -333,7 +342,7 @@ export default function Questionnaire() {
             isActive={isActive}
           >
             <div className="grid grid-cols-1 gap-4">
-              {sources.map((source) => (
+              {sources.map(source => (
                 <button
                   key={source}
                   onClick={() => updateFormData("heardFrom", source)}
@@ -351,7 +360,10 @@ export default function Questionnaire() {
         );
 
       case 7:
-        const examCycles = formData.language === "Hinglish" ? examCyclesHinglish : examCyclesEnglish;
+        const examCycles =
+          formData.language === "Hinglish"
+            ? examCyclesHinglish
+            : examCyclesEnglish;
         return (
           <QuestionnaireStep
             step={currentStep}
@@ -361,7 +373,7 @@ export default function Questionnaire() {
             isActive={isActive}
           >
             <div className="grid grid-cols-1 gap-4">
-              {examCycles.map((cycle) => (
+              {examCycles.map(cycle => (
                 <button
                   key={cycle}
                   onClick={() => updateFormData("examCycle", cycle)}

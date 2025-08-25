@@ -83,7 +83,7 @@ export const useChat = (
 
         if (response.ok) {
           // Update message with feedback
-          setChatMessages((prev) =>
+          setChatMessages(prev =>
             prev.map((msg, i) =>
               i === index ? { ...msg, feedback: type } : msg
             )
@@ -126,8 +126,8 @@ export const useChat = (
       timestamp: new Date().toISOString(),
     };
 
-    setChatMessages((prev) => [...prev, userChatMessage]);
-    setMessageCount((prev) => prev + 1);
+    setChatMessages(prev => [...prev, userChatMessage]);
+    setMessageCount(prev => prev + 1);
     setLoading(true);
 
     try {
@@ -158,7 +158,7 @@ export const useChat = (
         timestamp: new Date().toISOString(),
       };
 
-      setChatMessages((prev) => [...prev, botMessage]);
+      setChatMessages(prev => [...prev, botMessage]);
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         // Request was aborted, don't show error
@@ -174,7 +174,7 @@ export const useChat = (
         timestamp: new Date().toISOString(),
       };
 
-      setChatMessages((prev) => [...prev, errorMessage]);
+      setChatMessages(prev => [...prev, errorMessage]);
     } finally {
       setLoading(false);
       abortControllerRef.current = null;

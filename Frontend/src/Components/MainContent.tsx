@@ -162,7 +162,7 @@ const MainContent: React.FC<MainContentProps> = ({
                     "What is Teaching Aptitude?",
                     "Explain Logical Reasoning",
                     "What is Communication?",
-                  ].map((suggestion) => (
+                  ].map(suggestion => (
                     <button
                       key={suggestion}
                       onClick={() => setMessage(suggestion)}

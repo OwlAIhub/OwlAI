@@ -22,30 +22,30 @@ export interface ValidationRule {
  * Sanitize HTML content to prevent XSS
  */
 export function sanitizeHtml(input: string): string {
-  if (typeof input !== 'string') return '';
-  
+  if (typeof input !== "string") return "";
+
   return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
 }
 
 /**
  * Sanitize text content (remove potentially dangerous characters)
  */
 export function sanitizeText(input: string): string {
-  if (typeof input !== 'string') return '';
-  
+  if (typeof input !== "string") return "";
+
   return input
     .trim()
-    .replace(/[<>]/g, '') // Remove angle brackets
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+=/gi, '') // Remove event handlers
-    .replace(/data:/gi, '') // Remove data: protocol
-    .replace(/vbscript:/gi, ''); // Remove vbscript: protocol
+    .replace(/[<>]/g, "") // Remove angle brackets
+    .replace(/javascript:/gi, "") // Remove javascript: protocol
+    .replace(/on\w+=/gi, "") // Remove event handlers
+    .replace(/data:/gi, "") // Remove data: protocol
+    .replace(/vbscript:/gi, ""); // Remove vbscript: protocol
 }
 
 /**
@@ -54,23 +54,23 @@ export function sanitizeText(input: string): string {
 export function validateEmail(email: string): ValidationResult {
   const errors: string[] = [];
   const sanitizedEmail = email.trim().toLowerCase();
-  
+
   if (!sanitizedEmail) {
-    errors.push('Email is required');
+    errors.push("Email is required");
     return { isValid: false, errors };
   }
-  
+
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(sanitizedEmail)) {
-    errors.push('Invalid email format');
+    errors.push("Invalid email format");
     return { isValid: false, errors };
   }
-  
+
   if (sanitizedEmail.length > 254) {
-    errors.push('Email is too long');
+    errors.push("Email is too long");
     return { isValid: false, errors };
   }
-  
+
   return { isValid: true, errors: [], sanitizedValue: sanitizedEmail };
 }
 
@@ -79,18 +79,18 @@ export function validateEmail(email: string): ValidationResult {
  */
 export function validatePhone(phone: string): ValidationResult {
   const errors: string[] = [];
-  const sanitizedPhone = phone.replace(/\D/g, ''); // Remove non-digits
-  
+  const sanitizedPhone = phone.replace(/\D/g, ""); // Remove non-digits
+
   if (!sanitizedPhone) {
-    errors.push('Phone number is required');
+    errors.push("Phone number is required");
     return { isValid: false, errors };
   }
-  
+
   if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
-    errors.push('Phone number must be between 10 and 15 digits');
+    errors.push("Phone number must be between 10 and 15 digits");
     return { isValid: false, errors };
   }
-  
+
   return { isValid: true, errors: [], sanitizedValue: sanitizedPhone };
 }
 
@@ -103,42 +103,42 @@ export function validateText(
 ): ValidationResult {
   const errors: string[] = [];
   let sanitizedValue = input;
-  
+
   // Sanitize if requested
   if (rules.sanitize !== false) {
     sanitizedValue = sanitizeText(input);
   }
-  
+
   // Required validation
   if (rules.required && !sanitizedValue) {
-    errors.push('This field is required');
+    errors.push("This field is required");
     return { isValid: false, errors };
   }
-  
+
   // Skip other validations if empty and not required
   if (!sanitizedValue) {
     return { isValid: true, errors: [], sanitizedValue };
   }
-  
+
   // Length validations
   if (rules.minLength && sanitizedValue.length < rules.minLength) {
     errors.push(`Minimum length is ${rules.minLength} characters`);
   }
-  
+
   if (rules.maxLength && sanitizedValue.length > rules.maxLength) {
     errors.push(`Maximum length is ${rules.maxLength} characters`);
   }
-  
+
   // Pattern validation
   if (rules.pattern && !rules.pattern.test(sanitizedValue)) {
-    errors.push('Invalid format');
+    errors.push("Invalid format");
   }
-  
+
   // Custom validation
   if (rules.custom && !rules.custom(sanitizedValue)) {
-    errors.push('Invalid value');
+    errors.push("Invalid value");
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -155,7 +155,7 @@ export function validateMessage(message: string): ValidationResult {
     minLength: 1,
     maxLength: 4000, // Match config maxMessageLength
     sanitize: true,
-    custom: (value) => {
+    custom: value => {
       // Check for potentially dangerous content
       const dangerousPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
@@ -163,7 +163,7 @@ export function validateMessage(message: string): ValidationResult {
         /on\w+\s*=/gi,
         /data:text\/html/gi,
       ];
-      
+
       return !dangerousPatterns.some(pattern => pattern.test(value));
     },
   });
@@ -177,26 +177,30 @@ export function validateFormData(
   schema: Record<string, ValidationRule>
 ): Record<string, ValidationResult> {
   const results: Record<string, ValidationResult> = {};
-  
+
   for (const [field, rules] of Object.entries(schema)) {
-    const value = data[field] || '';
+    const value = data[field] || "";
     results[field] = validateText(value, rules);
   }
-  
+
   return results;
 }
 
 /**
  * Check if form is valid
  */
-export function isFormValid(results: Record<string, ValidationResult>): boolean {
+export function isFormValid(
+  results: Record<string, ValidationResult>
+): boolean {
   return Object.values(results).every(result => result.isValid);
 }
 
 /**
  * Get all form errors
  */
-export function getFormErrors(results: Record<string, ValidationResult>): string[] {
+export function getFormErrors(
+  results: Record<string, ValidationResult>
+): string[] {
   return Object.values(results)
     .flatMap(result => result.errors)
     .filter(Boolean);

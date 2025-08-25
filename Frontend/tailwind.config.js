@@ -29,7 +29,7 @@ export default {
           "card-dark": "hsl(var(--owl-card-dark))",
           "card-border": "hsl(var(--owl-card-border))",
         },
-        
+
         // Shadcn Default Colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -79,7 +79,7 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        
+
         // Enhanced animations for OwlAI
         "bounce-slow": {
           "0%, 100%": {
@@ -130,22 +130,23 @@ export default {
           "50%": { opacity: "1" },
           "100%": { opacity: "0.4" },
         },
-        "glow": {
-          "0%": { 
-            "box-shadow": "0 0 5px hsl(var(--owl-primary))" 
+        glow: {
+          "0%": {
+            "box-shadow": "0 0 5px hsl(var(--owl-primary))",
           },
-          "50%": { 
-            "box-shadow": "0 0 20px hsl(var(--owl-primary)), 0 0 30px hsl(var(--owl-primary))" 
+          "50%": {
+            "box-shadow":
+              "0 0 20px hsl(var(--owl-primary)), 0 0 30px hsl(var(--owl-primary))",
           },
-          "100%": { 
-            "box-shadow": "0 0 5px hsl(var(--owl-primary))" 
+          "100%": {
+            "box-shadow": "0 0 5px hsl(var(--owl-primary))",
           },
         },
-        "shimmer": {
+        shimmer: {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-10px)" },
         },
@@ -157,7 +158,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        
+
         // Enhanced animations
         "bounce-slow": "bounce-slow 1.5s ease-in-out infinite",
         "fade-in": "fade-in 0.3s ease-out",
@@ -170,9 +171,9 @@ export default {
         "slide-in-left": "slide-in-left 0.3s ease-out",
         "slide-out-left": "slide-out-left 0.3s ease-in",
         "typing-dots": "typing-dots 1.4s ease-in-out infinite",
-        "glow": "glow 2s ease-in-out infinite",
-        "shimmer": "shimmer 2s linear infinite",
-        "float": "float 3s ease-in-out infinite",
+        glow: "glow 2s ease-in-out infinite",
+        shimmer: "shimmer 2s linear infinite",
+        float: "float 3s ease-in-out infinite",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
       },
       fontFamily: {
@@ -189,8 +190,8 @@ export default {
       },
       spacing: {
         17: "4.25rem", // 68px - for header height
-        18: "4.5rem",   // 72px
-        22: "5.5rem",   // 88px - for sidebar footer
+        18: "4.5rem", // 72px
+        22: "5.5rem", // 88px - for sidebar footer
       },
       screens: {
         xs: "475px",
@@ -198,4 +199,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

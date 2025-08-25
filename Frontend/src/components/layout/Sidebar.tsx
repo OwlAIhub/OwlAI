@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Firebase Auth Effect
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       if (firebaseUser) {
         try {
           const userRef = doc(db, "users", firebaseUser.uid);
@@ -141,13 +141,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const response = await api.session.renameSession(chatId, newTitle);
 
       if (response.status === "success") {
-        setChats((prev) =>
-          prev.map((chat) =>
+        setChats(prev =>
+          prev.map(chat =>
             chat.id === chatId ? { ...chat, title: newTitle } : chat
           )
         );
-        setChatStore((prev) =>
-          prev.map((chat) =>
+        setChatStore(prev =>
+          prev.map(chat =>
             chat.id === chatId ? { ...chat, title: newTitle } : chat
           )
         );
@@ -165,8 +165,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const response = await api.session.deleteSession(chatId);
 
       if (response.status === "success") {
-        setChats((prev) => prev.filter((chat) => chat.id !== chatId));
-        setChatStore((prev) => prev.filter((chat) => chat.id !== chatId));
+        setChats(prev => prev.filter(chat => chat.id !== chatId));
+        setChatStore(prev => prev.filter(chat => chat.id !== chatId));
         toast.success("Chat deleted successfully");
 
         if (activeChatId === chatId) {
@@ -263,13 +263,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleStarToggle = (chatId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
+    setChats(prevChats =>
+      prevChats.map(chat =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );
-    setChatStore((prevChats) =>
-      prevChats.map((chat) =>
+    setChatStore(prevChats =>
+      prevChats.map(chat =>
         chat.id === chatId ? { ...chat, starred: !chat.starred } : chat
       )
     );

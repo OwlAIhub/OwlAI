@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { IconBrandYoutubeFilled } from "@tabler/icons-react";
 
-
 export default function FeaturesSectionDemo() {
   const features = [
     {
@@ -54,7 +53,7 @@ export default function FeaturesSectionDemo() {
 
       <div className="relative ">
         <div className="grid grid-cols-1 lg:grid-cols-6 mt-12 xl:border rounded-md dark:border-neutral-800">
-          {features.map((feature) => (
+          {features.map(feature => (
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
               <FeatureDescription>{feature.description}</FeatureDescription>
@@ -258,7 +257,7 @@ export const Globe = ({ className }: { className?: string }) => {
         { location: [37.7595, -122.4367], size: 0.03 },
         { location: [40.7128, -74.006], size: 0.1 },
       ],
-      onRender: (state) => {
+      onRender: state => {
         // Called on every animation frame.
         // `state` will be an empty object, return updated params.
         state.phi = phi;

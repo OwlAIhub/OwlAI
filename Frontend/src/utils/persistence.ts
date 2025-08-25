@@ -16,7 +16,7 @@ const defaultOptions: Required<PersistenceOptions> = {
   storage:
     typeof window !== "undefined" ? window.localStorage : ({} as Storage),
   version: 1,
-  migrate: (data) => data,
+  migrate: data => data,
 };
 
 class PersistenceManager {
@@ -93,7 +93,7 @@ class PersistenceManager {
         }
       }
 
-      keysToRemove.forEach((key) => {
+      keysToRemove.forEach(key => {
         this.options.storage.removeItem(key);
       });
     } catch (error) {
@@ -144,11 +144,11 @@ export const secureStorage = new PersistenceManager({
   storage:
     typeof window !== "undefined" ? window.localStorage : ({} as Storage),
   prefix: "owlai_secure_",
-  serialize: (value) => {
+  serialize: value => {
     // Basic obfuscation - in production, use proper encryption
     return btoa(JSON.stringify(value));
   },
-  deserialize: (value) => {
+  deserialize: value => {
     // Basic deobfuscation
     return JSON.parse(atob(value));
   },
@@ -189,7 +189,7 @@ export const clearAllData = (): void => {
   secureStorage.clear();
 
   // Also clear any additional storage keys
-  Object.values(STORAGE_KEYS).forEach((key) => {
+  Object.values(STORAGE_KEYS).forEach(key => {
     try {
       window.localStorage.removeItem(key);
       window.sessionStorage.removeItem(key);

@@ -18,7 +18,7 @@ export function PlaceholdersAndVanishInput({
   const intervalRef = useRef<number | null>(null);
   const startAnimation = () => {
     intervalRef.current = setInterval(() => {
-      setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
+      setCurrentPlaceholder(prev => (prev + 1) % placeholders.length);
     }, 3000);
   };
   const handleVisibilityChange = () => {
@@ -127,7 +127,7 @@ export function PlaceholdersAndVanishInput({
         const ctx = canvasRef.current?.getContext("2d");
         if (ctx) {
           ctx.clearRect(pos, 0, 800, 800);
-          newDataRef.current.forEach((t) => {
+          newDataRef.current.forEach(t => {
             const { x: n, y: i, r: s, color: color } = t;
             if (n > pos) {
               ctx.beginPath();
@@ -190,7 +190,7 @@ export function PlaceholdersAndVanishInput({
         ref={canvasRef}
       />
       <input
-        onChange={(e) => {
+        onChange={e => {
           if (!animating) {
             setValue(e.target.value);
             onChange && onChange(e);
