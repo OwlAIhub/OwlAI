@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { MainContentProps, ChatMessage, User } from "@/types";
 import { api } from "@/services/api";
-import { storage, formatUtils, domUtils } from "@/utils";
+import { storage, domUtils } from "@/utils";
 import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from "@/constants";
 import Header from "@/Components/Header";
 import OwlLoader from "@/Components/OwlLoader";
@@ -34,7 +34,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [customRemark, setCustomRemark] = useState("");
   const [isInterrupted, setIsInterrupted] = useState(false);
-  const [chatId, setChatId] = useState<string | null>(null);
+  const [chatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
@@ -271,45 +271,62 @@ export const MainContent: React.FC<MainContentProps> = ({
     setMessage("");
     setLoading(true);
 
-    const currentUserId = isLoggedIn ? user?.uid : anonymousUserId;
-    const currentSessionId = isLoggedIn
-      ? storage.get(STORAGE_KEYS.SESSION_ID)
-      : anonymousSessionId;
-
     try {
-      const response = await api.chat.sendMessage(
-        message as string,
-        currentUserId as string,
-        currentSessionId as string
+      // Use Flowise API directly
+      const response = await fetch(
+        "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question: userMessage.content,
+          }),
+        }
       );
 
-      if (response.status === "success" && response.data) {
-        const fullResponse =
-          response.data.response || "Sorry, no response from AI.";
-        const chatId = response.data.chat_id;
-        setChatId(chatId);
-        const formattedResponse = formatUtils.formatMarkdown(fullResponse);
-
-        if (isLoggedIn) {
-          window.dispatchEvent(
-            new CustomEvent("newChatMessage", {
-              detail: {
-                sessionId: currentSessionId,
-                message: message,
-              },
-            })
-          );
-        }
-
-        setResponse(formattedResponse);
-        setDisplayedText("");
-      } else {
-        throw new Error(
-          typeof response.error === "string"
-            ? response.error
-            : "API request failed"
-        );
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
       }
+
+      const result = await response.json();
+
+      // Debug: Log the raw response from Flowise
+      console.log("Raw Flowise response:", result);
+
+      // Handle different response formats from Flowise
+      let botResponse = "Sorry, I couldn't generate a response.";
+      if (typeof result === "string") {
+        botResponse = result;
+      } else if (result && typeof result === "object") {
+        // Check for common Flowise response formats
+        if (result.text) {
+          botResponse = result.text;
+        } else if (result.response) {
+          botResponse = result.response;
+        } else if (result.answer) {
+          botResponse = result.answer;
+        } else if (result.message) {
+          botResponse = result.message;
+        } else {
+          // If no standard field found, use the first string value or stringify
+          const stringValues = Object.values(result).filter(
+            val => typeof val === "string"
+          );
+          if (stringValues.length > 0) {
+            botResponse = stringValues[0] as string;
+          } else {
+            botResponse = JSON.stringify(result);
+          }
+        }
+      }
+
+      // Debug: Log the processed response
+      console.log("Processed bot response:", botResponse);
+
+      setResponse(botResponse);
+      setDisplayedText("");
     } catch (err) {
       console.error("Error sending message:", err);
       const botMessage: ChatMessage = {
@@ -444,29 +461,32 @@ export const MainContent: React.FC<MainContentProps> = ({
           toggleDarkMode={toggleDarkMode}
         />
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 flex flex-col bg-white">
-          <div className="max-w-4xl mx-auto w-full flex-1 mb-48 flex flex-col items-center justify-center">
-            {/* Welcome Screen */}
-            {chatMessages.length === 0 && (
-              <WelcomeScreen
-                isLoggedIn={isLoggedIn}
-                user={user}
-                windowSize={windowSize}
-                onPromptClick={handlePromptClick}
+        <main className="flex-1 overflow-y-auto bg-white">
+          <div className="p-4 md:p-6">
+            <div className="max-w-4xl mx-auto w-full flex flex-col items-center justify-center min-h-full">
+              {/* Welcome Screen */}
+              {chatMessages.length === 0 && (
+                <WelcomeScreen
+                  isLoggedIn={isLoggedIn}
+                  user={user}
+                  windowSize={windowSize}
+                  onPromptClick={handlePromptClick}
+                />
+              )}
+
+              {/* Chat Messages */}
+              <ChatMessages
+                messages={chatMessages}
+                copiedIndex={copiedIndex}
+                onFeedback={handleFeedback}
+                onCopy={handleCopy}
+                displayedText={displayedText}
+                loading={loading && !isInterrupted}
+                onStopTyping={handleStopTyping}
               />
-            )}
 
-            {/* Chat Messages */}
-            <ChatMessages
-              messages={chatMessages}
-              copiedIndex={copiedIndex}
-              onFeedback={handleFeedback}
-              onCopy={handleCopy}
-              displayedText={displayedText}
-              loading={loading && !isInterrupted}
-            />
-
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         </main>
 

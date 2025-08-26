@@ -4,6 +4,8 @@ import OwlLoader from "./OwlLoader";
 import { ChatMessage } from "@/components/features/chat/ChatMessage";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { useChat } from "@/hooks/useChat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface MainContentProps {
   currentChatTitle: string;
@@ -49,9 +51,11 @@ const MainContent: React.FC<MainContentProps> = ({
     loading,
     isInterrupted,
     copiedIndex,
+    displayedText,
     handleSendMessage,
     handleCopyMessage,
     handleFeedback,
+    handleStopTyping,
   } = useChat(sessionId, setSessionId, isLoggedIn);
 
   // Load chat data
@@ -165,8 +169,17 @@ const MainContent: React.FC<MainContentProps> = ({
                   ].map(suggestion => (
                     <button
                       key={suggestion}
-                      onClick={() => setMessage(suggestion)}
-                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg text-sm text-white transition-colors"
+                      onClick={() => {
+                        setMessage(suggestion);
+                        // Add a small delay to ensure the message is set before focusing
+                        setTimeout(() => {
+                          const textarea = document.querySelector("textarea");
+                          if (textarea) {
+                            textarea.focus();
+                          }
+                        }, 100);
+                      }}
+                      className="px-4 py-2 bg-[#009688] hover:bg-[#00796B] rounded-lg text-sm text-white transition-colors shadow-sm hover:shadow-md"
                     >
                       {suggestion}
                     </button>
@@ -187,10 +200,138 @@ const MainContent: React.FC<MainContentProps> = ({
                   onFeedback={handleFeedback}
                 />
               ))}
-              {loading && !isInterrupted && (
-                <div className="flex items-center gap-2 text-black">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#009688]"></div>
-                  <span>AI is thinking...</span>
+
+              {/* Typing animation display */}
+              {displayedText && (
+                <div className="flex w-full justify-start mb-6">
+                  <div className="max-w-[70%] sm:max-w-2xl rounded-xl shadow-sm border bg-white text-gray-900 border-gray-200">
+                    <div className="p-4 sm:p-6">
+                      <div className="prose max-w-none text-gray-900 prose-headings:text-gray-900 prose-strong:text-gray-900 prose-p:text-gray-900 prose-li:text-gray-900 prose-ul:text-gray-900 prose-ol:text-gray-900">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h1: ({ node, ...props }) => (
+                              <h1
+                                className="text-xl font-bold text-gray-900 mb-3"
+                                {...props}
+                              />
+                            ),
+                            h2: ({ node, ...props }) => (
+                              <h2
+                                className="text-lg font-bold text-gray-900 mb-2"
+                                {...props}
+                              />
+                            ),
+                            h3: ({ node, ...props }) => (
+                              <h3
+                                className="text-base font-bold text-gray-900 mb-2"
+                                {...props}
+                              />
+                            ),
+                            p: ({ node, ...props }) => (
+                              <p
+                                className="text-gray-900 mb-3 leading-relaxed"
+                                {...props}
+                              />
+                            ),
+                            ul: ({ node, ...props }) => (
+                              <ul
+                                className="list-disc list-inside text-gray-900 mb-3 space-y-1"
+                                {...props}
+                              />
+                            ),
+                            ol: ({ node, ...props }) => (
+                              <ol
+                                className="list-decimal list-inside text-gray-900 mb-3 space-y-1"
+                                {...props}
+                              />
+                            ),
+                            li: ({ node, ...props }) => (
+                              <li className="text-gray-900" {...props} />
+                            ),
+                            strong: ({ node, ...props }) => (
+                              <strong
+                                className="font-semibold text-gray-900"
+                                {...props}
+                              />
+                            ),
+                            em: ({ node, ...props }) => (
+                              <em className="italic text-gray-900" {...props} />
+                            ),
+                            code: ({
+                              node,
+                              inline,
+                              className,
+                              children,
+                              ...props
+                            }: any) =>
+                              inline ? (
+                                <code
+                                  className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-800"
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              ) : (
+                                <code
+                                  className="block bg-gray-100 p-3 rounded-lg text-xs font-mono overflow-x-auto text-gray-800"
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              ),
+                            blockquote: ({ node, ...props }) => (
+                              <blockquote
+                                className="border-l-4 border-[#009688] pl-4 py-2 my-4 bg-gray-50 rounded-r text-gray-700"
+                                {...props}
+                              />
+                            ),
+                          }}
+                        >
+                          {displayedText}
+                        </ReactMarkdown>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.4s" }}
+                          ></div>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          AI is typing...
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {loading && !isInterrupted && !displayedText && (
+                <div className="flex w-full justify-start mb-6">
+                  <div className="max-w-[70%] sm:max-w-2xl rounded-xl shadow-sm border bg-white text-gray-900 border-gray-200">
+                    <div className="p-4 sm:p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                            style={{ animationDelay: "0.4s" }}
+                          ></div>
+                        </div>
+                        <span className="text-gray-600">AI is thinking...</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />

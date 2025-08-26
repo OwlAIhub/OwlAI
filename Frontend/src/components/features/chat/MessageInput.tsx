@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 import { getColors } from "@/lib/colors";
 
 interface MessageInputProps {
@@ -21,6 +21,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   message,
   setMessage,
   onSendMessage,
+  onStopTyping,
   loading,
   darkMode = false,
   disabled = false,
@@ -32,6 +33,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [message]);
+
+  // Auto-focus textarea when message is set (e.g., from suggestion buttons)
+  useEffect(() => {
+    if (message && textareaRef.current) {
+      textareaRef.current.focus();
+      // Move cursor to end of text
+      textareaRef.current.setSelectionRange(message.length, message.length);
     }
   }, [message]);
 
@@ -75,17 +85,28 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       </div>
 
-      <button
-        onClick={handleSendClick}
-        disabled={!message.trim() || loading || disabled}
-        className={`p-3 rounded-lg transition-colors ${
-          message.trim() && !loading && !disabled
-            ? "bg-teal-600 text-white hover:bg-teal-700"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-        }`}
-      >
-        <ArrowUp className="w-5 h-5" />
-      </button>
+      {loading ? (
+        <button
+          onClick={onStopTyping}
+          className="p-3 rounded-lg transition-colors bg-red-100 text-red-600 hover:bg-red-200 border border-red-200"
+          title="Stop generating"
+        >
+          <Square className="w-5 h-5" />
+        </button>
+      ) : (
+        <button
+          onClick={handleSendClick}
+          disabled={!message.trim() || disabled}
+          className={`p-3 rounded-lg transition-colors ${
+            message.trim() && !disabled
+              ? "bg-[#009688] text-white hover:bg-[#00796B]"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+          title="Send message"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 };

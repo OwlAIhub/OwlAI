@@ -11,6 +11,7 @@ interface UseChatReturn {
   isInterrupted: boolean;
   copiedIndex: number | null;
   messageCount: number;
+  displayedText: string;
   handleSendMessage: () => void;
   handleCopyMessage: (index: number) => void;
   handleFeedback: (index: number, type: string, remark?: string) => void;
@@ -33,7 +34,10 @@ export const useChat = (
   const [isInterrupted, setIsInterrupted] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [messageCount, setMessageCount] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Save messages to localStorage
   useEffect(() => {
@@ -103,7 +107,35 @@ export const useChat = (
       setIsInterrupted(true);
       setLoading(false);
     }
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+      setIsTyping(false);
+    }
   }, []);
+
+  // Typing animation function
+  const animateTyping = useCallback(
+    (fullText: string, onComplete: () => void) => {
+      let currentIndex = 0;
+      setDisplayedText("");
+      setIsTyping(true);
+
+      const typeNextChar = () => {
+        if (currentIndex < fullText.length) {
+          setDisplayedText(prev => prev + fullText[currentIndex]);
+          currentIndex++;
+          typingIntervalRef.current = setTimeout(typeNextChar, 5); // Much faster - 5ms per character
+        } else {
+          setIsTyping(false);
+          onComplete();
+        }
+      };
+
+      typeNextChar();
+    },
+    []
+  );
 
   // Handle send message
   const handleSendMessage = useCallback(async () => {
@@ -154,27 +186,52 @@ export const useChat = (
       }
 
       const result = await response.json();
-      
-      // Handle different response formats
+
+      // Debug: Log the raw response from Flowise
+      console.log("Raw Flowise response:", result);
+
+      // Handle different response formats from Flowise
       let botResponse = "Sorry, I couldn't generate a response.";
       if (typeof result === "string") {
         botResponse = result;
       } else if (result && typeof result === "object") {
+        // Check for common Flowise response formats
         if (result.text) {
           botResponse = result.text;
+        } else if (result.response) {
+          botResponse = result.response;
+        } else if (result.answer) {
+          botResponse = result.answer;
+        } else if (result.message) {
+          botResponse = result.message;
         } else {
-          botResponse = JSON.stringify(result);
+          // If no standard field found, use the first string value or stringify
+          const stringValues = Object.values(result).filter(
+            val => typeof val === "string"
+          );
+          if (stringValues.length > 0) {
+            botResponse = stringValues[0] as string;
+          } else {
+            botResponse = JSON.stringify(result);
+          }
         }
       }
 
-      const botMessage: ChatMessage = {
-        role: "bot",
-        content: botResponse,
-        isMarkdown: true,
-        timestamp: new Date().toISOString(),
-      };
+      // Debug: Log the processed response
+      console.log("Processed bot response:", botResponse);
 
-      setChatMessages(prev => [...prev, botMessage]);
+      // Start typing animation
+      animateTyping(botResponse, () => {
+        const botMessage: ChatMessage = {
+          role: "bot",
+          content: botResponse,
+          isMarkdown: true,
+          timestamp: new Date().toISOString(),
+        };
+
+        setChatMessages(prev => [...prev, botMessage]);
+        setDisplayedText("");
+      });
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         // Request was aborted, don't show error
@@ -195,7 +252,16 @@ export const useChat = (
       setLoading(false);
       abortControllerRef.current = null;
     }
-  }, [message, loading, isLoggedIn, messageCount]);
+  }, [message, loading, isLoggedIn, messageCount, animateTyping]);
+
+  // Cleanup typing interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
 
   return {
     message,
@@ -205,6 +271,7 @@ export const useChat = (
     isInterrupted,
     copiedIndex,
     messageCount,
+    displayedText,
     handleSendMessage,
     handleCopyMessage: handleCopyMessage,
     handleFeedback,

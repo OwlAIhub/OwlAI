@@ -63,10 +63,10 @@ export const MESSAGE_LIMITS = {
 
 // Predefined Prompts
 export const PREDEFINED_PROMPTS = [
-  "Paper 1 ka syllabus itna zyada hai... Kahaan se shuru karun?",
-  "What is Teaching Aptitude?",
   "Explain Research Methodology",
-  "What is Logical Reasoning?",
+  "What is Teaching Aptitude?",
+  "Explain Logical Reasoning",
+  "What is Communication?",
 ] as const;
 
 // Toast Configuration

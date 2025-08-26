@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ChatMessage as ChatMessageType } from "@/types";
-import { getColors } from "@/lib/colors";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -16,14 +15,12 @@ interface ChatMessageProps {
 export const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   index,
-  darkMode,
   copiedIndex,
   onCopy,
   onFeedback,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customRemark, setCustomRemark] = useState("");
-  const colors = getColors(darkMode);
 
   const handleFeedback = (type: string) => {
     if (type === "dislike") {
@@ -45,126 +42,262 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <div
-      className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
+      className={`flex w-full mb-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
     >
       <div
-        className={`max-w-3xl rounded-lg p-4 ${
+        className={`max-w-[70%] sm:max-w-2xl rounded-xl shadow-sm border ${
           message.role === "user"
-            ? `${colors.bg.userMessage} text-black`
-            : `${colors.bg.assistantMessage} text-black`
+            ? "bg-gradient-to-r from-[#009688] to-[#00796B] text-white border-[#009688]"
+            : "bg-white text-gray-900 border-gray-200 shadow-md"
         }`}
       >
-        {message.isMarkdown ? (
-          <>
-            <div className={`prose max-w-none text-black`}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
-            </div>
-
-            <div className="flex items-center gap-2 mt-3">
-              <button
-                onClick={() => onCopy(index)}
-                className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+        <div className="p-4 sm:p-6">
+          {message.isMarkdown ? (
+            <>
+              <div
+                className={`prose max-w-none ${
+                  message.role === "user"
+                    ? "prose-invert text-white"
+                    : "text-gray-900"
+                }`}
               >
-                {copiedIndex === index ? (
-                  <>
-                    ✔️ <span className="text-sm">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    📋 <span className="text-sm">Copy</span>
-                  </>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    // Main headings - clean and prominent
+                    h1: ({ node, ...props }) => (
+                      <h1
+                        className="text-2xl font-bold text-gray-900 mb-4 mt-2 border-b border-gray-200 pb-2"
+                        {...props}
+                      />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2
+                        className="text-xl font-bold text-gray-900 mb-3 mt-4"
+                        {...props}
+                      />
+                    ),
+                    h3: ({ node, ...props }) => (
+                      <h3
+                        className="text-lg font-semibold text-gray-900 mb-2 mt-3"
+                        {...props}
+                      />
+                    ),
+                    // Paragraphs with tighter spacing
+                    p: ({ node, ...props }) => (
+                      <p
+                        className="text-gray-800 mb-3 leading-6 text-base"
+                        {...props}
+                      />
+                    ),
+                    // Unordered lists with reduced spacing
+                    ul: ({ node, ...props }) => (
+                      <ul className="list-none space-y-2 mb-4" {...props} />
+                    ),
+                    // Ordered lists with reduced spacing
+                    ol: ({ node, ...props }) => (
+                      <ol
+                        className="list-decimal list-inside space-y-2 mb-4 ml-3"
+                        {...props}
+                      />
+                    ),
+                    // List items with tighter formatting
+                    li: ({ node, ...props }) => (
+                      <li
+                        className="text-gray-800 leading-6 flex items-start gap-2"
+                        {...props}
+                      >
+                        <span className="mt-1.5 w-1 h-1 bg-[#009688] rounded-full flex-shrink-0"></span>
+                        <span className="flex-1">{props.children}</span>
+                      </li>
+                    ),
+                    // Bold text for emphasis
+                    strong: ({ node, ...props }) => (
+                      <strong className="font-bold text-gray-900" {...props} />
+                    ),
+                    // Italic text
+                    em: ({ node, ...props }) => (
+                      <em className="italic text-gray-700" {...props} />
+                    ),
+                    // Inline code with tighter spacing
+                    code: ({
+                      node,
+                      inline,
+                      className,
+                      children,
+                      ...props
+                    }: any) =>
+                      inline ? (
+                        <code
+                          className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-800 border"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      ) : (
+                        <code
+                          className="block bg-gray-50 p-3 rounded-lg text-xs font-mono overflow-x-auto text-gray-800 my-3 border border-gray-200"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      ),
+                    // Blockquotes with reduced spacing
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote
+                        className="border-l-4 border-[#009688] pl-4 py-3 my-4 bg-blue-50 rounded-r-lg"
+                        {...props}
+                      />
+                    ),
+                    // Tables with professional styling
+                    table: ({ node, ...props }) => (
+                      <div className="overflow-x-auto my-4">
+                        <table
+                          className="min-w-full border border-gray-200 rounded-lg overflow-hidden"
+                          {...props}
+                        />
+                      </div>
+                    ),
+                    thead: ({ node, ...props }) => (
+                      <thead className="bg-gray-50" {...props} />
+                    ),
+                    tbody: ({ node, ...props }) => (
+                      <tbody className="bg-white" {...props} />
+                    ),
+                    tr: ({ node, ...props }) => (
+                      <tr
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                        {...props}
+                      />
+                    ),
+                    th: ({ node, ...props }) => (
+                      <th
+                        className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-r border-gray-200"
+                        {...props}
+                      />
+                    ),
+                    td: ({ node, ...props }) => (
+                      <td
+                        className="px-4 py-3 text-sm text-gray-800 border-r border-gray-200"
+                        {...props}
+                      />
+                    ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              </div>
+
+              <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => onCopy(index)}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  {copiedIndex === index ? (
+                    <>
+                      <span className="text-green-500">✓</span>
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📋</span>
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+
+                {message.role === "bot" && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleFeedback("like")}
+                      className={`text-xs px-2 py-1 rounded transition-colors ${
+                        message.feedback === "like"
+                          ? "bg-green-100 text-green-700"
+                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      👍
+                    </button>
+                    <button
+                      onClick={() => handleFeedback("dislike")}
+                      className={`text-xs px-2 py-1 rounded transition-colors ${
+                        message.feedback === "dislike"
+                          ? "bg-red-100 text-red-700"
+                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      👎
+                    </button>
+                  </div>
                 )}
+              </div>
+            </>
+          ) : (
+            <span
+              className={`${message.role === "user" ? "text-white" : "text-gray-900"}`}
+            >
+              {message.content}
+            </span>
+          )}
+        </div>
+
+        {/* Feedback Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-xl p-6 w-96 max-w-[90vw] relative shadow-xl">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold transition-colors"
+              >
+                ×
               </button>
 
-              {message.role === "bot" && (
-                <div className="flex items-center gap-1">
+              <h2 className="text-lg font-semibold mb-4 text-gray-900">
+                Tell us what went wrong
+              </h2>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                {[
+                  "Not satisfied",
+                  "Too vague",
+                  "Irrelevant",
+                  "Incomplete",
+                  "Wrong answer",
+                ].map(label => (
                   <button
-                    onClick={() => handleFeedback("like")}
-                    className={`text-xs px-2 py-1 rounded ${
-                      message.feedback === "like"
-                        ? "bg-teal-200 text-black"
-                        : "opacity-70 hover:opacity-100 text-black"
-                    }`}
+                    key={label}
+                    onClick={() => setCustomRemark(label)}
+                    className="bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-lg hover:bg-gray-200 transition-colors"
                   >
-                    👍
+                    {label}
                   </button>
-                  <button
-                    onClick={() => handleFeedback("dislike")}
-                    className={`text-xs px-2 py-1 rounded ${
-                      message.feedback === "dislike"
-                        ? "bg-teal-200 text-black"
-                        : "opacity-70 hover:opacity-100 text-black"
-                    }`}
-                  >
-                    👎
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Feedback Modal */}
-            {isModalOpen && (
-              <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
-                <div className="bg-white rounded-lg p-6 w-96 relative shadow-lg">
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="absolute top-2 right-2 text-black hover:opacity-80 text-xl font-bold"
-                  >
-                    ×
-                  </button>
-
-                  <h2 className="text-lg font-semibold mb-4 text-black">
-                    Tell us what went wrong
-                  </h2>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {[
-                      "Not satisfied",
-                      "Too vague",
-                      "Irrelevant",
-                      "Incomplete",
-                      "Wrong answer",
-                    ].map(label => (
-                      <button
-                        key={label}
-                        onClick={() => setCustomRemark(label)}
-                        className="bg-teal-100 text-black text-sm px-3 py-1 rounded hover:bg-teal-200"
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <textarea
-                    className={`w-full h-24 border rounded p-2 text-sm ${colors.border.primary} text-black bg-white`}
-                    placeholder="Write your feedback..."
-                    value={customRemark}
-                    onChange={e => setCustomRemark(e.target.value)}
-                  />
-
-                  <div className="mt-4 flex justify-end gap-2">
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-1 text-sm rounded bg-teal-100 text-black hover:bg-teal-200"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      onClick={handleSubmitFeedback}
-                      className="px-4 py-1 text-sm rounded bg-teal-100 text-black hover:bg-teal-200"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
-            )}
-          </>
-        ) : (
-          <span className="text-black">{message.content}</span>
+
+              <textarea
+                className="w-full h-24 border border-gray-300 rounded-lg p-3 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#009688] focus:border-transparent"
+                placeholder="Write your feedback..."
+                value={customRemark}
+                onChange={e => setCustomRemark(e.target.value)}
+              />
+
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleSubmitFeedback}
+                  className="px-4 py-2 text-sm rounded-lg bg-[#009688] text-white hover:bg-[#00796B] transition-colors"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

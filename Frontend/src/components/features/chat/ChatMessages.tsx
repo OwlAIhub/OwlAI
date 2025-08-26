@@ -1,11 +1,9 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ThumbsUp, ThumbsDown, Copy, Check } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { ChatMessage } from "@/types";
 import { Button } from "@/components/ui/button";
-import { TypingIndicator } from "@/components/ui/loading";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface ChatMessagesProps {
@@ -15,6 +13,7 @@ interface ChatMessagesProps {
   onCopy: (text: string, index: number) => void;
   displayedText?: string;
   loading?: boolean;
+  onStopTyping?: () => void;
 }
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -32,26 +31,38 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   }> = ({ children, isUser, className }) => (
     <div
       className={cn(
-        "flex w-full mb-6",
+        "flex w-full mb-4",
         isUser ? "justify-end" : "justify-start"
       )}
     >
-      <Card
+      <div
         className={cn(
-          "max-w-[85%] sm:max-w-3xl shadow-sm border-0",
-          isUser ? "bg-owl-primary text-white" : "bg-muted/50",
+          "max-w-[70%] sm:max-w-2xl rounded-xl shadow-sm border",
+          isUser
+            ? "bg-gradient-to-r from-[#009688] to-[#00796B] text-white border-[#009688]"
+            : "bg-white text-gray-900 border-gray-200 shadow-md",
           className
         )}
       >
-        <CardContent className="p-4 sm:p-6">{children}</CardContent>
-      </Card>
+        <div className="p-4 sm:p-6">{children}</div>
+      </div>
     </div>
   );
 
   const ThinkingIndicator: React.FC = () => (
-    <div className="flex items-center gap-3 text-muted-foreground animate-fade-in-up">
-      <span className="text-sm font-medium">Thinking</span>
-      <TypingIndicator />
+    <div className="flex items-center gap-3 text-gray-600">
+      <div className="flex items-center gap-1">
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+        <div
+          className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "0.2s" }}
+        ></div>
+        <div
+          className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "0.4s" }}
+        ></div>
+      </div>
+      <span className="text-sm font-medium">AI is thinking...</span>
     </div>
   );
 
@@ -59,43 +70,17 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     message,
     index,
   }) => (
-    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onFeedback(index, "like")}
-        className={cn(
-          "h-8 px-3 text-xs gap-1.5 hover:bg-green-500/10 hover:text-green-600",
-          message.feedback === "like" && "bg-green-500/10 text-green-600"
-        )}
-      >
-        <ThumbsUp className="h-3 w-3" />
-        {message.feedback === "like" ? "Thanks!" : "Helpful"}
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onFeedback(index, "dislike")}
-        className={cn(
-          "h-8 px-3 text-xs gap-1.5 hover:bg-red-500/10 hover:text-red-600",
-          message.feedback === "dislike" && "bg-red-500/10 text-red-600"
-        )}
-      >
-        <ThumbsDown className="h-3 w-3" />
-        {message.feedback === "dislike" ? "Noted" : "Not helpful"}
-      </Button>
-
+    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
       <Button
         variant="ghost"
         size="sm"
         onClick={() => onCopy(message.content, index)}
-        className="h-8 px-3 text-xs gap-1.5 hover:bg-blue-500/10 hover:text-blue-600"
+        className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors"
       >
         {copiedIndex === index ? (
           <>
-            <Check className="h-3 w-3" />
-            Copied!
+            <Check className="h-3 w-3 text-green-500" />
+            Copied
           </>
         ) : (
           <>
@@ -104,72 +89,147 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           </>
         )}
       </Button>
+
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onFeedback(index, "like")}
+          className={`text-xs px-2 py-1 rounded transition-colors ${
+            message.feedback === "like"
+              ? "bg-green-100 text-green-700"
+              : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          👍
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onFeedback(index, "dislike")}
+          className={`text-xs px-2 py-1 rounded transition-colors ${
+            message.feedback === "dislike"
+              ? "bg-red-100 text-red-700"
+              : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          👎
+        </Button>
+      </div>
     </div>
   );
 
   const MarkdownContent: React.FC<{ content: string }> = ({ content }) => (
-    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-headings:text-owl-accent prose-strong:text-owl-primary prose-code:text-owl-primary prose-pre:bg-muted prose-pre:border">
+    <div className="prose max-w-none text-gray-900">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          // Main headings - clean and prominent
           h1: ({ node, ...props }) => (
             <h1
-              className="text-xl sm:text-2xl font-bold my-4 text-owl-accent"
+              className="text-2xl font-bold text-gray-900 mb-4 mt-2 border-b border-gray-200 pb-2"
               {...props}
             />
           ),
           h2: ({ node, ...props }) => (
             <h2
-              className="text-lg sm:text-xl font-bold my-3 text-owl-accent/80"
+              className="text-xl font-bold text-gray-900 mb-3 mt-4 text-[#009688]"
               {...props}
             />
           ),
           h3: ({ node, ...props }) => (
             <h3
-              className="text-base sm:text-lg font-semibold my-2 text-owl-accent/70"
+              className="text-lg font-semibold text-gray-900 mb-2 mt-3"
               {...props}
             />
           ),
+          // Paragraphs with tighter spacing
           p: ({ node, ...props }) => (
-            <p
-              className="my-3 leading-relaxed text-sm sm:text-base"
+            <p className="text-gray-800 mb-3 leading-6 text-base" {...props} />
+          ),
+          // Unordered lists with reduced spacing
+          ul: ({ node, ...props }) => (
+            <ul className="list-none space-y-2 mb-4" {...props} />
+          ),
+          // Ordered lists with reduced spacing
+          ol: ({ node, ...props }) => (
+            <ol
+              className="list-decimal list-inside space-y-2 mb-4 ml-3"
               {...props}
             />
           ),
-          strong: ({ node, ...props }) => (
-            <strong className="font-bold text-owl-primary" {...props} />
-          ),
-          em: ({ node, ...props }) => (
-            <em className="italic text-muted-foreground" {...props} />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul className="list-disc pl-6 my-3 space-y-1" {...props} />
-          ),
-          ol: ({ node, ...props }) => (
-            <ol className="list-decimal pl-6 my-3 space-y-1" {...props} />
-          ),
+          // List items with tighter formatting
           li: ({ node, ...props }) => (
-            <li className="text-sm sm:text-base" {...props} />
+            <li
+              className="text-gray-800 leading-6 flex items-start gap-2"
+              {...props}
+            >
+              <span className="mt-1.5 w-1 h-1 bg-[#009688] rounded-full flex-shrink-0"></span>
+              <span className="flex-1">{props.children}</span>
+            </li>
           ),
+          // Bold text for emphasis
+          strong: ({ node, ...props }) => (
+            <strong className="font-bold text-gray-900" {...props} />
+          ),
+          // Italic text
+          em: ({ node, ...props }) => (
+            <em className="italic text-gray-700" {...props} />
+          ),
+          // Inline code
           code: ({ node, inline, className, children, ...props }: any) =>
             inline ? (
               <code
-                className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono"
+                className="bg-gray-100 px-2 py-1 rounded-md text-sm font-mono text-gray-800 border"
                 {...props}
               >
                 {children}
               </code>
             ) : (
               <code
-                className="block bg-muted p-3 rounded-lg text-xs font-mono overflow-x-auto"
+                className="block bg-gray-50 p-4 rounded-lg text-sm font-mono overflow-x-auto text-gray-800 my-4 border border-gray-200"
                 {...props}
               >
                 {children}
               </code>
             ),
+          // Blockquotes for important information
           blockquote: ({ node, ...props }) => (
             <blockquote
-              className="border-l-4 border-owl-primary/30 pl-4 py-2 my-4 bg-muted/30 rounded-r"
+              className="border-l-4 border-[#009688] pl-4 py-3 my-4 bg-blue-50 rounded-r-lg"
+              {...props}
+            />
+          ),
+          // Tables with professional styling
+          table: ({ node, ...props }) => (
+            <div className="overflow-x-auto my-4">
+              <table
+                className="min-w-full border border-gray-200 rounded-lg overflow-hidden"
+                {...props}
+              />
+            </div>
+          ),
+          thead: ({ node, ...props }) => (
+            <thead className="bg-gray-50" {...props} />
+          ),
+          tbody: ({ node, ...props }) => (
+            <tbody className="bg-white" {...props} />
+          ),
+          tr: ({ node, ...props }) => (
+            <tr
+              className="border-b border-gray-200 hover:bg-gray-50"
+              {...props}
+            />
+          ),
+          th: ({ node, ...props }) => (
+            <th
+              className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-r border-gray-200"
+              {...props}
+            />
+          ),
+          td: ({ node, ...props }) => (
+            <td
+              className="px-4 py-3 text-sm text-gray-800 border-r border-gray-200"
               {...props}
             />
           ),
@@ -209,6 +269,22 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {displayedText && !loading && (
         <MessageCard isUser={false}>
           <MarkdownContent content={displayedText} />
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
+              </div>
+              <span className="text-xs text-gray-500">AI is typing...</span>
+            </div>
+          </div>
         </MessageCard>
       )}
     </div>

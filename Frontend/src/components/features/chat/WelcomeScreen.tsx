@@ -92,7 +92,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <Card
                 key={index}
                 className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 border-muted"
-                onClick={() => onPromptClick(prompt)}
+                onClick={() => {
+                  onPromptClick(prompt);
+                  // Add a small delay to ensure the message is set before focusing
+                  setTimeout(() => {
+                    const textarea = document.querySelector("textarea");
+                    if (textarea) {
+                      textarea.focus();
+                    }
+                  }, 100);
+                }}
               >
                 <CardContent className="p-4">
                   <Button
