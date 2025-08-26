@@ -5,19 +5,24 @@ import {
   EyeOff,
   Mail,
   Lock,
+  User,
   Github,
   ArrowRight,
   ArrowLeft,
 } from "lucide-react";
 import Logo from "@/assets/owl_AI_logo.png";
 
-export default function Login() {
+export default function Signup() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,16 +34,22 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match!");
+      return;
+    }
+
     setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
       const userData = {
         uid: "demo-user-id",
-        firstName: "Demo",
-        lastName: "User",
-        email: formData.email || "demo@example.com",
-        plan: "Pro",
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        plan: "Free",
       };
       localStorage.setItem("user", JSON.stringify(userData));
       setIsLoading(false);
@@ -51,7 +62,7 @@ export default function Login() {
     }, 1500);
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestSignup = () => {
     const userData = {
       uid: "guest-user-id",
       firstName: "Guest",
@@ -64,6 +75,7 @@ export default function Login() {
     // Dispatch auth state change event
     window.dispatchEvent(new CustomEvent("authStateChanged"));
 
+    // Navigate to chat
     navigate("/chat", { replace: true });
   };
 
@@ -86,16 +98,62 @@ export default function Login() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Welcome back
+              Create your account
             </h1>
             <p className="text-gray-600 text-base">
-              Sign in to your Owl AI account to continue learning
+              Join Owl AI and start your personalized learning journey
             </p>
           </div>
 
           {/* Auth Form */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="firstName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    First name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="John"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="lastName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Last name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Doe"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-500"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Email Field */}
               <div className="space-y-2">
                 <label
@@ -112,7 +170,7 @@ export default function Login() {
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="Enter your email"
+                    placeholder="john@example.com"
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-500"
                     required
                   />
@@ -121,20 +179,12 @@ export default function Login() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Password
-                  </label>
-                  <Link
-                    to="#"
-                    className="text-sm text-teal-600 hover:text-teal-700 font-medium transition-colors"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
@@ -143,7 +193,7 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="Enter your password"
+                    placeholder="Create a strong password"
                     className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-500"
                     required
                   />
@@ -161,6 +211,40 @@ export default function Login() {
                 </div>
               </div>
 
+              {/* Confirm Password Field */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Confirm password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="Confirm your password"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -170,11 +254,11 @@ export default function Login() {
                 {isLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Signing in...</span>
+                    <span>Creating account...</span>
                   </>
                 ) : (
                   <>
-                    <span>Sign in</span>
+                    <span>Create account</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -193,32 +277,32 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Social Login */}
+            {/* Social Signup */}
             <button
-              onClick={handleGuestLogin}
+              onClick={handleGuestSignup}
               className="w-full bg-gray-900 text-white font-medium py-3 px-4 rounded-xl hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-3"
             >
               <Github className="w-5 h-5" />
               <span>Continue with GitHub</span>
             </button>
 
-            {/* Guest Login */}
+            {/* Guest Signup */}
             <button
-              onClick={handleGuestLogin}
+              onClick={handleGuestSignup}
               className="w-full mt-4 bg-gray-100 text-gray-700 font-medium py-3 px-4 rounded-xl hover:bg-gray-200 transition-all duration-200 transform hover:scale-[1.02]"
             >
               Continue as Guest
             </button>
 
-            {/* Sign Up Link */}
+            {/* Sign In Link */}
             <div className="text-center mt-8">
               <p className="text-gray-600 text-sm">
-                Don't have an account?{" "}
+                Already have an account?{" "}
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="text-teal-600 hover:text-teal-700 font-semibold transition-colors"
                 >
-                  Sign up for free
+                  Sign in
                 </Link>
               </p>
             </div>
@@ -242,21 +326,21 @@ export default function Login() {
               <img src={Logo} alt="Owl AI" className="w-12 h-12" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Your AI Learning Journey Starts Here
+              Join the Future of Learning
             </h2>
             <p className="text-gray-600 text-lg leading-relaxed">
-              Experience personalized learning with our intelligent AI
-              assistant. Get instant help with your studies, exams, and
-              educational goals.
+              Start your personalized learning journey with AI-powered
+              assistance. Get instant help with studies, exams, and educational
+              goals.
             </p>
             <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                <span>24/7 AI Support</span>
+                <span>Free to start</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                <span>Personalized Learning</span>
+                <span>No credit card</span>
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile.jsx";
 import Login from "./Components/Login";
+import Signup from "./Components/Signup";
 import Questionnaire from "./Components/Questionnaire";
 import { ChatLayout } from "./Components/ChatLayout";
 import { AnimatePresence, motion } from "framer-motion";
@@ -73,29 +74,51 @@ function App() {
   };
 
   useEffect(() => {
-    // Temporarily disable Firebase auth to prevent errors
-    // TODO: Re-enable when Firebase is properly configured
+    // Check if user is already logged in from localStorage
+    const userString = localStorage.getItem("user");
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        if (user && user.uid) {
+          setIsLoggedIn(true);
+          setAuthReady(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+
+    // If no valid user found, set as not logged in
     setIsLoggedIn(false);
     setAuthReady(true);
+  }, []);
 
-    // Mock auth state for development
-    // const unsubscribe = auth.onAuthStateChanged((user) => {
-    //   const wasLoggedIn = isLoggedIn;
-    //   setIsLoggedIn(!!user);
-    //   setAuthReady(true);
+  // Listen for auth state changes
+  useEffect(() => {
+    const handleAuthChange = () => {
+      const userString = localStorage.getItem("user");
+      if (userString) {
+        try {
+          const user = JSON.parse(userString);
+          if (user && user.uid) {
+            setIsLoggedIn(true);
+          } else {
+            setIsLoggedIn(false);
+          }
+        } catch (error) {
+          setIsLoggedIn(false);
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
 
-    //   if (user && !wasLoggedIn) {
-    //     // Just create session, don't navigate
-    //     createNewSession(user.uid);
-    //   } else if (!user && wasLoggedIn) {
-    //     // Handle logout cleanup
-    //     localStorage.removeItem("sessionId");
-    //     localStorage.removeItem("user");
-    //     setSessionId(null);
-    //   }
-    // });
-    // return () => unsubscribe();
-  }, [isLoggedIn]); // Remove navigate from dependencies
+    // Listen for custom auth events
+    window.addEventListener("authStateChanged", handleAuthChange);
+    return () =>
+      window.removeEventListener("authStateChanged", handleAuthChange);
+  }, []);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -124,38 +147,23 @@ function App() {
   };
 
   const handleLogout = () => {
-    // Temporarily disable Firebase auth to prevent errors
-    // TODO: Re-enable when Firebase is properly configured
-    localStorage.clear();
-    setDarkMode(true);
-    document.documentElement.classList.add("dark");
-    //clear all local storage items
+    // Clear user data
     localStorage.removeItem("user");
-    localStorage.clear();
-    toast.info("You've been signed out.");
+    localStorage.removeItem("sessionId");
+    localStorage.removeItem("selectedChat");
+
+    // Reset state
+    setIsLoggedIn(false);
     setCurrentChatTitle("Learning Theories");
     setSessionId(null);
 
+    // Dispatch auth state change event
+    window.dispatchEvent(new CustomEvent("authStateChanged"));
+
+    toast.info("You've been signed out.");
+
     // Redirect to landing page
     window.location.href = "/OwlAi";
-
-    // Mock logout for development
-    // auth
-    //   .signOut()
-    //   .then(() => {
-    //     localStorage.clear();
-    //     setDarkMode(true);
-    //     document.documentElement.classList.add("dark");
-    //     //clear all local storage items
-    //     localStorage.removeItem("user");
-    //     localStorage.clear();
-    //     toast.info("You've been signed out.");
-    //     setCurrentChatTitle("Learning Theories");
-    //     setSessionId(null);
-    //   })
-    //   .catch(() => {
-    //     toast.error("Failed to sign out.");
-    //   });
   };
 
   const handleNewChat = async () => {
@@ -267,6 +275,12 @@ function App() {
                 path="/login"
                 element={
                   isLoggedIn ? <Navigate to="/chat" replace /> : <Login />
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  isLoggedIn ? <Navigate to="/chat" replace /> : <Signup />
                 }
               />
               <Route
