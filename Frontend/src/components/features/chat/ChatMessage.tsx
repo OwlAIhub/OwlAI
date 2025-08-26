@@ -45,124 +45,128 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <div
-      className={`w-full max-w-3xl rounded-lg p-4 ${
-        message.role === "user"
-          ? `${colors.bg.userMessage} text-white self-end`
-          : `${colors.bg.assistantMessage} ${colors.text.main} self-start`
-      }`}
+      className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
     >
-      {message.isMarkdown ? (
-        <>
-          <div className={`prose ${darkMode ? "prose-invert" : ""} max-w-none`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content}
-            </ReactMarkdown>
-          </div>
+      <div
+        className={`max-w-3xl rounded-lg p-4 ${
+          message.role === "user"
+            ? `${colors.bg.userMessage} text-black`
+            : `${colors.bg.assistantMessage} text-black`
+        }`}
+      >
+        {message.isMarkdown ? (
+          <>
+            <div className={`prose max-w-none text-black`}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
 
-          <div className="flex items-center gap-2 mt-3">
-            <button
-              onClick={() => onCopy(index)}
-              className="text-xs opacity-70 hover:opacity-100 transition-opacity"
-            >
-              {copiedIndex === index ? (
-                <>
-                  ✔️ <span className="text-sm">Copied</span>
-                </>
-              ) : (
-                <>
-                  📋 <span className="text-sm">Copy</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2 mt-3">
+              <button
+                onClick={() => onCopy(index)}
+                className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+              >
+                {copiedIndex === index ? (
+                  <>
+                    ✔️ <span className="text-sm">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    📋 <span className="text-sm">Copy</span>
+                  </>
+                )}
+              </button>
 
-            {message.role === "bot" && (
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handleFeedback("like")}
-                  className={`text-xs px-2 py-1 rounded ${
-                    message.feedback === "like"
-                      ? "bg-teal-600 text-white"
-                      : "opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  👍
-                </button>
-                <button
-                  onClick={() => handleFeedback("dislike")}
-                  className={`text-xs px-2 py-1 rounded ${
-                    message.feedback === "dislike"
-                      ? "bg-teal-600 text-white"
-                      : "opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  👎
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Feedback Modal */}
-          {isModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
-              <div className="bg-gray-800 rounded-lg p-6 w-96 relative shadow-lg">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="absolute top-2 right-2 text-white hover:text-black text-xl font-bold"
-                >
-                  ×
-                </button>
-
-                <h2 className="text-lg font-semibold mb-4 text-white">
-                  Tell us what went wrong
-                </h2>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {[
-                    "Not satisfied",
-                    "Too vague",
-                    "Irrelevant",
-                    "Incomplete",
-                    "Wrong answer",
-                  ].map(label => (
-                    <button
-                      key={label}
-                      onClick={() => setCustomRemark(label)}
-                      className="bg-teal-600 text-white text-sm px-3 py-1 rounded hover:bg-teal-700"
-                    >
-                      {label}
-                    </button>
-                  ))}
+              {message.role === "bot" && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleFeedback("like")}
+                    className={`text-xs px-2 py-1 rounded ${
+                      message.feedback === "like"
+                        ? "bg-teal-200 text-black"
+                        : "opacity-70 hover:opacity-100 text-black"
+                    }`}
+                  >
+                    👍
+                  </button>
+                  <button
+                    onClick={() => handleFeedback("dislike")}
+                    className={`text-xs px-2 py-1 rounded ${
+                      message.feedback === "dislike"
+                        ? "bg-teal-200 text-black"
+                        : "opacity-70 hover:opacity-100 text-black"
+                    }`}
+                  >
+                    👎
+                  </button>
                 </div>
+              )}
+            </div>
 
-                <textarea
-                  className={`w-full h-24 border rounded p-2 text-sm ${colors.border.primary} text-white bg-gray-700`}
-                  placeholder="Write your feedback..."
-                  value={customRemark}
-                  onChange={e => setCustomRemark(e.target.value)}
-                />
-
-                <div className="mt-4 flex justify-end gap-2">
+            {/* Feedback Modal */}
+            {isModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+                <div className="bg-white rounded-lg p-6 w-96 relative shadow-lg">
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-1 text-sm rounded bg-teal-600 text-white hover:bg-teal-700"
+                    className="absolute top-2 right-2 text-black hover:opacity-80 text-xl font-bold"
                   >
-                    Cancel
+                    ×
                   </button>
 
-                  <button
-                    onClick={handleSubmitFeedback}
-                    className="px-4 py-1 text-sm rounded bg-teal-600 text-white hover:bg-teal-700"
-                  >
-                    Submit
-                  </button>
+                  <h2 className="text-lg font-semibold mb-4 text-black">
+                    Tell us what went wrong
+                  </h2>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {[
+                      "Not satisfied",
+                      "Too vague",
+                      "Irrelevant",
+                      "Incomplete",
+                      "Wrong answer",
+                    ].map(label => (
+                      <button
+                        key={label}
+                        onClick={() => setCustomRemark(label)}
+                        className="bg-teal-100 text-black text-sm px-3 py-1 rounded hover:bg-teal-200"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    className={`w-full h-24 border rounded p-2 text-sm ${colors.border.primary} text-black bg-white`}
+                    placeholder="Write your feedback..."
+                    value={customRemark}
+                    onChange={e => setCustomRemark(e.target.value)}
+                  />
+
+                  <div className="mt-4 flex justify-end gap-2">
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-1 text-sm rounded bg-teal-100 text-black hover:bg-teal-200"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      onClick={handleSubmitFeedback}
+                      className="px-4 py-1 text-sm rounded bg-teal-100 text-black hover:bg-teal-200"
+                    >
+                      Submit
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </>
-      ) : (
-        message.content
-      )}
+            )}
+          </>
+        ) : (
+          <span className="text-black">{message.content}</span>
+        )}
+      </div>
     </div>
   );
 };

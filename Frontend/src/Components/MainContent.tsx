@@ -41,7 +41,7 @@ const MainContent: React.FC<MainContentProps> = ({
     "Explain educational psychology",
   ];
 
-  // Use chat hook for all chat functionality
+  // Use chat hook for Owl AI
   const {
     message,
     setMessage,
@@ -188,7 +188,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 />
               ))}
               {loading && !isInterrupted && (
-                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-black">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#009688]"></div>
                   <span>AI is thinking...</span>
                 </div>

@@ -19,8 +19,20 @@ export default defineConfig({
         assetFileNames: "assets/[name].[hash].[ext]",
         chunkFileNames: "assets/[name].[hash].js",
         entryFileNames: "assets/[name].[hash].js",
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-avatar",
+          ],
+          animations: ["framer-motion", "gsap", "@gsap/react"],
+          three: ["@react-three/fiber", "@react-three/drei", "three"],
+          utils: ["clsx", "class-variance-authority", "tailwind-merge"],
+        },
       },
     },
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     port: 3000,

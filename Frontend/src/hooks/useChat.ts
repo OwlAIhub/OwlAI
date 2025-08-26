@@ -134,26 +134,42 @@ export const useChat = (
       // Create new abort controller
       abortControllerRef.current = new AbortController();
 
-      const response = await fetch(`${config.apiUrl}/ask`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: userMessage,
-          session_id: sessionId,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
+      // Use Flowise API directly
+      const response = await fetch(
+        "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question: userMessage,
+          }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      
+      // Handle different response formats
+      let botResponse = "Sorry, I couldn't generate a response.";
+      if (typeof result === "string") {
+        botResponse = result;
+      } else if (result && typeof result === "object") {
+        if (result.text) {
+          botResponse = result.text;
+        } else {
+          botResponse = JSON.stringify(result);
+        }
+      }
+
       const botMessage: ChatMessage = {
         role: "bot",
-        content: data.response || "Sorry, I couldn't generate a response.",
+        content: botResponse,
         isMarkdown: true,
         timestamp: new Date().toISOString(),
       };
@@ -179,7 +195,7 @@ export const useChat = (
       setLoading(false);
       abortControllerRef.current = null;
     }
-  }, [message, loading, isLoggedIn, messageCount, sessionId]);
+  }, [message, loading, isLoggedIn, messageCount]);
 
   return {
     message,

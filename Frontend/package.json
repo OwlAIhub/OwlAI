@@ -6,11 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build && node scripts/analyze-bundle.js",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "analyze": "node scripts/analyze-bundle.js",
+    "consolidate": "node scripts/consolidate-components.js",
+    "clean": "rm -rf dist node_modules/.vite",
+    "prebuild": "npm run type-check && npm run lint"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
