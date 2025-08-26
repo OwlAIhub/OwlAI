@@ -64,50 +64,59 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    // Main headings - clean and prominent
+                    // Main headings - more prominent and distinct
                     h1: ({ node, ...props }) => (
                       <h1
-                        className="text-2xl font-bold text-gray-900 mb-4 mt-2 border-b border-gray-200 pb-2"
+                        className="text-2xl font-bold text-gray-900 mb-5 mt-5 border-b-2 border-[#009688] pb-3 flex items-center gap-3"
                         {...props}
-                      />
+                      >
+                        <span className="text-[#009688] text-3xl">📋</span>
+                        {props.children}
+                      </h1>
                     ),
                     h2: ({ node, ...props }) => (
                       <h2
-                        className="text-xl font-bold text-gray-900 mb-3 mt-4"
+                        className="text-xl font-bold text-gray-900 mb-4 mt-5 text-[#009688] border-l-4 border-[#009688] pl-4 flex items-center gap-3"
                         {...props}
-                      />
+                      >
+                        <span className="text-[#009688] text-xl">🔹</span>
+                        {props.children}
+                      </h2>
                     ),
                     h3: ({ node, ...props }) => (
                       <h3
-                        className="text-lg font-semibold text-gray-900 mb-2 mt-3"
-                        {...props}
-                      />
-                    ),
-                    // Paragraphs with tighter spacing
-                    p: ({ node, ...props }) => (
-                      <p
-                        className="text-gray-800 mb-3 leading-6 text-base"
-                        {...props}
-                      />
-                    ),
-                    // Unordered lists with reduced spacing
-                    ul: ({ node, ...props }) => (
-                      <ul className="list-none space-y-2 mb-4" {...props} />
-                    ),
-                    // Ordered lists with reduced spacing
-                    ol: ({ node, ...props }) => (
-                      <ol
-                        className="list-decimal list-inside space-y-2 mb-4 ml-3"
-                        {...props}
-                      />
-                    ),
-                    // List items with tighter formatting
-                    li: ({ node, ...props }) => (
-                      <li
-                        className="text-gray-800 leading-6 flex items-start gap-2"
+                        className="text-lg font-semibold text-gray-900 mb-3 mt-4 text-gray-800 flex items-center gap-2"
                         {...props}
                       >
-                        <span className="mt-1.5 w-1 h-1 bg-[#009688] rounded-full flex-shrink-0"></span>
+                        <span className="text-[#009688] text-lg">•</span>
+                        {props.children}
+                      </h3>
+                    ),
+                    // Paragraphs with better spacing and distinct styling
+                    p: ({ node, ...props }) => (
+                      <p
+                        className="text-gray-700 mb-3 leading-7 text-base"
+                        {...props}
+                      />
+                    ),
+                    // Unordered lists with proper spacing
+                    ul: ({ node, ...props }) => (
+                      <ul className="list-none space-y-2.5 mb-5" {...props} />
+                    ),
+                    // Ordered lists with proper spacing
+                    ol: ({ node, ...props }) => (
+                      <ol
+                        className="list-decimal list-inside space-y-2.5 mb-5 ml-4"
+                        {...props}
+                      />
+                    ),
+                    // List items with properly aligned dots
+                    li: ({ node, ...props }) => (
+                      <li
+                        className="text-gray-700 leading-7 flex items-start gap-3"
+                        {...props}
+                      >
+                        <span className="mt-2.5 w-2 h-2 bg-[#009688] rounded-full flex-shrink-0"></span>
                         <span className="flex-1">{props.children}</span>
                       </li>
                     ),
@@ -117,9 +126,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     ),
                     // Italic text
                     em: ({ node, ...props }) => (
-                      <em className="italic text-gray-700" {...props} />
+                      <em className="italic text-gray-600" {...props} />
                     ),
-                    // Inline code with tighter spacing
+                    // Inline code with better spacing
                     code: ({
                       node,
                       inline,
@@ -129,29 +138,29 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     }: any) =>
                       inline ? (
                         <code
-                          className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-800 border"
+                          className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800 border"
                           {...props}
                         >
                           {children}
                         </code>
                       ) : (
                         <code
-                          className="block bg-gray-50 p-3 rounded-lg text-xs font-mono overflow-x-auto text-gray-800 my-3 border border-gray-200"
+                          className="block bg-gray-50 p-4 rounded-lg text-sm font-mono overflow-x-auto text-gray-800 my-4 border border-gray-200"
                           {...props}
                         >
                           {children}
                         </code>
                       ),
-                    // Blockquotes with reduced spacing
+                    // Blockquotes with better spacing
                     blockquote: ({ node, ...props }) => (
                       <blockquote
-                        className="border-l-4 border-[#009688] pl-4 py-3 my-4 bg-blue-50 rounded-r-lg"
+                        className="border-l-4 border-[#009688] pl-5 py-4 my-5 bg-blue-50 rounded-r-lg"
                         {...props}
                       />
                     ),
                     // Tables with professional styling
                     table: ({ node, ...props }) => (
-                      <div className="overflow-x-auto my-4">
+                      <div className="overflow-x-auto my-5">
                         <table
                           className="min-w-full border border-gray-200 rounded-lg overflow-hidden"
                           {...props}

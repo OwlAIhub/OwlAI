@@ -20,7 +20,7 @@ interface UseChatReturn {
 
 export const useChat = (
   sessionId: string | null,
-  setSessionId: (id: string) => void,
+  _setSessionId: (id: string) => void,
   isLoggedIn: boolean
 ): UseChatReturn => {
   const [message, setMessage] = useState("");
@@ -35,7 +35,7 @@ export const useChat = (
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [messageCount, setMessageCount] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -89,7 +89,9 @@ export const useChat = (
           // Update message with feedback
           setChatMessages(prev =>
             prev.map((msg, i) =>
-              i === index ? { ...msg, feedback: type } : msg
+              i === index
+                ? { ...msg, feedback: type as "like" | "dislike" | null }
+                : msg
             )
           );
         }
@@ -117,22 +119,30 @@ export const useChat = (
   // Typing animation function
   const animateTyping = useCallback(
     (fullText: string, onComplete: () => void) => {
+      // Type multiple characters per tick for much faster rendering
+      const CHARS_PER_TICK = 12; // Increase/decrease to tune speed
       let currentIndex = 0;
       setDisplayedText("");
       setIsTyping(true);
 
-      const typeNextChar = () => {
+      const typeNextChunk = () => {
         if (currentIndex < fullText.length) {
-          setDisplayedText(prev => prev + fullText[currentIndex]);
-          currentIndex++;
-          typingIntervalRef.current = setTimeout(typeNextChar, 5); // Much faster - 5ms per character
+          const nextIndex = Math.min(
+            currentIndex + CHARS_PER_TICK,
+            fullText.length
+          );
+          const chunk = fullText.slice(currentIndex, nextIndex);
+          setDisplayedText(prev => prev + chunk);
+          currentIndex = nextIndex;
+          // Use minimal delay to keep main thread responsive while being very fast
+          typingIntervalRef.current = setTimeout(typeNextChunk, 0);
         } else {
           setIsTyping(false);
           onComplete();
         }
       };
 
-      typeNextChar();
+      typeNextChunk();
     },
     []
   );
