@@ -76,7 +76,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     ),
                     h2: ({ ...props }) => (
                       <h2
-                        className="text-xl font-bold text-gray-900 mb-4 mt-5 text-[#009688] border-l-4 border-[#009688] pl-4 flex items-center gap-3"
+                        className="text-xl font-bold text-gray-900 mb-4 mt-5 border-l-4 border-[#009688] pl-4 flex items-center gap-3"
                         {...props}
                       >
                         <span className="text-[#009688] text-xl">🔹</span>
@@ -85,7 +85,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     ),
                     h3: ({ ...props }) => (
                       <h3
-                        className="text-lg font-semibold text-gray-900 mb-3 mt-4 text-gray-800 flex items-center gap-2"
+                        className="text-lg font-semibold text-gray-900 mb-3 mt-4 flex items-center gap-2"
                         {...props}
                       >
                         <span className="text-[#009688] text-lg">•</span>
@@ -129,11 +129,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                       <em className="italic text-gray-600" {...props} />
                     ),
                     // Inline code with better spacing
-                    code: ({
-                      inline,
-                      children,
-                      ...props
-                    }: any) =>
+                    code: ({ inline, children, ...props }: any) =>
                       inline ? (
                         <code
                           className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800 border"

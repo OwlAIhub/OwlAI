@@ -173,19 +173,13 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
             </div>
 
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Desktop Auth Button */}
+            <div className="hidden md:flex items-center">
               <Link
-                to="/login"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
+                to="/auth"
+                className="bg-teal-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-teal-700 transition-all duration-300 hover:shadow-lg"
               >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="bg-teal-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-700 transition-all duration-300 hover:shadow-lg"
-              >
-                Sign Up
+                Get Started
               </Link>
             </div>
 
@@ -295,16 +289,10 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
               <div className="pt-4 space-y-3 border-t border-gray-100">
                 <Link
-                  to="/login"
-                  className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
+                  to="/auth"
+                  className="block bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors text-center"
                 >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
-                >
-                  Sign Up
+                  Get Started
                 </Link>
               </div>
             </div>

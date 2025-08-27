@@ -136,7 +136,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           ),
           h2: ({ ...props }) => (
             <h2
-              className="text-xl font-bold text-gray-900 mb-4 mt-5 text-[#009688] border-l-4 border-[#009688] pl-4 flex items-center gap-3"
+              className="text-xl font-bold mb-4 mt-5 text-[#009688] border-l-4 border-[#009688] pl-4 flex items-center gap-3"
               {...props}
             >
               <span className="text-[#009688] text-xl">🔹</span>
@@ -145,7 +145,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           ),
           h3: ({ ...props }) => (
             <h3
-              className="text-lg font-semibold text-gray-900 mb-3 mt-4 text-gray-800 flex items-center gap-2"
+              className="text-lg font-semibold mb-3 mt-4 text-gray-800 flex items-center gap-2"
               {...props}
             >
               <span className="text-[#009688] text-lg">•</span>
@@ -218,12 +218,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               />
             </div>
           ),
-          thead: ({ ...props }) => (
-            <thead className="bg-gray-50" {...props} />
-          ),
-          tbody: ({ ...props }) => (
-            <tbody className="bg-white" {...props} />
-          ),
+          thead: ({ ...props }) => <thead className="bg-gray-50" {...props} />,
+          tbody: ({ ...props }) => <tbody className="bg-white" {...props} />,
           tr: ({ ...props }) => (
             <tr
               className="border-b border-gray-200 hover:bg-gray-50"

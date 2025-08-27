@@ -44,11 +44,13 @@ export function PlaceholdersAndVanishInput({
   }, [placeholders, startAnimation]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const newDataRef = useRef<Array<{
-    x: number;
-    y: number;
-    color: number[];
-  }>>([]);
+  const newDataRef = useRef<
+    Array<{
+      x: number;
+      y: number;
+      color: number[];
+    }>
+  >([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);

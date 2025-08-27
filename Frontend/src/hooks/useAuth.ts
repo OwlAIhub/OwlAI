@@ -1,214 +1,279 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { User, LoadingState } from "@/types";
-import { api } from "@/services/api";
-import { storage } from "@/utils";
-import { STORAGE_KEYS, ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants";
-import { auth } from "@/firebase";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
+import {
+  phoneAuthService,
+  type User,
+  type ConfirmationResult,
+} from "@/firebase";
+import { storage } from "@/utils";
+import { STORAGE_KEYS } from "@/constants";
 
-interface UseAuthReturn {
-  // State
-  isLoggedIn: boolean;
-  authReady: boolean;
-  sessionId: string | null;
+interface AuthState {
   user: User | null;
-  loading: LoadingState;
-  error: string | null;
-
-  // Actions
-  setSessionId: (id: string | null) => void;
-  createNewSession: (userId: string) => Promise<string | null>;
-  handleLogout: () => Promise<void>;
-  initializeAnonymousSession: () => Promise<void>;
-  clearError: () => void;
-  retry: () => Promise<void>;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isPhoneVerified: boolean;
 }
 
-export const useAuth = (): UseAuthReturn => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<LoadingState>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const sessionCreatedRef = useRef(false);
-  const retryCountRef = useRef(0);
+interface PhoneAuthState {
+  phoneNumber: string;
+  verificationId: string | null;
+  confirmationResult: ConfirmationResult | null;
+  isCodeSent: boolean;
+  isVerifying: boolean;
+  error: string | null;
+}
 
-  // Utility functions
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
+export const useAuth = () => {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+    isPhoneVerified: false,
+  });
 
-  const retry = useCallback(async () => {
-    if (retryCountRef.current < 3) {
-      retryCountRef.current++;
-      clearError();
-      // Retry the last failed operation
-      if (user?.uid) {
-        await createNewSession(user.uid);
-      }
-    } else {
-      setError("Maximum retry attempts reached. Please refresh the page.");
-    }
-  }, [user?.uid]);
+  const [phoneAuthState, setPhoneAuthState] = useState<PhoneAuthState>({
+    phoneNumber: "",
+    verificationId: null,
+    confirmationResult: null,
+    isCodeSent: false,
+    isVerifying: false,
+    error: null,
+  });
 
-  // Create new session
-  const createNewSession = useCallback(
-    async (userId: string): Promise<string | null> => {
-      if (sessionCreatedRef.current) return null;
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
-      try {
-        sessionCreatedRef.current = true;
-        setLoading("loading");
-        setError(null);
-
-        const response = await api.session.createSession(userId);
-
-        if (response.status === "success" && response.data?.session_id) {
-          const newSessionId = response.data.session_id;
-          setSessionId(newSessionId);
-          storage.set(STORAGE_KEYS.SESSION_ID, newSessionId);
-          setLoading("success");
-          retryCountRef.current = 0; // Reset retry count on success
-          return newSessionId;
-        } else {
-          throw new Error(response.error || "Failed to create session");
-        }
-      } catch (err) {
-        console.error("Failed to create session:", err);
-        const errorMessage =
-          err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC_ERROR;
-        setError(errorMessage);
-        setLoading("error");
-        toast.error("Failed to create chat session");
-        return null;
-      } finally {
-        sessionCreatedRef.current = false;
-      }
-    },
-    []
-  );
-
-  // Handle logout
-  const handleLogout = useCallback(async (): Promise<void> => {
-    try {
-      setLoading("loading");
-      setError(null);
-
-      await auth.signOut();
-
-      // Clear all state
-      storage.clear();
-      setUser(null);
-      setSessionId(null);
-      setIsLoggedIn(false);
-      setLoading("success");
-
-      toast.info(SUCCESS_MESSAGES.LOGOUT_SUCCESS);
-    } catch (err) {
-      console.error("Failed to sign out:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC_ERROR;
-      setError(errorMessage);
-      setLoading("error");
-      toast.error("Failed to sign out.");
-    }
-  }, []);
-
-  // Initialize anonymous session
-  const initializeAnonymousSession = useCallback(async (): Promise<void> => {
-    if (
-      storage.get(STORAGE_KEYS.ANONYMOUS_SESSION_ID) ||
-      storage.get(STORAGE_KEYS.ANONYMOUS_SESSION_INITIALIZED)
-    ) {
-      return;
-    }
-
-    try {
-      setError(null);
-      const response = await api.session.initAnonymousSession();
-
-      if (response.status === "success" && response.data) {
-        console.log("Anonymous session initialized:", response.data);
-
-        storage.set(
-          STORAGE_KEYS.ANONYMOUS_SESSION_ID,
-          response.data.session_id
-        );
-        storage.set(STORAGE_KEYS.ANONYMOUS_USER_ID, response.data.user_id);
-        storage.set(STORAGE_KEYS.ANONYMOUS_SESSION_INITIALIZED, "true");
-      } else {
-        throw new Error(
-          response.error || "Failed to initialize anonymous session"
-        );
-      }
-    } catch (err) {
-      console.error("Failed to initialize anonymous session:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : ERROR_MESSAGES.GENERIC_ERROR;
-      setError(errorMessage);
-    }
-  }, []);
-
-  // Auth state listener
+  // Initialize reCAPTCHA on mount
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(firebaseUser => {
-      const wasLoggedIn = isLoggedIn;
-      setIsLoggedIn(!!firebaseUser);
-      setAuthReady(true);
+    const initializeRecaptcha = async () => {
+      try {
+        if (recaptchaContainerRef.current) {
+          await phoneAuthService.initializeRecaptcha("recaptcha-container");
+        }
+      } catch (error) {
+        console.error("Failed to initialize reCAPTCHA:", error);
+        setPhoneAuthState(prev => ({
+          ...prev,
+          error: "Failed to initialize verification system",
+        }));
+      }
+    };
 
-      if (firebaseUser && !wasLoggedIn) {
-        // User logged in - get user data and create session
-        const userData: User = {
-          uid: firebaseUser.uid,
-          firstName: firebaseUser.displayName?.split(" ")[0] || "",
-          lastName: firebaseUser.displayName?.split(" ")[1] || "",
-          email: firebaseUser.email || "",
+    initializeRecaptcha();
+
+    // Cleanup on unmount
+    return () => {
+      phoneAuthService.clearRecaptcha();
+    };
+  }, []);
+
+  // Listen to auth state changes
+  useEffect(() => {
+    const unsubscribe = phoneAuthService.onAuthStateChanged(user => {
+      setAuthState(prev => ({
+        ...prev,
+        user,
+        isAuthenticated: !!user,
+        isPhoneVerified: !!user?.phoneNumber,
+        isLoading: false,
+      }));
+
+      // Save user to storage if authenticated
+      if (user) {
+        const userData = {
+          uid: user.uid,
+          phoneNumber: user.phoneNumber,
+          emailVerified: user.emailVerified,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          metadata: {
+            creationTime: user.metadata.creationTime,
+            lastSignInTime: user.metadata.lastSignInTime,
+          },
         };
-
-        setUser(userData);
         storage.set(STORAGE_KEYS.USER, userData);
-        createNewSession(firebaseUser.uid);
-      } else if (!firebaseUser && wasLoggedIn) {
-        // User logged out - cleanup
-        storage.remove(STORAGE_KEYS.SESSION_ID);
+      } else {
         storage.remove(STORAGE_KEYS.USER);
-        setSessionId(null);
-        setUser(null);
       }
     });
 
-    return () => unsubscribe();
-  }, [isLoggedIn]);
+    return unsubscribe;
+  }, []);
 
-  // Initialize anonymous session on mount
+  // Load user from storage on mount
   useEffect(() => {
-    initializeAnonymousSession();
-  }, [sessionId]);
+    const savedUser = storage.get(STORAGE_KEYS.USER);
+    if (savedUser && authState.user) {
+      // User is already authenticated via Firebase
+      return;
+    }
+  }, [authState.user]);
 
-  // Load cached user data
-  useEffect(() => {
-    const cachedUser = storage.get<User>(STORAGE_KEYS.USER);
-    if (cachedUser) {
-      setUser(cachedUser);
+  // Send verification code
+  const sendVerificationCode = useCallback(async (phoneNumber: string) => {
+    try {
+      setPhoneAuthState(prev => ({
+        ...prev,
+        phoneNumber,
+        isCodeSent: false,
+        isVerifying: false,
+        error: null,
+      }));
+
+      // Validate phone number format
+      if (!isValidPhoneNumber(phoneNumber)) {
+        throw new Error("Please enter a valid phone number");
+      }
+
+      const confirmationResult =
+        await phoneAuthService.sendVerificationCode(phoneNumber);
+
+      setPhoneAuthState(prev => ({
+        ...prev,
+        confirmationResult,
+        isCodeSent: true,
+        error: null,
+      }));
+
+      toast.success("Verification code sent to your phone");
+      return confirmationResult;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to send verification code";
+      setPhoneAuthState(prev => ({
+        ...prev,
+        error: errorMessage,
+        isCodeSent: false,
+      }));
+      toast.error(errorMessage);
+      throw error;
     }
   }, []);
 
-  return {
-    // State
-    isLoggedIn,
-    authReady,
-    sessionId,
-    user,
-    loading,
-    error,
+  // Verify OTP code
+  const verifyCode = useCallback(
+    async (code: string) => {
+      try {
+        if (!phoneAuthState.confirmationResult) {
+          throw new Error(
+            "No verification session found. Please request a new code."
+          );
+        }
 
-    // Actions
-    setSessionId,
-    createNewSession,
-    handleLogout,
-    initializeAnonymousSession,
+        setPhoneAuthState(prev => ({
+          ...prev,
+          isVerifying: true,
+          error: null,
+        }));
+
+        // Validate OTP format
+        if (!isValidOTP(code)) {
+          throw new Error("Please enter a valid 6-digit verification code");
+        }
+
+        const user = await phoneAuthService.verifyCode(
+          phoneAuthState.confirmationResult,
+          code
+        );
+
+        setPhoneAuthState(prev => ({
+          ...prev,
+          isVerifying: false,
+          error: null,
+        }));
+
+        toast.success("Phone number verified successfully!");
+        return user;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to verify code";
+        setPhoneAuthState(prev => ({
+          ...prev,
+          error: errorMessage,
+          isVerifying: false,
+        }));
+        toast.error(errorMessage);
+        throw error;
+      }
+    },
+    [phoneAuthState.confirmationResult]
+  );
+
+  // Sign out
+  const signOut = useCallback(async () => {
+    try {
+      await phoneAuthService.signOut();
+      setPhoneAuthState({
+        phoneNumber: "",
+        verificationId: null,
+        confirmationResult: null,
+        isCodeSent: false,
+        isVerifying: false,
+        error: null,
+      });
+      toast.info("Signed out successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to sign out";
+      toast.error(errorMessage);
+      throw error;
+    }
+  }, []);
+
+  // Clear error
+  const clearError = useCallback(() => {
+    setPhoneAuthState(prev => ({
+      ...prev,
+      error: null,
+    }));
+  }, []);
+
+  // Reset phone auth state
+  const resetPhoneAuth = useCallback(() => {
+    setPhoneAuthState({
+      phoneNumber: "",
+      verificationId: null,
+      confirmationResult: null,
+      isCodeSent: false,
+      isVerifying: false,
+      error: null,
+    });
+  }, []);
+
+  return {
+    // Auth state
+    user: authState.user,
+    isLoading: authState.isLoading,
+    isAuthenticated: authState.isAuthenticated,
+    isPhoneVerified: authState.isPhoneVerified,
+
+    // Phone auth state
+    phoneNumber: phoneAuthState.phoneNumber,
+    isCodeSent: phoneAuthState.isCodeSent,
+    isVerifying: phoneAuthState.isVerifying,
+    error: phoneAuthState.error,
+
+    // Methods
+    sendVerificationCode,
+    verifyCode,
+    signOut,
     clearError,
-    retry,
+    resetPhoneAuth,
+    recaptchaContainerRef,
   };
+};
+
+// Utility functions
+const isValidPhoneNumber = (phoneNumber: string): boolean => {
+  // Basic phone number validation - can be enhanced based on your requirements
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  return phoneRegex.test(phoneNumber.replace(/\s/g, ""));
+};
+
+const isValidOTP = (code: string): boolean => {
+  // Validate 6-digit OTP
+  const otpRegex = /^\d{6}$/;
+  return otpRegex.test(code);
 };

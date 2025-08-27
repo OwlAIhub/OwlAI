@@ -97,13 +97,13 @@ export const Grid = ({
   );
 };
 
-export function GridPattern({ 
-  width, 
-  height, 
-  x, 
-  y, 
-  squares, 
-  ...props 
+export function GridPattern({
+  width,
+  height,
+  x,
+  y,
+  squares,
+  ...props
 }: {
   width?: number;
   height?: number;

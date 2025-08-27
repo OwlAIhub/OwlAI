@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
@@ -10,8 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import UserProfile from "./pages/UserProfile.jsx";
-import Login from "./Components/Login";
-import Signup from "./Components/Signup";
+import Auth from "./Components/Auth";
 import Questionnaire from "./Components/Questionnaire";
 import { ChatLayout } from "./Components/ChatLayout";
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,11 +21,10 @@ import { NotFoundPage } from "@/components/features/error";
 import { logger } from "./utils/logger";
 import { LenisProvider } from "./components/providers/LenisProvider";
 import { StoreProvider } from "./stores/StoreProvider";
+import { useAuth } from "./hooks/useAuth";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem("darkMode");
     return savedMode ? JSON.parse(savedMode) : true;
@@ -33,7 +32,11 @@ function App() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [currentChatTitle, setCurrentChatTitle] = useState("Learning Theories");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [, setShowPhoneAuth] = useState(false);
   const sessionCreatedRef = useRef(false);
+
+  // Use the new Firebase auth hook
+  const { user, isLoading: authLoading, isAuthenticated, signOut } = useAuth();
 
   useEffect(() => {
     // Apply dark mode class on initial load
@@ -74,52 +77,12 @@ function App() {
     }
   };
 
+  // Create session when user is authenticated
   useEffect(() => {
-    // Check if user is already logged in from localStorage
-    const userString = localStorage.getItem("user");
-    if (userString) {
-      try {
-        const user = JSON.parse(userString);
-        if (user && user.uid) {
-          setIsLoggedIn(true);
-          setAuthReady(true);
-          return;
-        }
-      } catch {
-        // Error parsing user data - user likely not logged in
-      }
+    if (isAuthenticated && user?.uid && !sessionId) {
+      createNewSession(user.uid);
     }
-
-    // If no valid user found, set as not logged in
-    setIsLoggedIn(false);
-    setAuthReady(true);
-  }, []);
-
-  // Listen for auth state changes
-  useEffect(() => {
-    const handleAuthChange = () => {
-      const userString = localStorage.getItem("user");
-      if (userString) {
-        try {
-          const user = JSON.parse(userString);
-          if (user && user.uid) {
-            setIsLoggedIn(true);
-          } else {
-            setIsLoggedIn(false);
-          }
-        } catch {
-          setIsLoggedIn(false);
-        }
-      } else {
-        setIsLoggedIn(false);
-      }
-    };
-
-    // Listen for custom auth events
-    window.addEventListener("authStateChanged", handleAuthChange);
-    return () =>
-      window.removeEventListener("authStateChanged", handleAuthChange);
-  }, []);
+  }, [isAuthenticated, user?.uid, sessionId]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -147,24 +110,25 @@ function App() {
     });
   };
 
-  const handleLogout = () => {
-    // Clear user data
-    localStorage.removeItem("user");
-    localStorage.removeItem("sessionId");
-    localStorage.removeItem("selectedChat");
+  const handleLogout = async () => {
+    try {
+      await signOut();
 
-    // Reset state
-    setIsLoggedIn(false);
-    setCurrentChatTitle("Learning Theories");
-    setSessionId(null);
+      // Clear session data
+      localStorage.removeItem("sessionId");
+      localStorage.removeItem("selectedChat");
 
-    // Dispatch auth state change event
-    window.dispatchEvent(new CustomEvent("authStateChanged"));
+      // Reset state
+      setCurrentChatTitle("Learning Theories");
+      setSessionId(null);
 
-    toast.info("You've been signed out.");
+      toast.info("You've been signed out.");
 
-    // Redirect to landing page
-    window.location.href = "/OwlAi";
+      // Redirect to landing page
+      window.location.href = "/OwlAi";
+    } catch (error) {
+      toast.error("Failed to sign out");
+    }
   };
 
   const handleNewChat = async () => {
@@ -209,8 +173,8 @@ function App() {
   };
 
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (!authReady) return null;
-    return isLoggedIn ? children : <Navigate to="/login" replace />;
+    if (authLoading) return null;
+    return isAuthenticated ? children : <Navigate to="/auth" replace />;
   };
 
   useEffect(() => {
@@ -249,7 +213,7 @@ function App() {
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         currentChatTitle={currentChatTitle}
-        isLoggedIn={isLoggedIn}
+        isLoggedIn={isAuthenticated}
         sessionId={sessionId}
         setSessionId={handleSetSessionId}
         onLogout={handleLogout}
@@ -274,15 +238,13 @@ function App() {
                 <Route path="/OwlAi" element={<LandingPage />} />
                 <Route path="/" element={<Navigate to="/OwlAi" replace />} />
                 <Route
-                  path="/login"
+                  path="/auth"
                   element={
-                    isLoggedIn ? <Navigate to="/chat" replace /> : <Login />
-                  }
-                />
-                <Route
-                  path="/signup"
-                  element={
-                    isLoggedIn ? <Navigate to="/chat" replace /> : <Signup />
+                    isAuthenticated ? (
+                      <Navigate to="/chat" replace />
+                    ) : (
+                      <Auth />
+                    )
                   }
                 />
                 <Route

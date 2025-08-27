@@ -28,7 +28,10 @@ const MainContent: React.FC<MainContentProps> = ({
   isLoggedIn,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentChat, setCurrentChat] = useState<Record<string, unknown> | null>(null);
+  const [currentChat, setCurrentChat] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Placeholders for the animated input

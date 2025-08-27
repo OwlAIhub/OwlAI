@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth } from "../firebase";
 import { QuestionnaireStep } from "@/components/features/questionnaire/QuestionnaireStep";
 import { QuestionnaireNavigation } from "@/components/features/questionnaire/QuestionnaireNavigation";
 import {
@@ -48,11 +47,14 @@ export default function Questionnaire() {
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    const checkExistingProfile = async (uid: string) => {
+    const checkExistingProfile = (uid: string) => {
       try {
-        const userDoc = await getDoc(doc(db, "users", uid));
-        if (userDoc.exists() && userDoc.data().questionnaireFilled) {
-          navigate("/chat");
+        const userData = localStorage.getItem(`user_${uid}_questionnaire`);
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          if (parsedData.questionnaireFilled) {
+            navigate("/chat");
+          }
         }
       } catch {
         // Error checking profile - user likely not logged in
@@ -69,28 +71,26 @@ export default function Questionnaire() {
     return () => unsubscribe();
   }, [navigate]);
 
-
-
   const updateFormData = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const canProceed = () => {
+  const canProceed = (): boolean => {
     switch (currentStep) {
       case 1:
-        return formData.firstName.trim() && formData.lastName.trim();
+        return !!(formData.firstName.trim() && formData.lastName.trim());
       case 2:
-        return formData.language;
+        return !!formData.language;
       case 3:
-        return formData.curriculum;
+        return !!formData.curriculum;
       case 4:
         return formData.selectedSubjects.length > 0;
       case 5:
-        return formData.attempt;
+        return !!formData.attempt;
       case 6:
-        return formData.heardFrom;
+        return !!formData.heardFrom;
       case 7:
-        return formData.examCycle;
+        return !!formData.examCycle;
       default:
         return false;
     }
@@ -124,19 +124,32 @@ export default function Questionnaire() {
         heardFrom: formData.heardFrom,
         examCycle: formData.examCycle,
         questionnaireFilled: true,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, "users", user.uid), userData, { merge: true });
+      // Save to localStorage instead of Firestore
+      localStorage.setItem(
+        `user_${user.uid}_questionnaire`,
+        JSON.stringify(userData)
+      );
+
+      // Also save to the main user data
+      const existingUserData = localStorage.getItem("user");
+      if (existingUserData) {
+        const parsedUserData = JSON.parse(existingUserData);
+        const updatedUserData = { ...parsedUserData, ...userData };
+        localStorage.setItem("user", JSON.stringify(updatedUserData));
+      }
+
       navigate("/chat");
-    } catch {
+    } catch (error) {
       // Error saving questionnaire
     }
   };
 
   const renderStepContent = () => {
     const currentStepData = steps[currentStep - 1];
-    const isActive: boolean = true;
+    const isActive = true as const;
 
     switch (currentStep) {
       case 1:
