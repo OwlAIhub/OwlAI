@@ -1,7 +1,3 @@
-/**
- * Store Exports
- */
+// Stores exports
 
-export { ChatProvider, useChatStore } from "./ChatStore";
-export { UserProvider, useUserStore } from "./UserStore";
-export { StoreProvider } from "./StoreProvider.tsx";
+export * from "../core/stores";

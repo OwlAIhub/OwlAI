@@ -1,114 +1,86 @@
-/**
- * Application Constants
- */
+// Application constants
 
-// App Configuration
 export const APP_NAME = "OwlAI";
 export const APP_VERSION = "1.0.0";
 
+// API Configuration
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+export const API_TIMEOUT = 30000;
+
+// Firebase Configuration
+export const FIREBASE_CONFIG = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+// Chat Configuration
+export const CHAT_CONFIG = {
+  MAX_MESSAGE_LENGTH: 4000,
+  MAX_CONVERSATION_LENGTH: 50,
+  TYPING_INDICATOR_DELAY: 1000,
+};
+
+// UI Configuration
+export const UI_CONFIG = {
+  THEME_COLORS: {
+    primary: "#52B788",
+    secondary: "#40916C",
+    accent: "#74C69D",
+  },
+  BREAKPOINTS: {
+    sm: 640,
+    md: 768,
+    lg: 1024,
+    xl: 1280,
+  },
+};
+
 // Local Storage Keys
 export const STORAGE_KEYS = {
-  USER: "user",
-  USER_PROFILE: "userProfile",
+  USER_PREFERENCES: "owlai_user_preferences",
+  AUTH_TOKEN: "owlai_auth_token",
+  THEME: "owlai_theme",
+  LANGUAGE: "owlai_language",
+  USER: "owl_ai_user",
+  USER_PROFILE: "owl_ai_user_profile",
   SESSION_ID: "sessionId",
   SELECTED_CHAT: "selectedChat",
-  DARK_MODE: "darkMode",
+  PRESET_QUERY: "presetQuery",
   ANONYMOUS_USER_ID: "anonymousUserId",
   ANONYMOUS_SESSION_ID: "anonymousSessionId",
-  ANONYMOUS_SESSION_INITIALIZED: "anonymousSessionInitialized",
-  PRESET_QUERY: "presetQuery",
+  DARK_MODE: "darkMode",
+};
+
+// Message limits
+export const MESSAGE_LIMITS = {
+  MAX_LENGTH: 4000,
+  MIN_LENGTH: 1,
+  TYPING_INDICATOR_DELAY: 1000,
+  MESSAGE_TIMEOUT: 30000,
+  ANONYMOUS_MAX: 5,
+  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 } as const;
 
-// API Endpoints
-export const API_ENDPOINTS = {
-  ASK: "/ask",
-  SESSION_CREATE: "/session/create",
-  SESSION_INIT_ANON: "/session/init-anon",
-  SESSION_RENAME: "/chat/session/rename",
-  SESSION_DELETE: "/chat/session",
-  CHAT_HISTORY: "/chat",
-  CHAT_SESSIONS: "/chat/sidebar/sessions",
-  FEEDBACK_CREATE: "/feedback/create",
-} as const;
-
-// UI Constants
-export const BREAKPOINTS = {
-  MOBILE: 768,
-  TABLET: 1024,
-  DESKTOP: 1280,
-} as const;
-
-export const SIDEBAR_WIDTH = {
-  MOBILE: "w-64",
-  DESKTOP: "lg:w-72",
-} as const;
-
-export const HEADER_HEIGHT = "h-17"; // 68px
-
-// Animation Durations
+// Animation duration
 export const ANIMATION_DURATION = {
-  FAST: 200,
+  FAST: 150,
   NORMAL: 300,
   SLOW: 500,
-  SIDEBAR: 700,
-  TYPING: 1,
+  VERY_SLOW: 1000,
+  TYPING: 1000,
 } as const;
 
-// Message Limits
-export const MESSAGE_LIMITS = {
-  ANONYMOUS_MAX: 3,
-  TYPING_INTERVAL: 1,
-  CACHE_DURATION: 300000, // 5 minutes
-} as const;
-
-// Predefined Prompts
+// Predefined prompts for welcome screen
 export const PREDEFINED_PROMPTS = [
-  "Explain Research Methodology",
-  "What is Teaching Aptitude?",
-  "Explain Logical Reasoning",
-  "What is Communication?",
+  "Explain the concept of learning theories in simple terms",
+  "What are the key differences between behaviorism and constructivism?",
+  "How can I apply cognitive load theory in my teaching?",
+  "Give me examples of formative assessment strategies",
+  "What are the best practices for classroom management?",
+  "How can I differentiate instruction for diverse learners?",
 ] as const;
-
-// Toast Configuration
-export const TOAST_CONFIG = {
-  POSITION: "bottom-right",
-  AUTO_CLOSE: 3000,
-  HIDE_PROGRESS_BAR: false,
-  CLOSE_ON_CLICK: true,
-  PAUSEON_HOVER: true,
-  DRAGGABLE: true,
-  NEWEST_ON_TOP: false,
-} as const;
-
-// Theme Colors (for reference - actual colors in CSS variables)
-export const THEME_COLORS = {
-  PRIMARY: "#009688",
-  PRIMARY_DARK: "#00796B",
-  PRIMARY_LIGHT: "#4DB6AC",
-  ACCENT: "#FFC107",
-  ACCENT_DARK: "#FFA000",
-  BASE_DARK: "#0D1B2A",
-  CARD_DARK: "#1B263B",
-  CARD_BORDER: "#415A77",
-} as const;
-
-// Error Messages
-export const ERROR_MESSAGES = {
-  NETWORK_ERROR: "Network error. Please check your connection.",
-  AUTH_REQUIRED: "Please log in to continue.",
-  SESSION_EXPIRED: "Your session has expired. Please log in again.",
-  GENERIC_ERROR: "Something went wrong. Please try again.",
-  CHAT_LOAD_ERROR: "Failed to load chat history.",
-  SEND_MESSAGE_ERROR: "Failed to send message.",
-} as const;
-
-// Success Messages
-export const SUCCESS_MESSAGES = {
-  LOGIN_SUCCESS: "Signed in successfully! 🚀",
-  LOGOUT_SUCCESS: "You've been signed out.",
-  CHAT_CREATED: "New chat started!",
-  CHAT_RENAMED: "Chat renamed successfully",
-  CHAT_DELETED: "Chat deleted successfully",
-  FEEDBACK_SENT: "Thanks for your feedback!",
-  COPIED: "Copied to clipboard",
-} as const;

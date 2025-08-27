@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isConversationOwner(conversationData) {
+      return request.auth.uid == conversationData.user_id;
+    }
+    
+    function isMessageOwner(messageData) {
+      return request.auth.uid == messageData.user_id;
+    }
+    
+    function isValidPhoneNumber(phone) {
+      return phone.matches('^\\+[1-9]\\d{10,14}$');
+    }
+    
+    function isValidTimestamp(timestamp) {
+      return timestamp is timestamp && timestamp <= request.time;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow create: if isAuthenticated() && isOwner(userId) && 
+        isValidPhoneNumber(resource.data.phone) &&
+        isValidTimestamp(resource.data.created_at) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow update: if isAuthenticated() && isOwner(userId) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow delete: if false; // Soft delete only
+      
+      // User preferences subcollection
+      match /preferences/{prefId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+    }
+    
+    // Conversations collection
+    match /conversations/{conversationId} {
+      allow read: if isAuthenticated() && 
+        isConversationOwner(resource.data);
+      allow create: if isAuthenticated() && 
+        isOwner(resource.data.user_id) &&
+        isValidTimestamp(resource.data.created_at) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow update: if isAuthenticated() && 
+        isConversationOwner(resource.data) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow delete: if false; // Soft delete only
+      
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && 
+          isConversationOwner(get(/databases/$(database)/documents/conversations/$(conversationId)).data);
+        allow create: if isAuthenticated() && 
+          isOwner(resource.data.user_id) &&
+          isConversationOwner(get(/databases/$(database)/documents/conversations/$(conversationId)).data) &&
+          isValidTimestamp(resource.data.created_at) &&
+          isValidTimestamp(resource.data.updated_at);
+        allow update: if isAuthenticated() && 
+          isMessageOwner(resource.data) &&
+          isValidTimestamp(resource.data.updated_at);
+        allow delete: if false; // Soft delete only
+      }
+    }
+    
+    // Messages collection (root level for easier querying)
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() && 
+        isMessageOwner(resource.data);
+      allow create: if isAuthenticated() && 
+        isOwner(resource.data.user_id) &&
+        isValidTimestamp(resource.data.created_at) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow update: if isAuthenticated() && 
+        isMessageOwner(resource.data) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow delete: if false; // Soft delete only
+    }
+    
+    // Chat sessions collection
+    match /chat_sessions/{sessionId} {
+      allow read: if isAuthenticated() && 
+        isOwner(resource.data.user_id);
+      allow create: if isAuthenticated() && 
+        isOwner(resource.data.user_id) &&
+        isValidTimestamp(resource.data.created_at) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow update: if isAuthenticated() && 
+        isOwner(resource.data.user_id) &&
+        isValidTimestamp(resource.data.updated_at);
+      allow delete: if false; // Soft delete only
+    }
+    
+    // Analytics collection
+    match /analytics/{analyticsId} {
+      allow read: if isAuthenticated() && 
+        isOwner(resource.data.user_id);
+      allow create: if isAuthenticated() && 
+        isOwner(resource.data.user_id) &&
+        isValidTimestamp(resource.data.created_at) &&
+        isValidTimestamp(resource.data.updated_at) &&
+        isValidTimestamp(resource.data.timestamp);
+      allow update: if false; // Analytics are immutable
+      allow delete: if false; // Analytics are immutable
+    }
+    
+    // User preferences collection (root level)
+    match /user_preferences/{prefId} {
+      allow read, write: if isAuthenticated() && 
+        isOwner(resource.data.user_id);
+    }
+  }
+}

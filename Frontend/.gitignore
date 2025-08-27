@@ -1,33 +1,49 @@
-# Dependencies
+# ===========================================
+# DEPENDENCIES
+# ===========================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.pnpm-store/
 
-# Build outputs
+# ===========================================
+# BUILD OUTPUTS
+# ===========================================
 dist/
 dist-ssr/
 build/
 *.local
 
-# Environment variables
+# ===========================================
+# ENVIRONMENT VARIABLES
+# ===========================================
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 .env.staging
+.env.*.local
 
-# IDE and Editor files
+# ===========================================
+# IDE AND EDITOR FILES
+# ===========================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
 
-# OS generated files
+# ===========================================
+# OPERATING SYSTEM FILES
+# ===========================================
 .DS_Store
 .DS_Store?
 ._*
@@ -35,121 +51,191 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# Logs
+# ===========================================
+# LOGS AND DEBUG FILES
+# ===========================================
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
 
-# Runtime data
+# ===========================================
+# RUNTIME DATA
+# ===========================================
 pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# ===========================================
+# TESTING AND COVERAGE
+# ===========================================
 coverage/
 *.lcov
-
-# nyc test coverage
 .nyc_output/
+junit.xml
+test-results/
+playwright-report/
+test-results.xml
 
-# Dependency directories
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
-
-# Microbundle cache
+# ===========================================
+# CACHE DIRECTORIES
+# ===========================================
+.cache/
+.parcel-cache/
 .rpt2_cache/
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
+.eslintcache
+.stylelintcache
+.npm
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# Firebase
+# ===========================================
+# FIREBASE
+# ===========================================
 .firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+.firebaserc.local
 
-# Local Netlify folder
-.netlify
+# ===========================================
+# DEPLOYMENT PLATFORMS
+# ===========================================
+.netlify/
+.vercel/
+.railway/
 
-# Vercel
-.vercel
-
-# TypeScript
+# ===========================================
+# TYPESCRIPT
+# ===========================================
 *.tsbuildinfo
+.tsbuildinfo
 
-# Testing
-coverage/
-.nyc_output/
+# ===========================================
+# TEMPORARY FILES
+# ===========================================
+tmp/
+temp/
+.tmp/
+.temp/
 
-# Misc
+# ===========================================
+# PACKAGE MANAGER FILES
+# ===========================================
 *.tgz
 *.tar.gz
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Local development
-.local
-*.local
-
-# Database
+# ===========================================
+# DATABASE FILES
+# ===========================================
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
 
-# Backup files
+# ===========================================
+# BACKUP AND ARCHIVE FILES
+# ===========================================
 *.bak
 *.backup
 *.old
-
-# Archive files
 *.zip
 *.rar
 *.7z
+*.tar
+*.gz
 
-# Certificate files
+# ===========================================
+# CERTIFICATE AND KEY FILES
+# ===========================================
 *.pem
 *.key
 *.crt
 *.csr
+*.pfx
+*.p12
 
-# Local configuration files
+# ===========================================
+# LOCAL CONFIGURATION
+# ===========================================
 config.local.js
 config.local.json
+*.local.js
+*.local.json
+.local
+
+# ===========================================
+# LIGHTHOUSE REPORTS
+# ===========================================
+lighthouse-report.html
+lighthouse-report.json
+lighthouse-mobile-report.html
+lighthouse-mobile-report.json
+
+# ===========================================
+# IMAGE OPTIMIZATION
+# ===========================================
+optimized-images/
+image-cache/
+
+# ===========================================
+# DEVELOPMENT TOOLS
+# ===========================================
+.node_repl_history
+.eslintcache
+.stylelintcache
+
+# ===========================================
+# FRAMEWORK SPECIFIC
+# ===========================================
+.next/
+.nuxt/
+.gatsby/
+public/
+
+# ===========================================
+# STORYBOOK
+# ===========================================
+.out/
+.storybook-out/
+storybook-static/
+
+# ===========================================
+# MONOREPO (if applicable)
+# ===========================================
+lerna-debug.log*
+.packages/
+
+# ===========================================
+# SECURITY
+# ===========================================
+.secrets
+secrets.json
+*.secret
+*.private
+
+# ===========================================
+# PERFORMANCE MONITORING
+# ===========================================
+.webpack/
+.rollup.cache/
+
+# ===========================================
+# MISCELLANEOUS
+# ===========================================
+*.orig
+*.rej
+*.patch

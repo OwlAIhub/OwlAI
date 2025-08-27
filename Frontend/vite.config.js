@@ -2,9 +2,21 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
+import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    compression({
+      algorithm: "gzip",
+      exclude: [/\.(br)$/, /\.(gz)$/],
+    }),
+    compression({
+      algorithm: "brotliCompress",
+      exclude: [/\.(br)$/, /\.(gz)$/],
+    }),
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -14,6 +26,13 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true, // Clears the dist folder on each build
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         assetFileNames: "assets/[name].[hash].[ext]",
@@ -25,14 +44,22 @@ export default defineConfig({
             "@radix-ui/react-dialog",
             "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-avatar",
+            "@radix-ui/react-collapsible",
+            "@radix-ui/react-label",
+            "@radix-ui/react-scroll-area",
+            "@radix-ui/react-separator",
+            "@radix-ui/react-slot",
+            "@radix-ui/react-toggle",
+            "@radix-ui/react-tooltip",
           ],
-          animations: ["framer-motion", "gsap", "@gsap/react"],
-          three: ["@react-three/fiber", "@react-three/drei", "three"],
+          animations: ["framer-motion"],
           utils: ["clsx", "class-variance-authority", "tailwind-merge"],
+          forms: ["react-hook-form", "react-toastify"],
+          icons: ["@tabler/icons-react", "lucide-react", "react-icons"],
         },
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
   },
   server: {
     port: 3000,
