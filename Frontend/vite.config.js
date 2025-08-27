@@ -48,4 +48,8 @@ export default defineConfig({
     },
   },
   // Environment variables are automatically handled by Vite
+  define: {
+    // Ensure process.env is available for compatibility
+    "process.env": {},
+  },
 });
