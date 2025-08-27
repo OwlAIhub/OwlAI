@@ -107,7 +107,7 @@ export const ContactUsSection: React.FC = () => {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Let's Start a{" "}
+            Let&apos;s Start a{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
                 Conversation
@@ -117,8 +117,8 @@ export const ContactUsSection: React.FC = () => {
           </h2>
 
           <p className="text-base text-gray-600 max-w-2xl mx-auto">
-            Have questions about Owl AI? We'd love to hear from you. Send us a
-            message and we'll respond as soon as possible.
+            Have questions about Owl AI? We&apos;d love to hear from you. Send
+            us a message and we&apos;ll respond as soon as possible.
           </p>
         </motion.div>
 
@@ -145,8 +145,8 @@ export const ContactUsSection: React.FC = () => {
                       Message Sent Successfully!
                     </h3>
                     <p className="text-gray-600">
-                      Thank you for reaching out. We'll get back to you within
-                      24 hours.
+                      Thank you for reaching out. We&apos;ll get back to you
+                      within 24 hours.
                     </p>
                   </motion.div>
                 ) : (

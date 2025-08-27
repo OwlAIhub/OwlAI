@@ -86,7 +86,7 @@ export const deviceUtils = {
     return (
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
-      // @ts-ignore
+      // @ts-expect-error - navigator.msMaxTouchPoints is a legacy IE property
       navigator.msMaxTouchPoints > 0
     );
   },

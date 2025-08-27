@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
 // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
@@ -49,11 +49,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-  isOpen = false,
   onClose = () => {},
   onSelectChat = () => {},
   darkMode = false,
-  currentUser = {},
   activeChatId = null,
   setChats = () => {},
   onUserProfileClick = () => {},
@@ -62,7 +60,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [chatStore, setChatStore] = useState<Chat[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
 
   // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
   useEffect(() => {

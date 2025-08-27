@@ -180,7 +180,7 @@ export const TestimonialsSection: React.FC = () => {
 
                 {/* Quote */}
                 <p className="text-gray-700 mb-4 leading-relaxed text-sm flex-grow">
-                  "{testimonial.quote}"
+                  &quot;{testimonial.quote}&quot;
                 </p>
 
                 {/* Achievement Badge */}

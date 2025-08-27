@@ -92,14 +92,14 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
                   Features
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#pricing"
                   className="text-gray-500 hover:text-white transition-colors duration-300 text-sm font-medium"
                 >
                   Pricing
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a
                   href="#exams"
@@ -108,14 +108,14 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
                   Exam Support
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#testimonials"
                   className="text-gray-500 hover:text-white transition-colors duration-300 text-sm font-medium"
                 >
                   Testimonials
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 

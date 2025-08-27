@@ -62,10 +62,9 @@ const UserProfile = ({ darkMode, onClose, onLogout }: UserProfileProps) => {
     // FIREBASE AUTH TEMPORARILY DISABLED FOR DESIGN WORK
     try {
       // Mock save for design work
-      console.log("Mock save:", userData);
       setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving user data:", error);
+    } catch {
+      // Error saving user data
     }
   };
 

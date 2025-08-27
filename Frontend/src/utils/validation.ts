@@ -173,7 +173,7 @@ export function validateMessage(message: string): ValidationResult {
  * Validate form data object
  */
 export function validateFormData(
-  data: Record<string, any>,
+  data: Record<string, string | number | boolean>,
   schema: Record<string, ValidationRule>
 ): Record<string, ValidationResult> {
   const results: Record<string, ValidationResult> = {};

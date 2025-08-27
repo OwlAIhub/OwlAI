@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Eye,
@@ -213,7 +213,7 @@ export default function Login() {
             {/* Sign Up Link */}
             <div className="text-center mt-8">
               <p className="text-gray-600 text-sm">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   to="/signup"
                   className="text-teal-600 hover:text-teal-700 font-semibold transition-colors"

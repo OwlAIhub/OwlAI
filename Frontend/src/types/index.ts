@@ -3,6 +3,8 @@
  */
 
 // User Types
+import React from "react";
+
 export interface User {
   uid: string;
   firstName: string;
@@ -42,7 +44,7 @@ export interface UIState {
 }
 
 // API Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   status: "success" | "error";
   data?: T;
   message?: string;

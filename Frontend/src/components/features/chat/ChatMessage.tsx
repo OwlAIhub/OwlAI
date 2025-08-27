@@ -65,7 +65,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                   remarkPlugins={[remarkGfm]}
                   components={{
                     // Main headings - more prominent and distinct
-                    h1: ({ node, ...props }) => (
+                    h1: ({ ...props }) => (
                       <h1
                         className="text-2xl font-bold text-gray-900 mb-5 mt-5 border-b-2 border-[#009688] pb-3 flex items-center gap-3"
                         {...props}
@@ -74,7 +74,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                         {props.children}
                       </h1>
                     ),
-                    h2: ({ node, ...props }) => (
+                    h2: ({ ...props }) => (
                       <h2
                         className="text-xl font-bold text-gray-900 mb-4 mt-5 text-[#009688] border-l-4 border-[#009688] pl-4 flex items-center gap-3"
                         {...props}
@@ -83,7 +83,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                         {props.children}
                       </h2>
                     ),
-                    h3: ({ node, ...props }) => (
+                    h3: ({ ...props }) => (
                       <h3
                         className="text-lg font-semibold text-gray-900 mb-3 mt-4 text-gray-800 flex items-center gap-2"
                         {...props}
@@ -93,25 +93,25 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                       </h3>
                     ),
                     // Paragraphs with better spacing and distinct styling
-                    p: ({ node, ...props }) => (
+                    p: ({ ...props }) => (
                       <p
                         className="text-gray-700 mb-3 leading-7 text-base"
                         {...props}
                       />
                     ),
                     // Unordered lists with proper spacing
-                    ul: ({ node, ...props }) => (
+                    ul: ({ ...props }) => (
                       <ul className="list-none space-y-2.5 mb-5" {...props} />
                     ),
                     // Ordered lists with proper spacing
-                    ol: ({ node, ...props }) => (
+                    ol: ({ ...props }) => (
                       <ol
                         className="list-decimal list-inside space-y-2.5 mb-5 ml-4"
                         {...props}
                       />
                     ),
                     // List items with properly aligned dots
-                    li: ({ node, ...props }) => (
+                    li: ({ ...props }) => (
                       <li
                         className="text-gray-700 leading-7 flex items-start gap-3"
                         {...props}
@@ -121,18 +121,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                       </li>
                     ),
                     // Bold text for emphasis
-                    strong: ({ node, ...props }) => (
+                    strong: ({ ...props }) => (
                       <strong className="font-bold text-gray-900" {...props} />
                     ),
                     // Italic text
-                    em: ({ node, ...props }) => (
+                    em: ({ ...props }) => (
                       <em className="italic text-gray-600" {...props} />
                     ),
                     // Inline code with better spacing
                     code: ({
-                      node,
                       inline,
-                      className,
                       children,
                       ...props
                     }: any) =>
@@ -152,14 +150,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                         </code>
                       ),
                     // Blockquotes with better spacing
-                    blockquote: ({ node, ...props }) => (
+                    blockquote: ({ ...props }) => (
                       <blockquote
                         className="border-l-4 border-[#009688] pl-5 py-4 my-5 bg-blue-50 rounded-r-lg"
                         {...props}
                       />
                     ),
                     // Tables with professional styling
-                    table: ({ node, ...props }) => (
+                    table: ({ ...props }) => (
                       <div className="overflow-x-auto my-5">
                         <table
                           className="min-w-full border border-gray-200 rounded-lg overflow-hidden"
@@ -167,25 +165,25 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                         />
                       </div>
                     ),
-                    thead: ({ node, ...props }) => (
+                    thead: ({ ...props }) => (
                       <thead className="bg-gray-50" {...props} />
                     ),
-                    tbody: ({ node, ...props }) => (
+                    tbody: ({ ...props }) => (
                       <tbody className="bg-white" {...props} />
                     ),
-                    tr: ({ node, ...props }) => (
+                    tr: ({ ...props }) => (
                       <tr
                         className="border-b border-gray-200 hover:bg-gray-50"
                         {...props}
                       />
                     ),
-                    th: ({ node, ...props }) => (
+                    th: ({ ...props }) => (
                       <th
                         className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-r border-gray-200"
                         {...props}
                       />
                     ),
-                    td: ({ node, ...props }) => (
+                    td: ({ ...props }) => (
                       <td
                         className="px-4 py-3 text-sm text-gray-800 border-r border-gray-200"
                         {...props}

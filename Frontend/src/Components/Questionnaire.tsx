@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { QuestionnaireStep } from "@/components/features/questionnaire/QuestionnaireStep";
@@ -31,7 +31,6 @@ interface FormData {
 
 export default function Questionnaire() {
   const navigate = useNavigate();
-  const location = useLocation();
   const totalSteps = 7;
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -46,14 +45,20 @@ export default function Questionnaire() {
     examCycle: "",
   });
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [showCSIRPopup, setShowCSIRPopup] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [popupLoading, setPopupLoading] = useState<
-    null | "continue" | "logout" | "changeExam"
-  >(null);
 
   useEffect(() => {
+    const checkExistingProfile = async (uid: string) => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists() && userDoc.data().questionnaireFilled) {
+          navigate("/chat");
+        }
+      } catch {
+        // Error checking profile - user likely not logged in
+      }
+    };
+
     const unsubscribe = auth.onAuthStateChanged(user => {
       setAuthReady(true);
       if (user) {
@@ -62,20 +67,11 @@ export default function Questionnaire() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
-  const checkExistingProfile = async (uid: string) => {
-    try {
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists() && userDoc.data().questionnaireFilled) {
-        navigate("/chat");
-      }
-    } catch (error) {
-      console.error("Error checking profile:", error);
-    }
-  };
 
-  const updateFormData = (field: keyof FormData, value: any) => {
+
+  const updateFormData = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -133,8 +129,8 @@ export default function Questionnaire() {
 
       await setDoc(doc(db, "users", user.uid), userData, { merge: true });
       navigate("/chat");
-    } catch (error) {
-      console.error("Error saving questionnaire:", error);
+    } catch {
+      // Error saving questionnaire
     }
   };
 
@@ -244,7 +240,7 @@ export default function Questionnaire() {
           </QuestionnaireStep>
         );
 
-      case 4:
+      case 4: {
         const subjects =
           formData.curriculum === "UGC-NET" ? ugcNetSubjects : csirNetSubjects;
         return (
@@ -300,8 +296,9 @@ export default function Questionnaire() {
             </div>
           </QuestionnaireStep>
         );
+      }
 
-      case 5:
+      case 5: {
         const attempts =
           formData.language === "Hinglish" ? attemptsHinglish : attemptsEnglish;
         return (
@@ -331,6 +328,7 @@ export default function Questionnaire() {
             </div>
           </QuestionnaireStep>
         );
+      }
 
       case 6:
         return (
@@ -359,7 +357,7 @@ export default function Questionnaire() {
           </QuestionnaireStep>
         );
 
-      case 7:
+      case 7: {
         const examCycles =
           formData.language === "Hinglish"
             ? examCyclesHinglish
@@ -389,6 +387,7 @@ export default function Questionnaire() {
             </div>
           </QuestionnaireStep>
         );
+      }
 
       default:
         return null;

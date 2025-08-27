@@ -45,8 +45,7 @@ export const useChatSession = (): UseChatSessionReturn => {
         window.dispatchEvent(new CustomEvent("newSessionCreated"));
         window.dispatchEvent(new CustomEvent("sessionChanged"));
       }
-    } catch (err) {
-      console.error("Failed to create new session:", err);
+    } catch {
       toast.error("Failed to start new chat");
     }
   };

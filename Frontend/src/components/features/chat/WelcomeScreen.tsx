@@ -41,7 +41,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               </Badge>
             </div>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Let's continue your preparation journey and make today productive.
+              Let&apos;s continue your preparation journey and make today
+              productive.
             </p>
           </div>
         ) : (

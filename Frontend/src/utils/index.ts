@@ -20,24 +20,24 @@ export const storage = {
   set: <T>(key: string, value: T): void => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error("Failed to save to localStorage:", error);
+    } catch {
+      // Failed to save to localStorage
     }
   },
 
   remove: (key: string): void => {
     try {
       localStorage.removeItem(key);
-    } catch (error) {
-      console.error("Failed to remove from localStorage:", error);
+    } catch {
+      // Failed to remove from localStorage
     }
   },
 
   clear: (): void => {
     try {
       localStorage.clear();
-    } catch (error) {
-      console.error("Failed to clear localStorage:", error);
+    } catch {
+      // Failed to clear localStorage
     }
   },
 };
@@ -154,11 +154,11 @@ export const asyncUtils = {
   /**
    * Debounce function calls
    */
-  debounce: <T extends (...args: any[]) => void>(
+  debounce: <T extends (...args: unknown[]) => void>(
     func: T,
     wait: number
   ): ((...args: Parameters<T>) => void) => {
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     return (...args: Parameters<T>) => {
       clearTimeout(timeout);
       timeout = setTimeout(() => func.apply(null, args), wait);

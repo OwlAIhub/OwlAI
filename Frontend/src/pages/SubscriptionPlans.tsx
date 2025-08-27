@@ -82,7 +82,7 @@ const SubscriptionPlans = ({
     }
   };
 
-  const handleSubscribe = (planId: string) => {
+  const handleSubscribe = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -180,7 +180,7 @@ const SubscriptionPlans = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                You're All Set!
+                You&apos;re All Set!
               </motion.h3>
 
               <motion.p

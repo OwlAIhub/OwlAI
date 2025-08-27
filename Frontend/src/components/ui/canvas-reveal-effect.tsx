@@ -283,7 +283,9 @@ const ShaderMaterial = ({
 
   return (
     <mesh ref={ref as any}>
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <planeGeometry args={[2, 2]} />
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <primitive object={material} attach="material" />
     </mesh>
   );

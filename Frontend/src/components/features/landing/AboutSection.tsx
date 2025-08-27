@@ -37,9 +37,9 @@ export const AboutSection: React.FC = () => {
             </p>
             <p className="text-lg text-gray-600 mb-8">
               With years of research in educational technology and natural
-              language processing, we've created a platform that understands
-              your learning needs and adapts to your study patterns, making exam
-              preparation more efficient and enjoyable.
+              language processing, we&apos;ve created a platform that
+              understands your learning needs and adapts to your study patterns,
+              making exam preparation more efficient and enjoyable.
             </p>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">

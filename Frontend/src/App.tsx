@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -85,8 +85,8 @@ function App() {
           setAuthReady(true);
           return;
         }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+      } catch {
+        // Error parsing user data - user likely not logged in
       }
     }
 
@@ -107,7 +107,7 @@ function App() {
           } else {
             setIsLoggedIn(false);
           }
-        } catch (error) {
+        } catch {
           setIsLoggedIn(false);
         }
       } else {
@@ -136,7 +136,7 @@ function App() {
   };
 
   const toggleDarkMode = () => {
-    setDarkMode((prev: any) => {
+    setDarkMode((prev: boolean) => {
       const newMode = !prev;
       if (newMode) {
         document.documentElement.classList.add("dark");

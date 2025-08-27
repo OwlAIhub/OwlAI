@@ -116,7 +116,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 Exams
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
-              <a
+              {/* <a
                 href="#testimonials"
                 onClick={e => {
                   e.preventDefault();
@@ -126,7 +126,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               >
                 Testimonials
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
-              </a>
+              </a> */}
               <a
                 href="#features"
                 onClick={e => {
@@ -149,7 +149,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 FAQ
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
-              <a
+              {/* <a
                 href="#pricing"
                 onClick={e => {
                   e.preventDefault();
@@ -159,7 +159,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               >
                 Pricing
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
-              </a>
+              </a> */}
               <a
                 href="#contact"
                 onClick={e => {
@@ -263,7 +263,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               >
                 Exams
               </a>
-              <a
+              {/* <a
                 href="#testimonials"
                 onClick={e => {
                   e.preventDefault();
@@ -272,7 +272,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
               >
                 Testimonials
-              </a>
+              </a> */}
               <a
                 href="#features"
                 onClick={e => {

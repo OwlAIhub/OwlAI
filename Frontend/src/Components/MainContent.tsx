@@ -28,7 +28,7 @@ const MainContent: React.FC<MainContentProps> = ({
   isLoggedIn,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentChat, setCurrentChat] = useState<any>(null);
+  const [currentChat, setCurrentChat] = useState<Record<string, unknown> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Placeholders for the animated input
@@ -55,7 +55,6 @@ const MainContent: React.FC<MainContentProps> = ({
     handleSendMessage,
     handleCopyMessage,
     handleFeedback,
-    handleStopTyping,
   } = useChat(sessionId, setSessionId, isLoggedIn);
 
   // Load chat data
@@ -155,8 +154,8 @@ const MainContent: React.FC<MainContentProps> = ({
                 {getGreeting()}! 👋
               </h1>
               <p className="text-lg text-black mb-8 max-w-md">
-                I'm your AI learning assistant. Ask me anything about your
-                studies, and I'll help you understand concepts better!
+                I&apos;m your AI learning assistant. Ask me anything about your
+                studies, and I&apos;ll help you understand concepts better!
               </p>
               <div className="space-y-2">
                 <p className="text-sm text-black">Try asking me:</p>
@@ -210,61 +209,55 @@ const MainContent: React.FC<MainContentProps> = ({
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            h1: ({ node, ...props }) => (
+                            h1: ({ ...props }) => (
                               <h1
                                 className="text-xl font-bold text-gray-900 mb-3"
                                 {...props}
                               />
                             ),
-                            h2: ({ node, ...props }) => (
+                            h2: ({ ...props }) => (
                               <h2
                                 className="text-lg font-bold text-gray-900 mb-2"
                                 {...props}
                               />
                             ),
-                            h3: ({ node, ...props }) => (
+                            h3: ({ ...props }) => (
                               <h3
                                 className="text-base font-bold text-gray-900 mb-2"
                                 {...props}
                               />
                             ),
-                            p: ({ node, ...props }) => (
+                            p: ({ ...props }) => (
                               <p
                                 className="text-gray-900 mb-3 leading-relaxed"
                                 {...props}
                               />
                             ),
-                            ul: ({ node, ...props }) => (
+                            ul: ({ ...props }) => (
                               <ul
                                 className="list-disc list-inside text-gray-900 mb-3 space-y-1"
                                 {...props}
                               />
                             ),
-                            ol: ({ node, ...props }) => (
+                            ol: ({ ...props }) => (
                               <ol
                                 className="list-decimal list-inside text-gray-900 mb-3 space-y-1"
                                 {...props}
                               />
                             ),
-                            li: ({ node, ...props }) => (
+                            li: ({ ...props }) => (
                               <li className="text-gray-900" {...props} />
                             ),
-                            strong: ({ node, ...props }) => (
+                            strong: ({ ...props }) => (
                               <strong
                                 className="font-semibold text-gray-900"
                                 {...props}
                               />
                             ),
-                            em: ({ node, ...props }) => (
+                            em: ({ ...props }) => (
                               <em className="italic text-gray-900" {...props} />
                             ),
-                            code: ({
-                              node,
-                              inline,
-                              className,
-                              children,
-                              ...props
-                            }: any) =>
+                            code: ({ inline, children, ...props }: any) =>
                               inline ? (
                                 <code
                                   className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-800"
@@ -280,7 +273,7 @@ const MainContent: React.FC<MainContentProps> = ({
                                   {children}
                                 </code>
                               ),
-                            blockquote: ({ node, ...props }) => (
+                            blockquote: ({ ...props }) => (
                               <blockquote
                                 className="border-l-4 border-[#009688] pl-4 py-2 my-4 bg-gray-50 rounded-r text-gray-700"
                                 {...props}

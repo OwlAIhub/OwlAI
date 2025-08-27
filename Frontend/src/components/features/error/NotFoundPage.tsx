@@ -13,7 +13,6 @@ import {
 import Logo from "@/assets/owl_AI_logo.png";
 
 export const NotFoundPage: React.FC = () => {
-  const [] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
   const funnyMessages = [

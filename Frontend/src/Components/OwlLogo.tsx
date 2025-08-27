@@ -41,10 +41,10 @@ const AnimatedOwlLogo = () => {
   const handleMouseMove = (e: {
     currentTarget: {
       getBoundingClientRect: () => {
-        left: any;
-        top: any;
-        width: any;
-        height: any;
+        left: number;
+        top: number;
+        width: number;
+        height: number;
       };
     };
     clientX: number;

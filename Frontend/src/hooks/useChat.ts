@@ -37,7 +37,7 @@ export const useChat = (
   const [displayedText, setDisplayedText] = useState("");
   const [, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Save messages to localStorage
   useEffect(() => {
@@ -198,7 +198,6 @@ export const useChat = (
       const result = await response.json();
 
       // Debug: Log the raw response from Flowise
-      console.log("Raw Flowise response:", result);
 
       // Handle different response formats from Flowise
       let botResponse = "Sorry, I couldn't generate a response.";
@@ -228,7 +227,6 @@ export const useChat = (
       }
 
       // Debug: Log the processed response
-      console.log("Processed bot response:", botResponse);
 
       // Start typing animation
       animateTyping(botResponse, () => {

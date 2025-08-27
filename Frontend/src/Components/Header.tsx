@@ -13,7 +13,7 @@ interface UserData {
   firstName: string;
   lastName: string;
   email: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface HeaderProps {

@@ -184,8 +184,8 @@ export const FAQSection: React.FC = () => {
               Still have questions?
             </h3>
             <p className="text-gray-600 mb-4">
-              Can't find the answer you're looking for? Our support team is here
-              to help.
+              Can&apos;t find the answer you&apos;re looking for? Our support
+              team is here to help.
             </p>
             <button className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
               Contact Support

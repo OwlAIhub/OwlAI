@@ -39,7 +39,7 @@ export const useTheme = (): UseThemeReturn => {
     } else {
       document.documentElement.classList.remove("dark");
     }
-  }, []);
+  }, [darkMode]);
 
   return {
     darkMode,

@@ -3,10 +3,10 @@ import { LandingHeader } from "@/components/features/landing/LandingHeader";
 import { AboutSection } from "@/components/features/landing/AboutSection";
 import { WhyChooseSection } from "@/components/features/landing/WhyChooseSection";
 import { ExamSupportSection } from "@/components/features/landing/ExamSupportSection";
-import { TestimonialsSection } from "@/components/features/landing/TestimonialsSection";
+// import { TestimonialsSection } from "@/components/features/landing/TestimonialsSection";
 import { FeatureCardsSection } from "@/components/features/landing/FeatureCardsSection";
 import { FAQSection } from "@/components/features/landing/FAQSection";
-import { PricingSection } from "@/components/features/landing/PricingSection";
+// import { PricingSection } from "@/components/features/landing/PricingSection";
 import { ContactUsSection } from "@/components/features/landing/ContactUsSection";
 import { LandingFooter } from "@/components/features/landing/LandingFooter";
 
@@ -39,10 +39,10 @@ const LandingPage = () => {
       <AboutSection />
       <WhyChooseSection />
       <ExamSupportSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <FeatureCardsSection />
       <FAQSection />
-      <PricingSection />
+      {/* <PricingSection /> */}
       <ContactUsSection />
 
       <LandingFooter currentYear={currentYear} />
