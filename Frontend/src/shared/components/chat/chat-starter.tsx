@@ -1,11 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import {
-  GraduationCap,
-  BookOpen,
-  Brain,
-  Lightbulb,
-} from "lucide-react";
+import { GraduationCap, BookOpen, Brain, Lightbulb } from "lucide-react";
 import owlLogo from "@/assets/owl-ai-logo.png";
 
 interface StarterPrompt {
@@ -24,33 +19,37 @@ interface ChatStarterProps {
 const starterPrompts: StarterPrompt[] = [
   {
     id: "teaching-aptitude",
-    title: "Teaching Aptitude",
-    description: "Teaching methods & pedagogy",
-    prompt: "Explain the key principles of effective teaching methods for UGC NET Paper 1",
+    title: "Teaching Methods",
+    description: "Analyze teaching effectiveness",
+    prompt:
+      "Which of the following teaching methods is most effective for promoting critical thinking in students: (A) Lecture method (B) Demonstration method (C) Project method (D) Discussion method",
     icon: <GraduationCap className="h-5 w-5" />,
     gradient: "from-blue-500 to-blue-600",
   },
   {
     id: "research-aptitude",
-    title: "Research Aptitude", 
-    description: "Research methodology concepts",
-    prompt: "Help me understand research methodology and design for UGC NET Paper 1",
+    title: "Research Design",
+    description: "Evaluate research methodology",
+    prompt:
+      "In a research study, if the researcher wants to establish cause-and-effect relationship, which research design would be most appropriate: (A) Descriptive research (B) Experimental research (C) Historical research (D) Survey research",
     icon: <BookOpen className="h-5 w-5" />,
     gradient: "from-green-500 to-green-600",
   },
   {
     id: "logical-reasoning",
-    title: "Logical Reasoning",
-    description: "Logic & analytical thinking",
-    prompt: "Give me practice questions on logical reasoning for UGC NET Paper 1",
+    title: "Syllogism",
+    description: "Test logical deduction",
+    prompt:
+      "All roses are flowers. Some flowers are red. Some red things are beautiful. Conclusion: (A) All roses are beautiful (B) Some roses are red (C) All beautiful things are roses (D) No conclusion follows",
     icon: <Brain className="h-5 w-5" />,
     gradient: "from-purple-500 to-purple-600",
   },
   {
-    id: "general-awareness",
-    title: "General Awareness",
-    description: "Current affairs & GK",
-    prompt: "Test my knowledge on current affairs and general awareness for UGC NET",
+    id: "ict-awareness",
+    title: "ICT & Communication",
+    description: "Digital literacy concepts",
+    prompt:
+      "Which of the following is NOT a characteristic of effective communication: (A) Clarity (B) Brevity (C) Ambiguity (D) Completeness",
     icon: <Lightbulb className="h-5 w-5" />,
     gradient: "from-orange-500 to-orange-600",
   },
