@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { InfiniteMovingCards } from "@/shared/components/ui/infinite-moving-cards";
 import ugcNetLogo from "@/assets/ugc-net.png";
-import csirNetLogo from "@/assets/csir.png";
+import csirNetLogo from "@/assets/csir.webp";
 import sscLogo from "@/assets/ssc.png";
 import ctetLogo from "@/assets/ctet.png";
 

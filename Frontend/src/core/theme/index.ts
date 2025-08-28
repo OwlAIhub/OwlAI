@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Import color scheme first
-import { colors, theme, getColor, getThemeColor } from "./color-scheme";
+import { colors, theme } from "./color-scheme";
 
 // Color Scheme
 export { colors, theme, getColor, getThemeColor } from "./color-scheme";

@@ -3,4 +3,4 @@
  * Landing page and related components
  */
 
-export { LandingPage } from "./landing-page";
+export { default as LandingPage } from "./landing-page";

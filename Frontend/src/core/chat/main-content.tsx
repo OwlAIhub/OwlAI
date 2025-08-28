@@ -253,7 +253,8 @@ export const MainContent: React.FC<MainContentProps> = ({
     try {
       // Use Flowise API directly
       const response = await fetch(
-        "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
+        import.meta.env.VITE_FLOWISE_API_URL ||
+          "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
         {
           method: "POST",
           headers: {

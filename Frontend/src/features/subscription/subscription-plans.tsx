@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiCheck, FiChevronRight } from "react-icons/fi";
+import { FiCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 // import Header from "../Components/Header";
 import { SubscriptionHeader } from "../../shared/components/subscription/subscription-header";

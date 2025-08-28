@@ -5,7 +5,9 @@
 
 // Cloud Functions Configuration
 export const CLOUD_FUNCTIONS_CONFIG = {
-  BASE_URL: "https://us-central1-owlai-123456.cloudfunctions.net", // Replace with your actual project
+  BASE_URL:
+    import.meta.env.VITE_CLOUD_FUNCTIONS_URL ||
+    "https://us-central1-owlai-123456.cloudfunctions.net", // Replace with your actual project
   TIMEOUT: 60000, // 60 seconds for AI processing
   MAX_RETRIES: 3,
   RETRY_DELAY: 2000,

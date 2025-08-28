@@ -272,7 +272,7 @@ export const theme = {
 // Utility functions for theme usage
 export const getColor = (
   colorPath: string,
-  mode: "light" | "dark" = "light"
+  _mode: "light" | "dark" = "light"
 ) => {
   const path = colorPath.split(".");
   let current: any = colors;
@@ -290,9 +290,9 @@ export const getColor = (
 
 export const getThemeColor = (
   colorName: string,
-  mode: "light" | "dark" = "light"
+  _mode: "light" | "dark" = "light"
 ) => {
-  return getColor(`${mode}.${colorName}`);
+  return getColor(`${_mode}.${colorName}`);
 };
 
 // Export theme configuration

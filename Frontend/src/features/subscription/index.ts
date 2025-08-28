@@ -3,4 +3,4 @@
  * Subscription management and related components
  */
 
-export { SubscriptionPlans } from "./subscription-plans";
+export { default as SubscriptionPlans } from "./subscription-plans";

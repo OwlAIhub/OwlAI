@@ -152,7 +152,7 @@ class EncryptionService {
   public async decryptData(
     encryptedData: string,
     iv: string,
-    salt: string,
+    _salt: string,
     algorithm: string = ENCRYPTION_CONFIG.ALGORITHM
   ): Promise<DecryptionResult> {
     const startTime = Date.now();
@@ -210,9 +210,9 @@ class EncryptionService {
    */
   public async encryptConversationContent(
     content: string,
-    conversationId: string
+    _conversationId: string
   ): Promise<EncryptionResult> {
-    return this.encryptData(content, `conversation:${conversationId}`);
+    return this.encryptData(content, `conversation:${_conversationId}`);
   }
 
   /**
@@ -222,7 +222,7 @@ class EncryptionService {
     encryptedContent: string,
     iv: string,
     salt: string,
-    conversationId: string
+    _conversationId: string
   ): Promise<DecryptionResult> {
     return this.decryptData(encryptedContent, iv, salt);
   }
@@ -232,9 +232,9 @@ class EncryptionService {
    */
   public async encryptPII(
     piiData: string,
-    dataType: "phone" | "email" | "name"
+    _dataType: "phone" | "email" | "name"
   ): Promise<EncryptionResult> {
-    return this.encryptData(piiData, `pii:${dataType}`);
+    return this.encryptData(piiData, `pii:${_dataType}`);
   }
 
   /**
@@ -244,7 +244,7 @@ class EncryptionService {
     encryptedPII: string,
     iv: string,
     salt: string,
-    dataType: "phone" | "email" | "name"
+    _dataType: "phone" | "email" | "name"
   ): Promise<DecryptionResult> {
     return this.decryptData(encryptedPII, iv, salt);
   }
@@ -254,9 +254,9 @@ class EncryptionService {
    */
   public async encryptMessageContent(
     content: string,
-    messageId: string
+    _messageId: string
   ): Promise<EncryptionResult> {
-    return this.encryptData(content, `message:${messageId}`);
+    return this.encryptData(content, `message:${_messageId}`);
   }
 
   /**
@@ -266,7 +266,7 @@ class EncryptionService {
     encryptedContent: string,
     iv: string,
     salt: string,
-    messageId: string
+    _messageId: string
   ): Promise<DecryptionResult> {
     return this.decryptData(encryptedContent, iv, salt);
   }
@@ -282,7 +282,9 @@ class EncryptionService {
       const dataSalt =
         salt ||
         this.arrayBufferToBase64(
-          crypto.getRandomValues(new Uint8Array(ENCRYPTION_CONFIG.SALT_LENGTH))
+          crypto.getRandomValues(
+            new Uint8Array(ENCRYPTION_CONFIG.SALT_LENGTH)
+          ) as ArrayBuffer
         );
 
       const encoder = new TextEncoder();

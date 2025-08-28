@@ -345,7 +345,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                   setInputValue(e.target.value);
                   setShowError(false);
                 }}
-                placeholder="Ask about UGC NET, CSIR-NET, SSC, CTET..."
+                placeholder="Ask me anything about your studies..."
                 className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20 placeholder-gray-500 text-black"
               />
               <button
@@ -441,13 +441,13 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     setInputValue(prompt.query);
                     setShowError(false);
                   }}
-                  className="group p-4 bg-white rounded-xl text-left hover:bg-gray-50 transition-all duration-200 border border-gray-100 hover:border-gray-200"
+                  className="group p-4 bg-gray-100 rounded-xl text-left hover:bg-gray-200 transition-all duration-300 border border-gray-200 hover:border-teal-300 hover:shadow-md"
                 >
                   <div className="space-y-2">
-                    <p className="text-black font-medium text-sm group-hover:text-teal-600 transition-colors">
+                    <p className="text-black font-semibold text-sm group-hover:text-teal-600 transition-colors">
                       {prompt.label}
                     </p>
-                    <p className="text-black text-xs leading-relaxed">
+                    <p className="text-gray-700 text-xs leading-relaxed group-hover:text-gray-800">
                       {prompt.description}
                     </p>
                   </div>

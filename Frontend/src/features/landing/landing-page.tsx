@@ -9,6 +9,7 @@ import { FAQSection } from "../../shared/components/landing/faq-section";
 // import { PricingSection } from "../../shared/components/landing/pricing-section";
 import { ContactUsSection } from "../../shared/components/landing/contact-us-section";
 import { LandingFooter } from "../../shared/components/landing/landing-footer";
+import { SEOHead, SEOConfigs } from "../../shared/components/seo/SEOHead";
 
 const LandingPage = () => {
   const [inputValue, setInputValue] = useState("");
@@ -28,6 +29,7 @@ const LandingPage = () => {
 
   return (
     <div className="font-sans bg-white">
+      <SEOHead {...SEOConfigs.home} />
       <LandingHeader
         inputValue={inputValue}
         setInputValue={setInputValue}

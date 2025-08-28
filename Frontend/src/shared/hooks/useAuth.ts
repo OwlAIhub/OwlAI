@@ -48,7 +48,7 @@ export const useAuthState = () => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, _password: string) => {
     setLoading(true);
     try {
       // Implement actual login logic here
@@ -69,7 +69,7 @@ export const useAuthState = () => {
     localStorage.removeItem("authToken");
   };
 
-  const register = async (email: string, password: string, name?: string) => {
+  const register = async (email: string, _password: string, name?: string) => {
     setLoading(true);
     try {
       // Implement actual registration logic here

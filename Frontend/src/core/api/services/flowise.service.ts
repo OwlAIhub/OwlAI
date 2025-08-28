@@ -16,6 +16,7 @@ import type { MessageDocument } from "../../database/types/database.types";
 // Flowise API Configuration
 const FLOWISE_CONFIG = {
   BASE_URL:
+    import.meta.env.VITE_FLOWISE_API_URL ||
     "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
   TIMEOUT: 30000, // 30 seconds
   MAX_RETRIES: 3,

@@ -3,4 +3,4 @@
  * Questionnaire flow and related components
  */
 
-export { Questionnaire } from "./questionnaire";
+export { default as Questionnaire } from "../../shared/components/questionnaire/questionnaire";

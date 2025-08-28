@@ -381,7 +381,6 @@ class GDPRService {
                 content: encryptedContent.encryptedData,
                 metadata: {
                   ...message.metadata,
-                  anonymized: true,
                   anonymizationDate: new Date().toISOString(),
                 },
               });
@@ -435,7 +434,7 @@ class GDPRService {
   /**
    * Update statistics
    */
-  private updateStats(processingTime: number, success: boolean): void {
+  private updateStats(processingTime: number, _success: boolean): void {
     const totalProcessed =
       this.stats.exportRequests + this.stats.deletionRequests;
 

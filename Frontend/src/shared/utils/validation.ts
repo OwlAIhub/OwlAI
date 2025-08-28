@@ -180,7 +180,7 @@ export function validateFormData(
 
   for (const [field, rules] of Object.entries(schema)) {
     const value = data[field] || "";
-    results[field] = validateText(value, rules);
+    results[field] = validateText(String(value), rules);
   }
 
   return results;

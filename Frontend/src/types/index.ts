@@ -33,7 +33,7 @@ export interface MainContentProps {
   toggleSidebar: () => void;
   onLogout: () => void;
   toggleDarkMode: () => void;
-  sessionId: string;
+  sessionId: string | null;
   setSesssionId: (id: string) => void;
 }
 

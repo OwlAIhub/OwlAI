@@ -248,7 +248,7 @@ export default function Auth() {
                             setPhoneNumber(formatPhoneNumber(e.target.value))
                           }
                           placeholder="+1234567890"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
                           disabled={isLoading}
                         />
                       </div>
@@ -310,7 +310,7 @@ export default function Auth() {
                         onChange={e => setOtpCode(formatOTP(e.target.value))}
                         placeholder="123456"
                         maxLength={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg font-mono focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg font-mono focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
                         disabled={isLoading || isVerifying}
                       />
                     </div>

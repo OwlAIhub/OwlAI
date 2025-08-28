@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist node_modules/.vite",
     "prebuild": "npm run type-check && npm run lint",
-    "lighthouse": "npx lighthouse http://localhost:3000 --config-path=./lighthouse.config.js --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage'",
+    "lighthouse": "npx lighthouse http://localhost:3000 --config-path=./lighthouse.config.js --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-web-security --disable-features=VizDisplayCompositor --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=TranslateUI --disable-ipc-flooding-protection --remote-debugging-port=0' --chrome-path=/usr/bin/chromium-browser",
     "lighthouse:build": "npm run build && npm run preview & sleep 5 && npx lighthouse http://localhost:4173 --config-path=./lighthouse.config.js --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage' && pkill -f 'vite preview'",
     "lighthouse:ci": "npx lighthouse http://localhost:3000 --config-path=./lighthouse.config.js --output=json --output-path=./lighthouse-report.json --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage'",
     "lighthouse:mobile": "npx lighthouse http://localhost:3000 --config-path=./lighthouse-mobile.config.js --output=html --output-path=./lighthouse-mobile-report.html --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage'",
@@ -26,7 +26,10 @@
     "test:lighthouse:wsl:dev": "node scripts/lighthouse-wsl.js dev",
     "test:lighthouse:wsl:mobile": "node scripts/lighthouse-wsl.js mobile",
     "optimize:images": "node scripts/optimize-images.js",
-    "build:optimized": "npm run optimize:images && npm run build"
+    "build:optimized": "npm run optimize:images && npm run build",
+    "seo:optimize": "node scripts/seo-optimization.js",
+    "seo:generate": "node scripts/seo-optimization.js",
+    "build:seo": "npm run seo:optimize && npm run build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -55,6 +58,7 @@
     "postcss": "^8.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.56.4",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",

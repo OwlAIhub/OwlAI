@@ -48,7 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // State Management
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
-  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [_editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [isMidRange, setIsMidRange] = useState(false);
   const [chatStore, setChatStore] = useState<ChatSession[]>([]);
@@ -296,7 +296,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setChatStore(updatedChats);
   };
 
-  const handleEditStart = (
+  const _handleEditStart = (
     chatId: string,
     currentTitle: string,
     e: React.MouseEvent
@@ -306,7 +306,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setEditedTitle(currentTitle);
   };
 
-  const handleEditSubmit = (chatId: string) => {
+  const _handleEditSubmit = (chatId: string) => {
     if (editedTitle.trim()) {
       renameChat(chatId, editedTitle);
     } else {
@@ -314,7 +314,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const handleEditCancel = () => {
+  const _handleEditCancel = () => {
     setEditingChatId(null);
   };
 
@@ -322,7 +322,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setSearchQuery(query);
   };
 
-  const handleClearSearch = () => {
+  const _handleClearSearch = () => {
     setSearchQuery("");
   };
 

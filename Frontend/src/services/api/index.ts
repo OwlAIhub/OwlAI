@@ -40,7 +40,7 @@ export const api = {
     },
   },
   feedback: {
-    submitFeedback: async (data: any) => {
+    submitFeedback: async (_data: any) => {
       // Mock implementation
       return { success: true, data: { id: `feedback_${Date.now()}` } };
     },

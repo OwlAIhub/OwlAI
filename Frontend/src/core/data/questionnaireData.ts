@@ -1,5 +1,5 @@
 import ugcNetLogo from "@/assets/ugc-net.png";
-import csirNetLogo from "@/assets/csir.png";
+import csirNetLogo from "@/assets/csir.webp";
 
 export const languages = ["English", "Hinglish"];
 

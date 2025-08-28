@@ -183,7 +183,8 @@ export function isValidUrl(url: string): boolean {
     const parsed = new URL(url);
     const allowedProtocols = ["http:", "https:"];
     const allowedDomains = [
-      "ugc-net-api-202604444478.asia-south1.run.app",
+      import.meta.env.VITE_UGC_API_URL ||
+        "ugc-net-api-202604444478.asia-south1.run.app",
       "firestore.googleapis.com",
       "identitytoolkit.googleapis.com",
       "securetoken.googleapis.com",
