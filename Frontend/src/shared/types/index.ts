@@ -209,7 +209,6 @@ export interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectChat: (chatId: string) => void;
-  currentUser: User | null;
   activeChatId: string | null;
   setChats: (chats: ChatSession[]) => void;
   onUserProfileClick: () => void;

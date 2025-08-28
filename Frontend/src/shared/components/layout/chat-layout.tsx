@@ -1,5 +1,6 @@
 import React from "react";
 import { MainContent } from "../../../core/chat/main-content";
+import { Sidebar } from "./sidebar";
 
 interface ChatLayoutProps {
   darkMode: boolean;
@@ -30,6 +31,18 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
 }) => {
   return (
     <div className="flex h-screen">
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={toggleSidebar}
+        onSelectChat={() => {}}
+        activeChatId={sessionId}
+        setChats={() => {}}
+        onUserProfileClick={onUserProfileClick}
+        setSesssionId={setSessionId}
+      />
+      
+      {/* Main Content */}
       <MainContent
         currentChatTitle={currentChatTitle}
         darkMode={darkMode}

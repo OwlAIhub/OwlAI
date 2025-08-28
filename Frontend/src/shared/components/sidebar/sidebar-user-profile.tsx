@@ -21,7 +21,8 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
   onUserProfileClick,
   darkMode,
 }) => {
-  const getUserInitials = (user: User) => {
+  const getUserInitials = (user: User | null) => {
+    if (!user) return "U";
     if (user.firstName && user.lastName) {
       return `${user.firstName.charAt(0)}${user.lastName.charAt(
         0
@@ -36,7 +37,8 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
     return "U";
   };
 
-  const getUserDisplayName = (user: User) => {
+  const getUserDisplayName = (user: User | null) => {
+    if (!user) return "User";
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }
@@ -69,7 +71,7 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
-            <span>{getUserInitials(user!)}</span>
+            <span>{getUserInitials(user)}</span>
           )}
         </div>
         <div className="flex-1 text-left">
@@ -78,7 +80,7 @@ export const SidebarUserProfile: React.FC<SidebarUserProfileProps> = ({
               darkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            {getUserDisplayName(user!)}
+            {getUserDisplayName(user)}
           </div>
           <div
             className={`text-sm ${

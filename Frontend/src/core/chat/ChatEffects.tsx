@@ -1,10 +1,10 @@
-import { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { ChatMessage } from "@/types";
 import { api } from "@/services/api";
 import { storage } from "@/utils";
 import { domUtils } from "@/shared/utils";
-import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from "@/constants";
+import { STORAGE_KEYS, MESSAGE_LIMITS } from "@/constants";
 
 /**
  * Chat effects hook
@@ -113,6 +113,26 @@ export const useChatEffects = (
   }, [setWindowSize]);
 
   // Chat history fetching
+  const processChatHistory = useCallback((messages: ChatMessage[], chatId?: string) => {
+    if (!messages || !Array.isArray(messages)) return;
+
+    const sortedMessages = messages.sort(
+      (a, b) =>
+        new Date(a.timestamp || 0).getTime() -
+        new Date(b.timestamp || 0).getTime()
+    );
+
+    setChatMessages(sortedMessages);
+
+    // Use the conversationId from the first message if available, or the provided chatId
+    const conversationId = sortedMessages[0]?.conversationId || chatId || currentChat?.id;
+    if (conversationId) {
+      storage.set(STORAGE_KEYS.SESSION_ID, conversationId);
+      setSesssionId(conversationId);
+      storage.set(`chatMessages-${conversationId}`, sortedMessages);
+    }
+  }, [setChatMessages, setSesssionId, currentChat?.id]);
+
   const fetchChatHistory = useCallback(
     async (chatId: string) => {
       if (chatMessages.some(msg => msg.conversationId === chatId)) {
@@ -126,7 +146,7 @@ export const useChatEffects = (
         if (cachedData) {
           const { timestamp, data } = cachedData;
           if (Date.now() - timestamp < MESSAGE_LIMITS.CACHE_DURATION) {
-            processChatHistory(data);
+            processChatHistory(data, chatId);
             return;
           }
         }
@@ -138,7 +158,7 @@ export const useChatEffects = (
             timestamp: Date.now(),
             data: response.data,
           });
-          processChatHistory(response.data);
+          processChatHistory(response.data, chatId);
         }
       } catch (error) {
         console.error("Error fetching chat history:", error);
@@ -146,28 +166,8 @@ export const useChatEffects = (
         setIsHistoryLoaded(true);
       }
     },
-    [chatMessages, setIsHistoryLoaded]
+    [chatMessages, setIsHistoryLoaded, processChatHistory]
   );
-
-  const processChatHistory = (messages: ChatMessage[]) => {
-    if (!messages || !Array.isArray(messages)) return;
-
-    const sortedMessages = messages.sort(
-      (a, b) =>
-        new Date(a.timestamp || 0).getTime() -
-        new Date(b.timestamp || 0).getTime()
-    );
-
-    setChatMessages(sortedMessages);
-
-    // Use the conversationId from the first message if available
-    const conversationId = sortedMessages[0]?.conversationId || chatId;
-    if (conversationId) {
-      storage.set(STORAGE_KEYS.SESSION_ID, conversationId);
-      setSesssionId(conversationId);
-      storage.set(`chatMessages-${conversationId}`, sortedMessages);
-    }
-  };
 
   // Fetch chat history when current chat changes
   useEffect(() => {
