@@ -11,7 +11,6 @@ export { sessionService } from "./services/session.service";
 
 // Hooks
 export { usePhoneAuth } from "./hooks/usePhoneAuth";
-export { useAuth } from "./hooks/useAuth";
 
 // Components
 export { default as Auth } from "./components/auth";
@@ -22,12 +21,6 @@ export { phoneNumberValidator } from "./utils/phone-validator";
 // Types
 export type {
   PhoneAuthState,
-  PhoneAuthConfig,
-  PhoneAuthResult,
-  SMSRateLimit,
-  VerificationAttempt,
-  PhoneAuthError,
-  PhoneAuthSession,
 } from "./types/phone-auth.types";
 
 export type {

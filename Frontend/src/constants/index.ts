@@ -1,45 +1,12 @@
-// Application constants
-
-export const APP_NAME = "OwlAI";
-export const APP_VERSION = "1.0.0";
+/**
+ * Application Constants
+ * Essential constants used throughout the application
+ */
 
 // API Configuration
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 export const API_TIMEOUT = 30000;
-
-// Firebase Configuration
-export const FIREBASE_CONFIG = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
-
-// Chat Configuration
-export const CHAT_CONFIG = {
-  MAX_MESSAGE_LENGTH: 4000,
-  MAX_CONVERSATION_LENGTH: 50,
-  TYPING_INDICATOR_DELAY: 1000,
-};
-
-// UI Configuration
-export const UI_CONFIG = {
-  THEME_COLORS: {
-    primary: "#52B788",
-    secondary: "#40916C",
-    accent: "#74C69D",
-  },
-  BREAKPOINTS: {
-    sm: 640,
-    md: 768,
-    lg: 1024,
-    xl: 1280,
-  },
-};
 
 // Local Storage Keys
 export const STORAGE_KEYS = {

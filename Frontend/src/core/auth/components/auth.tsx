@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -26,7 +26,6 @@ export default function Auth() {
   const {
     sendVerificationCode,
     verifyCode,
-    isVerifying,
     error,
     clearError,
     resetPhoneAuth,
@@ -222,7 +221,7 @@ export default function Auth() {
               className="mb-4"
             />
 
-            <AnimatePresence mode="wait" key={`${mode}-${step}`}>
+            <div key={`${mode}-${step}`}>
               {step === "phone" ? (
                 <motion.div
                   key={`phone-${mode}`}
@@ -324,7 +323,7 @@ export default function Auth() {
                         placeholder="123456"
                         maxLength={6}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg font-mono focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
-                        disabled={isLoading || isVerifying}
+                        disabled={isLoading}
                       />
                     </div>
 
@@ -332,20 +331,18 @@ export default function Auth() {
                       type="submit"
                       disabled={
                         isLoading ||
-                        isVerifying ||
                         !otpCode.trim() ||
                         otpCode.length !== 6
                       }
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                         isLoading ||
-                        isVerifying ||
                         !otpCode.trim() ||
                         otpCode.length !== 6
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-teal-600 text-white hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                       }`}
                     >
-                      {isLoading || isVerifying ? (
+                      {isLoading ? (
                         <div className="flex items-center justify-center">
                           <FiRefreshCw className="w-5 h-5 animate-spin mr-2" />
                           Verifying...
@@ -382,7 +379,7 @@ export default function Auth() {
                   </form>
                 </motion.div>
               )}
-            </AnimatePresence>
+            </div>
 
             {/* Error display */}
             {error && (

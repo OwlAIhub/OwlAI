@@ -45,45 +45,6 @@ class PhoneNumberValidator {
     const countryCode = cleaned.substring(1, 3);
     return this.validCountryCodes.includes(countryCode);
   }
-
-  /**
-   * Clean and format phone number
-   */
-  public format(phoneNumber: string): string {
-    // Remove all non-digit characters except +
-    const cleaned = phoneNumber.replace(/[^\d+]/g, "");
-
-    // Ensure it starts with +
-    if (!cleaned.startsWith("+")) {
-      return `+${cleaned}`;
-    }
-
-    return cleaned;
-  }
-
-  /**
-   * Get country code from phone number
-   */
-  public getCountryCode(phoneNumber: string): string | null {
-    const cleaned = this.format(phoneNumber);
-    const countryCode = cleaned.substring(1, 3);
-
-    return this.validCountryCodes.includes(countryCode) ? countryCode : null;
-  }
-
-  /**
-   * Validate OTP code format
-   */
-  public isValidOTP(code: string): boolean {
-    return /^\d{6}$/.test(code);
-  }
-
-  /**
-   * Get supported country codes
-   */
-  public getSupportedCountryCodes(): string[] {
-    return [...this.validCountryCodes];
-  }
 }
 
 // Export singleton instance

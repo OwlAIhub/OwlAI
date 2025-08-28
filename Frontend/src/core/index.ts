@@ -16,12 +16,6 @@ export {
 
 export type {
   PhoneAuthState,
-  PhoneAuthConfig,
-  PhoneAuthResult,
-  SMSRateLimit,
-  VerificationAttempt,
-  PhoneAuthError,
-  PhoneAuthSession,
   RateLimitCheck,
   RateLimitInfo,
   SessionData,

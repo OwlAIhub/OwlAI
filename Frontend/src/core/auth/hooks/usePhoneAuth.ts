@@ -1,15 +1,14 @@
 /**
  * Phone Authentication Hook
- * Comprehensive hook for phone authentication with all services integrated
+ * Main hook that combines all phone authentication functionality
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState } from "react";
 import { User } from "firebase/auth";
-import { phoneAuthService } from "../services/phone-auth.service";
-import { sessionService } from "../services/session.service";
-import { rateLimitService } from "../services/rate-limit.service";
-import { userProfileService } from "../services/user-profile.service";
-import { logger } from "../../../shared/utils/logger";
+import { usePhoneAuthState } from "./usePhoneAuthState";
+import { usePhoneAuthActions } from "./usePhoneAuthActions";
+import { usePhoneAuthRateLimit } from "./usePhoneAuthRateLimit";
+import { usePhoneAuthSession } from "./usePhoneAuthSession";
 import type { PhoneAuthState } from "../types/phone-auth.types";
 
 interface UsePhoneAuthReturn {
@@ -21,7 +20,7 @@ interface UsePhoneAuthReturn {
 
   // Actions
   sendVerificationCode: (phoneNumber: string) => Promise<void>;
-  verifyCode: (code: string) => Promise<void>;
+  verifyCode: (code: string) => Promise<User>;
   signOut: () => Promise<void>;
   clearRecaptcha: () => void;
 
@@ -41,162 +40,46 @@ interface UsePhoneAuthReturn {
 export const usePhoneAuth = (
   recaptchaContainerId: string
 ): UsePhoneAuthReturn => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [authState, setAuthState] = useState<PhoneAuthState>({
-    phoneNumber: "",
-    confirmationResult: null,
-    isCodeSent: false,
-    isVerifying: false,
-    error: null,
-    verificationId: null,
-  });
+  // Local state for actions
+  const [localUser, setLocalUser] = useState<User | null>(null);
+  const [localIsAuthenticated, setLocalIsAuthenticated] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [localIsLoading, setLocalIsLoading] = useState(false);
 
-  const initialized = useRef(false);
+  // State management
+  const {
+    user: stateUser,
+    isAuthenticated: stateIsAuthenticated,
+    isLoading: stateIsLoading,
+    authState,
+    error: stateError,
+  } = usePhoneAuthState(recaptchaContainerId);
 
-  // Initialize reCAPTCHA on mount
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await phoneAuthService.initializeRecaptcha(recaptchaContainerId);
-        initialized.current = true;
-        setIsLoading(false);
-      } catch (error) {
-        logger.error("Failed to initialize phone auth", "usePhoneAuth", error);
-        setError("Failed to initialize authentication system");
-        setIsLoading(false);
-      }
-    };
+  // Use local state if available, otherwise use state from usePhoneAuthState
+  const user = localUser || stateUser;
+  const isAuthenticated = localIsAuthenticated || stateIsAuthenticated;
+  const isLoading = localIsLoading || stateIsLoading;
+  const error = localError || stateError;
 
-    if (!initialized.current) {
-      initializeAuth();
-    }
+  // Actions
+  const {
+    sendVerificationCode,
+    verifyCode,
+    signOut,
+    clearRecaptcha,
+    clearError,
+  } = usePhoneAuthActions(
+    setLocalUser,
+    setLocalIsAuthenticated,
+    setLocalError,
+    setLocalIsLoading
+  );
 
-    // Cleanup on unmount
-    return () => {
-      phoneAuthService.clearRecaptcha();
-      sessionService.cleanup();
-    };
-  }, [recaptchaContainerId]);
+  // Rate limiting
+  const { getRateLimitInfo, isRateLimited } = usePhoneAuthRateLimit();
 
-  useEffect(() => {
-    const updateAuthState = () => {
-      const currentState = phoneAuthService.getState();
-      setAuthState(currentState);
-
-      if (currentState.error) {
-        setError(currentState.error);
-      }
-    };
-
-    updateAuthState();
-  }, []);
-
-  // Check session status
-  useEffect(() => {
-    const checkSession = () => {
-      const session = sessionService.getCurrentSession();
-      if (session) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    };
-
-    checkSession();
-  }, []);
-
-  // Send verification code
-  const sendVerificationCode = useCallback(async (phoneNumber: string) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      await phoneAuthService.sendVerificationCode(phoneNumber);
-
-      logger.info("Verification code sent", "usePhoneAuth", { phoneNumber });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code";
-      setError(errorMessage);
-      logger.error("Failed to send verification code", "usePhoneAuth", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Verify OTP code
-  const verifyCode = useCallback(async (code: string) => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      const user = await phoneAuthService.verifyCode(code);
-      setUser(user);
-      setIsAuthenticated(true);
-
-      logger.info("Code verified successfully", "usePhoneAuth", {
-        uid: user.uid,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to verify code";
-      setError(errorMessage);
-      logger.error("Failed to verify code", "usePhoneAuth", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Sign out
-  const signOut = useCallback(async () => {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      await sessionService.signOut();
-      setUser(null);
-      setIsAuthenticated(false);
-
-      logger.info("User signed out", "usePhoneAuth");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to sign out";
-      setError(errorMessage);
-      logger.error("Failed to sign out", "usePhoneAuth", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Clear reCAPTCHA
-  const clearRecaptcha = useCallback(() => {
-    phoneAuthService.clearRecaptcha();
-  }, []);
-
-  // Get rate limit info
-  const getRateLimitInfo = useCallback((phoneNumber: string) => {
-    return rateLimitService.getRateLimitInfo(phoneNumber);
-  }, []);
-
-  // Check if rate limited
-  const isRateLimited = useCallback((phoneNumber: string) => {
-    const check = rateLimitService.checkSMSLimit(phoneNumber);
-    return !check.allowed;
-  }, []);
-
-  // Clear error
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
+  // Session
+  const { sessionDuration, timeSinceLastActivity } = usePhoneAuthSession();
 
   return {
     // State
@@ -216,8 +99,8 @@ export const usePhoneAuth = (
     isRateLimited,
 
     // Session
-    sessionDuration: sessionService.getSessionDuration(),
-    timeSinceLastActivity: sessionService.getTimeSinceLastActivity(),
+    sessionDuration,
+    timeSinceLastActivity,
 
     // Error handling
     error,

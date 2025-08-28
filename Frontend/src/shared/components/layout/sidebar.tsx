@@ -12,7 +12,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { SidebarHeader } from "./sidebar-header";
 import { NewChatButton } from "./new-chat-button";
 import { SidebarSearch as SearchBar } from "../sidebar/sidebar-search";
-import { SidebarChatList as ChatList } from "../../../core/chat/components/sidebar-chat-list";
+import { SidebarChatList as ChatList } from "./sidebar-chat-list";
 import { SidebarUserProfile as UserProfileSection } from "../sidebar/sidebar-user-profile";
 
 // Interface for ChatList component

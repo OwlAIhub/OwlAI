@@ -4,83 +4,60 @@ import React, {
   useReducer,
   useCallback,
 } from "react";
-import { User, LoadingState } from "@/types";
+import { User } from "@/types";
 import { storage } from "@/utils";
 import { STORAGE_KEYS } from "@/constants";
 
-// State interface
+/**
+ * User state interface
+ * Contains only the properties that are actually used in the application
+ */
 interface UserState {
   user: User | null;
-  isLoggedIn: boolean;
-  authReady: boolean;
-  loading: LoadingState;
   error: string | null;
   sessionId: string | null;
-
-  // Anonymous session data
-  anonymousUserId: string | null;
-  anonymousSessionId: string | null;
-
-  // UI preferences
   darkMode: boolean;
   currentChatTitle: string;
 }
 
-// Action types
+/**
+ * Action types for user state management
+ * Only includes actions that are actually dispatched
+ */
 type UserAction =
   | { type: "SET_USER"; payload: User | null }
-  | { type: "SET_LOGGED_IN"; payload: boolean }
-  | { type: "SET_AUTH_READY"; payload: boolean }
-  | { type: "SET_LOADING"; payload: LoadingState }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "SET_SESSION_ID"; payload: string | null }
-  | { type: "SET_ANONYMOUS_USER_ID"; payload: string | null }
-  | { type: "SET_ANONYMOUS_SESSION_ID"; payload: string | null }
   | { type: "SET_DARK_MODE"; payload: boolean }
   | { type: "SET_CURRENT_CHAT_TITLE"; payload: string }
-  | { type: "CLEAR_USER_DATA" }
-  | { type: "RESET_STORE" };
+  | { type: "CLEAR_USER_DATA" };
 
-// Initial state
+/**
+ * Initial state for user store
+ * Loads persisted data from storage where available
+ */
 const initialState: UserState = {
   user: storage.get<User>(STORAGE_KEYS.USER),
-  isLoggedIn: false,
-  authReady: false,
-  loading: "idle",
   error: null,
   sessionId: storage.get<string>(STORAGE_KEYS.SESSION_ID),
-  anonymousUserId: storage.get<string>(STORAGE_KEYS.ANONYMOUS_USER_ID),
-  anonymousSessionId: storage.get<string>(STORAGE_KEYS.ANONYMOUS_SESSION_ID),
   darkMode: storage.get<boolean>(STORAGE_KEYS.DARK_MODE) ?? true,
   currentChatTitle: "Learning Theories",
 };
 
-// Reducer
+/**
+ * User state reducer
+ * Handles state updates based on dispatched actions
+ */
 const userReducer = (state: UserState, action: UserAction): UserState => {
   switch (action.type) {
     case "SET_USER":
       return { ...state, user: action.payload };
-
-    case "SET_LOGGED_IN":
-      return { ...state, isLoggedIn: action.payload };
-
-    case "SET_AUTH_READY":
-      return { ...state, authReady: action.payload };
-
-    case "SET_LOADING":
-      return { ...state, loading: action.payload };
 
     case "SET_ERROR":
       return { ...state, error: action.payload };
 
     case "SET_SESSION_ID":
       return { ...state, sessionId: action.payload };
-
-    case "SET_ANONYMOUS_USER_ID":
-      return { ...state, anonymousUserId: action.payload };
-
-    case "SET_ANONYMOUS_SESSION_ID":
-      return { ...state, anonymousSessionId: action.payload };
 
     case "SET_DARK_MODE":
       return { ...state, darkMode: action.payload };
@@ -92,15 +69,8 @@ const userReducer = (state: UserState, action: UserAction): UserState => {
       return {
         ...state,
         user: null,
-        isLoggedIn: false,
         sessionId: null,
         error: null,
-      };
-
-    case "RESET_STORE":
-      return {
-        ...initialState,
-        authReady: true, // Keep auth ready state
       };
 
     default:
@@ -108,38 +78,37 @@ const userReducer = (state: UserState, action: UserAction): UserState => {
   }
 };
 
-// Context
+/**
+ * User context interface
+ * Defines the shape of the context value with only used methods
+ */
 interface UserContextType {
   state: UserState;
 
   // User actions
   setUser: (user: User | null) => void;
-  setLoggedIn: (isLoggedIn: boolean) => void;
-  setAuthReady: (authReady: boolean) => void;
 
-  // State actions
-  setLoading: (loading: LoadingState) => void;
+  // Error handling
   setError: (error: string | null) => void;
   clearError: () => void;
 
-  // Session actions
+  // Session management
   setSessionId: (sessionId: string | null) => void;
-  setAnonymousUserId: (userId: string | null) => void;
-  setAnonymousSessionId: (sessionId: string | null) => void;
 
-  // UI actions
-  setDarkMode: (darkMode: boolean) => void;
+  // UI preferences
   toggleDarkMode: () => void;
   setCurrentChatTitle: (title: string) => void;
 
   // Utility actions
   clearUserData: () => void;
-  resetStore: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Provider component
+/**
+ * User provider component
+ * Provides user state and actions to the component tree
+ */
 interface UserProviderProps {
   children: React.ReactNode;
 }
@@ -147,7 +116,9 @@ interface UserProviderProps {
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
 
-  // User actions
+  /**
+   * Set user data and persist to storage
+   */
   const setUser = useCallback((user: User | null) => {
     dispatch({ type: "SET_USER", payload: user });
 
@@ -159,28 +130,23 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const setLoggedIn = useCallback((isLoggedIn: boolean) => {
-    dispatch({ type: "SET_LOGGED_IN", payload: isLoggedIn });
-  }, []);
-
-  const setAuthReady = useCallback((authReady: boolean) => {
-    dispatch({ type: "SET_AUTH_READY", payload: authReady });
-  }, []);
-
-  // State actions
-  const setLoading = useCallback((loading: LoadingState) => {
-    dispatch({ type: "SET_LOADING", payload: loading });
-  }, []);
-
+  /**
+   * Set error state
+   */
   const setError = useCallback((error: string | null) => {
     dispatch({ type: "SET_ERROR", payload: error });
   }, []);
 
+  /**
+   * Clear error state
+   */
   const clearError = useCallback(() => {
     dispatch({ type: "SET_ERROR", payload: null });
   }, []);
 
-  // Session actions
+  /**
+   * Set session ID and persist to storage
+   */
   const setSessionId = useCallback((sessionId: string | null) => {
     dispatch({ type: "SET_SESSION_ID", payload: sessionId });
 
@@ -192,50 +158,34 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const setAnonymousUserId = useCallback((userId: string | null) => {
-    dispatch({ type: "SET_ANONYMOUS_USER_ID", payload: userId });
-
-    if (userId) {
-      storage.set(STORAGE_KEYS.ANONYMOUS_USER_ID, userId);
-    } else {
-      storage.remove(STORAGE_KEYS.ANONYMOUS_USER_ID);
-    }
-  }, []);
-
-  const setAnonymousSessionId = useCallback((sessionId: string | null) => {
-    dispatch({ type: "SET_ANONYMOUS_SESSION_ID", payload: sessionId });
-
-    if (sessionId) {
-      storage.set(STORAGE_KEYS.ANONYMOUS_SESSION_ID, sessionId);
-    } else {
-      storage.remove(STORAGE_KEYS.ANONYMOUS_SESSION_ID);
-    }
-  }, []);
-
-  // UI actions
-  const setDarkMode = useCallback((darkMode: boolean) => {
-    dispatch({ type: "SET_DARK_MODE", payload: darkMode });
+  /**
+   * Toggle dark mode and apply to DOM
+   */
+  const toggleDarkMode = useCallback(() => {
+    const newDarkMode = !state.darkMode;
+    dispatch({ type: "SET_DARK_MODE", payload: newDarkMode });
 
     // Apply to DOM
-    if (darkMode) {
+    if (newDarkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
 
     // Persist preference
-    storage.set(STORAGE_KEYS.DARK_MODE, darkMode);
-  }, []);
+    storage.set(STORAGE_KEYS.DARK_MODE, newDarkMode);
+  }, [state.darkMode]);
 
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode(!state.darkMode);
-  }, [state.darkMode, setDarkMode]);
-
+  /**
+   * Set current chat title
+   */
   const setCurrentChatTitle = useCallback((title: string) => {
     dispatch({ type: "SET_CURRENT_CHAT_TITLE", payload: title });
   }, []);
 
-  // Utility actions
+  /**
+   * Clear user data and remove from storage
+   */
   const clearUserData = useCallback(() => {
     dispatch({ type: "CLEAR_USER_DATA" });
 
@@ -244,26 +194,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     storage.remove(STORAGE_KEYS.SESSION_ID);
   }, []);
 
-  const resetStore = useCallback(() => {
-    dispatch({ type: "RESET_STORE" });
-  }, []);
-
   const contextValue: UserContextType = {
     state,
     setUser,
-    setLoggedIn,
-    setAuthReady,
-    setLoading,
     setError,
     clearError,
     setSessionId,
-    setAnonymousUserId,
-    setAnonymousSessionId,
-    setDarkMode,
     toggleDarkMode,
     setCurrentChatTitle,
     clearUserData,
-    resetStore,
   };
 
   return (
@@ -271,7 +210,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use user context
+/**
+ * Custom hook to use user context
+ * Provides type-safe access to user state and actions
+ */
 export const useUserStore = (): UserContextType => {
   const context = useContext(UserContext);
   if (context === undefined) {
