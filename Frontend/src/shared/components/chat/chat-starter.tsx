@@ -1,6 +1,4 @@
 import React from "react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { GraduationCap, BookOpen, Brain, Lightbulb } from "lucide-react";
 import owlLogo from "@/assets/owl-ai-logo.png";
 
 interface StarterPrompt {
@@ -18,39 +16,35 @@ interface ChatStarterProps {
 
 const starterPrompts: StarterPrompt[] = [
   {
-    id: "teaching-aptitude",
-    title: "Teaching Methods",
-    description: "Analyze teaching effectiveness",
-    prompt:
-      "Which of the following teaching methods is most effective for promoting critical thinking in students: (A) Lecture method (B) Demonstration method (C) Project method (D) Discussion method",
-    icon: <GraduationCap className="h-5 w-5" />,
+    id: "teaching-definition",
+    title: "",
+    description: "",
+    prompt: "What is the meaning of Teaching?",
+    icon: <></>,
     gradient: "from-blue-500 to-blue-600",
   },
   {
-    id: "research-aptitude",
-    title: "Research Design",
-    description: "Evaluate research methodology",
-    prompt:
-      "In a research study, if the researcher wants to establish cause-and-effect relationship, which research design would be most appropriate: (A) Descriptive research (B) Experimental research (C) Historical research (D) Survey research",
-    icon: <BookOpen className="h-5 w-5" />,
+    id: "research-meaning",
+    title: "",
+    description: "",
+    prompt: "What is the fundamental meaning of Research?",
+    icon: <></>,
     gradient: "from-green-500 to-green-600",
   },
   {
-    id: "logical-reasoning",
-    title: "Syllogism",
-    description: "Test logical deduction",
-    prompt:
-      "All roses are flowers. Some flowers are red. Some red things are beautiful. Conclusion: (A) All roses are beautiful (B) Some roses are red (C) All beautiful things are roses (D) No conclusion follows",
-    icon: <Brain className="h-5 w-5" />,
+    id: "logical-reasoning-definition",
+    title: "",
+    description: "",
+    prompt: "What is Logical Reasoning and why is it important?",
+    icon: <></>,
     gradient: "from-purple-500 to-purple-600",
   },
   {
-    id: "ict-awareness",
-    title: "ICT & Communication",
-    description: "Digital literacy concepts",
-    prompt:
-      "Which of the following is NOT a characteristic of effective communication: (A) Clarity (B) Brevity (C) Ambiguity (D) Completeness",
-    icon: <Lightbulb className="h-5 w-5" />,
+    id: "communication-essence",
+    title: "",
+    description: "",
+    prompt: "What is the essence of effective Communication?",
+    icon: <></>,
     gradient: "from-orange-500 to-orange-600",
   },
 ];
@@ -80,38 +74,31 @@ export const ChatStarter: React.FC<ChatStarterProps> = ({ onPromptSelect }) => {
         </p>
       </div>
 
-      {/* Compact Starter Prompts */}
-      <div className="w-full max-w-2xl">
-        <div className="grid grid-cols-2 gap-3">
+      {/* Modern Starter Prompts */}
+      <div className="w-full max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {starterPrompts.map((prompt, index) => (
-            <Card
+            <div
               key={prompt.id}
-              className="group cursor-pointer border border-border/40 hover:border-teal-400/60 transition-all duration-200 hover:shadow-sm animate-in fade-in slide-in-from-bottom-2"
+              className="group cursor-pointer relative overflow-hidden rounded-xl border border-border/30 bg-background/50 hover:border-teal-400/50 hover:bg-background/80 transition-all duration-200 hover:shadow-lg hover:shadow-teal-500/5 animate-in fade-in slide-in-from-bottom-2 hover:-translate-y-1"
               style={{
-                animationDelay: `${index * 50}ms`,
+                animationDelay: `${index * 80}ms`,
                 animationFillMode: "both",
               }}
               onClick={() => onPromptSelect(prompt.prompt)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`p-2 rounded-lg bg-gradient-to-br ${prompt.gradient} text-white shadow-sm group-hover:scale-105 transition-transform duration-200`}
-                  >
-                    <div className="w-4 h-4">{prompt.icon}</div>
-                  </div>
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm text-foreground group-hover:text-teal-600 transition-colors duration-200">
-                      {prompt.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5 line-clamp-1">
-                      {prompt.description}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="relative p-6">
+                <p className="text-sm font-medium text-foreground/80 group-hover:text-teal-600 transition-colors duration-300 leading-relaxed text-center">
+                  {prompt.prompt}
+                </p>
+              </div>
+
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-400/0 via-teal-400/50 to-teal-400/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+            </div>
           ))}
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
 import {
@@ -35,7 +36,13 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    // Navigate back to the landing page
+    navigate("/OwlAi");
+  };
 
   return (
     <SidebarMenu>
@@ -83,7 +90,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

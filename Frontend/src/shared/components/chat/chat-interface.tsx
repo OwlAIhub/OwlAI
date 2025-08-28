@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -37,10 +37,21 @@ export const ChatInterface: React.FC = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handlePromptSelect = (prompt: string) => {
+  // Check for preset query from hero section
+  useEffect(() => {
+    const presetQuery = localStorage.getItem("presetQuery");
+    if (presetQuery && !hasStarted) {
+      // Clear the preset query from localStorage
+      localStorage.removeItem("presetQuery");
+      // Auto-send the message
+      handleSendMessage(presetQuery);
+    }
+  }, [hasStarted]);
+
+  const handlePromptSelect = useCallback((prompt: string) => {
     setInputValue(prompt);
     handleSendMessage(prompt);
-  };
+  }, []);
 
   const handleSendMessage = (content?: string) => {
     const messageContent = content || inputValue.trim();
@@ -83,12 +94,12 @@ export const ChatInterface: React.FC = () => {
     }, 1500);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
-  };
+  }, [inputValue]);
 
   return (
     <div className="flex flex-col h-full bg-background">
