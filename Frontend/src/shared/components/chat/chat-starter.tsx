@@ -80,7 +80,7 @@ export const ChatStarter: React.FC<ChatStarterProps> = ({ onPromptSelect }) => {
           {starterPrompts.map((prompt, index) => (
             <div
               key={prompt.id}
-              className="group cursor-pointer relative overflow-hidden rounded-xl border border-border/30 bg-background/50 hover:border-teal-400/50 hover:bg-background/80 transition-all duration-200 hover:shadow-lg hover:shadow-teal-500/5 animate-in fade-in slide-in-from-bottom-2 hover:-translate-y-1"
+              className="group cursor-pointer relative overflow-hidden rounded-xl border border-gray-300 bg-white/80 hover:border-teal-300 hover:bg-white transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-teal-500/10 animate-in fade-in slide-in-from-bottom-2 hover:-translate-y-1"
               style={{
                 animationDelay: `${index * 80}ms`,
                 animationFillMode: "both",
@@ -88,16 +88,16 @@ export const ChatStarter: React.FC<ChatStarterProps> = ({ onPromptSelect }) => {
               onClick={() => onPromptSelect(prompt.prompt)}
             >
               {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
-              <div className="relative p-6">
-                <p className="text-sm font-medium text-foreground/80 group-hover:text-teal-600 transition-colors duration-300 leading-relaxed text-center">
+              <div className="relative p-5">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors duration-200 leading-relaxed text-center">
                   {prompt.prompt}
                 </p>
               </div>
 
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-400/0 via-teal-400/50 to-teal-400/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              {/* Subtle accent line */}
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-400/0 via-teal-400 to-teal-400/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
             </div>
           ))}
         </div>

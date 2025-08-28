@@ -76,7 +76,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 components={{
                   h1: ({ children }) => (
                     <h1
-                      className="text-xl font-semibold mb-4 mt-6 first:mt-0"
+                      className="text-2xl font-bold mb-4 mt-6 first:mt-0 pb-2 border-b border-gray-200"
                       style={{ color: "#000000" }}
                     >
                       {children}
@@ -84,7 +84,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   ),
                   h2: ({ children }) => (
                     <h2
-                      className="text-lg font-semibold mb-3 mt-5 first:mt-0"
+                      className="text-xl font-bold mb-3 mt-6 first:mt-0"
                       style={{ color: "#000000" }}
                     >
                       {children}
@@ -92,7 +92,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   ),
                   h3: ({ children }) => (
                     <h3
-                      className="text-base font-semibold mb-2 mt-4 first:mt-0"
+                      className="text-lg font-semibold mb-3 mt-5 first:mt-0"
                       style={{ color: "#000000" }}
                     >
                       {children}
@@ -157,6 +157,44 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                         {children}
                       </code>
                     </pre>
+                  ),
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto mb-4">
+                      <table className="min-w-full border-collapse border border-gray-300 rounded-lg">
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => (
+                    <thead className="bg-gray-50">
+                      {children}
+                    </thead>
+                  ),
+                  tbody: ({ children }) => (
+                    <tbody className="bg-white">
+                      {children}
+                    </tbody>
+                  ),
+                  tr: ({ children }) => (
+                    <tr className="border-b border-gray-200 hover:bg-gray-50">
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th 
+                      className="border border-gray-300 px-4 py-3 text-left font-semibold text-sm bg-gray-100"
+                      style={{ color: "#000000" }}
+                    >
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td 
+                      className="border border-gray-300 px-4 py-3 text-sm"
+                      style={{ color: "#000000" }}
+                    >
+                      {children}
+                    </td>
                   ),
                 }}
               >

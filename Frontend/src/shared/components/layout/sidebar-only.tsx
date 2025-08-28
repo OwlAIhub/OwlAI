@@ -36,12 +36,12 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
           <div className="flex items-center justify-between p-4 border-b border-border/40 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center space-x-3">
               <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
-              <div className="text-sm text-muted-foreground">
-                <span className="hover:text-teal-600 transition-colors cursor-pointer">
+              <div className="text-sm text-gray-700">
+                <span className="text-gray-600 hover:text-teal-600 transition-colors cursor-pointer">
                   Chat
                 </span>
-                <span className="mx-2">›</span>
-                <span className="font-medium text-foreground">
+                <span className="mx-2 text-gray-500">›</span>
+                <span className="font-medium text-gray-900">
                   General Chat
                 </span>
               </div>

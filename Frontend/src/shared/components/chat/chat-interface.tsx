@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
+
 import { ChatMessage } from "./chat-message";
 import { ChatStarter } from "./chat-starter";
 import { TypingIndicator } from "./typing-indicator";
@@ -25,12 +25,14 @@ export const ChatInterface: React.FC = () => {
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      );
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
+      setTimeout(() => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTo({
+            top: scrollAreaRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 100);
     }
   };
 
@@ -66,14 +68,7 @@ export const ChatInterface: React.FC = () => {
     };
 
     if (!hasStarted) {
-      const greetingMessage: Message = {
-        id: "greeting",
-        type: "bot",
-        content:
-          "Hello! I'm OwlAI, your intelligent assistant. How can I help you today?",
-        timestamp: new Date(),
-      };
-      setMessages([greetingMessage, userMessage]);
+      setMessages([userMessage]);
       setHasStarted(true);
     } else {
       setMessages(prev => [...prev, userMessage]);
@@ -127,14 +122,22 @@ export const ChatInterface: React.FC = () => {
       {!hasStarted ? (
         <ChatStarter onPromptSelect={handlePromptSelect} />
       ) : (
-        <ScrollArea ref={scrollAreaRef} className="flex-1 px-3 py-2">
-          <div className="space-y-3 pb-3 max-w-4xl mx-auto">
+        <div
+          ref={scrollAreaRef}
+          className="flex-1 px-3 py-2 overflow-y-auto overflow-x-hidden"
+          style={{ 
+            scrollBehavior: "smooth",
+            height: "100%",
+            maxHeight: "calc(100vh - 200px)"
+          }}
+        >
+          <div className="space-y-1 pb-3 max-w-4xl mx-auto">
             {messages.map(message => (
               <ChatMessage key={message.id} message={message} />
             ))}
             {isTyping && <TypingIndicator />}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       {/* Input Area at Bottom - ChatGPT Style */}
