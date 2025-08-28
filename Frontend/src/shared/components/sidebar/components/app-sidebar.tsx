@@ -1,19 +1,15 @@
 "use client";
 
 import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  MessageCircle,
-  Settings,
-  HelpCircle,
-  Crown,
-} from "lucide-react";
+import { MessageCircle, Plus } from "lucide-react";
+
+import owlLogo from "@/assets/owl-ai-logo.png";
 
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
+import { Button } from "@/shared/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -71,70 +67,13 @@ const defaultData: SidebarData = {
       isActive: true,
       items: [
         {
-          title: "New Chat",
-          url: "/chat",
-        },
-        {
           title: "History",
           url: "/chat/history",
         },
-        {
-          title: "Starred",
-          url: "/chat/starred",
-        },
-      ],
-    },
-    {
-      title: "Learning",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Study Guide",
-          url: "/study",
-        },
-        {
-          title: "Practice Tests",
-          url: "/practice",
-        },
-        {
-          title: "Progress",
-          url: "/progress",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-      items: [
-        {
-          title: "Profile",
-          url: "/profile",
-        },
-        {
-          title: "Preferences",
-          url: "/settings",
-        },
-        {
-          title: "Subscription",
-          url: "/subscription",
-        },
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Help & Support",
-      url: "/support",
-      icon: HelpCircle,
-    },
-    {
-      title: "Upgrade Plan",
-      url: "/subscription",
-      icon: Crown,
-    },
-  ],
+  navSecondary: [],
   recentChats: [],
 };
 
@@ -159,15 +98,19 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/chat" className="group">
-                <div className="bg-gradient-to-br from-teal-500 to-teal-600 text-white flex aspect-square size-10 items-center justify-center rounded-xl shadow-lg">
-                  <Bot className="size-5" />
+                <div className="bg-gradient-to-br from-teal-500/95 to-teal-600/95 backdrop-blur-sm text-white flex aspect-square size-11 items-center justify-center rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden border border-white/10">
+                  <img
+                    src={owlLogo}
+                    alt="OwlAI Logo"
+                    className="size-8 object-contain filter brightness-110"
+                  />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-foreground group-hover:text-primary transition-colors">
+                <div className="grid flex-1 text-left leading-tight ml-1">
+                  <span className="truncate font-semibold text-lg text-foreground group-hover:text-teal-600 transition-colors duration-200 tracking-tight">
                     OwlAI
                   </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Chat Assistant
+                  <span className="truncate text-xs text-muted-foreground/80 font-medium tracking-wide">
+                    AI Assistant
                   </span>
                 </div>
               </a>
@@ -177,6 +120,18 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent className="px-0">
+        {/* New Chat Button */}
+        <div className="px-3 py-2">
+          <Button
+            onClick={onNewChat}
+            className="w-full h-8 bg-gradient-to-r from-teal-500/90 to-teal-600/90 hover:from-teal-500 hover:to-teal-600 text-white text-sm font-medium border-0 shadow-sm hover:shadow-md transition-all duration-150 ease-out rounded-lg"
+            size="sm"
+          >
+            <Plus className="size-4 mr-1.5" />
+            New Chat
+          </Button>
+        </div>
+
         <NavMain items={data.navMain} />
         {data.recentChats && data.recentChats.length > 0 && (
           <NavProjects
