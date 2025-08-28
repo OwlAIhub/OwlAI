@@ -18,6 +18,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/shared/components/ui/sidebar";
 
 interface SidebarData {
@@ -90,6 +91,7 @@ export function AppSidebar({
   ...props
 }: AppSidebarProps) {
   const data = { ...defaultData, ...propData };
+  const { toggleSidebar } = useSidebar();
 
   return (
     <Sidebar className="border-r-0 bg-background" {...props}>
@@ -105,7 +107,7 @@ export function AppSidebar({
                     className="size-8 object-contain filter brightness-110"
                   />
                 </div>
-                <div className="grid flex-1 text-left leading-tight ml-1">
+                <div className="grid flex-1 text-left leading-tight ml-1 group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-semibold text-lg text-foreground group-hover:text-teal-600 transition-colors duration-200 tracking-tight">
                     OwlAI
                   </span>
@@ -121,14 +123,16 @@ export function AppSidebar({
 
       <SidebarContent className="px-0">
         {/* New Chat Button */}
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 group-data-[collapsible=icon]:px-2">
           <Button
             onClick={onNewChat}
-            className="w-full h-8 bg-gradient-to-r from-teal-500/90 to-teal-600/90 hover:from-teal-500 hover:to-teal-600 text-white text-sm font-medium border-0 shadow-sm hover:shadow-md transition-all duration-150 ease-out rounded-lg"
+            className="w-full h-8 bg-gradient-to-r from-teal-500/90 to-teal-600/90 hover:from-teal-500 hover:to-teal-600 text-white text-sm font-medium border-0 shadow-sm hover:shadow-md transition-all duration-150 ease-out rounded-lg group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:p-0"
             size="sm"
           >
-            <Plus className="size-4 mr-1.5" />
-            New Chat
+            <Plus className="size-4 mr-1.5 group-data-[collapsible=icon]:mr-0" />
+            <span className="group-data-[collapsible=icon]:hidden">
+              New Chat
+            </span>
           </Button>
         </div>
 

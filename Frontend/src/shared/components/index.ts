@@ -17,11 +17,6 @@ export { ProfileStats } from "./profile/profile-stats";
 export { QuestionnaireStep } from "./questionnaire/questionnaire-step";
 export { QuestionnaireNavigation } from "./questionnaire/questionnaire-navigation";
 
-// Sidebar components
-export { SidebarHeader } from "./sidebar/sidebar-header";
-export { SidebarSearch } from "./sidebar/sidebar-search";
-export { SidebarUserProfile } from "./sidebar/sidebar-user-profile";
-
 // Subscription components
 export { SubscriptionHeader } from "./subscription/subscription-header";
 export { SubscriptionPlanCard } from "./subscription/subscription-plan-card";
