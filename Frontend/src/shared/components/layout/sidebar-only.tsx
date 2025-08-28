@@ -27,25 +27,31 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
             recentChats: [], // Empty for demo
           }}
           onNewChat={onNewChat}
-          onChatSelect={(chatId) => console.log("Chat selected:", chatId)}
+          onChatSelect={chatId => console.log("Chat selected:", chatId)}
         />
 
         {/* Simple Main Area with Toggle Button */}
         <SidebarInset className="flex-1 flex flex-col overflow-hidden bg-background">
           <div className="flex items-center p-4 border-b border-border/40">
-            <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors" />
+            <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
             <div className="flex-1 text-center">
               <h1 className="text-lg font-semibold text-foreground">
                 OwlAI Sidebar Demo
               </h1>
             </div>
           </div>
-          
+
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <h2 className="text-xl font-medium mb-2">Sidebar Implementation</h2>
-              <p>Toggle the sidebar to see the collapsed state</p>
-              <p className="text-sm mt-2">Keyboard shortcut: Ctrl+B (or Cmd+B)</p>
+            <div className="text-center animate-in fade-in duration-700 slide-in-from-bottom-4">
+              <h2 className="text-xl font-medium mb-2 transition-colors duration-300 hover:text-foreground">
+                Sidebar Implementation
+              </h2>
+              <p className="transition-colors duration-300 hover:text-foreground">
+                Toggle the sidebar to see the collapsed state
+              </p>
+              <p className="text-sm mt-2 transition-colors duration-300 hover:text-foreground">
+                Keyboard shortcut: Ctrl+B (or Cmd+B)
+              </p>
             </div>
           </div>
         </SidebarInset>

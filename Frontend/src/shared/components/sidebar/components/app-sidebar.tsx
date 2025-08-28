@@ -91,27 +91,31 @@ export function AppSidebar({
   ...props
 }: AppSidebarProps) {
   const data = { ...defaultData, ...propData };
-  const { toggleSidebar } = useSidebar();
+  useSidebar();
 
   return (
-    <Sidebar className="border-r-0 bg-background" {...props}>
+    <Sidebar
+      collapsible="icon"
+      className="border-r-0 bg-background transition-all duration-300 ease-in-out"
+      {...props}
+    >
       <SidebarHeader className="border-b border-border/40">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/chat" className="group">
-                <div className="bg-gradient-to-br from-teal-500/95 to-teal-600/95 backdrop-blur-sm text-white flex aspect-square size-11 items-center justify-center rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden border border-white/10">
+                <div className="bg-gradient-to-br from-teal-500/95 to-teal-600/95 backdrop-blur-sm text-white flex aspect-square size-11 items-center justify-center rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 ease-out overflow-hidden border border-white/10 hover:scale-105 active:scale-95">
                   <img
                     src={owlLogo}
                     alt="OwlAI Logo"
-                    className="size-8 object-contain filter brightness-110"
+                    className="size-8 object-contain filter brightness-110 transition-transform duration-300 ease-out"
                   />
                 </div>
-                <div className="grid flex-1 text-left leading-tight ml-1 group-data-[collapsible=icon]:hidden">
-                  <span className="truncate font-semibold text-lg text-foreground group-hover:text-teal-600 transition-colors duration-200 tracking-tight">
+                <div className="grid flex-1 text-left leading-tight ml-1 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:opacity-0 transition-all duration-300 ease-in-out">
+                  <span className="truncate font-semibold text-lg text-foreground group-hover:text-teal-600 transition-all duration-300 ease-out tracking-tight transform group-data-[collapsible=icon]:translate-x-2">
                     OwlAI
                   </span>
-                  <span className="truncate text-xs text-muted-foreground/80 font-medium tracking-wide">
+                  <span className="truncate text-xs text-muted-foreground/80 font-medium tracking-wide transition-all duration-300 ease-out delay-75 transform group-data-[collapsible=icon]:translate-x-2">
                     AI Assistant
                   </span>
                 </div>
@@ -123,14 +127,14 @@ export function AppSidebar({
 
       <SidebarContent className="px-0">
         {/* New Chat Button */}
-        <div className="px-3 py-2 group-data-[collapsible=icon]:px-2">
+        <div className="px-3 py-2 group-data-[collapsible=icon]:px-2 transition-all duration-300 ease-in-out">
           <Button
             onClick={onNewChat}
-            className="w-full h-8 bg-gradient-to-r from-teal-500/90 to-teal-600/90 hover:from-teal-500 hover:to-teal-600 text-white text-sm font-medium border-0 shadow-sm hover:shadow-md transition-all duration-150 ease-out rounded-lg group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:p-0"
+            className="w-full h-8 bg-gradient-to-r from-teal-500/90 to-teal-600/90 hover:from-teal-500 hover:to-teal-600 text-white text-sm font-medium border-0 shadow-sm hover:shadow-lg transition-all duration-300 ease-out rounded-lg group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:p-0 hover:scale-105 active:scale-95 hover:-translate-y-0.5"
             size="sm"
           >
-            <Plus className="size-4 mr-1.5 group-data-[collapsible=icon]:mr-0" />
-            <span className="group-data-[collapsible=icon]:hidden">
+            <Plus className="size-4 mr-1.5 group-data-[collapsible=icon]:mr-0 transition-all duration-300 ease-out group-data-[collapsible=icon]:rotate-90" />
+            <span className="group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:opacity-0 transition-all duration-300 ease-in-out">
               New Chat
             </span>
           </Button>

@@ -8,11 +8,6 @@ export { LandingHeader } from "./landing/landing-header";
 export { LandingFeatures } from "./landing/landing-features";
 export { LandingFooter } from "./landing/landing-footer";
 
-// Profile components
-export { ProfileHeader } from "./profile/profile-header";
-export { ProfileSection } from "./profile/profile-section";
-export { ProfileStats } from "./profile/profile-stats";
-
 // Questionnaire components
 export { QuestionnaireStep } from "./questionnaire/questionnaire-step";
 export { QuestionnaireNavigation } from "./questionnaire/questionnaire-navigation";
