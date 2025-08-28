@@ -14,6 +14,9 @@ export interface ColorScheme {
   error: string;
   success: string;
   warning: string;
+  focus: {
+    ring: string;
+  };
 }
 
 export const getColors = (darkMode: boolean = false): ColorScheme => {
@@ -30,6 +33,9 @@ export const getColors = (darkMode: boolean = false): ColorScheme => {
       error: "#EF4444",
       success: "#10B981",
       warning: "#F59E0B",
+      focus: {
+        ring: "focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900",
+      },
     };
   }
 
@@ -45,5 +51,8 @@ export const getColors = (darkMode: boolean = false): ColorScheme => {
     error: "#EF4444",
     success: "#10B981",
     warning: "#F59E0B",
+    focus: {
+      ring: "focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white",
+    },
   };
 };
