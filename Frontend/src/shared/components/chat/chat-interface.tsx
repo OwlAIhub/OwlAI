@@ -6,6 +6,7 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatStarter } from "./chat-starter";
 import { TypingIndicator } from "./typing-indicator";
+import { flowiseService } from "../../../core/api/services/flowise.service";
 
 interface Message {
   id: string;
@@ -53,7 +54,7 @@ export const ChatInterface: React.FC = () => {
     handleSendMessage(prompt);
   }, []);
 
-  const handleSendMessage = (content?: string) => {
+  const handleSendMessage = async (content?: string) => {
     const messageContent = content || inputValue.trim();
     if (!messageContent) return;
 
@@ -81,25 +82,44 @@ export const ChatInterface: React.FC = () => {
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    // Use Flowise service for real AI responses
+    try {
+      const result = await flowiseService.sendMessage(
+        messageContent,
+        "default-session",
+        "anonymous-user"
+      );
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
-        content: `I understand you said: "${messageContent}". This is a demo response from OwlAI. In a real implementation, this would connect to your AI backend.`,
+        content: result.text || "Sorry, I couldn't generate a response.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        content: "I'm having trouble connecting right now. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  }, [inputValue]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    },
+    [inputValue]
+  );
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -108,7 +128,7 @@ export const ChatInterface: React.FC = () => {
         <ChatStarter onPromptSelect={handlePromptSelect} />
       ) : (
         <ScrollArea ref={scrollAreaRef} className="flex-1 px-3 py-2">
-          <div className="space-y-3 pb-3 max-w-2xl mx-auto">
+          <div className="space-y-3 pb-3 max-w-4xl mx-auto">
             {messages.map(message => (
               <ChatMessage key={message.id} message={message} />
             ))}
@@ -119,7 +139,7 @@ export const ChatInterface: React.FC = () => {
 
       {/* Input Area at Bottom - ChatGPT Style */}
       <div className="border-t border-border/20 p-4 bg-background/98 backdrop-blur-sm">
-        <div className="flex items-center space-x-3 max-w-2xl mx-auto">
+        <div className="flex items-center space-x-3 max-w-4xl mx-auto">
           <div className="flex-1 relative">
             <Input
               ref={inputRef}

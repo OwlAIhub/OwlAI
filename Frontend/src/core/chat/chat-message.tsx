@@ -42,7 +42,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <div
-      className={`flex w-full mb-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+      className={`flex w-full mb-4 ${
+        message.role === "user" ? "justify-end" : "justify-start"
+      }`}
     >
       <div
         className={`max-w-[70%] sm:max-w-2xl rounded-xl shadow-sm border ${
@@ -237,7 +239,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             </>
           ) : (
             <span
-              className={`${message.role === "user" ? "text-white" : "text-gray-900"}`}
+              className={`${
+                message.role === "user" ? "text-white" : "text-gray-900"
+              }`}
             >
               {message.content}
             </span>

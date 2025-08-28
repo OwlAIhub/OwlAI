@@ -4,6 +4,7 @@ import { api } from "@/services/api";
 import { storage } from "@/utils";
 import { domUtils } from "@/shared/utils";
 import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from "@/constants";
+import { flowiseService } from "../api/services/flowise.service";
 
 /**
  * Chat handlers hook
@@ -59,7 +60,7 @@ export const useChatHandlers = (
       timestamp: new Date(),
       conversationId: sessionId || "default",
     };
-    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessages([...chatMessages, userMessage]);
 
     storage.remove(STORAGE_KEYS.PRESET_QUERY);
 
@@ -67,56 +68,18 @@ export const useChatHandlers = (
     setLoading(true);
 
     try {
-      // Use Flowise API directly
-      const response = await fetch(
-        import.meta.env.VITE_FLOWISE_API_URL ||
-          "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question: userMessage.content,
-          }),
-        }
+      // Use Flowise service for AI responses
+      const result = await flowiseService.sendMessage(
+        userMessage.content,
+        sessionId || "default",
+        user?.id || "anonymous"
       );
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
+      // Debug: Log the response from Flowise service
+      console.log("Flowise service response:", result);
 
-      const result = await response.json();
-
-      // Debug: Log the raw response from Flowise
-      console.log("Raw Flowise response:", result);
-
-      // Handle different response formats from Flowise
-      let botResponse = "Sorry, I couldn't generate a response.";
-      if (typeof result === "string") {
-        botResponse = result;
-      } else if (result && typeof result === "object") {
-        // Check for common Flowise response formats
-        if (result.text) {
-          botResponse = result.text;
-        } else if (result.response) {
-          botResponse = result.response;
-        } else if (result.answer) {
-          botResponse = result.answer;
-        } else if (result.message) {
-          botResponse = result.message;
-        } else {
-          // If no standard field found, use the first string value or stringify
-          const stringValues = Object.values(result).filter(
-            val => typeof val === "string"
-          );
-          if (stringValues.length > 0) {
-            botResponse = stringValues[0] as string;
-          } else {
-            botResponse = JSON.stringify(result);
-          }
-        }
-      }
+      const botResponse =
+        result.text || "Sorry, I couldn't generate a response.";
 
       // Debug: Log the processed response
       console.log("Processed bot response:", botResponse);
@@ -133,7 +96,7 @@ export const useChatHandlers = (
         timestamp: new Date(),
         conversationId: sessionId || "default",
       };
-      setChatMessages(prev => [...prev, botMessage]);
+      setChatMessages([...chatMessages, botMessage]);
     } finally {
       setLoading(false);
     }
@@ -160,20 +123,18 @@ export const useChatHandlers = (
     setDisplayedText("");
     const interval = setInterval(() => {
       if (i < response.length) {
-        setDisplayedText(prev => prev + response[i]);
+                  setDisplayedText(displayedText + response[i]);
         i++;
       } else {
         clearInterval(interval);
-        setChatMessages(prev => [
-          ...prev,
-          {
-            id: `msg_${Date.now()}_assistant`,
-            role: "assistant",
-            content: response,
-            timestamp: new Date(),
-            conversationId: sessionId || "default",
-          },
-        ]);
+        const assistantMessage: ChatMessage = {
+          id: `msg_${Date.now()}_assistant`,
+          role: "assistant",
+          content: response,
+          timestamp: new Date(),
+          conversationId: sessionId || "default",
+        };
+        setChatMessages([...chatMessages, assistantMessage]);
 
         setTimeout(() => {
           setDisplayedText("");
@@ -239,16 +200,14 @@ export const useChatHandlers = (
     setIsInterrupted(true);
     setLoading(false);
     if (displayedText) {
-      setChatMessages(prev => [
-        ...prev,
-        {
-          id: `msg_${Date.now()}_assistant`,
-          role: "assistant",
-          content: displayedText,
-          timestamp: new Date(),
-          conversationId: sessionId || "default",
-        },
-      ]);
+      const assistantMessage: ChatMessage = {
+        id: `msg_${Date.now()}_assistant`,
+        role: "assistant",
+        content: displayedText,
+        timestamp: new Date(),
+        conversationId: sessionId || "default",
+      };
+      setChatMessages([...chatMessages, assistantMessage]);
       setDisplayedText("");
     }
   }, [

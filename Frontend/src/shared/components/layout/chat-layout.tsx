@@ -16,14 +16,30 @@ interface ChatLayoutProps {
 }
 
 export const ChatLayout: React.FC<ChatLayoutProps> = ({
+  darkMode,
   isSidebarOpen,
   toggleSidebar,
+  currentChatTitle,
+  isLoggedIn,
+  sessionId,
+  setSessionId,
+  onLogout,
+  toggleDarkMode,
+  onUserProfileClick,
   onNewChat,
 }) => {
   return (
     <SidebarOnly
+      darkMode={darkMode}
       isSidebarOpen={isSidebarOpen}
       onToggleSidebar={toggleSidebar}
+      currentChatTitle={currentChatTitle}
+      isLoggedIn={isLoggedIn}
+      sessionId={sessionId}
+      setSessionId={setSessionId}
+      onLogout={onLogout}
+      toggleDarkMode={toggleDarkMode}
+      onUserProfileClick={onUserProfileClick}
       onNewChat={onNewChat}
     />
   );

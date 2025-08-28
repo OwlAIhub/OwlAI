@@ -37,15 +37,19 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
             <div className="flex items-center space-x-3">
               <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
               <div className="text-sm text-muted-foreground">
-                <span className="hover:text-teal-600 transition-colors cursor-pointer">Chat</span>
+                <span className="hover:text-teal-600 transition-colors cursor-pointer">
+                  Chat
+                </span>
                 <span className="mx-2">›</span>
-                <span className="font-medium text-foreground">General Chat</span>
+                <span className="font-medium text-foreground">
+                  General Chat
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-hidden">
-            <ChatInterface currentChatTitle="General Chat" />
+                    <div className="flex-1 overflow-hidden">
+            <ChatInterface />
           </div>
         </SidebarInset>
       </div>

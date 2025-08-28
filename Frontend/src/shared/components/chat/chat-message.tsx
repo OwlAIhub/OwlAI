@@ -1,5 +1,7 @@
 import React from "react";
 import { User, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   Avatar,
   AvatarFallback,
@@ -54,22 +56,82 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         )}
       </Avatar>
 
-      {/* Slim Message Content */}
-      <div className={`flex-1 max-w-[75%] ${isBot ? "mr-8" : "ml-8"}`}>
+      {/* Message Content */}
+      <div
+        className={`flex-1 ${isBot ? "max-w-[85%] mr-4" : "max-w-[75%] ml-8"}`}
+      >
         <div
-          className={`rounded-xl px-3 py-2 transition-all duration-200 ${
+          className={`rounded-xl transition-all duration-200 ${
             isBot
-              ? "bg-muted/40 hover:bg-muted/60 border border-border/30"
-              : "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm"
+              ? "bg-muted/40 hover:bg-muted/60 border border-border/30 px-4 py-3"
+              : "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm px-3 py-2"
           }`}
         >
-          <p
-            className={`text-sm leading-relaxed ${
-              isBot ? "text-foreground" : "text-white"
-            }`}
-          >
-            {message.content}
-          </p>
+          {isBot ? (
+            <div className="prose prose-sm max-w-none prose-slate dark:prose-invert overflow-hidden break-words">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ children }) => (
+                    <h1 className="text-lg font-bold mb-3 text-foreground">
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-base font-semibold mb-2 text-foreground">
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-sm font-semibold mb-2 text-foreground">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-sm leading-relaxed mb-2 text-foreground last:mb-0">
+                      {children}
+                    </p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc ml-4 space-y-1 mb-2 text-sm">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal ml-4 space-y-1 mb-2 text-sm">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="text-foreground leading-relaxed pl-2">
+                      {children}
+                    </li>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-foreground">
+                      {children}
+                    </strong>
+                  ),
+                  code: ({ children }) => (
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">
+                      {children}
+                    </code>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-2 border-teal-500 pl-3 italic text-muted-foreground">
+                      {children}
+                    </blockquote>
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-sm leading-relaxed text-white">
+              {message.content}
+            </p>
+          )}
         </div>
 
         {/* Compact Actions */}
