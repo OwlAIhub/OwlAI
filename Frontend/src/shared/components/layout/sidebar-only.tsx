@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { AppSidebar } from "../sidebar/components/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "../ui/sidebar";
 import { ChatInterface } from "../chat/chat-interface";
@@ -8,6 +8,9 @@ interface SidebarOnlyProps {
   onToggleSidebar?: () => void;
   onNewChat?: () => void;
 }
+
+// Memoized ChatInterface to prevent unnecessary re-renders
+const MemoizedChatInterface = memo(ChatInterface);
 
 export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
   isSidebarOpen = true,
@@ -41,15 +44,13 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
                   Chat
                 </span>
                 <span className="mx-2 text-gray-500">›</span>
-                <span className="font-medium text-gray-900">
-                  General Chat
-                </span>
+                <span className="font-medium text-gray-900">General Chat</span>
               </div>
             </div>
           </div>
 
-                    <div className="flex-1 overflow-hidden">
-            <ChatInterface />
+          <div className="flex-1 overflow-hidden">
+            <MemoizedChatInterface key="stable-chat-interface" />
           </div>
         </SidebarInset>
       </div>

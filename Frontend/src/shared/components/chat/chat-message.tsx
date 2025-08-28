@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Copy, ThumbsUp, ThumbsDown, UserCircle2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -39,19 +39,19 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         isBot ? "flex-row" : "flex-row-reverse space-x-reverse"
       }`}
     >
-      {/* Compact Avatar */}
+      {/* Avatar */}
       <Avatar
-        className={`w-6 h-6 border transition-all duration-200 ${
+        className={`w-8 h-8 border-2 transition-all duration-200 ${
           isBot
-            ? "border-teal-400/40 bg-gradient-to-br from-teal-500 to-teal-600"
-            : "border-blue-400/40 bg-gradient-to-br from-blue-500 to-blue-600"
+            ? "border-teal-400/60 bg-gradient-to-br from-teal-500 to-teal-600"
+            : "border-blue-400/60 bg-gradient-to-br from-blue-500 to-blue-600"
         }`}
       >
         {isBot ? (
-          <AvatarImage src={owlLogo} alt="OwlAI" className="p-0.5" />
+          <AvatarImage src={owlLogo} alt="OwlAI" className="p-1" />
         ) : (
-          <AvatarFallback className="text-white text-xs font-medium">
-            <User className="h-3 w-3" />
+          <AvatarFallback className="text-white text-sm font-medium">
+            <UserCircle2 className="h-5 w-5" />
           </AvatarFallback>
         )}
       </Avatar>
@@ -166,14 +166,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     </div>
                   ),
                   thead: ({ children }) => (
-                    <thead className="bg-gray-50">
-                      {children}
-                    </thead>
+                    <thead className="bg-gray-50">{children}</thead>
                   ),
                   tbody: ({ children }) => (
-                    <tbody className="bg-white">
-                      {children}
-                    </tbody>
+                    <tbody className="bg-white">{children}</tbody>
                   ),
                   tr: ({ children }) => (
                     <tr className="border-b border-gray-200 hover:bg-gray-50">
@@ -181,7 +177,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     </tr>
                   ),
                   th: ({ children }) => (
-                    <th 
+                    <th
                       className="border border-gray-300 px-4 py-3 text-left font-semibold text-sm bg-gray-100"
                       style={{ color: "#000000" }}
                     >
@@ -189,7 +185,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     </th>
                   ),
                   td: ({ children }) => (
-                    <td 
+                    <td
                       className="border border-gray-300 px-4 py-3 text-sm"
                       style={{ color: "#000000" }}
                     >
@@ -208,39 +204,42 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           )}
         </div>
 
-        {/* Compact Actions */}
+        {/* Actions */}
         <div
-          className={`flex items-center mt-1 space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+          className={`flex items-center mt-2 space-x-2 transition-opacity duration-200 ${
             isBot ? "justify-start" : "justify-end"
           }`}
         >
-          <span className="text-xs text-muted-foreground/70">
+          <span className="text-xs text-gray-500">
             {formatTime(message.timestamp)}
           </span>
 
           {isBot && (
-            <div className="flex items-center space-x-0.5">
+            <div className="flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 hover:bg-muted/40"
+                className="h-7 w-7 hover:bg-gray-100 text-gray-600 hover:text-gray-800"
                 onClick={handleCopy}
+                title="Copy message"
               >
-                <Copy className="h-2.5 w-2.5" />
+                <Copy className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 hover:bg-muted/40 hover:text-green-600"
+                className="h-7 w-7 hover:bg-gray-100 text-gray-600 hover:text-green-600"
+                title="Good response"
               >
-                <ThumbsUp className="h-2.5 w-2.5" />
+                <ThumbsUp className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 hover:bg-muted/40 hover:text-red-600"
+                className="h-7 w-7 hover:bg-gray-100 text-gray-600 hover:text-red-600"
+                title="Poor response"
               >
-                <ThumbsDown className="h-2.5 w-2.5" />
+                <ThumbsDown className="h-3.5 w-3.5" />
               </Button>
             </div>
           )}

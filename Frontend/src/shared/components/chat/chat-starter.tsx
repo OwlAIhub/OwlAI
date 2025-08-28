@@ -16,34 +16,35 @@ interface ChatStarterProps {
 
 const starterPrompts: StarterPrompt[] = [
   {
-    id: "teaching-definition",
+    id: "teaching-levels",
     title: "",
     description: "",
-    prompt: "What is the meaning of Teaching?",
+    prompt: "What are the levels of teaching? Who are their main proponents?",
     icon: <></>,
     gradient: "from-blue-500 to-blue-600",
   },
   {
-    id: "research-meaning",
+    id: "research-types",
     title: "",
     description: "",
-    prompt: "What is the fundamental meaning of Research?",
+    prompt:
+      "Differentiate between Basic and Applied research with one example.",
     icon: <></>,
     gradient: "from-green-500 to-green-600",
   },
   {
-    id: "logical-reasoning-definition",
+    id: "communication-rule",
     title: "",
     description: "",
-    prompt: "What is Logical Reasoning and why is it important?",
+    prompt: "What is Mehrabian's 7-38-55 rule of communication?",
     icon: <></>,
     gradient: "from-purple-500 to-purple-600",
   },
   {
-    id: "communication-essence",
+    id: "intercultural-barriers",
     title: "",
     description: "",
-    prompt: "What is the essence of effective Communication?",
+    prompt: "What does LENS stand for in intercultural barriers?",
     icon: <></>,
     gradient: "from-orange-500 to-orange-600",
   },
@@ -75,12 +76,12 @@ export const ChatStarter: React.FC<ChatStarterProps> = ({ onPromptSelect }) => {
       </div>
 
       {/* Modern Starter Prompts */}
-      <div className="w-full max-w-5xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="w-full max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {starterPrompts.map((prompt, index) => (
             <div
               key={prompt.id}
-              className="group cursor-pointer relative overflow-hidden rounded-xl border border-gray-300 bg-white/80 hover:border-teal-300 hover:bg-white transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-teal-500/10 animate-in fade-in slide-in-from-bottom-2 hover:-translate-y-1"
+              className="group cursor-pointer relative overflow-hidden rounded-lg border border-gray-200 bg-white hover:border-teal-300 hover:bg-white transition-all duration-200 shadow-sm hover:shadow-sm hover:shadow-teal-500/5 animate-in fade-in slide-in-from-bottom-2 hover:-translate-y-0.5"
               style={{
                 animationDelay: `${index * 80}ms`,
                 animationFillMode: "both",
@@ -90,8 +91,8 @@ export const ChatStarter: React.FC<ChatStarterProps> = ({ onPromptSelect }) => {
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
-              <div className="relative p-5">
-                <p className="text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors duration-200 leading-relaxed text-center">
+              <div className="relative px-4 py-3">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-teal-600 transition-colors duration-200 leading-normal text-left">
                   {prompt.prompt}
                 </p>
               </div>
