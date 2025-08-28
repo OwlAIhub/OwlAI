@@ -1,6 +1,7 @@
 import React from "react";
 import { AppSidebar } from "../sidebar/components/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "../ui/sidebar";
+import { ChatInterface } from "../chat/chat-interface";
 
 interface SidebarOnlyProps {
   isSidebarOpen?: boolean;
@@ -30,29 +31,21 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
           onChatSelect={chatId => console.log("Chat selected:", chatId)}
         />
 
-        {/* Simple Main Area with Toggle Button */}
+        {/* Chat Interface */}
         <SidebarInset className="flex-1 flex flex-col overflow-hidden bg-background">
-          <div className="flex items-center p-4 border-b border-border/40">
-            <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
-            <div className="flex-1 text-center">
-              <h1 className="text-lg font-semibold text-foreground">
-                OwlAI Sidebar Demo
-              </h1>
+          <div className="flex items-center justify-between p-4 border-b border-border/40 bg-background/95 backdrop-blur-sm">
+            <div className="flex items-center space-x-3">
+              <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
+              <div className="text-sm text-muted-foreground">
+                <span className="hover:text-teal-600 transition-colors cursor-pointer">Chat</span>
+                <span className="mx-2">›</span>
+                <span className="font-medium text-foreground">General Chat</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <div className="text-center animate-in fade-in duration-700 slide-in-from-bottom-4">
-              <h2 className="text-xl font-medium mb-2 transition-colors duration-300 hover:text-foreground">
-                Sidebar Implementation
-              </h2>
-              <p className="transition-colors duration-300 hover:text-foreground">
-                Toggle the sidebar to see the collapsed state
-              </p>
-              <p className="text-sm mt-2 transition-colors duration-300 hover:text-foreground">
-                Keyboard shortcut: Ctrl+B (or Cmd+B)
-              </p>
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <ChatInterface currentChatTitle="General Chat" />
           </div>
         </SidebarInset>
       </div>
