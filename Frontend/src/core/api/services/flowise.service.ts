@@ -7,10 +7,7 @@ import { logger } from "../../../shared/utils/logger";
 import { messageService } from "../../database/services/message.service";
 import { conversationService } from "../../database/services/conversation.service";
 import { contextManagementService } from "../../database/services/context-management.service";
-import {
-  aiProcessingService,
-  rateLimitingService,
-} from "../../cloud-functions";
+
 import type { MessageDocument } from "../../database/types/database.types";
 
 // Flowise API Configuration
@@ -73,7 +70,7 @@ class FlowiseService {
   }
 
   /**
-   * Send message using Cloud Functions for server-side processing
+   * Send message using direct Flowise API
    */
   public async sendMessage(
     question: string,
@@ -84,14 +81,8 @@ class FlowiseService {
     try {
       const startTime = Date.now();
 
-      // Check rate limit first
-      const rateLimitCheck = await rateLimitingService.checkRateLimit(userId);
-      if (!rateLimitCheck.allowed) {
-        throw new Error("Rate limit exceeded. Please try again later.");
-      }
-
       logger.info(
-        "Processing AI request via Cloud Functions",
+        "Processing AI request via Flowise API",
         "FlowiseService",
         {
           conversationId,
@@ -100,48 +91,38 @@ class FlowiseService {
         }
       );
 
-      // Use Cloud Functions for AI processing
-      const aiResponse = await aiProcessingService.processAIRequest({
+      // Make direct request to Flowise API
+      const response = await this.makeRequest({
         question,
         conversationId,
         userId,
         context,
-        options: {
-          model: "flowise",
-          temperature: 0.7,
-          maxTokens: 1000,
-        },
       });
 
       const responseTime = Date.now() - startTime;
 
-      // Record successful request
-      rateLimitingService.recordRequest(userId, responseTime);
-
       logger.info(
-        "AI response received via Cloud Functions",
+        "AI response received via Flowise API",
         "FlowiseService",
         {
           conversationId,
           responseTime,
-          responseLength: aiResponse.text?.length || 0,
-          tokensUsed: aiResponse.metadata.tokensUsed,
-          cost: aiResponse.metadata.cost,
+          responseLength: response.text?.length || 0,
         }
       );
 
       return {
-        text: aiResponse.text,
+        text: response.text,
         metadata: {
-          tokens_used: aiResponse.metadata.tokensUsed,
+          tokens_used: response.metadata?.tokens_used,
           response_time: responseTime,
-          model_used: aiResponse.metadata.modelUsed,
+          model_used: response.metadata?.model_used,
           timestamp: new Date().toISOString(),
         },
       };
     } catch (error) {
       logger.error(
-        "Failed to process AI request via Cloud Functions",
+        "Failed to process AI request via Flowise API",
         "FlowiseService",
         error
       );

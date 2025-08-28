@@ -15,25 +15,7 @@ export type { CollectionName } from "./firestore.config";
 // Services
 export { conversationService } from "./services/conversation.service";
 export { messageService } from "./services/message.service";
-
-// Optimization Services
-export {
-  cacheService,
-  batchService,
-  queryService,
-  optimizationManager,
-} from "./optimization";
-export type {
-  CacheStats,
-  BatchOperation,
-  BatchStats,
-  QueryStats,
-  OptimizedQueryOptions,
-} from "./optimization";
-
-// Hooks
-export { useRealtimeChat } from "./hooks/useRealtimeChat";
-export { useAIChat } from "./hooks/useAIChat";
+export { contextManagementService } from "./services/context-management.service";
 
 // Types
 export type {

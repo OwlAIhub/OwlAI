@@ -1,6 +1,6 @@
 /**
  * Chat Module Exports
- * Core chat functionality including services, stores, and main components
+ * Core chat functionality including main components
  */
 
 // Main chat components
@@ -9,12 +9,12 @@ export { WelcomeScreen } from "./welcome-screen";
 export { MessageInput } from "./message-input";
 export { FeedbackModal } from "./feedback-modal";
 
+// Refactored components
+export { ChatContainer } from "./ChatContainer";
+export { ChatHeader } from "./ChatHeader";
+export { ChatBody } from "./ChatBody";
+
 // Hooks
-export { useEnhancedChat } from "./hooks/use-enhanced-chat";
-
-// Services
-export { api } from "./services/api";
-export { streamingService } from "./services/streaming.service";
-
-// Store
-export { useChatStore } from "./ChatStore";
+export { useChatState } from "./ChatState";
+export { useChatEffects } from "./ChatEffects";
+export { useChatHandlers } from "./ChatHandlers";

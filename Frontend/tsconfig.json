@@ -19,6 +19,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
+    "types": ["vite/client", "react", "react-dom"],
     "paths": {
       "@/*": ["./src/*"],
       "@/components/*": ["./src/shared/components/*"],

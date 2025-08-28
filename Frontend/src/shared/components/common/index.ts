@@ -4,5 +4,4 @@
  */
 
 export { ProtectedRoute } from "./ProtectedRoute";
-export { AppRoutes } from "./AppRoutes";
 export { ErrorBoundary } from "./ErrorBoundary";

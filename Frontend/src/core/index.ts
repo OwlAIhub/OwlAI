@@ -24,11 +24,7 @@ export type {
 // Chat
 export * from "./chat";
 
-// Theme System
-export * from "./theme";
-
-// Config
-export { default as config } from "./config/config";
+// Theme System (removed - unused)
 
 // Firebase
 export * from "./firebase/firebase";
@@ -36,36 +32,6 @@ export * from "./firebase/firebase";
 // Stores
 export * from "./stores";
 
-// Cloud Functions
-export * from "./cloud-functions";
 
-// Security & Privacy
-export {
-  encryptionService,
-  gdprService,
-  inputSanitizationService,
-  auditLoggingService,
-  securityPrivacyManager,
-  FIRESTORE_SECURITY_RULES,
-  SECURITY_RULE_TEMPLATES,
-  COMPLETE_FIRESTORE_RULES,
-  SECURITY_VALIDATORS,
-  AUDIT_EVENT_TYPES,
-  AUDIT_LOG_LEVELS,
-} from "./security";
 
-export type {
-  EncryptionResult,
-  DecryptionResult,
-  EncryptionStats,
-  GDPRRequest,
-  DataExport,
-  DeletionConfirmation,
-  GDPRStats,
-  SanitizationResult,
-  SanitizationStats,
-  AuditLogEntry,
-  AuditLogStats,
-  SecurityRuleTemplate,
-  PermissionLevel,
-} from "./security";
+// Security & Privacy (removed unused module)

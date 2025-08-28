@@ -1,6 +1,5 @@
 import React from "react";
 import { UserProvider } from "../auth/UserStore";
-import { ChatProvider } from "../chat/ChatStore";
 
 interface StoreProviderProps {
   children: React.ReactNode;
@@ -12,7 +11,7 @@ interface StoreProviderProps {
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   return (
     <UserProvider>
-      <ChatProvider>{children}</ChatProvider>
+      {children}
     </UserProvider>
   );
 };

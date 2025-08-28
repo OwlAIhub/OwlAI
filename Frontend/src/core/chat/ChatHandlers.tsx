@@ -1,0 +1,298 @@
+import { useCallback, useEffect } from "react";
+import { ChatMessage } from "@/types";
+import { api } from "@/services/api";
+import { storage } from "@/utils";
+import { domUtils } from "@/shared/utils";
+import { STORAGE_KEYS, MESSAGE_LIMITS, ANIMATION_DURATION } from "@/constants";
+
+/**
+ * Chat handlers hook
+ * Contains all event handlers for chat functionality
+ */
+export const useChatHandlers = (
+  sessionId: string | null,
+  message: string,
+  setMessage: (message: string) => void,
+  messageCount: number,
+  setMessageCount: (count: number) => void,
+  setLoading: (loading: boolean) => void,
+  setResponse: (response: string) => void,
+  setDisplayedText: (text: string) => void,
+  setIsInterrupted: (interrupted: boolean) => void,
+  chatMessages: ChatMessage[],
+  setChatMessages: (messages: ChatMessage[]) => void,
+  displayedText: string,
+  response: string,
+  isLoggedIn: boolean,
+  showModal: boolean,
+  setShowModal: (show: boolean) => void,
+  isModalOpen: boolean,
+  setIsModalOpen: (open: boolean) => void,
+  selectedIndex: number | null,
+  setSelectedIndex: (index: number | null) => void,
+  customRemark: string,
+  setCustomRemark: (remark: string) => void,
+  copiedIndex: number | null,
+  setCopiedIndex: (index: number | null) => void,
+  user: any
+) => {
+  // Message sending handler
+  const handleSendMessage = useCallback(async () => {
+    setIsInterrupted(false);
+    if (!message.trim()) return;
+
+    const nextCount = messageCount + 1;
+
+    if (!isLoggedIn && nextCount > MESSAGE_LIMITS.ANONYMOUS_MAX) {
+      setShowModal(true);
+      return;
+    }
+
+    if (!isLoggedIn) {
+      setMessageCount(nextCount);
+    }
+
+    const userMessage: ChatMessage = {
+      id: `msg_${Date.now()}_user`,
+      role: "user",
+      content: message,
+      timestamp: new Date(),
+      conversationId: sessionId || "default",
+    };
+    setChatMessages(prev => [...prev, userMessage]);
+
+    storage.remove(STORAGE_KEYS.PRESET_QUERY);
+
+    setMessage("");
+    setLoading(true);
+
+    try {
+      // Use Flowise API directly
+      const response = await fetch(
+        import.meta.env.VITE_FLOWISE_API_URL ||
+          "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question: userMessage.content,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Debug: Log the raw response from Flowise
+      console.log("Raw Flowise response:", result);
+
+      // Handle different response formats from Flowise
+      let botResponse = "Sorry, I couldn't generate a response.";
+      if (typeof result === "string") {
+        botResponse = result;
+      } else if (result && typeof result === "object") {
+        // Check for common Flowise response formats
+        if (result.text) {
+          botResponse = result.text;
+        } else if (result.response) {
+          botResponse = result.response;
+        } else if (result.answer) {
+          botResponse = result.answer;
+        } else if (result.message) {
+          botResponse = result.message;
+        } else {
+          // If no standard field found, use the first string value or stringify
+          const stringValues = Object.values(result).filter(
+            val => typeof val === "string"
+          );
+          if (stringValues.length > 0) {
+            botResponse = stringValues[0] as string;
+          } else {
+            botResponse = JSON.stringify(result);
+          }
+        }
+      }
+
+      // Debug: Log the processed response
+      console.log("Processed bot response:", botResponse);
+
+      setResponse(botResponse);
+      setDisplayedText("");
+    } catch (err) {
+      console.error("Error sending message:", err);
+      const botMessage: ChatMessage = {
+        id: `msg_${Date.now()}_assistant`,
+        role: "assistant",
+        content:
+          "I'm having trouble connecting to the server. Please try again later.",
+        timestamp: new Date(),
+        conversationId: sessionId || "default",
+      };
+      setChatMessages(prev => [...prev, botMessage]);
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    message,
+    messageCount,
+    isLoggedIn,
+    sessionId,
+    setMessage,
+    setMessageCount,
+    setLoading,
+    setResponse,
+    setDisplayedText,
+    setIsInterrupted,
+    setChatMessages,
+    setShowModal,
+  ]);
+
+  // Typing animation effect
+  useEffect(() => {
+    if (!response) return;
+
+    let i = 0;
+    setDisplayedText("");
+    const interval = setInterval(() => {
+      if (i < response.length) {
+        setDisplayedText(prev => prev + response[i]);
+        i++;
+      } else {
+        clearInterval(interval);
+        setChatMessages(prev => [
+          ...prev,
+          {
+            id: `msg_${Date.now()}_assistant`,
+            role: "assistant",
+            content: response,
+            timestamp: new Date(),
+            conversationId: sessionId || "default",
+          },
+        ]);
+
+        setTimeout(() => {
+          setDisplayedText("");
+          setResponse("");
+        }, 200);
+      }
+    }, ANIMATION_DURATION.TYPING);
+
+    return () => clearInterval(interval);
+  }, [response, setDisplayedText, setChatMessages, setResponse, sessionId]);
+
+  // Feedback handling
+  const handleFeedback = useCallback(
+    (index: number, type: "like" | "dislike") => {
+      if (type === "dislike") {
+        setSelectedIndex(index);
+        setIsModalOpen(true);
+      } else {
+        sendFeedback(index, type, "Satisfied with the response");
+      }
+    },
+    [setSelectedIndex, setIsModalOpen]
+  );
+
+  const sendFeedback = useCallback(
+    async (index: number, type: "like" | "dislike", remarks: string) => {
+      if (!sessionId || !user?.id) return;
+
+      const score = type === "like" ? 1 : 0;
+
+      try {
+        await api.feedback.submitFeedback({
+          chat_id: sessionId,
+          user_id: user.id,
+          usefulness_score: score,
+          content_quality_score: score,
+          msg: remarks,
+          flagged_reason: null,
+        });
+
+        const updatedMessages = [...chatMessages];
+        updatedMessages[index].feedback = type;
+        setChatMessages(updatedMessages);
+      } catch (error) {
+        console.error("Feedback error:", error);
+      }
+    },
+    [sessionId, user, chatMessages, setChatMessages]
+  );
+
+  const handleCopy = useCallback(
+    async (text: string, index: number) => {
+      const success = await domUtils.copyToClipboard(text);
+      if (success) {
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 5000);
+      }
+    },
+    [setCopiedIndex]
+  );
+
+  const handleStopTyping = useCallback(() => {
+    setIsInterrupted(true);
+    setLoading(false);
+    if (displayedText) {
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: `msg_${Date.now()}_assistant`,
+          role: "assistant",
+          content: displayedText,
+          timestamp: new Date(),
+          conversationId: sessionId || "default",
+        },
+      ]);
+      setDisplayedText("");
+    }
+  }, [
+    setIsInterrupted,
+    setLoading,
+    displayedText,
+    setChatMessages,
+    setDisplayedText,
+    sessionId,
+  ]);
+
+  const handleFeedbackSubmit = useCallback(() => {
+    if (selectedIndex !== null) {
+      sendFeedback(
+        selectedIndex,
+        "dislike",
+        customRemark || "Not satisfied with the response"
+      );
+      setIsModalOpen(false);
+      setCustomRemark("");
+      setSelectedIndex(null);
+    }
+  }, [
+    selectedIndex,
+    sendFeedback,
+    customRemark,
+    setIsModalOpen,
+    setCustomRemark,
+    setSelectedIndex,
+  ]);
+
+  const handlePromptClick = useCallback(
+    (prompt: string) => {
+      setMessage(prompt);
+    },
+    [setMessage]
+  );
+
+  return {
+    handleSendMessage,
+    handleFeedback,
+    handleCopy,
+    handleStopTyping,
+    handleFeedbackSubmit,
+    handlePromptClick,
+  };
+};

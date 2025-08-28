@@ -6,7 +6,7 @@
 import {
   getFirestore,
   connectFirestoreEmulator,
-  enableIndexedDbPersistence,
+  enableMultiTabIndexedDbPersistence,
 } from "firebase/firestore";
 import { app } from "../firebase";
 import { logger } from "../../shared/utils/logger";
@@ -17,10 +17,8 @@ export const db = getFirestore(app);
 // Enable offline persistence
 export const initializeFirestore = async (): Promise<void> => {
   try {
-    // Enable offline persistence
-    await enableIndexedDbPersistence(db, {
-      synchronizeTabs: true,
-    });
+    // Enable offline persistence (multi-tab)
+    await enableMultiTabIndexedDbPersistence(db);
 
     // Connect to emulator in development
     if (

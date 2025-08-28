@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarProps, ChatSession, User } from "../../types";
-import { api } from "../../../core/chat/services/api";
+import { api } from "@/services/api";
 import { storage, deviceUtils } from "../../utils";
 import { STORAGE_KEYS } from "../../constants";
 import { toast } from "react-toastify";
@@ -39,7 +39,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = false,
   onClose = () => {},
   onSelectChat = () => {},
-  currentUser = {},
   activeChatId = null,
   setChats = () => {},
   onUserProfileClick = () => {},
@@ -49,7 +48,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [_editingChatId, setEditingChatId] = useState<string | null>(null);
-  const [editedTitle, setEditedTitle] = useState("");
   const [isMidRange, setIsMidRange] = useState(false);
   const [chatStore, setChatStore] = useState<ChatSession[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -71,12 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             storage.set(STORAGE_KEYS.USER_PROFILE, userData);
             setUser(userData);
           } else {
-            console.log("No user data found");
+            // No user data found
             storage.remove(STORAGE_KEYS.USER_PROFILE);
             setUser(null);
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
+        } catch {
+          // Error fetching user data
           storage.remove(STORAGE_KEYS.USER_PROFILE);
           setUser(null);
         }
@@ -114,36 +112,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (!studentData?.uid) return;
 
     try {
-      const response = await api.chat.getChatSessions(studentData.uid);
+      const response = (await api.chat.getConversations(1, 50)) as {
+        data?: Array<{
+          id: string;
+          title?: string;
+          created_at?: string;
+          updated_at?: string;
+          user_id?: string;
+          message_count?: number;
+          last_message?: string;
+        }>;
+      };
 
-      if (response.success && response.data) {
-        const formattedChats: ChatSession[] = response.data.map(
-          (session: any) => ({
-            id: session.session_id || session.id,
-            title: session.title || "Untitled Chat",
-            created_at:
-              session.created_at ||
-              session.start_time ||
-              new Date().toISOString(),
-            updated_at:
-              session.updated_at ||
-              session.last_updated ||
-              new Date().toISOString(),
-            user_id: session.user_id || studentData.uid,
-            message_count:
-              session.message_count ||
-              session.num_chats ||
-              session.numChats ||
-              0,
-            last_message: session.last_message || "",
-          })
-        );
+      if (response && response.data) {
+        const formattedChats: ChatSession[] = response.data.map(c => ({
+          id: c.id,
+          title: c.title || "Untitled Chat",
+          created_at: c.created_at || new Date().toISOString(),
+          updated_at: c.updated_at || new Date().toISOString(),
+          user_id: c.user_id || studentData.uid,
+          message_count: c.message_count || 0,
+          last_message: c.last_message || "",
+        }));
 
         setChats(formattedChats);
         setChatStore(formattedChats);
       }
-    } catch (error) {
-      console.error("Error fetching chat sessions:", error);
+    } catch {
+      // ignore fetch errors
     }
   }, [studentData?.uid, setChats]);
 
@@ -168,9 +164,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Chat actions
   const renameChat = async (chatId: string, newTitle: string) => {
     try {
-      const response = await api.chat.updateChatSession(chatId, newTitle);
+      const response = await api.chat.updateConversation(chatId, {
+        title: newTitle,
+      });
 
-      if (response.success) {
+      if (response && (response as any).data) {
         const updatedChats = chatStore.map(chat =>
           chat.id === chatId ? { ...chat, title: newTitle } : chat
         );
@@ -179,17 +177,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         setEditingChatId(null);
         toast.success("Chat renamed successfully");
       }
-    } catch (err) {
-      console.error("Rename failed:", err);
+    } catch {
       toast.error("Failed to rename chat");
     }
   };
 
   const deleteChat = async (chatId: string) => {
     try {
-      const response = await api.chat.deleteChatSession(chatId);
+      const response = await api.chat.deleteConversation(chatId);
 
-      if (response.success) {
+      if (response) {
         const filteredChats = chatStore.filter(chat => chat.id !== chatId);
         setChats(filteredChats);
         setChatStore(filteredChats);
@@ -199,8 +196,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onSelectChat("");
         }
       }
-    } catch (err) {
-      console.error("Delete failed:", err);
+    } catch {
       toast.error("Failed to delete chat");
     }
   };
@@ -209,8 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       const response = await api.session.createUserSession(userId);
       return response.data?.session_id || null;
-    } catch (err) {
-      console.error("Failed to create session:", err);
+    } catch {
       toast.error("Failed to create chat session");
       return null;
     }
@@ -272,8 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         window.dispatchEvent(new CustomEvent("clearChatMessages"));
       }
-    } catch (err) {
-      console.error("Failed to start new chat:", err);
+    } catch {
       toast.error("Failed to start new chat");
     }
 
@@ -296,34 +290,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setChatStore(updatedChats);
   };
 
-  const _handleEditStart = (
-    chatId: string,
-    currentTitle: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    setEditingChatId(chatId);
-    setEditedTitle(currentTitle);
-  };
-
-  const _handleEditSubmit = (chatId: string) => {
-    if (editedTitle.trim()) {
-      renameChat(chatId, editedTitle);
-    } else {
-      setEditingChatId(null);
-    }
-  };
-
-  const _handleEditCancel = () => {
-    setEditingChatId(null);
-  };
-
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-  };
-
-  const _handleClearSearch = () => {
-    setSearchQuery("");
   };
 
   // Convert ChatSession[] to Chat[] for ChatList component

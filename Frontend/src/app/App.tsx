@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { MouseEvent, ReactNode, ReactElement } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,7 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 // Core imports
 import { Auth } from "../core/auth";
-import { useAuth } from "../core/auth";
+import { useAuth } from "../hooks";
 import { useUserStore } from "../core/auth/UserStore";
 import { StoreProvider } from "../core/stores/StoreProvider";
 
@@ -102,13 +103,13 @@ function AppContent({
    * Handle user logout
    * Clears user data and redirects to landing page
    */
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     try {
       clearUserData();
       setCurrentChatTitle(DEFAULT_CHAT_TITLE);
       window.location.href = "/OwlAi";
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // no-op
     }
   };
 
@@ -126,9 +127,9 @@ function AppContent({
    * Protected route wrapper component
    * Redirects to auth page if user is not authenticated
    */
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const ProtectedRoute = ({ children }: { children: ReactNode }): ReactElement | null => {
     if (authLoading) return null;
-    return isAuthenticated ? children : <Navigate to="/auth" replace />;
+    return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
   };
 
   /**
@@ -216,7 +217,7 @@ function AppContent({
                   exit={{ y: 20, opacity: 0 }}
                   transition={{ type: "spring", damping: 25 }}
                   className="w-full max-w-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
                 >
                   <UserProfile
                     darkMode={darkMode}

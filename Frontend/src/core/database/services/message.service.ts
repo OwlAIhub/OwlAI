@@ -10,13 +10,11 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   limit,
   startAfter,
-  onSnapshot,
   serverTimestamp,
   writeBatch,
   increment,
@@ -26,14 +24,18 @@ import {
 import { db, COLLECTIONS, DB_CONFIG } from "../firestore.config";
 import { logger } from "../../../shared/utils/logger";
 import { conversationService } from "./conversation.service";
-import { batchService, queryService, cacheService } from "../optimization";
 import type {
   MessageDocument,
+  ConversationDocument,
   PaginationParams,
   PaginatedResponse,
   QueryOptions,
   RealtimeListener,
 } from "../types/database.types";
+import {
+  listenToConversationMessages as listenToConversationMessagesHelper,
+  listenToNewMessages as listenToNewMessagesHelper,
+} from "./message.listeners";
 
 class MessageService {
   private static instance: MessageService;
@@ -76,26 +78,21 @@ class MessageService {
         updated_at: serverTimestamp() as any,
       };
 
-      // Use batch service for optimized operations
-      batchService.addMessage(messageData);
-
-      // Add conversation metadata update to batch
-      batchService.addConversationIncrement(
-        conversationId,
-        "total_messages",
-        1
+      // Persist message directly
+      const docRef = await addDoc(
+        collection(db, COLLECTIONS.MESSAGES),
+        messageData
       );
-      batchService.addConversationMetadataUpdate(conversationId, {
+
+      // Update conversation metadata
+      await this.updateConversationMetadata(conversationId, {
+        total_messages: increment(1) as unknown as number,
         last_message_at: serverTimestamp() as any,
         last_message_preview: data.content?.substring(0, 100) || "",
       });
 
-      // Invalidate cache for this conversation
-      cacheService.invalidateByPattern(`conversation:${conversationId}`);
-
-      // For immediate response, create a temporary result
       const result = {
-        id: `temp-${Date.now()}`, // Temporary ID until batch is committed
+        id: docRef.id,
         ...messageData,
       } as MessageDocument;
 
@@ -143,32 +140,41 @@ class MessageService {
     params: PaginationParams = { limit: DB_CONFIG.MESSAGES_PER_PAGE }
   ): Promise<PaginatedResponse<MessageDocument>> {
     try {
-      // Use optimized query service with caching
-      const result = await queryService.getConversationMessages(
+      // Fallback to direct Firestore query with simple pagination
+      const constraints: (
+        | ReturnType<typeof where>
+        | ReturnType<typeof orderBy>
+        | ReturnType<typeof limit>
+        | ReturnType<typeof startAfter>
+      )[] = [
+        where("conversation_id", "==", conversationId),
+        orderBy("created_at", "asc"),
+        limit(params.limit),
+      ];
+      if (params.startAfter) {
+        constraints.push(startAfter(params.startAfter as any));
+      }
+
+      const q = query(collection(db, COLLECTIONS.MESSAGES), ...constraints);
+      const snapshot = await getDocs(q);
+
+      const data: MessageDocument[] = snapshot.docs.map(d => {
+        const payload = d.data() as unknown as Omit<MessageDocument, "id">;
+        return { id: d.id, ...payload } as MessageDocument;
+      });
+
+      const hasMore = snapshot.size === params.limit;
+      const lastDoc = snapshot.docs[snapshot.docs.length - 1] as
+        | QueryDocumentSnapshot<DocumentData>
+        | undefined;
+
+      logger.info("Conversation messages retrieved", "MessageService", {
         conversationId,
-        {
-          limit: params.limit,
-          startAfter: params.startAfter,
-          useCache: true,
-          cacheTTL: 2 * 60 * 1000, // 2 minutes
-        }
-      );
+        count: data.length,
+        hasMore,
+      });
 
-      logger.info(
-        "Conversation messages retrieved with optimization",
-        "MessageService",
-        {
-          conversationId,
-          count: result.data.length,
-          hasMore: result.hasMore,
-        }
-      );
-
-      return {
-        data: result.data,
-        hasMore: result.hasMore,
-        lastDoc: result.lastDoc || undefined,
-      };
+      return { data, hasMore, lastDoc };
     } catch (error) {
       logger.error(
         "Failed to get conversation messages",
@@ -293,7 +299,7 @@ class MessageService {
 
       // Update conversation metadata
       await this.updateConversationMetadata(message.conversation_id, {
-        total_messages: increment(-1),
+        total_messages: increment(-1) as unknown as number,
       });
 
       logger.info("Message deleted", "MessageService", { messageId });
@@ -311,52 +317,7 @@ class MessageService {
     onData: (messages: MessageDocument[]) => void,
     onError: (error: any) => void
   ): RealtimeListener {
-    try {
-      const q = query(
-        collection(db, COLLECTIONS.MESSAGES),
-        where("conversation_id", "==", conversationId),
-        orderBy("created_at", "asc")
-      );
-
-      const unsubscribe = onSnapshot(
-        q,
-        querySnapshot => {
-          const messages: MessageDocument[] = [];
-          querySnapshot.forEach(doc => {
-            messages.push({
-              id: doc.id,
-              ...doc.data(),
-            } as MessageDocument);
-          });
-          onData(messages);
-        },
-        error => {
-          logger.error(
-            "Conversation messages listener error",
-            "MessageService",
-            error
-          );
-          onError(error);
-        }
-      );
-
-      logger.info("Conversation messages listener started", "MessageService", {
-        conversationId,
-      });
-
-      return {
-        unsubscribe,
-        onData,
-        onError,
-      };
-    } catch (error) {
-      logger.error(
-        "Failed to start conversation messages listener",
-        "MessageService",
-        error
-      );
-      throw new Error("Failed to start messages listener");
-    }
+    return listenToConversationMessagesHelper(conversationId, onData, onError);
   }
 
   /**
@@ -367,49 +328,7 @@ class MessageService {
     onData: (message: MessageDocument) => void,
     onError: (error: any) => void
   ): RealtimeListener {
-    try {
-      const q = query(
-        collection(db, COLLECTIONS.MESSAGES),
-        where("conversation_id", "==", conversationId),
-        orderBy("created_at", "desc"),
-        limit(1)
-      );
-
-      const unsubscribe = onSnapshot(
-        q,
-        querySnapshot => {
-          if (!querySnapshot.empty) {
-            const doc = querySnapshot.docs[0];
-            const message = {
-              id: doc.id,
-              ...doc.data(),
-            } as MessageDocument;
-            onData(message);
-          }
-        },
-        error => {
-          logger.error("New messages listener error", "MessageService", error);
-          onError(error);
-        }
-      );
-
-      logger.info("New messages listener started", "MessageService", {
-        conversationId,
-      });
-
-      return {
-        unsubscribe,
-        onData,
-        onError,
-      };
-    } catch (error) {
-      logger.error(
-        "Failed to start new messages listener",
-        "MessageService",
-        error
-      );
-      throw new Error("Failed to start new messages listener");
-    }
+    return listenToNewMessagesHelper(conversationId, onData, onError);
   }
 
   /**
@@ -418,7 +337,7 @@ class MessageService {
   public async searchMessages(
     conversationId: string,
     searchTerm: string,
-    options: QueryOptions = {}
+    _options: QueryOptions = {}
   ): Promise<MessageDocument[]> {
     try {
       // Note: Firestore doesn't support full-text search natively
@@ -493,7 +412,10 @@ class MessageService {
    */
   private async updateConversationMetadata(
     conversationId: string,
-    metadata: any
+    metadata: Partial<ConversationDocument["metadata"]> & {
+      total_messages?: unknown;
+      last_message_at?: unknown;
+    }
   ): Promise<void> {
     try {
       await conversationService.updateConversationMetadata(
@@ -546,7 +468,7 @@ class MessageService {
 
       // Update conversation metadata
       await this.updateConversationMetadata(conversationId, {
-        total_messages: increment(messages.length),
+        total_messages: increment(messages.length) as unknown as number,
         last_message_at: serverTimestamp() as any,
         last_message_preview:
           messages[messages.length - 1]?.content?.substring(0, 100) || "",

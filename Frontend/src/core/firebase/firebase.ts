@@ -1,16 +1,5 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
-import {
-  getAuth,
-  Auth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
-  User,
-  onAuthStateChanged,
-  signOut,
-  AuthError,
-  AuthErrorCodes,
-} from "firebase/auth";
+import { getAuth, Auth } from "firebase/auth";
 
 // Firebase configuration interface
 export interface FirebaseConfig {
@@ -81,13 +70,4 @@ try {
 }
 
 // Export Firebase services
-export {
-  app,
-  auth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  type ConfirmationResult,
-  type User,
-  type AuthError,
-  type AuthErrorCodes,
-};
+export { app, auth };
