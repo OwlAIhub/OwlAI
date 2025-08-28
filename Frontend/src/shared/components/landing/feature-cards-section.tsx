@@ -88,59 +88,84 @@ export const FeatureCardsSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base text-gray-600 max-w-2xl mx-auto"
+            className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed"
           >
-            Everything you need for effective exam preparation with cutting-edge
-            AI technology
+            Unlock your learning potential with our intelligent AI ecosystem designed to revolutionize your study experience
           </motion.p>
         </div>
 
-        {/* Main Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto">
+        {/* Modern Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {featureCards.map((card, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative h-full"
+              transition={{ duration: 0.7, delay: index * 0.15 }}
+              whileHover={{ y: -8 }}
+              className="group relative h-full cursor-pointer"
             >
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-gray-100/50 transition-all duration-500 hover:border-gray-200 relative h-full flex flex-col">
-                {/* Background Gradient */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${card.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                ></div>
+              {/* Glassmorphism Card */}
+              <div className="relative bg-white/70 backdrop-blur-sm rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden h-full">
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${card.bgGradient} opacity-50 group-hover:opacity-70 transition-opacity duration-500`} />
+                
+                {/* Floating Gradient Orb */}
+                <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${card.gradient} rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 blur-xl`} />
 
-                {/* Image Section */}
-                <div className="relative overflow-hidden flex-shrink-0">
+                {/* Image with Overlay */}
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={card.image}
                     alt={card.title}
-                    className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  
+                  {/* Floating Icon */}
+                  <div className="absolute top-6 left-6">
+                    <div className={`w-14 h-14 bg-gradient-to-br ${card.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                      {card.icon}
+                    </div>
+                  </div>
 
-                  {/* Icon Badge */}
-                  <div
-                    className={`absolute top-4 right-4 w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    {card.icon}
+                  {/* Status Badge */}
+                  <div className="absolute top-6 right-6 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
+                    <span className="text-xs font-medium text-white">Active</span>
                   </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-6 relative z-10 flex-grow flex flex-col">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300">
-                    {card.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed flex-grow">
-                    {card.description}
-                  </p>
+                {/* Content */}
+                <div className="relative p-8 flex flex-col h-[calc(100%-12rem)]">
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300">
+                      {card.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed mb-4">
+                      {card.description}
+                    </p>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-auto">
+                    <button className={`w-full py-3 px-6 bg-gradient-to-r ${card.gradient} text-white rounded-xl font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg hover:shadow-xl`}>
+                      Explore Feature
+                    </button>
+                  </div>
                 </div>
+
+                {/* Decorative Elements */}
+                <div className="absolute bottom-4 right-4 w-2 h-2 bg-white/40 rounded-full animate-pulse" />
+                <div className="absolute top-1/2 left-4 w-1 h-1 bg-white/30 rounded-full animate-ping" />
               </div>
+
+              {/* Hover Glow Effect */}
+              <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl -z-10`} />
             </motion.div>
           ))}
         </div>
+
+
       </div>
     </section>
   );
