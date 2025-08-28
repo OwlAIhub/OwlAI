@@ -1,6 +1,7 @@
 import React from "react";
 import { MainContent } from "../../../core/chat/main-content";
-import { Sidebar } from "./sidebar";
+import { AppSidebar } from "../sidebar/components/app-sidebar";
+import { SidebarProvider, SidebarInset } from "../ui/sidebar";
 
 interface ChatLayoutProps {
   darkMode: boolean;
@@ -30,32 +31,39 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   onNewChat,
 }) => {
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={toggleSidebar}
-        onSelectChat={() => {}}
-        activeChatId={sessionId}
-        setChats={() => {}}
-        onUserProfileClick={onUserProfileClick}
-        setSesssionId={setSessionId}
-      />
-      
-      {/* Main Content */}
-      <MainContent
-        currentChatTitle={currentChatTitle}
-        darkMode={darkMode}
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        onLogout={onLogout}
-        toggleDarkMode={toggleDarkMode}
-        onUserProfileClick={onUserProfileClick}
-        onNewChat={onNewChat}
-        sessionId={sessionId}
-        setSessionId={setSessionId}
-        isLoggedIn={isLoggedIn}
-      />
-    </div>
+    <SidebarProvider open={isSidebarOpen} onOpenChange={toggleSidebar}>
+      <div className="flex h-screen w-full">
+        {/* Modern Sidebar */}
+        <AppSidebar
+          data={{
+            user: {
+              name: isLoggedIn ? "Current User" : "Guest User",
+              email: isLoggedIn ? "user@owlai.com" : "guest@owlai.com",
+              plan: "Free",
+            },
+            recentChats: [], // This can be populated from your chat store
+          }}
+          onNewChat={onNewChat}
+          onChatSelect={chatId => setSessionId(chatId)}
+        />
+
+        {/* Main Content Area */}
+        <SidebarInset className="flex-1 flex flex-col overflow-hidden">
+          <MainContent
+            currentChatTitle={currentChatTitle}
+            darkMode={darkMode}
+            isSidebarOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+            onLogout={onLogout}
+            toggleDarkMode={toggleDarkMode}
+            onUserProfileClick={onUserProfileClick}
+            onNewChat={onNewChat}
+            sessionId={sessionId}
+            setSessionId={setSessionId}
+            isLoggedIn={isLoggedIn}
+          />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };

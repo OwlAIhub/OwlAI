@@ -159,6 +159,7 @@ export const ChatContainer: React.FC<MainContentProps> = ({
           windowSize={windowSize}
           onPromptClick={handlePromptClick}
           messagesEndRef={messagesEndRef}
+          isHistoryLoaded={isHistoryLoaded}
         />
 
         {/* Message Input */}

@@ -19,6 +19,7 @@ interface ChatBodyProps {
   windowSize: { width: number; height: number };
   onPromptClick: (prompt: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  isHistoryLoaded: boolean;
 }
 
 export const ChatBody: React.FC<ChatBodyProps> = ({
@@ -34,13 +35,14 @@ export const ChatBody: React.FC<ChatBodyProps> = ({
   windowSize,
   onPromptClick,
   messagesEndRef,
+  isHistoryLoaded,
 }) => {
   return (
     <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
       <div className="p-4 md:p-6">
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center justify-center min-h-full">
           {/* Welcome Screen */}
-          {chatMessages.length === 0 && (
+          {chatMessages.length === 0 && isHistoryLoaded && (
             <WelcomeScreen
               isLoggedIn={isLoggedIn}
               user={user}
