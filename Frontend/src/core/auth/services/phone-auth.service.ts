@@ -47,7 +47,7 @@ class PhoneAuthService {
       this.clearRecaptcha();
 
       this.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-        size: "invisible",
+        size: "invisible", // Invisible - no user interaction needed
         callback: () => {
           logger.info("reCAPTCHA verification successful", "PhoneAuthService");
         },
@@ -55,13 +55,35 @@ class PhoneAuthService {
           logger.warn("reCAPTCHA verification expired", "PhoneAuthService");
           this.clearRecaptcha();
         },
+        "error-callback": () => {
+          logger.error("reCAPTCHA verification failed", "PhoneAuthService");
+          this.clearRecaptcha();
+        },
+        // Use reCAPTCHA v2 instead of Enterprise
+        version: "v2",
+        // Additional options for better UX
+        theme: "light",
+        badge: "bottomright", // Position the reCAPTCHA badge
       });
 
       await this.recaptchaVerifier.render();
       logger.info("reCAPTCHA verifier initialized", "PhoneAuthService");
     } catch (error) {
       logger.error("Failed to initialize reCAPTCHA", "PhoneAuthService", error);
-      throw new Error("Failed to initialize verification system");
+
+      // In development, we can continue without reCAPTCHA
+      if (import.meta.env.DEV) {
+        console.warn(
+          "reCAPTCHA initialization failed in dev mode, continuing:",
+          error
+        );
+        return;
+      }
+
+      // In production, we need reCAPTCHA to work
+      throw new Error(
+        "Failed to initialize verification system. Please refresh the page and try again."
+      );
     }
   }
 
@@ -78,7 +100,7 @@ class PhoneAuthService {
       // Validate phone number
       if (!phoneNumberValidator.isValid(phoneNumber)) {
         throw new Error(
-          "Please enter a valid phone number with country code (e.g., +1234567890)"
+          "Please enter a valid phone number with country code (e.g., +91 9999999999)"
         );
       }
 
@@ -90,9 +112,15 @@ class PhoneAuthService {
 
       // Ensure reCAPTCHA is initialized
       if (!this.recaptchaVerifier) {
-        throw new Error(
-          "Verification system not initialized. Please refresh the page."
-        );
+        if (import.meta.env.DEV) {
+          throw new Error(
+            "Verification system not initialized. Please refresh the page."
+          );
+        } else {
+          throw new Error(
+            "Security verification failed. Please refresh the page and try again."
+          );
+        }
       }
 
       // Send verification code
@@ -207,6 +235,28 @@ class PhoneAuthService {
       this.recaptchaVerifier.clear();
       this.recaptchaVerifier = null;
     }
+  }
+
+  /**
+   * Check if reCAPTCHA is ready
+   */
+  public isRecaptchaReady(): boolean {
+    return this.recaptchaVerifier !== null;
+  }
+
+  /**
+   * Get reCAPTCHA status for debugging
+   */
+  public getRecaptchaStatus(): {
+    isReady: boolean;
+    isDevelopment: boolean;
+    isDisabled: boolean;
+  } {
+    return {
+      isReady: this.isRecaptchaReady(),
+      isDevelopment: import.meta.env.DEV,
+      isDisabled: import.meta.env.DEV,
+    };
   }
 
   /**

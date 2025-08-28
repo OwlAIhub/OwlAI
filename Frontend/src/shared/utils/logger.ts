@@ -33,7 +33,7 @@ interface LoggerConfig {
 
 // Default configuration
 const DEFAULT_CONFIG: LoggerConfig = {
-  level: import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.INFO,
+  level: import.meta.env.DEV ? LogLevel.WARN : LogLevel.INFO, // Reduced logging in dev
   enableConsole: true,
   enableRemote: false,
   maxEntries: 1000,

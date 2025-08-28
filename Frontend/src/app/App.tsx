@@ -7,23 +7,37 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AnimatePresence, motion } from "framer-motion";
+
+// Core imports
 import { Auth } from "../core/auth";
-import Questionnaire from "../shared/components/questionnaire/questionnaire";
+import { useAuth } from "../core/auth";
+import { useUserStore } from "../core/auth/UserStore";
+import { StoreProvider } from "../core/stores/StoreProvider";
+
+// Component imports
 import { ChatLayout } from "../shared/components/layout/chat-layout";
+import { NotFoundPage } from "../shared/components/error/not-found-page";
+import { LenisProvider } from "../shared/components/providers/LenisProvider";
+import Questionnaire from "../shared/components/questionnaire/questionnaire";
+
+// Feature imports
 import LandingPage from "../features/landing/landing-page";
 import SubscriptionPlans from "../features/subscription/subscription-plans";
 import UserProfile from "../features/profile/user-profile";
-import { AnimatePresence, motion } from "framer-motion";
-import { NotFoundPage } from "../shared/components/error/not-found-page";
-import { LenisProvider } from "../shared/components/providers/LenisProvider";
-import { StoreProvider } from "../core/stores/StoreProvider";
-import { useAuth } from "../core/auth";
-import { useUserStore } from "../core/auth/UserStore";
 
+// Constants
+const MOBILE_BREAKPOINT = 768;
+const DEFAULT_CHAT_TITLE = "Learning Theories";
+const NEW_CHAT_TITLE = "New Chat";
+
+/**
+ * Main App component that handles routing and global state
+ * Wraps the entire application with necessary providers
+ */
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   return (
@@ -40,6 +54,10 @@ function App() {
   );
 }
 
+/**
+ * AppContent component handles the main application logic
+ * Manages sidebar state, user interactions, and routing
+ */
 function AppContent({
   isAuthenticated,
   authLoading,
@@ -59,41 +77,64 @@ function AppContent({
     useUserStore();
   const { darkMode, sessionId, currentChatTitle } = state;
 
+  /**
+   * Handle responsive sidebar behavior
+   * Automatically closes sidebar on mobile devices
+   */
   useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsSidebarOpen(!mobile);
+    const handleScreenResize = () => {
+      const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsSidebarOpen(!isMobile);
     };
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+    handleScreenResize();
+    window.addEventListener("resize", handleScreenResize);
+    
+    return () => window.removeEventListener("resize", handleScreenResize);
+  }, [setIsSidebarOpen]);
 
+  /**
+   * Toggle sidebar open/close state
+   */
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  /**
+   * Handle user logout
+   * Clears user data and redirects to landing page
+   */
   const handleLogout = async () => {
     try {
       clearUserData();
-      setCurrentChatTitle("Learning Theories");
+      setCurrentChatTitle(DEFAULT_CHAT_TITLE);
       window.location.href = "/OwlAi";
-    } catch (_error) {
-      // Error handling for logout
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   };
 
+  /**
+   * Handle new chat creation
+   * Resets chat title and dispatches events for chat components
+   */
   const handleNewChat = () => {
-    setCurrentChatTitle("New Chat");
+    setCurrentChatTitle(NEW_CHAT_TITLE);
     window.dispatchEvent(new CustomEvent("newSessionCreated"));
     window.dispatchEvent(new CustomEvent("sessionChanged"));
   };
 
+  /**
+   * Protected route wrapper component
+   * Redirects to auth page if user is not authenticated
+   */
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (authLoading) return null;
     return isAuthenticated ? children : <Navigate to="/auth" replace />;
   };
 
+  /**
+   * Main chat interface component
+   * Renders the chat layout with all necessary props
+   */
   const MainAppContent = () => (
     <ChatLayout
       darkMode={darkMode}
@@ -102,8 +143,8 @@ function AppContent({
       currentChatTitle={currentChatTitle}
       isLoggedIn={isAuthenticated}
       sessionId={sessionId}
-      setSessionId={(_id: string | null) => {
-        // Session ID setter (currently unused)
+      setSessionId={() => {
+        // Session ID setter - currently unused but required by ChatLayout
       }}
       onLogout={handleLogout}
       toggleDarkMode={toggleDarkMode}
@@ -116,10 +157,13 @@ function AppContent({
     <LenisProvider>
       <Router>
         <div
-          className={`${darkMode ? "dark bg-gray-900" : "bg-gray-50"} min-h-screen`}
+          className={`${
+            darkMode ? "dark bg-gray-900" : "bg-gray-50"
+          } min-h-screen`}
         >
           <div className="dark:bg-gray-900 dark:text-white">
             <Routes>
+              {/* Public routes */}
               <Route path="/OwlAi" element={<LandingPage />} />
               <Route path="/" element={<Navigate to="/OwlAi" replace />} />
               <Route
@@ -128,6 +172,8 @@ function AppContent({
                   isAuthenticated ? <Navigate to="/chat" replace /> : <Auth />
                 }
               />
+
+              {/* Protected routes */}
               <Route
                 path="/questionnaire"
                 element={
@@ -148,6 +194,8 @@ function AppContent({
                   </ProtectedRoute>
                 }
               />
+
+              {/* Fallback route */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
@@ -168,7 +216,7 @@ function AppContent({
                   exit={{ y: 20, opacity: 0 }}
                   transition={{ type: "spring", damping: 25 }}
                   className="w-full max-w-2xl"
-                  onClick={e => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <UserProfile
                     darkMode={darkMode}
@@ -180,6 +228,7 @@ function AppContent({
             )}
           </AnimatePresence>
 
+          {/* Global toast notifications */}
           <ToastContainer
             position="bottom-right"
             autoClose={3000}

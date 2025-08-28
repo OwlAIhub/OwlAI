@@ -65,6 +65,15 @@ try {
   // Configure auth settings for production
   auth.useDeviceLanguage();
   auth.settings.appVerificationDisabledForTesting = false; // Enable in production
+
+  // Configure reCAPTCHA settings
+  if (import.meta.env.DEV) {
+    // In development, disable app verification for testing (no reCAPTCHA needed)
+    auth.settings.appVerificationDisabledForTesting = true;
+  } else {
+    // In production, use invisible reCAPTCHA for security
+    auth.settings.appVerificationDisabledForTesting = false;
+  }
 } catch (error) {
   console.error("Firebase initialization failed:", error);
   throw new Error(
@@ -100,6 +109,8 @@ export class PhoneAuthService {
           "expired-callback": () => {
             reject(new Error("reCAPTCHA expired"));
           },
+          // Use reCAPTCHA v2 instead of Enterprise
+          version: "v2",
         });
         resolve();
       } catch (error) {

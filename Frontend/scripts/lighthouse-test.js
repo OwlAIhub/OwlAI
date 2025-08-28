@@ -1,23 +1,32 @@
 #!/usr/bin/env node
-/* global process */
 
 import { execSync } from "child_process";
+import process from "process";
 
+// Color codes for console output styling
 const colors = {
   reset: "\x1b[0m",
-  bright: "\x1b[1m",
   red: "\x1b[31m",
   green: "\x1b[32m",
   yellow: "\x1b[33m",
   blue: "\x1b[34m",
-  magenta: "\x1b[35m",
   cyan: "\x1b[36m",
 };
 
+/**
+ * Logs a message with optional color styling
+ * @param {string} message - The message to display
+ * @param {string} color - Color key from colors object
+ */
 function log(message, color = "reset") {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
+/**
+ * Checks if a port is in use by attempting to find processes using it
+ * @param {number} port - Port number to check
+ * @returns {boolean} - True if port is in use, false otherwise
+ */
 function checkPort(port) {
   try {
     execSync(`lsof -i :${port}`, { stdio: "ignore" });
@@ -27,6 +36,12 @@ function checkPort(port) {
   }
 }
 
+/**
+ * Waits for a server to be ready by polling the URL until it responds
+ * @param {string} url - URL to check
+ * @param {number} maxAttempts - Maximum number of attempts (default: 30)
+ * @returns {Promise} - Resolves when server is ready, rejects after max attempts
+ */
 function waitForServer(url, maxAttempts = 30) {
   return new Promise((resolve, reject) => {
     let attempts = 0;
@@ -48,22 +63,27 @@ function waitForServer(url, maxAttempts = 30) {
   });
 }
 
+/**
+ * Runs Lighthouse performance tests based on the specified test type
+ * Supports three modes: dev (development server), build (production build), mobile (mobile testing)
+ */
 async function runLighthouseTest() {
   const args = process.argv.slice(2);
   const testType = args[0] || "dev";
 
-  log("🚀 Starting Lighthouse Test...", "cyan");
+  log("🚀 Starting Lighthouse Performance Test...", "cyan");
 
   try {
     switch (testType) {
       case "dev":
+        // Test development server on port 3000
         if (!checkPort(3000)) {
-          log("❌ Dev server not running on port 3000", "red");
-          log("💡 Please start the dev server first: npm run dev", "yellow");
+          log("❌ Development server not running on port 3000", "red");
+          log("💡 Please start the dev server first: pnpm run dev", "yellow");
           process.exit(1);
         }
 
-        log("📊 Running Lighthouse test on dev server...", "blue");
+        log("📊 Running Lighthouse test on development server...", "blue");
         execSync(
           "npx lighthouse http://localhost:3000 --config-path=./lighthouse.config.js --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless --no-sandbox --disable-gpu --disable-dev-shm-usage'",
           { stdio: "inherit" }
@@ -71,16 +91,17 @@ async function runLighthouseTest() {
         break;
 
       case "build":
-        log("🔨 Building project...", "blue");
-        execSync("npm run build", { stdio: "inherit" });
+        // Test production build by building and previewing
+        log("🔨 Building project for production...", "blue");
+        execSync("pnpm run build", { stdio: "inherit" });
 
         log("🚀 Starting preview server...", "blue");
-        execSync("npm run preview &", { stdio: "inherit" });
+        execSync("pnpm run preview &", { stdio: "inherit" });
 
-        log("⏳ Waiting for server to be ready...", "yellow");
+        log("⏳ Waiting for preview server to be ready...", "yellow");
         await waitForServer("http://localhost:4173");
 
-        log("📊 Running Lighthouse test on build...", "blue");
+        log("📊 Running Lighthouse test on production build...", "blue");
         execSync(
           "npx lighthouse http://localhost:4173 --config-path=./lighthouse.config.js --output=html --output-path=./lighthouse-report.html",
           { stdio: "inherit" }
@@ -91,13 +112,14 @@ async function runLighthouseTest() {
         break;
 
       case "mobile":
+        // Test mobile performance on development server
         if (!checkPort(3000)) {
-          log("❌ Dev server not running on port 3000", "red");
-          log("💡 Please start the dev server first: npm run dev", "yellow");
+          log("❌ Development server not running on port 3000", "red");
+          log("💡 Please start the dev server first: pnpm run dev", "yellow");
           process.exit(1);
         }
 
-        log("📱 Running Lighthouse test for mobile...", "blue");
+        log("📱 Running Lighthouse test for mobile performance...", "blue");
         execSync(
           'npx lighthouse http://localhost:3000 --config-path=./lighthouse-mobile.config.js --output=html --output-path=./lighthouse-mobile-report.html --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage"',
           { stdio: "inherit" }
@@ -109,7 +131,7 @@ async function runLighthouseTest() {
         process.exit(1);
     }
 
-    log("✅ Lighthouse test completed successfully!", "green");
+    log("✅ Lighthouse performance test completed successfully!", "green");
     log("📄 Check the generated HTML report in your project directory", "cyan");
   } catch (error) {
     log(`❌ Lighthouse test failed: ${error.message}`, "red");
@@ -117,4 +139,5 @@ async function runLighthouseTest() {
   }
 }
 
+// Execute the lighthouse test
 runLighthouseTest();

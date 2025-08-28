@@ -21,6 +21,7 @@ export const useAuth = () => {
   return {
     // Phone auth methods
     sendVerificationCode: phoneAuth.sendVerificationCode,
+    verifyCode: phoneAuth.verifyCode,
     isVerifying: phoneAuth.authState.isVerifying,
     error: phoneAuth.error,
     clearError: phoneAuth.clearError,

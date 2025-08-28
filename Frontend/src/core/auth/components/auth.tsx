@@ -25,6 +25,7 @@ export default function Auth() {
 
   const {
     sendVerificationCode,
+    verifyCode,
     isVerifying,
     error,
     clearError,
@@ -44,11 +45,15 @@ export default function Auth() {
     }
   }, [step]);
 
-  // Clear error when input changes
+  // Clear error when input changes (debounced to prevent flickering)
   useEffect(() => {
-    if (error) {
-      clearError();
-    }
+    const timer = setTimeout(() => {
+      if (error) {
+        clearError();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [phoneNumber, otpCode, error, clearError]);
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -79,8 +84,15 @@ export default function Auth() {
       return;
     }
 
+    if (otpCode.length !== 6) {
+      toast.error("Please enter a 6-digit verification code");
+      return;
+    }
+
     setIsLoading(true);
     try {
+      await verifyCode(otpCode);
+
       toast.success(
         mode === "login"
           ? "Successfully logged in!"
@@ -91,6 +103,7 @@ export default function Auth() {
       navigate("/chat", { replace: true });
     } catch (error) {
       // Error is already handled in the hook
+      console.error("OTP verification failed:", error);
     } finally {
       setIsLoading(false);
     }
@@ -209,10 +222,10 @@ export default function Auth() {
               className="mb-4"
             />
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" key={`${mode}-${step}`}>
               {step === "phone" ? (
                 <motion.div
-                  key="phone"
+                  key={`phone-${mode}`}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -276,7 +289,7 @@ export default function Auth() {
                 </motion.div>
               ) : (
                 <motion.div
-                  key="otp"
+                  key={`otp-${mode}`}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -374,8 +387,11 @@ export default function Auth() {
             {/* Error display */}
             {error && (
               <motion.div
+                key="error"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
                 className="mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-700"
               >
                 {error}

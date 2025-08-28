@@ -81,7 +81,6 @@ export const usePhoneAuth = (
     };
   }, [recaptchaContainerId]);
 
-  // Update auth state from service
   useEffect(() => {
     const updateAuthState = () => {
       const currentState = phoneAuthService.getState();
@@ -92,13 +91,7 @@ export const usePhoneAuth = (
       }
     };
 
-    // Update immediately
     updateAuthState();
-
-    // Set up interval to sync state
-    const interval = setInterval(updateAuthState, 1000);
-
-    return () => clearInterval(interval);
   }, []);
 
   // Check session status
@@ -107,7 +100,6 @@ export const usePhoneAuth = (
       const session = sessionService.getCurrentSession();
       if (session) {
         setIsAuthenticated(true);
-        // User will be set by Firebase auth state listener
       } else {
         setIsAuthenticated(false);
         setUser(null);
@@ -115,9 +107,6 @@ export const usePhoneAuth = (
     };
 
     checkSession();
-    const interval = setInterval(checkSession, 5000);
-
-    return () => clearInterval(interval);
   }, []);
 
   // Send verification code

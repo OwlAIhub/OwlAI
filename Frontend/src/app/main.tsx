@@ -1,10 +1,20 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
+
+// Import global styles and main app component
 import "./index.css";
 import App from "./App";
 
-// Get the root element with type assertion
+/**
+ * Application entry point
+ * This file initializes the React application and renders it to the DOM
+ */
+
+/**
+ * Get the root DOM element where the React app will be mounted
+ * Throws an error if the element is not found
+ */
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -13,7 +23,12 @@ if (!rootElement) {
   );
 }
 
-// Create root and render the app
+/**
+ * Create React root and render the application
+ * Wraps the app with necessary providers for:
+ * - StrictMode: Development mode checks and warnings
+ * - HelmetProvider: SEO and document head management
+ */
 createRoot(rootElement).render(
   <StrictMode>
     <HelmetProvider>
