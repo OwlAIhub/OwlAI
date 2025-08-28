@@ -59,19 +59,19 @@ export const ContactUsSection: React.FC = () => {
     {
       icon: <IconMail className="w-6 h-6" />,
       title: "Email Us",
-      details: "support@owlai.com",
+      details: "hello@owlai.bot",
       description: "Get in touch with our support team",
     },
     {
       icon: <IconPhone className="w-6 h-6" />,
       title: "Call Us",
-      details: "+91 98765 43210",
+      details: "+91 12345 67890",
       description: "Speak directly with our experts",
     },
     {
       icon: <IconMapPin className="w-6 h-6" />,
       title: "Visit Us",
-      details: "Mumbai, Maharashtra",
+      details: "123 AI Street, Tech Park, New Delhi 201XXX",
       description: "Our headquarters location",
     },
     {
