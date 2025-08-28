@@ -147,7 +147,7 @@ export const ChatInterface: React.FC = () => {
               onChange={e => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Message OwlAI..."
-              className="h-12 pr-12 rounded-2xl border-border/40 focus:border-teal-400 transition-all duration-200 text-sm bg-background shadow-sm focus:shadow-md"
+              className="h-12 pr-12 rounded-2xl border-border/40 focus:border-teal-400 transition-all duration-200 text-sm bg-white shadow-sm focus:shadow-md !text-black placeholder:text-gray-500"
               disabled={isTyping}
             />
             <Button

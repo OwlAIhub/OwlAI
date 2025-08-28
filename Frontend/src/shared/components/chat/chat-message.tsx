@@ -58,69 +58,105 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
       {/* Message Content */}
       <div
-        className={`flex-1 ${isBot ? "max-w-[85%] mr-4" : "max-w-[75%] ml-8"}`}
+        className={`${
+          isBot ? "flex-1 max-w-[85%] mr-4" : "flex-shrink-0 ml-8"
+        }`}
       >
         <div
           className={`rounded-xl transition-all duration-200 ${
             isBot
-              ? "bg-muted/40 hover:bg-muted/60 border border-border/30 px-4 py-3"
-              : "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm px-3 py-2"
+              ? "bg-transparent px-0 py-0"
+              : "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-sm px-4 py-3 inline-block"
           }`}
         >
           {isBot ? (
-            <div className="prose prose-sm max-w-none prose-slate dark:prose-invert overflow-hidden break-words">
+            <div className="max-w-none" style={{ color: "#000000" }}>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({ children }) => (
-                    <h1 className="text-lg font-bold mb-3 text-foreground">
+                    <h1
+                      className="text-xl font-semibold mb-4 mt-6 first:mt-0"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </h1>
                   ),
                   h2: ({ children }) => (
-                    <h2 className="text-base font-semibold mb-2 text-foreground">
+                    <h2
+                      className="text-lg font-semibold mb-3 mt-5 first:mt-0"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </h2>
                   ),
                   h3: ({ children }) => (
-                    <h3 className="text-sm font-semibold mb-2 text-foreground">
+                    <h3
+                      className="text-base font-semibold mb-2 mt-4 first:mt-0"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </h3>
                   ),
                   p: ({ children }) => (
-                    <p className="text-sm leading-relaxed mb-2 text-foreground last:mb-0">
+                    <p
+                      className="text-base leading-7 mb-4 last:mb-0"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </p>
                   ),
                   ul: ({ children }) => (
-                    <ul className="list-disc ml-4 space-y-1 mb-2 text-sm">
+                    <ul
+                      className="list-disc ml-6 space-y-2 mb-4 text-base"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </ul>
                   ),
                   ol: ({ children }) => (
-                    <ol className="list-decimal ml-4 space-y-1 mb-2 text-sm">
+                    <ol
+                      className="list-decimal ml-6 space-y-2 mb-4 text-base"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </ol>
                   ),
                   li: ({ children }) => (
-                    <li className="text-foreground leading-relaxed pl-2">
+                    <li className="leading-7 pl-2" style={{ color: "#000000" }}>
                       {children}
                     </li>
                   ),
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-foreground">
+                    <strong
+                      className="font-semibold"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </strong>
                   ),
                   code: ({ children }) => (
-                    <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">
+                    <code
+                      className="bg-gray-100 px-2 py-1 rounded text-sm font-mono"
+                      style={{ color: "#000000" }}
+                    >
                       {children}
                     </code>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-2 border-teal-500 pl-3 italic text-muted-foreground">
+                    <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2 mb-4 italic text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 rounded-r">
                       {children}
                     </blockquote>
+                  ),
+                  pre: ({ children }) => (
+                    <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg mb-4 overflow-x-auto">
+                      <code
+                        className="text-sm font-mono"
+                        style={{ color: "#000000" }}
+                      >
+                        {children}
+                      </code>
+                    </pre>
                   ),
                 }}
               >
@@ -128,7 +164,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               </ReactMarkdown>
             </div>
           ) : (
-            <p className="text-sm leading-relaxed text-white">
+            <p className="text-base leading-relaxed text-white">
               {message.content}
             </p>
           )}
