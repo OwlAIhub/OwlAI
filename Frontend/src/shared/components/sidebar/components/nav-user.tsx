@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
 import {
@@ -22,6 +23,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
+import { AccountModal } from "@/shared/components/modals/account-modal";
 
 export function NavUser({
   user,
@@ -33,6 +35,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
   return (
     <SidebarMenu>
@@ -74,7 +77,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsAccountModalOpen(true)}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
@@ -87,6 +90,13 @@ export function NavUser({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+
+      {/* Account Modal */}
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        user={user}
+      />
     </SidebarMenu>
   );
 }

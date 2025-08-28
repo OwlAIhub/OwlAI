@@ -17,5 +17,8 @@ export { SubscriptionHeader } from "./subscription/subscription-header";
 export { SubscriptionPlanCard } from "./subscription/subscription-plan-card";
 export { SubscriptionFAQ } from "./subscription/subscription-faq";
 
+// Modal components
+export { AccountModal } from "./modals/account-modal";
+
 // TODO: Export auth components when they are organized
 // export * from "./auth";
