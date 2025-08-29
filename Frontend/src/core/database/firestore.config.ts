@@ -46,21 +46,31 @@ export const COLLECTIONS = {
   ANALYTICS: "analytics",
 } as const;
 
-// Database configuration
+// Database configuration (optimized for performance)
 export const DB_CONFIG = {
   // Pagination settings
   MESSAGES_PER_PAGE: 20,
   CONVERSATIONS_PER_PAGE: 10,
 
-  // Cache settings
-  CACHE_SIZE_MB: 100,
+  // Cache settings (increased for better performance)
+  CACHE_SIZE_MB: 150,
+  ENABLE_OFFLINE_PERSISTENCE: true,
+  ENABLE_REALTIME_CACHE: true,
 
-  // Timeout settings
-  QUERY_TIMEOUT: 30000, // 30 seconds
+  // Timeout settings (reduced for faster failure detection)
+  QUERY_TIMEOUT: 15000, // 15 seconds (reduced from 30s)
+  CONNECTION_TIMEOUT: 10000, // 10 seconds
 
-  // Retry settings
-  MAX_RETRIES: 3,
-  RETRY_DELAY: 1000,
+  // Retry settings (optimized)
+  MAX_RETRIES: 2, // Reduced from 3
+  RETRY_DELAY: 500, // Reduced from 1000ms
+  EXPONENTIAL_BACKOFF: true,
+
+  // Performance optimizations
+  USE_BATCH_OPERATIONS: true,
+  PRELOAD_RECENT_CONVERSATIONS: true,
+  CACHE_QUERY_RESULTS: true,
+  ENABLE_COMPRESSION: true,
 } as const;
 
 // Export types

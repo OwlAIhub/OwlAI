@@ -259,7 +259,7 @@ export default function Auth() {
                           onChange={e =>
                             setPhoneNumber(formatPhoneNumber(e.target.value))
                           }
-                          placeholder="+1234567890"
+                          placeholder="+91 9876543210 (with country code)"
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
                           disabled={isLoading}
                         />
@@ -330,14 +330,10 @@ export default function Auth() {
                     <button
                       type="submit"
                       disabled={
-                        isLoading ||
-                        !otpCode.trim() ||
-                        otpCode.length !== 6
+                        isLoading || !otpCode.trim() || otpCode.length !== 6
                       }
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        isLoading ||
-                        !otpCode.trim() ||
-                        otpCode.length !== 6
+                        isLoading || !otpCode.trim() || otpCode.length !== 6
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-teal-600 text-white hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                       }`}

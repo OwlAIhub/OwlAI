@@ -46,8 +46,45 @@ class PhoneAuthService {
     try {
       this.clearRecaptcha();
 
+      // Wait for DOM element to be available
+      const waitForElement = (
+        id: string,
+        timeout = 5000
+      ): Promise<HTMLElement> => {
+        return new Promise((resolve, reject) => {
+          const element = document.getElementById(id);
+          if (element) {
+            resolve(element);
+            return;
+          }
+
+          const observer = new MutationObserver(() => {
+            const element = document.getElementById(id);
+            if (element) {
+              observer.disconnect();
+              resolve(element);
+            }
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+          });
+
+          setTimeout(() => {
+            observer.disconnect();
+            reject(
+              new Error(`Element with id '${id}' not found within ${timeout}ms`)
+            );
+          }, timeout);
+        });
+      };
+
+      // Wait for the container element
+      await waitForElement(containerId);
+
       this.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-        size: "invisible", // Invisible - no user interaction needed
+        size: "invisible",
         callback: () => {
           logger.info("reCAPTCHA verification successful", "PhoneAuthService");
         },
@@ -55,19 +92,21 @@ class PhoneAuthService {
           logger.warn("reCAPTCHA verification expired", "PhoneAuthService");
           this.clearRecaptcha();
         },
-        "error-callback": () => {
-          logger.error("reCAPTCHA verification failed", "PhoneAuthService");
+        "error-callback": (error: any) => {
+          logger.error(
+            "reCAPTCHA verification failed",
+            "PhoneAuthService",
+            error
+          );
           this.clearRecaptcha();
         },
-        // Use reCAPTCHA v2 instead of Enterprise
-        version: "v2",
-        // Additional options for better UX
-        theme: "light",
-        badge: "bottomright", // Position the reCAPTCHA badge
       });
 
       await this.recaptchaVerifier.render();
-      logger.info("reCAPTCHA verifier initialized", "PhoneAuthService");
+      logger.info(
+        "reCAPTCHA verifier initialized successfully",
+        "PhoneAuthService"
+      );
     } catch (error) {
       logger.error("Failed to initialize reCAPTCHA", "PhoneAuthService", error);
 
@@ -110,21 +149,35 @@ class PhoneAuthService {
         throw new Error(rateLimitCheck.message);
       }
 
-      // Ensure reCAPTCHA is initialized
+      // Ensure reCAPTCHA is initialized - try to initialize if not ready
       if (!this.recaptchaVerifier) {
-        if (import.meta.env.DEV) {
-          throw new Error(
-            "Verification system not initialized. Please refresh the page."
-          );
-        } else {
-          throw new Error(
-            "Security verification failed. Please refresh the page and try again."
-          );
+        console.log("reCAPTCHA not ready, attempting to initialize...");
+        try {
+          await this.initializeRecaptcha("recaptcha-container");
+        } catch (initError) {
+          console.error("Failed to initialize reCAPTCHA:", initError);
+          if (import.meta.env.DEV) {
+            throw new Error(
+              "Verification system not initialized. Please refresh the page."
+            );
+          } else {
+            throw new Error(
+              "Security verification failed. Please refresh the page and try again."
+            );
+          }
         }
       }
 
       // Send verification code
       this.state.isCodeSent = false;
+
+      // Ensure we have a valid reCAPTCHA verifier
+      if (!this.recaptchaVerifier) {
+        throw new Error(
+          "Verification system not ready. Please refresh and try again."
+        );
+      }
+
       const confirmationResult = await signInWithPhoneNumber(
         auth,
         phoneNumber,

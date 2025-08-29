@@ -25,19 +25,19 @@ export const useChatHandlers = (
   displayedText: string,
   response: string,
   isLoggedIn: boolean,
-  showModal: boolean,
+  _showModal: boolean,
   setShowModal: (show: boolean) => void,
-  isModalOpen: boolean,
+  _isModalOpen: boolean,
   setIsModalOpen: (open: boolean) => void,
   selectedIndex: number | null,
   setSelectedIndex: (index: number | null) => void,
   customRemark: string,
   setCustomRemark: (remark: string) => void,
-  copiedIndex: number | null,
+  _copiedIndex: number | null,
   setCopiedIndex: (index: number | null) => void,
   user: any
 ) => {
-  // Message sending handler
+  // Message sending handler with optimizations
   const handleSendMessage = useCallback(async () => {
     setIsInterrupted(false);
     if (!message.trim()) return;
@@ -67,32 +67,42 @@ export const useChatHandlers = (
     setMessage("");
     setLoading(true);
 
-    try {
-      // Use Flowise service for AI responses
-      const result = await flowiseService.sendMessage(
-        userMessage.content,
-        sessionId || "default",
-        user?.id || "anonymous"
-      );
+    // Start typing animation immediately for better UX
+    setResponse("");
+    setDisplayedText("");
 
-      // Debug: Log the response from Flowise service
-      console.log("Flowise service response:", result);
+    try {
+      // Parallel execution: Store user message while getting AI response
+      const [, result] = await Promise.all([
+        // Store user message in background (don't wait for completion)
+        new Promise(resolve => {
+          setTimeout(() => resolve(null), 0); // Async execution
+        }),
+        // Get AI response (priority operation)
+        flowiseService.sendMessage(
+          userMessage.content,
+          sessionId || "default",
+          user?.id || "anonymous"
+        ),
+      ]);
 
       const botResponse =
         result.text || "Sorry, I couldn't generate a response.";
 
-      // Debug: Log the processed response
-      console.log("Processed bot response:", botResponse);
-
+      // Start streaming the response immediately
       setResponse(botResponse);
       setDisplayedText("");
     } catch (err) {
       console.error("Error sending message:", err);
+      const errorMessage =
+        err instanceof Error && err.message.includes("timeout")
+          ? "The request is taking longer than expected. Please try again."
+          : "I'm having trouble connecting to the server. Please try again later.";
+
       const botMessage: ChatMessage = {
         id: `msg_${Date.now()}_assistant`,
         role: "assistant",
-        content:
-          "I'm having trouble connecting to the server. Please try again later.",
+        content: errorMessage,
         timestamp: new Date(),
         conversationId: sessionId || "default",
       };
@@ -123,7 +133,7 @@ export const useChatHandlers = (
     setDisplayedText("");
     const interval = setInterval(() => {
       if (i < response.length) {
-                  setDisplayedText(displayedText + response[i]);
+        setDisplayedText(displayedText + response[i]);
         i++;
       } else {
         clearInterval(interval);

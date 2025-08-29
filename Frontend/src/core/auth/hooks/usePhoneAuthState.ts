@@ -41,6 +41,8 @@ export const usePhoneAuthState = (
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Add a small delay to ensure DOM is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
         await phoneAuthService.initializeRecaptcha(recaptchaContainerId);
         initialized.current = true;
         setIsLoading(false);

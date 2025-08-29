@@ -24,6 +24,7 @@ import {
 import { db, COLLECTIONS, DB_CONFIG } from "../firestore.config";
 import { logger } from "../../../shared/utils/logger";
 import { conversationService } from "./conversation.service";
+import { conversationCache, CacheUtils } from "../../../shared/utils/cache";
 import type {
   MessageDocument,
   ConversationDocument,

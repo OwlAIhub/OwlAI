@@ -6,7 +6,7 @@
 // API Configuration
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-export const API_TIMEOUT = 30000;
+export const API_TIMEOUT = 15000; // Reduced from 30s to 15s for faster failure detection
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -29,7 +29,7 @@ export const MESSAGE_LIMITS = {
   MAX_LENGTH: 4000,
   MIN_LENGTH: 1,
   TYPING_INDICATOR_DELAY: 1000,
-  MESSAGE_TIMEOUT: 30000,
+  MESSAGE_TIMEOUT: 15000, // Reduced timeout for faster response feedback
   ANONYMOUS_MAX: 5,
   CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 } as const;

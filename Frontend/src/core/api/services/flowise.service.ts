@@ -7,6 +7,7 @@ import { logger } from "../../../shared/utils/logger";
 import { messageService } from "../../database/services/message.service";
 import { conversationService } from "../../database/services/conversation.service";
 import { contextManagementService } from "../../database/services/context-management.service";
+import { responseCache, CacheUtils } from "../../../shared/utils/cache";
 
 import type { MessageDocument } from "../../database/types/database.types";
 
@@ -15,9 +16,9 @@ const FLOWISE_CONFIG = {
   BASE_URL:
     import.meta.env.VITE_FLOWISE_API_URL ||
     "http://34.47.149.141/api/v1/prediction/086aebf7-e250-41e6-b437-061f747041d2",
-  TIMEOUT: 30000, // 30 seconds
-  MAX_RETRIES: 3,
-  RETRY_DELAY: 1000,
+  TIMEOUT: 15000, // 15 seconds for faster response
+  MAX_RETRIES: 2, // Reduced retries for faster failure
+  RETRY_DELAY: 500, // Faster retry attempts
 } as const;
 
 // Request/Response types
@@ -59,6 +60,7 @@ interface ChatMessage {
 
 class FlowiseService {
   private static instance: FlowiseService;
+  private requestQueue: Map<string, Promise<FlowiseResponse>> = new Map();
 
   private constructor() {}
 
@@ -70,7 +72,7 @@ class FlowiseService {
   }
 
   /**
-   * Send message using direct Flowise API
+   * Send message using direct Flowise API with caching and deduplication
    */
   public async sendMessage(
     question: string,
@@ -80,6 +82,16 @@ class FlowiseService {
   ): Promise<FlowiseResponse> {
     try {
       const startTime = Date.now();
+      
+      // Create request key for deduplication
+      const requestKey = `${question}:${conversationId}:${userId}`;
+      
+      // Check if same request is already in progress
+      const existingRequest = this.requestQueue.get(requestKey);
+      if (existingRequest) {
+        logger.info("Returning existing request", "FlowiseService", { requestKey });
+        return await existingRequest;
+      }
 
       logger.info(
         "Processing AI request via Flowise API",
@@ -91,35 +103,43 @@ class FlowiseService {
         }
       );
 
-      // Make direct request to Flowise API
-      const response = await this.makeRequest({
+      // Create and queue the request
+      const requestPromise = this.makeRequest({
         question,
         conversationId,
         userId,
         context,
       });
+      
+      this.requestQueue.set(requestKey, requestPromise);
 
-      const responseTime = Date.now() - startTime;
+      try {
+        const response = await requestPromise;
+        const responseTime = Date.now() - startTime;
 
-      logger.info(
-        "AI response received via Flowise API",
-        "FlowiseService",
-        {
-          conversationId,
-          responseTime,
-          responseLength: response.text?.length || 0,
-        }
-      );
+        logger.info(
+          "AI response received via Flowise API",
+          "FlowiseService",
+          {
+            conversationId,
+            responseTime,
+            responseLength: response.text?.length || 0,
+          }
+        );
 
-      return {
-        text: response.text,
-        metadata: {
-          tokens_used: response.metadata?.tokens_used,
-          response_time: responseTime,
-          model_used: response.metadata?.model_used,
-          timestamp: new Date().toISOString(),
-        },
-      };
+        return {
+          text: response.text,
+          metadata: {
+            tokens_used: response.metadata?.tokens_used,
+            response_time: responseTime,
+            model_used: response.metadata?.model_used,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      } finally {
+        // Remove from queue when done
+        this.requestQueue.delete(requestKey);
+      }
     } catch (error) {
       logger.error(
         "Failed to process AI request via Flowise API",
