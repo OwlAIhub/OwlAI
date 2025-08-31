@@ -6,10 +6,29 @@ import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import App from "./App";
 
+// Import performance utilities
+import { initializePerformanceOptimizations } from "../utils/performance";
+
 /**
  * Application entry point
  * This file initializes the React application and renders it to the DOM
  */
+
+/**
+ * Register service worker for PWA capabilities
+ */
+const registerServiceWorker = async () => {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+      });
+      console.log("SW registered: ", registration);
+    } catch (registrationError) {
+      console.log("SW registration failed: ", registrationError);
+    }
+  }
+};
 
 /**
  * Get the root DOM element where the React app will be mounted
@@ -22,6 +41,16 @@ if (!rootElement) {
     'Root element not found. Make sure there is a div with id="root" in your HTML.'
   );
 }
+
+/**
+ * Initialize performance optimizations
+ */
+initializePerformanceOptimizations();
+
+/**
+ * Register service worker
+ */
+registerServiceWorker();
 
 /**
  * Create React root and render the application

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 interface OptimizedImageProps {
   src: string;
@@ -8,6 +8,8 @@ interface OptimizedImageProps {
   height?: number;
   priority?: boolean;
   placeholder?: string;
+  sizes?: string;
+  quality?: number;
 }
 
 export const OptimizedImage: React.FC<OptimizedImageProps> = ({
@@ -18,16 +20,31 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   height,
   priority = false,
   placeholder = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg==",
+  sizes = "100vw",
+  quality = 85,
 }) => {
   const [imageSrc, setImageSrc] = useState(placeholder);
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Generate optimized src with WebP support
+  const getOptimizedSrc = useCallback((originalSrc: string) => {
+    // If it's already a data URL or external URL, return as is
+    if (originalSrc.startsWith("data:") || originalSrc.startsWith("http")) {
+      return originalSrc;
+    }
+
+    // For local images, prefer WebP if available
+    const webpSrc = originalSrc.replace(/\.(png|jpg|jpeg)$/i, ".webp");
+    return webpSrc;
+  }, []);
 
   useEffect(() => {
     let observer: IntersectionObserver;
     let didCancel = false;
 
-    if (imageRef && imageSrc === placeholder) {
+    if (imageRef && imageSrc === placeholder && !hasError) {
       if (IntersectionObserver) {
         observer = new IntersectionObserver(
           entries => {
@@ -36,20 +53,21 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
                 !didCancel &&
                 (entry.intersectionRatio > 0 || entry.isIntersecting)
               ) {
-                setImageSrc(src);
+                const optimizedSrc = getOptimizedSrc(src);
+                setImageSrc(optimizedSrc);
                 observer.unobserve(imageRef);
               }
             });
           },
           {
             threshold: 0.01,
-            rootMargin: "75%",
+            rootMargin: priority ? "0px" : "50px", // Load earlier for non-priority images
           }
         );
         observer.observe(imageRef);
       } else {
         // Fallback for older browsers
-        setImageSrc(src);
+        setImageSrc(getOptimizedSrc(src));
       }
     }
     return () => {
@@ -58,19 +76,25 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         observer.unobserve(imageRef);
       }
     };
-  }, [src, imageSrc, imageRef]);
+  }, [src, imageSrc, imageRef, hasError, priority, getOptimizedSrc]);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     setIsLoaded(true);
-  };
+    setHasError(false);
+  }, []);
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     // Fallback to original src if WebP fails
-    if (src.includes(".webp")) {
-      const fallbackSrc = src.replace(".webp", ".png");
+    if (imageSrc.includes(".webp") && !hasError) {
+      const fallbackSrc = imageSrc.replace(".webp", ".png");
       setImageSrc(fallbackSrc);
+      setHasError(true);
+    } else if (imageSrc !== src) {
+      // Final fallback to original src
+      setImageSrc(src);
+      setHasError(true);
     }
-  };
+  }, [imageSrc, src, hasError]);
 
   return (
     <img
@@ -81,6 +105,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       width={width}
       height={height}
       loading={priority ? "eager" : "lazy"}
+      decoding={priority ? "sync" : "async"}
+      sizes={sizes}
       onLoad={handleLoad}
       onError={handleError}
       style={{

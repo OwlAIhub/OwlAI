@@ -11,7 +11,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "format:fix": "prettier --write . && eslint . --fix"
+    "format:fix": "prettier --write . && eslint . --fix",
+    "optimize-images": "node scripts/optimize-images.js",
+    "build:optimized": "npm run optimize-images && vite build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
