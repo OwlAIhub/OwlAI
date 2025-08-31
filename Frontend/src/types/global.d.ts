@@ -10,8 +10,18 @@ declare namespace JSX {
 // Framer Motion compatibility shim to avoid JSX component type errors
 declare module "framer-motion" {
   import type * as React from "react";
-  export const AnimatePresence: React.ComponentType<React.PropsWithChildren<unknown>>;
+  export const AnimatePresence: React.ComponentType<
+    React.PropsWithChildren<unknown>
+  >;
   export const motion: any;
 }
 
-
+// reCAPTCHA global type declaration
+declare global {
+  interface Window {
+    grecaptcha?: {
+      reset?: () => void;
+      [key: string]: any;
+    };
+  }
+}

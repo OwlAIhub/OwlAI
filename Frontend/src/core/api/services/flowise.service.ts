@@ -82,26 +82,24 @@ class FlowiseService {
   ): Promise<FlowiseResponse> {
     try {
       const startTime = Date.now();
-      
+
       // Create request key for deduplication
       const requestKey = `${question}:${conversationId}:${userId}`;
-      
+
       // Check if same request is already in progress
       const existingRequest = this.requestQueue.get(requestKey);
       if (existingRequest) {
-        logger.info("Returning existing request", "FlowiseService", { requestKey });
+        logger.info("Returning existing request", "FlowiseService", {
+          requestKey,
+        });
         return await existingRequest;
       }
 
-      logger.info(
-        "Processing AI request via Flowise API",
-        "FlowiseService",
-        {
-          conversationId,
-          userId,
-          questionLength: question.length,
-        }
-      );
+      logger.info("Processing AI request via Flowise API", "FlowiseService", {
+        conversationId,
+        userId,
+        questionLength: question.length,
+      });
 
       // Create and queue the request
       const requestPromise = this.makeRequest({
@@ -110,22 +108,18 @@ class FlowiseService {
         userId,
         context,
       });
-      
+
       this.requestQueue.set(requestKey, requestPromise);
 
       try {
         const response = await requestPromise;
         const responseTime = Date.now() - startTime;
 
-        logger.info(
-          "AI response received via Flowise API",
-          "FlowiseService",
-          {
-            conversationId,
-            responseTime,
-            responseLength: response.text?.length || 0,
-          }
-        );
+        logger.info("AI response received via Flowise API", "FlowiseService", {
+          conversationId,
+          responseTime,
+          responseLength: response.text?.length || 0,
+        });
 
         return {
           text: response.text,

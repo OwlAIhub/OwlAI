@@ -9,9 +9,5 @@ interface StoreProviderProps {
  * Root store provider that combines all store providers
  */
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
-  return (
-    <UserProvider>
-      {children}
-    </UserProvider>
-  );
+  return <UserProvider>{children}</UserProvider>;
 };

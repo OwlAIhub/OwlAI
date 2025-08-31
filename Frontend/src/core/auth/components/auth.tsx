@@ -30,10 +30,31 @@ export default function Auth() {
     clearError,
     resetPhoneAuth,
     recaptchaContainerRef,
+    isLoading: authLoading,
   } = useAuth();
 
   const phoneInputRef = useRef<HTMLInputElement>(null);
   const otpInputRef = useRef<HTMLInputElement>(null);
+
+  // Ensure reCAPTCHA container is properly rendered
+  useEffect(() => {
+    const ensureRecaptchaContainer = () => {
+      const container = document.getElementById("recaptcha-container");
+      if (container && recaptchaContainerRef.current) {
+        // Ensure the container is visible and properly positioned
+        container.style.display = "block";
+        container.style.visibility = "visible";
+        container.style.position = "relative";
+        container.style.minHeight = "1px";
+      }
+    };
+
+    // Run immediately and after a short delay
+    ensureRecaptchaContainer();
+    const timer = setTimeout(ensureRecaptchaContainer, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Focus input on step change
   useEffect(() => {
@@ -63,13 +84,27 @@ export default function Auth() {
       return;
     }
 
+    // Check if auth is still loading
+    if (authLoading) {
+      toast.error(
+        "Authentication system is still initializing. Please wait..."
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
       await sendVerificationCode(phoneNumber);
       setStep("otp");
       toast.success("Verification code sent!");
     } catch (error) {
-      // Error is already handled in the hook
+      // Show specific error message
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to send verification code";
+
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +123,14 @@ export default function Auth() {
       return;
     }
 
+    // Check if auth is still loading
+    if (authLoading) {
+      toast.error(
+        "Authentication system is still initializing. Please wait..."
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
       await verifyCode(otpCode);
@@ -101,7 +144,10 @@ export default function Auth() {
       // Navigate to chat
       navigate("/chat", { replace: true });
     } catch (error) {
-      // Error is already handled in the hook
+      // Show specific error message
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to verify code";
+      toast.error(errorMessage);
       console.error("OTP verification failed:", error);
     } finally {
       setIsLoading(false);
@@ -214,12 +260,63 @@ export default function Auth() {
 
           {/* Auth Form */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+            {/* Loading state for reCAPTCHA initialization */}
+            {authLoading && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center text-blue-700">
+                  <FiRefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  <span className="text-sm">
+                    Initializing security verification...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Auth ready indicator */}
+            {!authLoading && (
+              <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center text-green-700">
+                  <span className="text-sm">✓ Authentication system ready</span>
+                </div>
+              </div>
+            )}
+
             {/* reCAPTCHA container */}
             <div
               ref={recaptchaContainerRef}
               id="recaptcha-container"
               className="mb-4"
+              style={{
+                display: "block",
+                visibility: "visible",
+                position: "relative",
+                minHeight: "1px",
+                width: "100%",
+              }}
             />
+
+            {/* Debug panel for troubleshooting */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-start text-red-700">
+                  <div className="flex-1">
+                    <div className="font-medium text-sm mb-1">
+                      Authentication Error
+                    </div>
+                    <div className="text-sm">{error}</div>
+                    <button
+                      onClick={() => {
+                        resetPhoneAuth();
+                        window.location.reload();
+                      }}
+                      className="mt-3 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                    >
+                      Reset Authentication System
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div key={`${mode}-${step}`}>
               {step === "phone" ? (
@@ -261,16 +358,16 @@ export default function Auth() {
                           }
                           placeholder="+91 9876543210 (with country code)"
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
-                          disabled={isLoading}
+                          disabled={isLoading || authLoading}
                         />
                       </div>
                     </div>
 
                     <button
                       type="submit"
-                      disabled={isLoading || !phoneNumber.trim()}
+                      disabled={isLoading || authLoading || !phoneNumber.trim()}
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        isLoading || !phoneNumber.trim()
+                        isLoading || authLoading || !phoneNumber.trim()
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-teal-600 text-white hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                       }`}
@@ -323,17 +420,23 @@ export default function Auth() {
                         placeholder="123456"
                         maxLength={6}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg font-mono focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors text-gray-900 bg-white"
-                        disabled={isLoading}
+                        disabled={isLoading || authLoading}
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={
-                        isLoading || !otpCode.trim() || otpCode.length !== 6
+                        isLoading ||
+                        authLoading ||
+                        !otpCode.trim() ||
+                        otpCode.length !== 6
                       }
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        isLoading || !otpCode.trim() || otpCode.length !== 6
+                        isLoading ||
+                        authLoading ||
+                        !otpCode.trim() ||
+                        otpCode.length !== 6
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-teal-600 text-white hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                       }`}
@@ -362,9 +465,9 @@ export default function Auth() {
                       <button
                         type="button"
                         onClick={handleResendCode}
-                        disabled={isLoading}
+                        disabled={isLoading || authLoading}
                         className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                          isLoading
+                          isLoading || authLoading
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}

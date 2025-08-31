@@ -71,7 +71,13 @@ export const useChatEffects = (
     window.addEventListener("newSessionCreated", handleNewSession);
     return () =>
       window.removeEventListener("newSessionCreated", handleNewSession);
-  }, [setChatMessages, setMessageCount, setResponse, setDisplayedText, setLoading]);
+  }, [
+    setChatMessages,
+    setMessageCount,
+    setResponse,
+    setDisplayedText,
+    setLoading,
+  ]);
 
   // Load preset query
   useEffect(() => {
@@ -113,25 +119,29 @@ export const useChatEffects = (
   }, [setWindowSize]);
 
   // Chat history fetching
-  const processChatHistory = useCallback((messages: ChatMessage[], chatId?: string) => {
-    if (!messages || !Array.isArray(messages)) return;
+  const processChatHistory = useCallback(
+    (messages: ChatMessage[], chatId?: string) => {
+      if (!messages || !Array.isArray(messages)) return;
 
-    const sortedMessages = messages.sort(
-      (a, b) =>
-        new Date(a.timestamp || 0).getTime() -
-        new Date(b.timestamp || 0).getTime()
-    );
+      const sortedMessages = messages.sort(
+        (a, b) =>
+          new Date(a.timestamp || 0).getTime() -
+          new Date(b.timestamp || 0).getTime()
+      );
 
-    setChatMessages(sortedMessages);
+      setChatMessages(sortedMessages);
 
-    // Use the conversationId from the first message if available, or the provided chatId
-    const conversationId = sortedMessages[0]?.conversationId || chatId || currentChat?.id;
-    if (conversationId) {
-      storage.set(STORAGE_KEYS.SESSION_ID, conversationId);
-      setSesssionId(conversationId);
-      storage.set(`chatMessages-${conversationId}`, sortedMessages);
-    }
-  }, [setChatMessages, setSesssionId, currentChat?.id]);
+      // Use the conversationId from the first message if available, or the provided chatId
+      const conversationId =
+        sortedMessages[0]?.conversationId || chatId || currentChat?.id;
+      if (conversationId) {
+        storage.set(STORAGE_KEYS.SESSION_ID, conversationId);
+        setSesssionId(conversationId);
+        storage.set(`chatMessages-${conversationId}`, sortedMessages);
+      }
+    },
+    [setChatMessages, setSesssionId, currentChat?.id]
+  );
 
   const fetchChatHistory = useCallback(
     async (chatId: string) => {
@@ -198,7 +208,13 @@ export const useChatEffects = (
       const timer = setTimeout(() => setIsLoading(false), 1500);
       return () => clearTimeout(timer);
     }
-  }, [sessionId, currentChat, anonymousSessionId, anonymousUserId, setIsLoading]);
+  }, [
+    sessionId,
+    currentChat,
+    anonymousSessionId,
+    anonymousUserId,
+    setIsLoading,
+  ]);
 
   return {
     fetchChatHistory,

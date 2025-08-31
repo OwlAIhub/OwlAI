@@ -19,9 +19,7 @@ export { default as Auth } from "./components/auth";
 export { phoneNumberValidator } from "./utils/phone-validator";
 
 // Types
-export type {
-  PhoneAuthState,
-} from "./types/phone-auth.types";
+export type { PhoneAuthState } from "./types/phone-auth.types";
 
 export type {
   RateLimitCheck,

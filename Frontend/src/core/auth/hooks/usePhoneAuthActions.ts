@@ -24,52 +24,64 @@ export const usePhoneAuthActions = (
   setIsLoading: (loading: boolean) => void
 ): UsePhoneAuthActionsReturn => {
   // Send verification code
-  const sendVerificationCode = useCallback(async (phoneNumber: string) => {
-    try {
-      setError(null);
-      setIsLoading(true);
+  const sendVerificationCode = useCallback(
+    async (phoneNumber: string) => {
+      try {
+        setError(null);
+        setIsLoading(true);
 
-      await phoneAuthService.sendVerificationCode(phoneNumber);
+        await phoneAuthService.sendVerificationCode(phoneNumber);
 
-      logger.info("Verification code sent", "usePhoneAuthActions", { phoneNumber });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code";
-      setError(errorMessage);
-      logger.error("Failed to send verification code", "usePhoneAuthActions", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setError, setIsLoading]);
+        logger.info("Verification code sent", "usePhoneAuthActions", {
+          phoneNumber,
+        });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to send verification code";
+        setError(errorMessage);
+        logger.error(
+          "Failed to send verification code",
+          "usePhoneAuthActions",
+          error
+        );
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setError, setIsLoading]
+  );
 
   // Verify OTP code
-  const verifyCode = useCallback(async (code: string): Promise<User> => {
-    try {
-      setError(null);
-      setIsLoading(true);
+  const verifyCode = useCallback(
+    async (code: string): Promise<User> => {
+      try {
+        setError(null);
+        setIsLoading(true);
 
-      const user = await phoneAuthService.verifyCode(code);
-      setUser(user);
-      setIsAuthenticated(true);
+        const user = await phoneAuthService.verifyCode(code);
+        setUser(user);
+        setIsAuthenticated(true);
 
-      logger.info("Code verified successfully", "usePhoneAuthActions", {
-        uid: user.uid,
-      });
+        logger.info("Code verified successfully", "usePhoneAuthActions", {
+          uid: user.uid,
+        });
 
-      return user;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to verify code";
-      setError(errorMessage);
-      logger.error("Failed to verify code", "usePhoneAuthActions", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setError, setIsLoading, setUser, setIsAuthenticated]);
+        return user;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to verify code";
+        setError(errorMessage);
+        logger.error("Failed to verify code", "usePhoneAuthActions", error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setError, setIsLoading, setUser, setIsAuthenticated]
+  );
 
   // Sign out
   const signOut = useCallback(async () => {

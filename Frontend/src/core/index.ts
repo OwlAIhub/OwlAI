@@ -32,6 +32,4 @@ export * from "./firebase/firebase";
 // Stores
 export * from "./stores";
 
-
-
 // Security & Privacy (removed unused module)

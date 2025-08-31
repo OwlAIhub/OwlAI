@@ -39,17 +39,44 @@ export const usePhoneAuthState = (
 
   // Initialize reCAPTCHA on mount
   useEffect(() => {
+    let isMounted = true;
+
     const initializeAuth = async () => {
       try {
-        // Add a small delay to ensure DOM is ready
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait for DOM to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Check if container exists before initializing
+        const container = document.getElementById(recaptchaContainerId);
+        if (!container) {
+          // Wait a bit more and try again
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Check if already initialized
+        if (initialized.current || !isMounted) {
+          return;
+        }
+
         await phoneAuthService.initializeRecaptcha(recaptchaContainerId);
-        initialized.current = true;
-        setIsLoading(false);
+
+        if (isMounted) {
+          initialized.current = true;
+          setIsLoading(false);
+        }
       } catch (error) {
-        logger.error("Failed to initialize phone auth", "usePhoneAuthState", error);
-        setError("Failed to initialize authentication system");
-        setIsLoading(false);
+        if (isMounted) {
+          logger.error(
+            "Failed to initialize phone auth",
+            "usePhoneAuthState",
+            error
+          );
+
+          setError(
+            "Failed to initialize authentication system. Please refresh the page and try again."
+          );
+          setIsLoading(false);
+        }
       }
     };
 
@@ -59,6 +86,7 @@ export const usePhoneAuthState = (
 
     // Cleanup on unmount
     return () => {
+      isMounted = false;
       phoneAuthService.clearRecaptcha();
       sessionService.cleanup();
     };

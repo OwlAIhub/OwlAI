@@ -47,7 +47,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           {currentChatTitle || "New Chat"}
         </h1>
       </div>
-      
+
       <div className="flex items-center space-x-2">
         <button
           onClick={toggleDarkMode}

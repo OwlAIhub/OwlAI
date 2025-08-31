@@ -125,10 +125,11 @@ export const ChatInterface: React.FC = () => {
         <div
           ref={scrollAreaRef}
           className="flex-1 px-3 py-2 overflow-y-auto overflow-x-hidden"
-          style={{ 
+          style={{
             scrollBehavior: "smooth",
             height: "100%",
-            maxHeight: "calc(100vh - 200px)"
+            maxHeight: "calc(100vh - 180px)",
+            WebkitOverflowScrolling: "touch", // Better scrolling on iOS
           }}
         >
           <div className="space-y-1 pb-3 max-w-4xl mx-auto">
@@ -141,7 +142,7 @@ export const ChatInterface: React.FC = () => {
       )}
 
       {/* Input Area at Bottom - ChatGPT Style */}
-      <div className="border-t border-border/20 p-4 bg-background/98 backdrop-blur-sm">
+      <div className="border-t border-border/20 p-3 sm:p-4 bg-background/98 backdrop-blur-sm">
         <div className="flex items-center space-x-3 max-w-4xl mx-auto">
           <div className="flex-1 relative">
             <Input

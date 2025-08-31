@@ -16,14 +16,14 @@ interface ChatHeaderProps {
 export const ChatHeader: React.FC<ChatHeaderProps> = ({ title }) => {
   return (
     <div className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-      <div className="px-6 py-4">
+      <div className="px-4 sm:px-6 py-4">
         {/* Clean Breadcrumb Navigation */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink 
-                href="/chat" 
-                className="flex items-center text-muted-foreground hover:text-teal-600 transition-colors duration-300"
+              <BreadcrumbLink
+                href="/chat"
+                className="flex items-center text-gray-700 hover:text-teal-600 transition-colors duration-300"
               >
                 <MessageCircle className="h-4 w-4 mr-1" />
                 Chat
@@ -31,7 +31,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ title }) => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium text-foreground">
+              <BreadcrumbPage className="font-medium text-gray-900">
                 {title}
               </BreadcrumbPage>
             </BreadcrumbItem>

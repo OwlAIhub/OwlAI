@@ -26,7 +26,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
+
   /* Core color mappings */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -46,7 +46,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
   /* Sidebar color mappings */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -92,7 +92,7 @@
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  
+
   /* Sidebar Colors - Light Mode */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.05 0 0);
@@ -136,7 +136,7 @@
   --border: oklch(0.95 0 0);
   --input: oklch(0.95 0 0);
   --ring: oklch(0.8 0 0);
-  
+
   /* Sidebar Colors - Dark Mode */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.05 0 0);
@@ -154,7 +154,7 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     /* Ensure smooth scrolling works with Lenis */

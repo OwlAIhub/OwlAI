@@ -40,8 +40,12 @@ class ApiClient {
     // Use enhanced error handling with circuit breaker and smart retries
     return ErrorUtils.robustExecute(
       async () => {
-        const response = await RequestUtils.optimizedFetch(url, config, 'normal');
-        
+        const response = await RequestUtils.optimizedFetch(
+          url,
+          config,
+          "normal"
+        );
+
         if (!response.ok) {
           const error = new Error(`HTTP error! status: ${response.status}`);
           (error as any).status = response.status;
@@ -55,7 +59,7 @@ class ApiClient {
         timeout: this.timeout,
         circuitBreaker: true,
         retries: 2,
-        fallbackKey: `api-${endpoint.split('/')[1]}`, // Use resource type as fallback key
+        fallbackKey: `api-${endpoint.split("/")[1]}`, // Use resource type as fallback key
       }
     );
   }
@@ -70,16 +74,20 @@ class ApiClient {
     }
 
     const result = await this.request<T>(endpoint, { method: "GET" });
-    
+
     // Cache successful GET responses
     if (useCache) {
       responseCache.set(endpoint, "GET", result);
     }
-    
+
     return result;
   }
 
-  async post<T>(endpoint: string, data?: any, useCache: boolean = false): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data?: any,
+    useCache: boolean = false
+  ): Promise<T> {
     // Check cache for POST requests if explicitly enabled
     if (useCache) {
       const cached = await responseCache.get(endpoint, "POST", data);
@@ -92,15 +100,15 @@ class ApiClient {
       method: "POST",
       body: data ? JSON.stringify(data) : undefined,
     });
-    
+
     // Cache successful POST responses if enabled
     if (useCache) {
       responseCache.set(endpoint, "POST", result, data, 60000); // 1 minute TTL
     }
-    
+
     // Invalidate related cache entries for POST requests
-    responseCache.invalidate(endpoint.split('/')[1]); // Invalidate by resource type
-    
+    responseCache.invalidate(endpoint.split("/")[1]); // Invalidate by resource type
+
     return result;
   }
 

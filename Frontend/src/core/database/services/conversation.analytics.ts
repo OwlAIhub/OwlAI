@@ -24,10 +24,16 @@ export const searchConversations = async (
     return conversations.data.filter(
       conversation =>
         conversation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        conversation.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        conversation.description
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase())
     );
   } catch (error) {
-    logger.error("Failed to search conversations", "ConversationService", error);
+    logger.error(
+      "Failed to search conversations",
+      "ConversationService",
+      error
+    );
     throw new Error("Failed to search conversations");
   }
 };
@@ -42,9 +48,12 @@ export const getConversationStats = async (
   averageMessagesPerConversation: number;
 }> => {
   try {
-    const conversations = await conversationService.getUserConversations(userId, {
-      limit: 1000,
-    });
+    const conversations = await conversationService.getUserConversations(
+      userId,
+      {
+        limit: 1000,
+      }
+    );
 
     const stats = {
       total: conversations.data.length,
@@ -70,5 +79,3 @@ export const getConversationStats = async (
     throw new Error("Failed to get conversation statistics");
   }
 };
-
-

@@ -17,8 +17,18 @@ export const db = getFirestore(app);
 // Enable offline persistence
 export const initializeFirestore = async (): Promise<void> => {
   try {
-    // Enable offline persistence (multi-tab)
-    await enableMultiTabIndexedDbPersistence(db);
+    // Check if persistence is already enabled
+    try {
+      // Enable offline persistence (multi-tab)
+      await enableMultiTabIndexedDbPersistence(db);
+    } catch (persistenceError: any) {
+      // If persistence is already enabled, this is fine
+      if (persistenceError.code === "failed-precondition") {
+        logger.info("Persistence already enabled", "FirestoreConfig");
+      } else {
+        throw persistenceError;
+      }
+    }
 
     // Connect to emulator in development
     if (

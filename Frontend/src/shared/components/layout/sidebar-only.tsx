@@ -36,7 +36,7 @@ export const SidebarOnly: React.FC<SidebarOnlyProps> = ({
 
         {/* Chat Interface */}
         <SidebarInset className="flex-1 flex flex-col overflow-hidden bg-background">
-          <div className="flex items-center justify-between p-4 border-b border-border/40 bg-background/95 backdrop-blur-sm">
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border/40 bg-background/95 backdrop-blur-sm">
             <div className="flex items-center space-x-3">
               <SidebarTrigger className="h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:rotate-180" />
               <div className="text-sm text-gray-700">

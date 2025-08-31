@@ -39,7 +39,7 @@ export const ChatBody: React.FC<ChatBodyProps> = ({
 }) => {
   return (
     <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
-      <div className="p-4 md:p-6">
+      <div className="p-3 sm:p-4 md:p-6">
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center justify-center min-h-full">
           {/* Welcome Screen */}
           {chatMessages.length === 0 && isHistoryLoaded && (

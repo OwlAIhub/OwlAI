@@ -24,14 +24,14 @@ export class EnhancedRetryManager {
     initialDelay: 1000,
     maxDelay: 10000,
     backoffFactor: 2,
-    retryCondition: (error) => {
+    retryCondition: error => {
       // Retry on network errors and 5xx server errors
       return (
-        error.name === 'NetworkError' ||
-        error.name === 'TypeError' ||
+        error.name === "NetworkError" ||
+        error.name === "TypeError" ||
         (error.status >= 500 && error.status < 600) ||
         error.status === 408 || // Request Timeout
-        error.status === 429    // Too Many Requests
+        error.status === 429 // Too Many Requests
       );
     },
   };
@@ -88,7 +88,7 @@ export class EnhancedRetryManager {
 export class CircuitBreaker {
   private failures = 0;
   private lastFailureTime = 0;
-  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
   private config: CircuitBreakerConfig;
   private recentRequests: { timestamp: number; success: boolean }[] = [];
 
@@ -101,11 +101,11 @@ export class CircuitBreaker {
   }
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.state === 'OPEN') {
+    if (this.state === "OPEN") {
       if (this.shouldAttemptReset()) {
-        this.state = 'HALF_OPEN';
+        this.state = "HALF_OPEN";
       } else {
-        throw new Error('Circuit breaker is OPEN');
+        throw new Error("Circuit breaker is OPEN");
       }
     }
 
@@ -122,8 +122,8 @@ export class CircuitBreaker {
   private onSuccess(): void {
     this.failures = 0;
     this.recordRequest(true);
-    if (this.state === 'HALF_OPEN') {
-      this.state = 'CLOSED';
+    if (this.state === "HALF_OPEN") {
+      this.state = "CLOSED";
     }
   }
 
@@ -133,7 +133,7 @@ export class CircuitBreaker {
     this.recordRequest(false);
 
     if (this.shouldOpenCircuit()) {
-      this.state = 'OPEN';
+      this.state = "OPEN";
     }
   }
 
@@ -174,23 +174,23 @@ export class CircuitBreaker {
 // Error categorization and handling
 export class ErrorHandler {
   private static errorCategories = {
-    NETWORK: ['NetworkError', 'TypeError', 'ERR_NETWORK'],
-    TIMEOUT: ['TimeoutError', 'TIMEOUT'],
-    SERVER: ['InternalServerError', 'BadGateway'],
-    CLIENT: ['BadRequest', 'Unauthorized', 'Forbidden'],
-    RATE_LIMIT: ['TooManyRequests'],
+    NETWORK: ["NetworkError", "TypeError", "ERR_NETWORK"],
+    TIMEOUT: ["TimeoutError", "TIMEOUT"],
+    SERVER: ["InternalServerError", "BadGateway"],
+    CLIENT: ["BadRequest", "Unauthorized", "Forbidden"],
+    RATE_LIMIT: ["TooManyRequests"],
   };
 
   static categorizeError(error: any): string {
-    const errorName = error.name || error.code || error.message || 'Unknown';
+    const errorName = error.name || error.code || error.message || "Unknown";
     const statusCode = error.status || error.statusCode;
 
     // Check by status code first
     if (statusCode) {
-      if (statusCode >= 400 && statusCode < 500) return 'CLIENT';
-      if (statusCode >= 500 && statusCode < 600) return 'SERVER';
-      if (statusCode === 429) return 'RATE_LIMIT';
-      if (statusCode === 408) return 'TIMEOUT';
+      if (statusCode >= 400 && statusCode < 500) return "CLIENT";
+      if (statusCode >= 500 && statusCode < 600) return "SERVER";
+      if (statusCode === 429) return "RATE_LIMIT";
+      if (statusCode === 408) return "TIMEOUT";
     }
 
     // Check by error type/name
@@ -200,14 +200,14 @@ export class ErrorHandler {
       }
     }
 
-    return 'UNKNOWN';
+    return "UNKNOWN";
   }
 
   static getRetryStrategy(error: any): RetryConfig {
     const category = this.categorizeError(error);
 
     switch (category) {
-      case 'NETWORK':
+      case "NETWORK":
         return {
           maxRetries: 3,
           initialDelay: 1000,
@@ -215,7 +215,7 @@ export class ErrorHandler {
           backoffFactor: 2,
         };
 
-      case 'TIMEOUT':
+      case "TIMEOUT":
         return {
           maxRetries: 2,
           initialDelay: 2000,
@@ -223,7 +223,7 @@ export class ErrorHandler {
           backoffFactor: 2,
         };
 
-      case 'SERVER':
+      case "SERVER":
         return {
           maxRetries: 2,
           initialDelay: 1500,
@@ -231,7 +231,7 @@ export class ErrorHandler {
           backoffFactor: 2,
         };
 
-      case 'RATE_LIMIT':
+      case "RATE_LIMIT":
         return {
           maxRetries: 3,
           initialDelay: 5000,
@@ -257,7 +257,7 @@ export class ErrorHandler {
       return await operation();
     } catch (error) {
       const strategy = customStrategy || this.getRetryStrategy(error);
-      
+
       return EnhancedRetryManager.withRetry(operation, {
         ...strategy,
         onRetry: (err, retryCount) => {
@@ -277,7 +277,7 @@ export class TimeoutHandler {
   static withTimeout<T>(
     operation: () => Promise<T>,
     timeoutMs: number,
-    timeoutMessage = 'Operation timed out'
+    timeoutMessage = "Operation timed out"
   ): Promise<T> {
     return Promise.race([
       operation(),
@@ -292,15 +292,15 @@ export class TimeoutHandler {
     timeoutPromise: Promise<never>;
   } {
     const controller = new AbortController();
-    
+
     const timeoutPromise = new Promise<never>((_, reject) => {
       const timeoutId = setTimeout(() => {
         controller.abort();
-        reject(new Error('Operation timed out'));
+        reject(new Error("Operation timed out"));
       }, timeoutMs);
 
       // Clear timeout if operation completes
-      controller.signal.addEventListener('abort', () => {
+      controller.signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
       });
     });
@@ -326,26 +326,31 @@ export class GracefulDegradation {
       fallbackOnTimeout?: boolean;
     } = {}
   ): Promise<T> {
-    const {
-      timeout = 10000,
-      retries = 2,
-      fallbackOnTimeout = true,
-    } = options;
+    const { timeout = 10000, retries = 2, fallbackOnTimeout = true } = options;
 
     try {
       // Try primary operation with timeout
       return await TimeoutHandler.withTimeout(
-        () => EnhancedRetryManager.withRetry(primaryOperation, { maxRetries: retries }),
+        () =>
+          EnhancedRetryManager.withRetry(primaryOperation, {
+            maxRetries: retries,
+          }),
         timeout
       );
     } catch (error) {
       const fallback = this.fallbacks.get(key);
-      
-      if (fallback && (fallbackOnTimeout || !error.message.includes('timeout'))) {
-        console.warn(`Primary operation failed, using fallback for ${key}:`, error.message);
+
+      if (
+        fallback &&
+        (fallbackOnTimeout || !error.message.includes("timeout"))
+      ) {
+        console.warn(
+          `Primary operation failed, using fallback for ${key}:`,
+          error.message
+        );
         return await fallback();
       }
-      
+
       throw error;
     }
   }
@@ -389,7 +394,7 @@ export const ErrorUtils = {
       fallbackKey,
     } = options;
 
-    const wrappedOperation = circuitBreaker 
+    const wrappedOperation = circuitBreaker
       ? () => apiCircuitBreaker.execute(operation)
       : operation;
 
@@ -402,7 +407,10 @@ export const ErrorUtils = {
     }
 
     return TimeoutHandler.withTimeout(
-      () => EnhancedRetryManager.withRetry(wrappedOperation, { maxRetries: retries }),
+      () =>
+        EnhancedRetryManager.withRetry(wrappedOperation, {
+          maxRetries: retries,
+        }),
       timeout
     );
   },

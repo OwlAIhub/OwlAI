@@ -40,7 +40,11 @@ export const listenToConversation = (
         }
       },
       error => {
-        logger.error("Conversation listener error", "ConversationService", error);
+        logger.error(
+          "Conversation listener error",
+          "ConversationService",
+          error
+        );
         onError(error);
       }
     );
@@ -91,7 +95,11 @@ export const listenToUserConversations = (
         onData(conversations);
       },
       error => {
-        logger.error("User conversations listener error", "ConversationService", error);
+        logger.error(
+          "User conversations listener error",
+          "ConversationService",
+          error
+        );
         onError(error);
       }
     );
@@ -114,5 +122,3 @@ export const listenToUserConversations = (
     throw new Error("Failed to start user conversations listener");
   }
 };
-
-

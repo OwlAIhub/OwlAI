@@ -11,7 +11,10 @@ import {
 } from "firebase/firestore";
 import { db, COLLECTIONS } from "../firestore.config";
 import { logger } from "../../../shared/utils/logger";
-import type { MessageDocument, RealtimeListener } from "../types/database.types";
+import type {
+  MessageDocument,
+  RealtimeListener,
+} from "../types/database.types";
 
 export const listenToConversationMessages = (
   conversationId: string,
@@ -101,5 +104,3 @@ export const listenToNewMessages = (
     throw new Error("Failed to start new messages listener");
   }
 };
-
-

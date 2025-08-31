@@ -34,10 +34,18 @@ const validateFirebaseConfig = (config: FirebaseConfig): void => {
     "appId",
   ];
 
+  const missingFields: string[] = [];
+
   for (const field of requiredFields) {
     if (!config[field as keyof FirebaseConfig]) {
-      throw new Error(`Missing required Firebase configuration: ${field}`);
+      missingFields.push(field);
     }
+  }
+
+  if (missingFields.length > 0) {
+    throw new Error(
+      `Missing required Firebase configuration fields: ${missingFields.join(", ")}. Please check your .env.local file.`
+    );
   }
 };
 
@@ -52,16 +60,9 @@ try {
 
   // Configure auth settings for production
   auth.useDeviceLanguage();
-  auth.settings.appVerificationDisabledForTesting = false; // Enable in production
 
-  // Configure reCAPTCHA settings
-  if (import.meta.env.DEV) {
-    // In development, disable app verification for testing (no reCAPTCHA needed)
-    auth.settings.appVerificationDisabledForTesting = true;
-  } else {
-    // In production, use invisible reCAPTCHA for security
-    auth.settings.appVerificationDisabledForTesting = false;
-  }
+  // Enable reCAPTCHA for security in all environments
+  auth.settings.appVerificationDisabledForTesting = false;
 } catch (error) {
   console.error("Firebase initialization failed:", error);
   throw new Error(

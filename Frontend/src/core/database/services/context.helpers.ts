@@ -88,7 +88,9 @@ export const processMessagesForContext = async (
     currentTokens += messageTokens;
   }
 
-  selectedMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  selectedMessages.sort(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+  );
   return selectedMessages;
 };
 
@@ -122,5 +124,3 @@ export const isContextFresh = (lastUpdated: Date): boolean => {
   const ageInMinutes = (now.getTime() - lastUpdated.getTime()) / (1000 * 60);
   return ageInMinutes < 5;
 };
-
-

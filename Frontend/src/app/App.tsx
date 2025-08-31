@@ -15,6 +15,7 @@ import { Auth } from "../core/auth";
 import { useAuth } from "../hooks";
 import { useUserStore } from "../core/auth/UserStore";
 import { StoreProvider } from "../core/stores/StoreProvider";
+import { initializeFirestore } from "../core/database";
 
 // Component imports
 import { ChatLayout } from "../shared/components/layout/chat-layout";
@@ -40,6 +41,19 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Initialize database on app startup
+  useEffect(() => {
+    const initDatabase = async () => {
+      try {
+        await initializeFirestore();
+      } catch (error) {
+        console.error("Failed to initialize database:", error);
+      }
+    };
+
+    initDatabase();
+  }, []);
 
   return (
     <StoreProvider>
@@ -90,7 +104,7 @@ function AppContent({
 
     handleScreenResize();
     window.addEventListener("resize", handleScreenResize);
-    
+
     return () => window.removeEventListener("resize", handleScreenResize);
   }, [setIsSidebarOpen]);
 
@@ -127,7 +141,11 @@ function AppContent({
    * Protected route wrapper component
    * Redirects to auth page if user is not authenticated
    */
-  const ProtectedRoute = ({ children }: { children: ReactNode }): ReactElement | null => {
+  const ProtectedRoute = ({
+    children,
+  }: {
+    children: ReactNode;
+  }): ReactElement | null => {
     if (authLoading) return null;
     return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
   };
@@ -217,7 +235,9 @@ function AppContent({
                   exit={{ y: 20, opacity: 0 }}
                   transition={{ type: "spring", damping: 25 }}
                   className="w-full max-w-2xl"
-                  onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+                  onClick={(e: MouseEvent<HTMLDivElement>) =>
+                    e.stopPropagation()
+                  }
                 >
                   <UserProfile
                     darkMode={darkMode}

@@ -219,7 +219,8 @@ class ContextManagementService {
 
       // Update conversation metadata with supported fields
       await conversationService.updateConversationMetadata(conversationId, {
-        last_message_at: new Date() as unknown as import("firebase/firestore").Timestamp,
+        last_message_at:
+          new Date() as unknown as import("firebase/firestore").Timestamp,
         last_message_preview: `Archived ${oldMessages.length} messages`,
       });
 

@@ -90,7 +90,8 @@ export const FeatureCardsSection: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed"
           >
-            Unlock your learning potential with our intelligent AI ecosystem designed to revolutionize your study experience
+            Unlock your learning potential with our intelligent AI ecosystem
+            designed to revolutionize your study experience
           </motion.p>
         </div>
 
@@ -108,10 +109,14 @@ export const FeatureCardsSection: React.FC = () => {
               {/* Glassmorphism Card */}
               <div className="relative bg-white/70 backdrop-blur-sm rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden h-full">
                 {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.bgGradient} opacity-50 group-hover:opacity-70 transition-opacity duration-500`} />
-                
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${card.bgGradient} opacity-50 group-hover:opacity-70 transition-opacity duration-500`}
+                />
+
                 {/* Floating Gradient Orb */}
-                <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${card.gradient} rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 blur-xl`} />
+                <div
+                  className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${card.gradient} rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 blur-xl`}
+                />
 
                 {/* Image with Overlay */}
                 <div className="relative h-48 overflow-hidden">
@@ -121,17 +126,21 @@ export const FeatureCardsSection: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  
+
                   {/* Floating Icon */}
                   <div className="absolute top-6 left-6">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${card.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                    <div
+                      className={`w-14 h-14 bg-gradient-to-br ${card.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}
+                    >
                       {card.icon}
                     </div>
                   </div>
 
                   {/* Status Badge */}
                   <div className="absolute top-6 right-6 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
-                    <span className="text-xs font-medium text-white">Active</span>
+                    <span className="text-xs font-medium text-white">
+                      Active
+                    </span>
                   </div>
                 </div>
 
@@ -148,7 +157,9 @@ export const FeatureCardsSection: React.FC = () => {
 
                   {/* Action Button */}
                   <div className="mt-auto">
-                    <button className={`w-full py-3 px-6 bg-gradient-to-r ${card.gradient} text-white rounded-xl font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg hover:shadow-xl`}>
+                    <button
+                      className={`w-full py-3 px-6 bg-gradient-to-r ${card.gradient} text-white rounded-xl font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg hover:shadow-xl`}
+                    >
                       Explore Feature
                     </button>
                   </div>
@@ -160,12 +171,12 @@ export const FeatureCardsSection: React.FC = () => {
               </div>
 
               {/* Hover Glow Effect */}
-              <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl -z-10`} />
+              <div
+                className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl -z-10`}
+              />
             </motion.div>
           ))}
         </div>
-
-
       </div>
     </section>
   );
