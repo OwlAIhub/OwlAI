@@ -56,8 +56,8 @@ export const LandingHeader: React.FC = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8">
+            {/* Desktop Navigation - Centered */}
+            <div className="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
               <a
                 href="#"
                 onClick={e => {
@@ -142,7 +142,7 @@ export const LandingHeader: React.FC = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors relative z-10"
             >
               <div className="w-6 h-6 flex flex-col justify-center items-center space-y-1">
                 <div
