@@ -4,21 +4,7 @@ import Logo from "@/assets/owl-ai-logo.png";
 import owlMascot from "@/assets/owl-mascot.png";
 import { useLenis } from "@/shared/hooks/useLenis";
 
-interface LandingHeaderProps {
-  inputValue: string;
-  setInputValue: (value: string) => void;
-  showError: boolean;
-  setShowError: (show: boolean) => void;
-  onAskClick: () => void;
-}
-
-export const LandingHeader: React.FC<LandingHeaderProps> = ({
-  inputValue,
-  setInputValue,
-  showError,
-  setShowError,
-  onAskClick,
-}) => {
+export const LandingHeader: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { lenis } = useLenis();
 
@@ -116,17 +102,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 Exams
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
-              {/* <a
-                href="#testimonials"
-                onClick={e => {
-                  e.preventDefault();
-                  scrollToSection("testimonials");
-                }}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
-              >
-                Testimonials
-                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
-              </a> */}
               <a
                 href="#features"
                 onClick={e => {
@@ -149,17 +124,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 FAQ
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
               </a>
-              {/* <a
-                href="#pricing"
-                onClick={e => {
-                  e.preventDefault();
-                  scrollToSection("pricing");
-                }}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors relative group"
-              >
-                Pricing
-                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></div>
-              </a> */}
               <a
                 href="#contact"
                 onClick={e => {
@@ -173,15 +137,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               </a>
             </div>
 
-            {/* Desktop Auth Button */}
-            <div className="hidden md:flex items-center">
-              <Link
-                to="/auth"
-                className="bg-teal-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-teal-700 transition-all duration-300 hover:shadow-lg"
-              >
-                Get Started
-              </Link>
-            </div>
+
 
             {/* Mobile Menu Button */}
             <button
@@ -257,16 +213,6 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               >
                 Exams
               </a>
-              {/* <a
-                href="#testimonials"
-                onClick={e => {
-                  e.preventDefault();
-                  scrollToSection("testimonials");
-                }}
-                className="block text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors py-2"
-              >
-                Testimonials
-              </a> */}
               <a
                 href="#features"
                 onClick={e => {
@@ -287,14 +233,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               >
                 Contact Us
               </a>
-              <div className="pt-4 space-y-3 border-t border-gray-100">
-                <Link
-                  to="/auth"
-                  className="block bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors text-center"
-                >
-                  Get Started
-                </Link>
-              </div>
+
             </div>
           </div>
         </div>
@@ -335,31 +274,27 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             to help you excel in your UGC NET and competitive exams.
           </p>
 
-          {/* Search Input */}
-          <div className="max-w-2xl mx-auto mb-10">
-            <div className="relative">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={e => {
-                  setInputValue(e.target.value);
-                  setShowError(false);
-                }}
-                placeholder="Ask me anything about your studies..."
-                className="w-full px-8 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm pr-20 placeholder-gray-500 text-black"
-              />
-              <button
-                onClick={onAskClick}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-sm hover:shadow-md"
+          {/* Primary CTA Button */}
+          <div className="mb-10">
+            <Link
+              to="/auth"
+              className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-base font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              Start Learning Now
+              <svg
+                className="ml-2 w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Ask AI
-              </button>
-            </div>
-            {showError && (
-              <p className="text-red-500 text-sm mt-3 text-left ml-4">
-                Please enter a question
-              </p>
-            )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
           </div>
 
           {/* Trust Indicators */}
@@ -435,11 +370,11 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                     "Developing critical thinking and analytical skills",
                 },
               ].map((prompt, index) => (
-                <button
+                <Link
                   key={index}
+                  to="/chat"
                   onClick={() => {
-                    setInputValue(prompt.query);
-                    setShowError(false);
+                    localStorage.setItem("presetQuery", prompt.query);
                   }}
                   className="group p-4 bg-gray-100 rounded-xl text-left hover:bg-gray-200 transition-all duration-300 border border-gray-200 hover:border-teal-300 hover:shadow-md"
                 >
@@ -451,7 +386,7 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                       {prompt.description}
                     </p>
                   </div>
-                </button>
+                </Link>
               ))}
             </div>
           </div>

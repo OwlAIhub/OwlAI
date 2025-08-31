@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { LandingHeader } from "../../shared/components/landing/landing-header";
 import { AboutSection } from "../../shared/components/landing/about-section";
 import { WhyChooseSection } from "../../shared/components/landing/why-choose-section";
@@ -12,31 +11,12 @@ import { LandingFooter } from "../../shared/components/landing/landing-footer";
 import { SEOHead, SEOConfigs } from "../../shared/components/seo/SEOHead";
 
 const LandingPage = () => {
-  const [inputValue, setInputValue] = useState("");
   const currentYear = new Date().getFullYear();
-  const [showError, setShowError] = useState(false);
-
-  const handleAskClick = () => {
-    if (!inputValue.trim()) {
-      setShowError(true);
-      return;
-    }
-    if (inputValue.trim()) {
-      localStorage.setItem("presetQuery", inputValue);
-      window.location.href = "/chat";
-    }
-  };
 
   return (
     <div className="font-sans bg-white">
       <SEOHead {...SEOConfigs.home} />
-      <LandingHeader
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        showError={showError}
-        setShowError={setShowError}
-        onAskClick={handleAskClick}
-      />
+      <LandingHeader />
 
       <AboutSection />
       <WhyChooseSection />
