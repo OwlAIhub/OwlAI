@@ -104,8 +104,6 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
-
-
 /* ===== BASE STYLES ===== */
 
 @layer base {
@@ -141,7 +139,7 @@
    * Used for scrolling content horizontally
    */
   .animate-scroll {
-    animation: scroll var(--animation-duration, 40s)
+    animation: scroll var(--animation-duration, 120s)
       var(--animation-direction, forwards) linear infinite;
   }
 

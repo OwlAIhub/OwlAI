@@ -53,6 +53,8 @@ export const InfiniteMovingCards = ({
           "reverse"
         );
       }
+      // Set a slower animation duration for better readability
+      containerRef.current.style.setProperty("--animation-duration", "120s");
     }
   };
 

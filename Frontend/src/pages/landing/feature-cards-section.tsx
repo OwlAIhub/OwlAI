@@ -53,7 +53,10 @@ const featureCards = [
 
 export const FeatureCardsSection: React.FC = () => {
   return (
-    <section id="features" className="py-20 bg-white">
+    <section
+      id="features"
+      className="min-h-screen bg-white flex items-center justify-center py-35"
+    >
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-16">

@@ -105,7 +105,7 @@ export const ExamSupportSection: React.FC = () => {
   ];
 
   return (
-    <section id="exams" className="py-20 bg-white">
+    <section id="exams" className="min-h-screen bg-white py-35">
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-16">

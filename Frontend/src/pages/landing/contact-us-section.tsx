@@ -90,7 +90,10 @@ export const ContactUsSection: React.FC = () => {
   ];
 
   return (
-    <section id="contact" className="py-20 pb-32 bg-white">
+    <section
+      id="contact"
+      className="min-h-screen bg-white flex items-center justify-center py-35"
+    >
       <div className="container mx-auto px-6">
         {/* Header */}
         <motion.div

@@ -4,7 +4,10 @@ import AboutImage from "../../assets/aboutus_section.webp";
 
 export const AboutSection: React.FC = () => {
   return (
-    <section id="about" className="py-20 bg-white">
+    <section
+      id="about"
+      className="min-h-screen bg-white flex items-center justify-center"
+    >
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-16">

@@ -114,7 +114,10 @@ export const FAQSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 bg-white">
+    <section
+      id="faq"
+      className="min-h-screen bg-white flex items-center justify-center py-35"
+    >
       <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-16">
