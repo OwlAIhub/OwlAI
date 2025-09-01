@@ -104,49 +104,7 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
-/* ===== DARK MODE VARIABLES ===== */
 
-.dark {
-  /* OwlAI Brand Colors - Same in dark mode */
-  --owl-primary: 174 100% 29%; /* #009688 - Teal primary */
-  --owl-primary-dark: 174 100% 23%; /* #00796B - Darker teal */
-  --owl-primary-light: 174 29% 61%; /* #4DB6AC - Lighter teal */
-  --owl-accent: 45 100% 51%; /* #FFC107 - Amber/Yellow */
-  --owl-accent-dark: 45 100% 47%; /* #FFA000 - Darker amber */
-  --owl-base-dark: 208 64% 10%; /* #0D1B2A - Deep blue-gray */
-  --owl-card-dark: 208 43% 16%; /* #1B263B - Card background */
-  --owl-card-border: 208 31% 35%; /* #415A77 - Card border */
-
-  /* Shadcn UI Colors - Dark Mode */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.05 0 0);
-  --card: oklch(0.985 0 0);
-  --card-foreground: oklch(0.05 0 0);
-  --popover: oklch(0.985 0 0);
-  --popover-foreground: oklch(0.05 0 0);
-  --primary: oklch(0.05 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.98 0 0);
-  --secondary-foreground: oklch(0.05 0 0);
-  --muted: oklch(0.98 0 0);
-  --muted-foreground: oklch(0.3 0 0);
-  --accent: oklch(0.98 0 0);
-  --accent-foreground: oklch(0.05 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.95 0 0);
-  --input: oklch(0.95 0 0);
-  --ring: oklch(0.8 0 0);
-
-  /* Sidebar Colors - Dark Mode */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.05 0 0);
-  --sidebar-primary: oklch(0.05 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.98 0 0);
-  --sidebar-accent-foreground: oklch(0.05 0 0);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
-}
 
 /* ===== BASE STYLES ===== */
 

@@ -22,7 +22,7 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  base: "/", // This is crucial for Firebase
+  base: "/",
   build: {
     outDir: "dist",
     emptyOutDir: true, // Clears the dist folder on each build
@@ -75,13 +75,13 @@ export default defineConfig({
           utils: ["clsx", "class-variance-authority", "tailwind-merge"],
           forms: ["react-hook-form", "react-toastify"],
           icons: ["@tabler/icons-react", "lucide-react", "react-icons"],
-          firebase: ["firebase"],
+
           auth: ["@hookform/resolvers", "zod"],
         },
       },
     },
     chunkSizeWarningLimit: 500,
-    sourcemap: false, // Disable sourcemaps in production for better performance
+    sourcemap: false,
     target: "es2015", // Target modern browsers for better tree shaking
   },
   server: {
@@ -103,13 +103,7 @@ export default defineConfig({
     "process.env": {},
   },
   optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      "react-router-dom",
-      "framer-motion",
-      "firebase",
-    ],
+    include: ["react", "react-dom", "react-router-dom", "framer-motion"],
     exclude: ["@radix-ui/react-icons"],
   },
 });

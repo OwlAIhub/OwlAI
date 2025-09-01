@@ -1,19 +1,12 @@
 /**
  * Main Barrel Export
  * Central export point for the entire application
+ *
+ * NOTE: Backend services have been removed. Only UI components remain.
  */
 
-// Types
-export * from "./types";
+// Components
+export * from "./pages/ui";
 
-// Constants
-export * from "./constants";
-
-// Utilities
+// Utils
 export * from "./utils";
-
-// Services
-export * from "./services/api";
-
-// Stores
-export * from "./stores";

@@ -1,37 +1,74 @@
-// Utility functions
+/**
+ * Essential UI Utilities
+ * Simple utility functions for UI components
+ */
 
-export * from "./format";
-export * from "./validation";
-export * from "./storage";
-export * from "./date";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-// Re-export device utils as domUtils
-export { deviceUtils as domUtils } from "../shared/utils/device";
+/**
+ * Combine class names
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
-// Date utilities
-export const dateUtils = {
-  formatDate: (date: Date): string => {
-    return date.toLocaleDateString();
+/**
+ * Simple logger for development
+ */
+export const logger = {
+  info: (message: string, context?: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.log(`[${context || "App"}] ${message}`, data || "");
+    }
   },
-  formatTime: (date: Date): string => {
-    return date.toLocaleTimeString();
+  error: (message: string, context?: string, error?: any) => {
+    if (import.meta.env.DEV) {
+      console.error(`[${context || "App"}] ${message}`, error || "");
+    }
   },
-  formatDateTime: (date: Date): string => {
-    return date.toLocaleString();
-  },
-  isToday: (date: Date): boolean => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  },
-  isYesterday: (date: Date): boolean => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return date.toDateString() === yesterday.toDateString();
-  },
-  getGreeting: (): string => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+  warn: (message: string, context?: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.warn(`[${context || "App"}] ${message}`, data || "");
+    }
   },
 };
+
+/**
+ * Format currency
+ */
+export function formatCurrency(
+  amount: number,
+  currency: string = "USD"
+): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+  }).format(amount);
+}
+
+/**
+ * Format date
+ */
+export function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/**
+ * Debounce function
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}

@@ -6,9 +6,6 @@ import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import App from "./App";
 
-// Import performance utilities
-import { initializePerformanceOptimizations } from "../utils/performance";
-
 /**
  * Application entry point
  * This file initializes the React application and renders it to the DOM
@@ -41,11 +38,6 @@ if (!rootElement) {
     'Root element not found. Make sure there is a div with id="root" in your HTML.'
   );
 }
-
-/**
- * Initialize performance optimizations
- */
-initializePerformanceOptimizations();
 
 /**
  * Register service worker

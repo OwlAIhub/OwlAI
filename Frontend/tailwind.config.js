@@ -80,15 +80,7 @@ export default {
           to: { height: "0" },
         },
 
-        // Enhanced animations for OwlAI
-        "bounce-slow": {
-          "0%, 100%": {
-            transform: "translateY(-50%) scale(1)",
-          },
-          "50%": {
-            transform: "translateY(-52%) scale(1.1)",
-          },
-        },
+
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" },
@@ -150,17 +142,13 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-10px)" },
         },
-        "pulse-slow": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
-        },
+
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
 
-        // Enhanced animations
-        "bounce-slow": "bounce-slow 1.5s ease-in-out infinite",
+
         "fade-in": "fade-in 0.3s ease-out",
         "fade-in-up": "fade-in-up 0.4s ease-out",
         "fade-in-down": "fade-in-down 0.4s ease-out",
@@ -174,7 +162,7 @@ export default {
         glow: "glow 2s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
         float: "float 3s ease-in-out infinite",
-        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+
       },
       fontFamily: {
         sans: [
