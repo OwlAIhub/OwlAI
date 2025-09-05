@@ -12,6 +12,18 @@ import {
   updateChatAnalytics,
 } from '../../../../lib/analytics';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+// Simple GET endpoint for health check
+export async function GET() {
+  return NextResponse.json({ 
+    status: 'ok', 
+    message: 'AI API is running',
+    timestamp: new Date().toISOString()
+  });
+}
+
 const MAX_HISTORY = 30; // last N messages to keep prompt small
 
 function buildPrompt(

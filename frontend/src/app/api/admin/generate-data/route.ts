@@ -9,9 +9,20 @@ import {
 } from '@/lib/data-generator';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Admin API route for data generation and testing
 export async function POST(req: NextRequest) {
   try {
+    // Check if Firebase Admin is properly configured
+    if (!process.env.FIREBASE_PROJECT_ID) {
+      return NextResponse.json(
+        { error: 'Firebase Admin not configured' },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
     const { action, count, days } = body;
 
