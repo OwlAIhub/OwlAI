@@ -38,10 +38,23 @@ export interface Guest {
   };
 }
 
+export interface MessageFeedback {
+  id: string;
+  messageId: string;
+  chatId: string;
+  guestId: string;
+  feedback: 'up' | 'down';
+  createdAt: Date;
+  // Optional: Additional context
+  reason?: string;
+  messageText?: string; // For analysis
+}
+
 // Database Collections:
 // - chats: Contains chat documents
 // - chats/{chatId}/messages: Contains messages for each chat
 // - guests: Basic guest user tracking (optional)
+// - feedback: Contains user feedback on AI responses
 
 // Simple structure:
 // 1. Chat ID - unique identifier for each conversation
@@ -57,6 +70,7 @@ export interface Guest {
 // - Model tracking for debugging
 // - Guest preferences for UX
 // - Basic activity tracking
+// - User feedback tracking for response quality
 
 // No complex analytics, user profiles, or performance tracking
 // Just essential chat functionality with minimal useful metadata

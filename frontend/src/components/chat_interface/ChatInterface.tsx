@@ -1,6 +1,7 @@
 'use client';
 
 import { createNewChat, getCurrentChatId } from '@/lib/chats';
+import { submitFeedback } from '@/lib/feedback';
 import { sendUserMessage } from '@/lib/messages';
 import { subscribeToMessages, type MessageModel } from '@/lib/realtime';
 import {
@@ -15,10 +16,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MarkdownRenderer } from './MarkdownRenderer';
 
 // Firebase imports removed - not needed in production
 import { ChatSearchBar } from './index';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 const starterPrompts = [
   {
@@ -53,7 +54,6 @@ const starterPrompts = [
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<MessageModel[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [showStarterPrompts, setShowStarterPrompts] = useState(true);
   const [, setSelectedPrompt] = useState('');
   const [prefillQuery, setPrefillQuery] = useState('');
@@ -61,6 +61,7 @@ export function ChatInterface() {
   const [messageFeedback, setMessageFeedback] = useState<
     Record<string, 'up' | 'down'>
   >({});
+  const [isThinking, setIsThinking] = useState(false);
   const unsubRef = useRef<(() => void) | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -74,11 +75,26 @@ export function ChatInterface() {
     // Hide starter prompts when starting subscription to any chat
     setShowStarterPrompts(false);
     unsubRef.current = subscribeToMessages(chatId, newMessages => {
-      setMessages(newMessages);
+      setMessages(prevMessages => {
+        // Check if this is a new AI message
+        const lastMessage = newMessages[newMessages.length - 1];
+        const prevLastMessage = prevMessages[prevMessages.length - 1];
+
+        if (
+          lastMessage &&
+          lastMessage.role === 'ai' &&
+          (!prevLastMessage || prevLastMessage.id !== lastMessage.id)
+        ) {
+          // This is a new AI message, stop thinking
+          setIsThinking(false);
+        }
+
+        return newMessages;
+      });
     });
   }, []);
 
-  // Load current chat on mount
+  // Load current chat on mount - instant and smooth
   useEffect(() => {
     const currentChatId = getCurrentChatId();
     if (currentChatId) {
@@ -93,7 +109,7 @@ export function ChatInterface() {
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'currentChatId' && e.newValue) {
-        // Hide starter prompts when loading existing chat
+        // Hide starter prompts when switching to existing chat
         setShowStarterPrompts(false);
         startSub(e.newValue);
       }
@@ -176,11 +192,10 @@ export function ChatInterface() {
 
   const handleSendMessage = useCallback(
     async (content: string) => {
-      if (!content.trim() || isLoading) return;
-
-      setIsLoading(true);
+      if (!content.trim()) return;
       setShowStarterPrompts(false);
       setPrefillQuery(''); // Clear the prefill query after sending
+      setIsThinking(true); // Start thinking state
 
       try {
         let currentChatId = getCurrentChatId();
@@ -209,11 +224,9 @@ export function ChatInterface() {
         );
       } catch {
         // Failed to send message
-      } finally {
-        setIsLoading(false);
       }
     },
-    [isLoading, startSub]
+    [startSub]
   );
 
   const handleStarterPrompt = useCallback(
@@ -237,10 +250,27 @@ export function ChatInterface() {
   );
 
   const handleMessageFeedback = useCallback(
-    (messageId: string, feedback: 'up' | 'down') => {
+    async (messageId: string, feedback: 'up' | 'down') => {
+      // Update local state immediately for UI feedback
       setMessageFeedback(prev => ({ ...prev, [messageId]: feedback }));
+
+      // Submit to database
+      const currentChatId = getCurrentChatId();
+      if (currentChatId) {
+        const message = messages.find(m => m.id === messageId);
+        const success = await submitFeedback({
+          messageId,
+          chatId: currentChatId,
+          feedback,
+          messageText: message?.text,
+        });
+
+        if (success) {
+        } else {
+        }
+      }
     },
-    []
+    [messages]
   );
 
   // Memoize starter prompts to prevent unnecessary re-renders
@@ -466,8 +496,8 @@ export function ChatInterface() {
                   );
                 })}
 
-                {/* Enhanced Loading State */}
-                {isLoading && (
+                {/* Thinking State */}
+                {isThinking && (
                   <div className='group'>
                     <div className='flex gap-3 justify-start'>
                       {/* AI Avatar */}
