@@ -18,7 +18,7 @@ export function getGuestId(): string | null {
   if (!id) {
     const uuid =
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? (crypto as any).randomUUID()
+        ? (crypto as { randomUUID: () => string }).randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     id = `guest-${uuid}`;
     localStorage.setItem(GUEST_ID_KEY, id);

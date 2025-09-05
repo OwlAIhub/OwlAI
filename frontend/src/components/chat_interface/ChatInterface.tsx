@@ -55,7 +55,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showStarterPrompts, setShowStarterPrompts] = useState(true);
-  const [selectedPrompt, setSelectedPrompt] = useState('');
+  const [, setSelectedPrompt] = useState('');
   const [prefillQuery, setPrefillQuery] = useState('');
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [messageFeedback, setMessageFeedback] = useState<
@@ -172,7 +172,7 @@ export function ChatInterface() {
         onInitiateQuery as EventListener
       );
     };
-  }, []);
+  }, [startSub]);
 
   const handleSendMessage = useCallback(
     async (content: string) => {
@@ -206,8 +206,8 @@ export function ChatInterface() {
             detail: { chatId: currentChatId },
           })
         );
-      } catch (err: unknown) {
-        console.error('Failed to send message:', (err as Error)?.name);
+      } catch {
+        // Failed to send message
       } finally {
         setIsLoading(false);
       }
@@ -313,8 +313,9 @@ export function ChatInterface() {
                   How can I help you today?
                 </h2>
                 <p className='text-base text-muted-foreground max-w-md mx-auto leading-relaxed'>
-                  Send a message to start a new conversation. I'm here to help
-                  with your studies, exam preparation, and academic questions.
+                  Send a message to start a new conversation. I&apos;m here to
+                  help with your studies, exam preparation, and academic
+                  questions.
                 </p>
               </div>
             </>

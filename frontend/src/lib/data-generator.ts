@@ -288,7 +288,7 @@ export function generateChat(
     id: chatId,
     userId,
     title: `Chat about ${randomTopic}`,
-    type: randomType as any,
+    type: randomType as 'study' | 'practice' | 'doubt_clearing' | 'exam_prep',
     subject: randomSubject,
     topic: randomTopic,
     difficulty: 'intermediate',
@@ -597,24 +597,22 @@ export async function generateSystemHealthMetrics() {
 
 // Initialize database with sample data
 export async function initializeDatabaseWithSampleData() {
-  console.log('🚀 Initializing database with sample data...');
+  // Initializing database with sample data
 
   try {
     // Generate sample data
     const sampleData = await generateSampleData(20);
-    console.log(
-      `✅ Generated ${sampleData.users} users, ${sampleData.chats} chats, ${sampleData.messages} messages`
-    );
+    // Generated sample data
 
     // Generate analytics data
     const analyticsData = await generateAnalyticsData(30);
-    console.log(`✅ Generated ${analyticsData.length} days of analytics data`);
+    // Generated analytics data
 
     // Generate system health metrics
     await generateSystemHealthMetrics();
-    console.log(`✅ Generated system health metrics`);
+    // Generated system health metrics
 
-    console.log('🎉 Database initialization completed successfully!');
+    // Database initialization completed
 
     return {
       success: true,
@@ -625,11 +623,11 @@ export async function initializeDatabaseWithSampleData() {
         analyticsDays: analyticsData.length,
       },
     };
-  } catch (error: any) {
-    console.error('❌ Error initializing database:', error);
+  } catch (error: unknown) {
+    // Error initializing database
     return {
       success: false,
-      error: error?.message || 'Unknown error',
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

@@ -52,15 +52,15 @@ export async function queryFlowise(
     let message = `Flowise request failed (${res.status})`;
     try {
       if (isJson) {
-        const err = (await res.json()) as any;
-        message = err?.message || err?.error || message;
+        const err = (await res.json()) as Record<string, unknown>;
+        message = (err?.message as string) || (err?.error as string) || message;
         // console.error('Flowise error response:', err);
       } else {
         const text = await res.text();
         if (text) message = text;
         // console.error('Flowise error text:', text);
       }
-    } catch (e) {
+    } catch {
       // console.error('Error parsing Flowise error response:', e);
     }
     // console.error('Flowise request failed:', { status: res.status, message, endpoint, body });
@@ -79,15 +79,17 @@ export async function queryFlowise(
 export function extractAnswer(payload: FlowiseResponse): string {
   // Normalize different Flowise shapes
   if (!payload) return '';
-  if (typeof (payload as any).text === 'string')
-    return (payload as any).text as string;
-  if (typeof (payload as any).response === 'string')
-    return (payload as any).response as string;
+  if (typeof (payload as Record<string, unknown>).text === 'string')
+    return (payload as Record<string, unknown>).text as string;
+  if (typeof (payload as Record<string, unknown>).response === 'string')
+    return (payload as Record<string, unknown>).response as string;
   // Common nested shapes (some nodes)
   const possible = [
-    (payload as any)?.data?.text,
-    (payload as any)?.data?.response,
-    (payload as any)?.result,
+    ((payload as Record<string, unknown>)?.data as Record<string, unknown>)
+      ?.text,
+    ((payload as Record<string, unknown>)?.data as Record<string, unknown>)
+      ?.response,
+    (payload as Record<string, unknown>)?.result,
   ];
   for (const v of possible) {
     if (typeof v === 'string' && v.trim()) return v as string;
@@ -106,13 +108,12 @@ export async function queryFlowiseWithRetry(
   backoffMs = 400
 ): Promise<FlowiseResponse> {
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       return await queryFlowise(body, options);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Do not retry aborted requests
-      if (err?.name === 'AbortError') throw err;
+      if (err instanceof Error && err.name === 'AbortError') throw err;
       attempt += 1;
       if (attempt > retries) throw err;
       const jitter = Math.floor(Math.random() * 100);

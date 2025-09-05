@@ -2,9 +2,9 @@
 
 import DashboardPage from '@/app/dashboard/page';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
-export default function ChatPage() {
+function ChatPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const q = searchParams.get('q');
@@ -44,4 +44,28 @@ export default function ChatPage() {
   }
 
   return <DashboardPage />;
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen bg-background flex items-center justify-center'>
+          <div className='flex items-center space-x-2'>
+            <div className='w-4 h-4 bg-primary rounded-full animate-pulse'></div>
+            <div
+              className='w-4 h-4 bg-primary rounded-full animate-pulse'
+              style={{ animationDelay: '0.1s' }}
+            ></div>
+            <div
+              className='w-4 h-4 bg-primary rounded-full animate-pulse'
+              style={{ animationDelay: '0.2s' }}
+            ></div>
+          </div>
+        </div>
+      }
+    >
+      <ChatPageContent />
+    </Suspense>
+  );
 }

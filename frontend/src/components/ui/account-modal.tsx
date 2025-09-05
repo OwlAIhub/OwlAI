@@ -154,8 +154,8 @@ export function AccountModal({ isOpen, onClose, user }: AccountModalProps) {
         setShowDeleteConfirm(false);
         onClose();
       }, 2000);
-    } catch (error) {
-      console.error('Failed to delete conversations:', error);
+    } catch {
+      // Failed to delete conversations
       setIsDeleting(false);
       // You could add error handling UI here
     }
@@ -165,22 +165,30 @@ export function AccountModal({ isOpen, onClose, user }: AccountModalProps) {
     {
       icon: User,
       title: 'Profile',
-      onClick: () => console.log('Profile settings clicked'),
+      onClick: () => {
+        /* Profile settings clicked */
+      },
     },
     {
       icon: Mail,
       title: 'Notifications',
-      onClick: () => console.log('Email preferences clicked'),
+      onClick: () => {
+        /* Email preferences clicked */
+      },
     },
     {
       icon: Lock,
       title: 'Privacy',
-      onClick: () => console.log('Privacy settings clicked'),
+      onClick: () => {
+        /* Privacy settings clicked */
+      },
     },
     {
       icon: Settings,
       title: 'Settings',
-      onClick: () => console.log('App settings clicked'),
+      onClick: () => {
+        /* App settings clicked */
+      },
     },
   ];
 

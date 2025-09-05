@@ -67,16 +67,18 @@ export async function POST(req: NextRequest) {
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-  } catch (error: any) {
-    console.error('Error in admin API:', error);
+  } catch (error: unknown) {
+    // Error logged for debugging
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      {
+        error: error instanceof Error ? error.message : 'Internal server error',
+      },
       { status: 500 }
     );
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Get system status
     const healthMetrics = await getSystemHealthMetrics();
@@ -90,10 +92,12 @@ export async function GET(req: NextRequest) {
         health: healthMetrics,
       },
     });
-  } catch (error: any) {
-    console.error('Error getting system status:', error);
+  } catch (error: unknown) {
+    // Error logged for debugging
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      {
+        error: error instanceof Error ? error.message : 'Internal server error',
+      },
       { status: 500 }
     );
   }

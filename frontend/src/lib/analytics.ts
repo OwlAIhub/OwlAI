@@ -88,7 +88,7 @@ export async function trackMessageInteraction(
   userId: string,
   interaction: {
     type: 'sent' | 'received' | 'feedback' | 'rating' | 'copy' | 'share';
-    data?: any;
+    data?: Record<string, unknown>;
   }
 ) {
   const interactionRef = adminDb.collection('message_interactions').doc();
@@ -105,8 +105,8 @@ export async function trackMessageInteraction(
   // Update message analytics
   if (interaction.type === 'feedback' && interaction.data?.rating) {
     await updateMessageAnalytics(messageId, {
-      rating: interaction.data.rating,
-      feedback: interaction.data.feedback,
+      rating: interaction.data.rating as number,
+      feedback: interaction.data.feedback as string | undefined,
     });
   }
 }
@@ -118,7 +118,7 @@ export async function updateUserAnalytics(
 ) {
   const userRef = adminDb.collection('users').doc(userId);
 
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -173,7 +173,7 @@ export async function updateChatAnalytics(
 ) {
   const chatRef = adminDb.collection('chats').doc(chatId);
 
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -218,7 +218,7 @@ export async function updateMessageAnalytics(
 ) {
   const messageRef = adminDb.collection('messages').doc(messageId);
 
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -355,7 +355,7 @@ export async function getUserPerformanceInsights(userId: string) {
   const recentChats = chatsSnap.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
-  })) as any[];
+  })) as Array<Record<string, unknown>>;
 
   // Calculate insights
   const insights = {
@@ -369,12 +369,18 @@ export async function getUserPerformanceInsights(userId: string) {
     recent: {
       avgSessionDuration:
         recentChats.reduce(
-          (sum, chat) => sum + (chat.analytics?.sessionDuration || 0),
+          (sum, chat) =>
+            sum +
+            (((chat.analytics as Record<string, unknown>)
+              ?.sessionDuration as number) || 0),
           0
         ) / Math.max(recentChats.length, 1),
       avgSatisfaction:
         recentChats.reduce(
-          (sum, chat) => sum + (chat.analytics?.userSatisfaction || 0),
+          (sum, chat) =>
+            sum +
+            (((chat.analytics as Record<string, unknown>)
+              ?.userSatisfaction as number) || 0),
           0
         ) / Math.max(recentChats.length, 1),
       improvement: calculateImprovement(recentChats),
@@ -386,22 +392,24 @@ export async function getUserPerformanceInsights(userId: string) {
 }
 
 // Helper functions
-function calculateUserLevel(analytics: any): string {
-  const totalStudyTime = analytics.totalStudyTime || 0;
-  const totalSessions = analytics.totalSessions || 0;
+function calculateUserLevel(analytics: Record<string, unknown>): string {
+  const totalStudyTime = (analytics.totalStudyTime as number) || 0;
+  const totalSessions = (analytics.totalSessions as number) || 0;
 
   if (totalStudyTime < 300 || totalSessions < 5) return 'beginner';
   if (totalStudyTime < 1200 || totalSessions < 20) return 'intermediate';
   return 'advanced';
 }
 
-function calculateProgress(analytics: any): number {
-  const totalStudyTime = analytics.totalStudyTime || 0;
+function calculateProgress(analytics: Record<string, unknown>): number {
+  const totalStudyTime = (analytics.totalStudyTime as number) || 0;
   const targetStudyTime = 1800; // 30 hours target
   return Math.min(totalStudyTime / targetStudyTime, 1);
 }
 
-function calculateImprovement(recentChats: any[]): number {
+function calculateImprovement(
+  recentChats: Array<Record<string, unknown>>
+): number {
   if (recentChats.length < 2) return 0;
 
   const recent = recentChats.slice(0, 3);
@@ -409,28 +417,37 @@ function calculateImprovement(recentChats: any[]): number {
 
   const recentAvg =
     recent.reduce(
-      (sum, chat) => sum + (chat.analytics?.userSatisfaction || 0),
+      (sum, chat) =>
+        sum +
+        (((chat.analytics as Record<string, unknown>)
+          ?.userSatisfaction as number) || 0),
       0
     ) / recent.length;
   const olderAvg =
     older.reduce(
-      (sum, chat) => sum + (chat.analytics?.userSatisfaction || 0),
+      (sum, chat) =>
+        sum +
+        (((chat.analytics as Record<string, unknown>)
+          ?.userSatisfaction as number) || 0),
       0
     ) / older.length;
 
   return recentAvg - olderAvg;
 }
 
-function generateRecommendations(analytics: any, recentChats: any[]): string[] {
+function generateRecommendations(
+  analytics: Record<string, unknown>,
+  recentChats: Array<Record<string, unknown>>
+): string[] {
   const recommendations = [];
 
-  if (analytics.streak < 3) {
+  if ((analytics.streak as number) < 3) {
     recommendations.push(
       'Try to maintain a daily study streak for better progress'
     );
   }
 
-  if (analytics.totalStudyTime < 300) {
+  if ((analytics.totalStudyTime as number) < 300) {
     recommendations.push(
       'Increase your daily study time to see faster improvement'
     );
@@ -438,7 +455,10 @@ function generateRecommendations(analytics: any, recentChats: any[]): string[] {
 
   const avgSatisfaction =
     recentChats.reduce(
-      (sum, chat) => sum + (chat.analytics?.userSatisfaction || 0),
+      (sum, chat) =>
+        sum +
+        (((chat.analytics as Record<string, unknown>)
+          ?.userSatisfaction as number) || 0),
       0
     ) / recentChats.length;
 
@@ -457,7 +477,7 @@ export async function trackError(error: {
   message: string;
   userId?: string;
   chatId?: string;
-  context?: any;
+  context?: Record<string, unknown>;
 }) {
   const errorRef = adminDb.collection('error_logs').doc();
 

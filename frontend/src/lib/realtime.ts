@@ -14,7 +14,7 @@ export type MessageModel = {
   id: string;
   role: 'user' | 'ai';
   text: string;
-  createdAt?: any; // Firestore Timestamp
+  createdAt?: unknown; // Firestore Timestamp
   meta?: Record<string, unknown>;
 };
 
@@ -50,7 +50,7 @@ export function subscribeToMessages(
 export type ChatListItem = {
   id: string;
   title: string;
-  updatedAt?: any; // Firestore Timestamp
+  updatedAt?: unknown; // Firestore Timestamp
   guestId: string;
 };
 
@@ -72,7 +72,9 @@ export function subscribeToChatsForGuest(
     snap => {
       const items = snap.docs
         .map(d => ({ id: d.id, ...(d.data() as DocumentData) }))
-        .filter((c: any) => c.guestId === guestId) as ChatListItem[];
+        .filter(
+          (c: Record<string, unknown>) => c.guestId === guestId
+        ) as ChatListItem[];
       // Chats subscription update
       onChange(items);
     },

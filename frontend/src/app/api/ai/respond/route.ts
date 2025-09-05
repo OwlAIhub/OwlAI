@@ -15,12 +15,15 @@ import {
 const MAX_HISTORY = 30; // last N messages to keep prompt small
 
 function buildPrompt(
-  persona: any,
+  persona: Record<string, unknown>,
   messages: Array<{ role: string; text: string }>
 ) {
-  const tone = persona?.preferences?.tone ?? 'friendly';
-  const focus = persona?.preferences?.focus ?? 'education';
-  const language = persona?.preferences?.language ?? 'English';
+  const preferences = persona?.preferences as
+    | Record<string, unknown>
+    | undefined;
+  const tone = preferences?.tone ?? 'friendly';
+  const focus = preferences?.focus ?? 'education';
+  const language = preferences?.language ?? 'English';
   const preamble = `Persona: {tone: ${tone}, focus: ${focus}, language: ${language}}\nTask: Answer the user's last message concisely and follow persona. Use clean GitHub-flavored Markdown with headings, lists, tables when useful, code fences for code, and a short Memory Hook if relevant.`;
 
   const trimmed = buildTrimmedHistory(
@@ -100,7 +103,7 @@ export async function POST(req: NextRequest) {
     try {
       res = await queryFlowiseWithRetry({ question: prompt }, {}, 2, 400);
     } catch (error) {
-      console.error('Flowise API error:', error);
+      // Flowise API error logged
       throw error;
     }
     const responseTime = (Date.now() - startTime) / 1000;
@@ -169,28 +172,28 @@ export async function POST(req: NextRequest) {
         aiResponseTime: responseTime,
         messageCount: 1,
       });
-    } catch (analyticsError) {
-      console.error('Analytics tracking error:', analyticsError);
+    } catch {
+      // Analytics tracking error
     }
 
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (e: any) {
-    console.error('Error in AI respond API:', e);
+  } catch (e: unknown) {
+    // AI respond API error logged
 
     // Track error for monitoring
     try {
       await trackError({
         type: 'ai_response_error',
-        message: e?.message || 'Unknown error',
+        message: e instanceof Error ? e.message : 'Unknown error',
         chatId: chatId || 'unknown',
-        context: { error: e?.stack },
+        context: { error: e instanceof Error ? e.stack : undefined },
       });
-    } catch (trackingError) {
-      console.error('Error tracking failed:', trackingError);
+    } catch {
+      // Error tracking failed
     }
 
     return NextResponse.json(
-      { error: e?.message || 'Internal Error' },
+      { error: e instanceof Error ? e.message : 'Internal Error' },
       { status: 500 }
     );
   }

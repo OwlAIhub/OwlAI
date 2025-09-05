@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import { SquareTerminal } from 'lucide-react';
+import Image from 'next/image';
 import * as React from 'react';
 
 import { NavMain } from '@/components/sidebar/nav-main';
@@ -105,7 +106,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 className='hover:bg-muted/50 transition-colors duration-150'
               >
                 <div className='bg-primary text-primary-foreground flex aspect-square size-6 items-center justify-center rounded-md'>
-                  <img src='/owl-ai-logo.png' alt='OWL AI' className='size-4' />
+                  <Image
+                    src='/owl-ai-logo.png'
+                    alt='OWL AI'
+                    width={16}
+                    height={16}
+                    className='size-4'
+                  />
                 </div>
                 <div className='grid flex-1 text-left text-xs leading-tight'>
                   <span className='truncate font-medium text-foreground'>

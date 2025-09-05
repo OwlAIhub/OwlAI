@@ -11,7 +11,5 @@ yarn.lock
 .env*
 public
 *.log
-frontend/node_modules
-frontend/.next
-frontend/dist
-frontend/build
+coverage
+.nyc_output

@@ -1,4 +1,14 @@
-import { addDoc, collection, serverTimestamp, deleteDoc, doc, getDocs, query, where, writeBatch } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 import { db } from './firebase-client';
 import { Persona, getDefaultPersona, getGuestId, getPersona } from './guest';
 

@@ -37,11 +37,15 @@ const nextConfig = {
   },
   // Bundle optimization
   webpack: (
-    config: any,
+    config: Record<string, unknown>,
     { dev, isServer }: { dev: boolean; isServer: boolean }
   ) => {
     if (!dev && !isServer) {
-      config.optimization.splitChunks = {
+      (
+        config as Record<string, unknown> & {
+          optimization: { splitChunks: unknown };
+        }
+      ).optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
           vendor: {
