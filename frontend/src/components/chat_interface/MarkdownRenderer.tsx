@@ -166,7 +166,7 @@ const markdownComponents = {
     </h6>
   ),
 
-  // Paragraphs with proper spacing
+  // Paragraphs with proper spacing and educational focus
   p: ({
     children,
     ...props
@@ -174,12 +174,15 @@ const markdownComponents = {
     children: React.ReactNode;
     [key: string]: unknown;
   }) => (
-    <p className='text-foreground leading-relaxed mb-3 last:mb-0' {...props}>
+    <p
+      className='text-foreground leading-relaxed mb-4 last:mb-0 text-sm'
+      {...props}
+    >
       {children}
     </p>
   ),
 
-  // Lists with proper styling
+  // Lists with enhanced educational styling
   ul: ({
     children,
     ...props
@@ -188,7 +191,7 @@ const markdownComponents = {
     [key: string]: unknown;
   }) => (
     <ul
-      className='list-disc list-inside space-y-1.5 mb-3 text-foreground'
+      className='list-disc list-inside space-y-2 mb-4 text-foreground text-sm'
       {...props}
     >
       {children}
@@ -202,7 +205,7 @@ const markdownComponents = {
     [key: string]: unknown;
   }) => (
     <ol
-      className='list-decimal list-inside space-y-1.5 mb-3 text-foreground'
+      className='list-decimal list-inside space-y-2 mb-4 text-foreground text-sm'
       {...props}
     >
       {children}
@@ -215,7 +218,7 @@ const markdownComponents = {
     children: React.ReactNode;
     [key: string]: unknown;
   }) => (
-    <li className='leading-relaxed' {...props}>
+    <li className='leading-relaxed pl-1' {...props}>
       {children}
     </li>
   ),

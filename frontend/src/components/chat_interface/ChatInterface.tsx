@@ -248,8 +248,8 @@ export function ChatInterface() {
 
   return (
     <div className='flex flex-col h-full bg-background'>
-      {/* Main Content Area - Scrollable */}
-      <div className='flex-1 overflow-y-auto'>
+      {/* Main Content Area - Scrollable with native scrollbar */}
+      <div className='flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border hover:scrollbar-thumb-border/60 scrollbar-thumb-rounded-full'>
         <div
           className={
             messages.length > 0
@@ -332,82 +332,133 @@ export function ChatInterface() {
               </div>
 
               {/* Messages Thread */}
-              <div className='space-y-2 sm:space-y-3 px-1 sm:px-2 md:px-0'>
-                {messages.map(m => {
+              <div className='space-y-4 px-1 sm:px-2 md:px-0'>
+                {messages.map((m, index) => {
                   const isUser = m.role === 'user';
                   const isCopied = copiedMessageId === m.id;
                   const feedback = messageFeedback[m.id];
+                  const isLastMessage = index === messages.length - 1;
+                  const showTimestamp =
+                    isLastMessage ||
+                    (index > 0 && messages[index - 1].role !== m.role);
 
                   return (
-                    <div
-                      key={m.id}
-                      className={`flex gap-2 sm:gap-3 ${
-                        isUser ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
+                    <div key={m.id} className='group'>
+                      {/* Message with improved spacing and visual hierarchy */}
                       <div
-                        className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 ${
-                          isUser
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-foreground'
+                        className={`flex gap-3 ${
+                          isUser ? 'justify-end' : 'justify-start'
                         }`}
                       >
-                        {isUser ? (
-                          <p className='leading-relaxed whitespace-pre-wrap'>
-                            {m.text}
-                          </p>
-                        ) : (
-                          <div className='leading-relaxed relative'>
-                            <MarkdownRenderer content={m.text} />
-                            {
-                              <div className='mt-2 flex items-center gap-1 sm:gap-1.5 text-muted-foreground'>
-                                <button
-                                  type='button'
-                                  className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded hover:bg-muted/70 transition'
-                                  onClick={() =>
-                                    handleCopyMessage(m.id, m.text)
-                                  }
-                                  aria-label='Copy message'
-                                >
-                                  {isCopied ? (
-                                    <CheckIcon className='w-3 h-3' />
-                                  ) : (
-                                    <CopyIcon className='w-3 h-3' />
-                                  )}
-                                  <span className='text-xs'>
-                                    {isCopied ? 'Copied' : 'Copy'}
-                                  </span>
-                                </button>
-                                <button
-                                  type='button'
-                                  className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded transition ${
-                                    feedback === 'up'
-                                      ? 'bg-green-100 text-green-700'
-                                      : 'hover:bg-muted/70'
-                                  }`}
-                                  onClick={() =>
-                                    handleMessageFeedback(m.id, 'up')
-                                  }
-                                  aria-label='Thumbs up'
-                                >
-                                  <ThumbsUp className='w-3 h-3' />
-                                </button>
-                                <button
-                                  type='button'
-                                  className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded transition ${
-                                    feedback === 'down'
-                                      ? 'bg-red-100 text-red-700'
-                                      : 'hover:bg-muted/70'
-                                  }`}
-                                  onClick={() =>
-                                    handleMessageFeedback(m.id, 'down')
-                                  }
-                                  aria-label='Thumbs down'
-                                >
-                                  <ThumbsDown className='w-3 h-3' />
-                                </button>
+                        {/* AI Avatar for non-user messages */}
+                        {!isUser && (
+                          <div className='flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-1'>
+                            <MessageSquare className='w-4 h-4 text-primary' />
+                          </div>
+                        )}
+
+                        <div
+                          className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] ${
+                            isUser ? 'order-1' : 'order-2'
+                          }`}
+                        >
+                          <div
+                            className={`rounded-2xl px-4 py-3 shadow-sm ${
+                              isUser
+                                ? 'bg-primary text-primary-foreground rounded-br-md'
+                                : 'bg-muted/50 text-foreground rounded-bl-md border border-border/50'
+                            }`}
+                          >
+                            {isUser ? (
+                              <p className='leading-relaxed whitespace-pre-wrap text-sm'>
+                                {m.text}
+                              </p>
+                            ) : (
+                              <div className='leading-relaxed relative'>
+                                <MarkdownRenderer content={m.text} />
+
+                                {/* Enhanced interaction buttons */}
+                                <div className='mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+                                  <div className='flex items-center gap-1'>
+                                    <button
+                                      type='button'
+                                      className='inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-muted/80 transition-colors text-xs text-muted-foreground hover:text-foreground'
+                                      onClick={() =>
+                                        handleCopyMessage(m.id, m.text)
+                                      }
+                                      aria-label='Copy message'
+                                    >
+                                      {isCopied ? (
+                                        <CheckIcon className='w-3.5 h-3.5' />
+                                      ) : (
+                                        <CopyIcon className='w-3.5 h-3.5' />
+                                      )}
+                                      <span className='font-medium'>
+                                        {isCopied ? 'Copied!' : 'Copy'}
+                                      </span>
+                                    </button>
+                                  </div>
+
+                                  <div className='flex items-center gap-1'>
+                                    <button
+                                      type='button'
+                                      className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors text-xs ${
+                                        feedback === 'up'
+                                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                                      }`}
+                                      onClick={() =>
+                                        handleMessageFeedback(m.id, 'up')
+                                      }
+                                      aria-label='Helpful response'
+                                    >
+                                      <ThumbsUp className='w-3.5 h-3.5' />
+                                      <span className='font-medium'>
+                                        Helpful
+                                      </span>
+                                    </button>
+                                    <button
+                                      type='button'
+                                      className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-md transition-colors text-xs ${
+                                        feedback === 'down'
+                                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                                      }`}
+                                      onClick={() =>
+                                        handleMessageFeedback(m.id, 'down')
+                                      }
+                                      aria-label='Not helpful'
+                                    >
+                                      <ThumbsDown className='w-3.5 h-3.5' />
+                                      <span className='font-medium'>
+                                        Not helpful
+                                      </span>
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            }
+                            )}
+                          </div>
+
+                          {/* Timestamp for last message or role change */}
+                          {showTimestamp && (
+                            <div
+                              className={`mt-1 text-xs text-muted-foreground ${isUser ? 'text-right' : 'text-left'}`}
+                            >
+                              {new Date().toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* User Avatar placeholder */}
+                        {isUser && (
+                          <div className='flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mt-1 order-2'>
+                            <span className='text-xs font-medium text-primary'>
+                              U
+                            </span>
                           </div>
                         )}
                       </div>
@@ -415,25 +466,34 @@ export function ChatInterface() {
                   );
                 })}
 
-                {/* Loading State */}
+                {/* Enhanced Loading State */}
                 {isLoading && (
-                  <div className='flex gap-2 sm:gap-3 justify-start'>
-                    <div className='max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 bg-muted text-foreground'>
-                      <div className='flex items-center gap-2'>
-                        <div className='flex space-x-1'>
-                          <div className='w-2 h-2 bg-muted-foreground rounded-full animate-bounce' />
-                          <div
-                            className='w-2 h-2 bg-muted-foreground rounded-full animate-bounce'
-                            style={{ animationDelay: '0.1s' }}
-                          />
-                          <div
-                            className='w-2 h-2 bg-muted-foreground rounded-full animate-bounce'
-                            style={{ animationDelay: '0.2s' }}
-                          />
+                  <div className='group'>
+                    <div className='flex gap-3 justify-start'>
+                      {/* AI Avatar */}
+                      <div className='flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-1'>
+                        <MessageSquare className='w-4 h-4 text-primary' />
+                      </div>
+
+                      <div className='max-w-[85%] sm:max-w-[80%] md:max-w-[75%]'>
+                        <div className='rounded-2xl rounded-bl-md px-4 py-3 bg-muted/50 text-foreground border border-border/50 shadow-sm'>
+                          <div className='flex items-center gap-3'>
+                            <div className='flex space-x-1'>
+                              <div className='w-2 h-2 bg-primary/60 rounded-full animate-bounce' />
+                              <div
+                                className='w-2 h-2 bg-primary/60 rounded-full animate-bounce'
+                                style={{ animationDelay: '0.1s' }}
+                              />
+                              <div
+                                className='w-2 h-2 bg-primary/60 rounded-full animate-bounce'
+                                style={{ animationDelay: '0.2s' }}
+                              />
+                            </div>
+                            <span className='text-sm text-muted-foreground font-medium'>
+                              OWL AI is thinking...
+                            </span>
+                          </div>
                         </div>
-                        <span className='text-sm text-muted-foreground'>
-                          Thinking...
-                        </span>
                       </div>
                     </div>
                   </div>
