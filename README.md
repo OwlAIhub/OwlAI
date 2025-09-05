@@ -44,7 +44,7 @@ OwlAI/
 
 ### Prerequisites
 - **Node.js** 18.0 or higher
-- **pnpm** 8.0 or higher (recommended package manager)
+- **Yarn** 1.22 or higher (recommended package manager)
 - **Firebase Project** (for backend services)
 
 ### Installation
@@ -57,7 +57,7 @@ OwlAI/
 
 2. **Install dependencies**
    ```bash
-   pnpm install
+   yarn install
    ```
 
 3. **Environment Setup**
@@ -69,7 +69,7 @@ OwlAI/
 
 4. **Start development server**
    ```bash
-   pnpm dev
+   yarn dev
    ```
 
 5. **Open your browser**
@@ -86,6 +86,7 @@ OwlAI/
 - **[Shadcn/ui](https://ui.shadcn.com/)** - Modern component library
 - **[Framer Motion](https://www.framer.com/motion/)** - Smooth animations
 - **[React Markdown](https://github.com/remarkjs/react-markdown)** - Markdown rendering
+- **[Yarn](https://yarnpkg.com/)** - Fast, reliable package manager
 
 ### Backend & Services
 - **[Firebase Firestore](https://firebase.google.com/docs/firestore)** - Real-time NoSQL database
@@ -96,8 +97,8 @@ OwlAI/
 ### Development Tools
 - **[ESLint](https://eslint.org/)** - Code linting with TypeScript support
 - **[Prettier](https://prettier.io/)** - Code formatting
-- **[pnpm](https://pnpm.io/)** - Fast, disk space efficient package manager
-- **[Turbopack](https://turbo.build/pack)** - Next.js bundler for faster builds
+- **[Yarn](https://yarnpkg.com/)** - Fast, reliable package manager
+- **[Next.js Bundler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)** - Optimized production builds
 
 ## 🚀 Deployment
 
@@ -113,10 +114,10 @@ vercel --prod
 ### Manual Deployment
 ```bash
 # Build the application
-pnpm build
+yarn build
 
 # Start production server
-pnpm start
+yarn start
 ```
 
 ## 🧪 Development
@@ -124,19 +125,19 @@ pnpm start
 ### Available Scripts
 ```bash
 # Development
-pnpm dev              # Start development server
-pnpm build            # Build for production
-pnpm start            # Start production server
+yarn dev              # Start development server
+yarn build            # Build for production
+yarn start            # Start production server
 
 # Code Quality
-pnpm lint             # Run ESLint
-pnpm lint:fix         # Fix ESLint errors
-pnpm format           # Format with Prettier
-pnpm type-check       # TypeScript type checking
+yarn lint             # Run ESLint
+yarn lint:fix         # Fix ESLint errors
+yarn format           # Format with Prettier
+yarn type-check       # TypeScript type checking
 
 # Comprehensive Checks
-pnpm check-all        # Run all quality checks
-pnpm fix-all          # Fix all auto-fixable issues
+yarn check-all        # Run all quality checks
+yarn fix-all          # Fix all auto-fixable issues
 ```
 
 ### Code Standards

@@ -180,6 +180,7 @@ export function ChatInterface() {
 
       setIsLoading(true);
       setShowStarterPrompts(false);
+      setPrefillQuery(''); // Clear the prefill query after sending
 
       try {
         let currentChatId = getCurrentChatId();
@@ -448,6 +449,7 @@ export function ChatInterface() {
       <div className='sticky bottom-0 bg-gradient-to-t from-background via-background/90 to-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border/70 p-3 sm:p-4'>
         <div className='max-w-3xl mx-auto'>
           <ChatSearchBar
+            key={prefillQuery || 'default'}
             onSubmit={handleSendMessage}
             placeholder='Ask me anything about your studies...'
             initialValue={prefillQuery}

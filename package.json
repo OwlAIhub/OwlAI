@@ -6,20 +6,20 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "cd frontend && pnpm dev",
-    "build": "cd frontend && pnpm build",
-    "start": "cd frontend && pnpm start",
-    "lint": "cd frontend && pnpm lint",
-    "lint:fix": "cd frontend && pnpm lint:fix",
-    "format": "cd frontend && pnpm format",
-    "format:check": "cd frontend && pnpm format:check",
-    "format:fix": "cd frontend && pnpm format:fix",
-    "type-check": "cd frontend && pnpm type-check",
-    "lint:strict": "cd frontend && pnpm lint:strict",
-    "check-all": "cd frontend && pnpm check-all",
-    "fix-all": "cd frontend && pnpm fix-all",
-    "analyze": "cd frontend && pnpm analyze",
-    "perf": "cd frontend && pnpm perf"
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn build",
+    "start": "cd frontend && yarn start",
+    "lint": "cd frontend && yarn lint",
+    "lint:fix": "cd frontend && yarn lint:fix",
+    "format": "cd frontend && yarn format",
+    "format:check": "cd frontend && yarn format:check",
+    "format:fix": "cd frontend && yarn format:fix",
+    "type-check": "cd frontend && yarn type-check",
+    "lint:strict": "cd frontend && yarn lint:strict",
+    "check-all": "cd frontend && yarn check-all",
+    "fix-all": "cd frontend && yarn fix-all",
+    "analyze": "cd frontend && yarn analyze",
+    "perf": "cd frontend && yarn perf"
   },
   "devDependencies": {
     "prettier": "^3.6.2"
