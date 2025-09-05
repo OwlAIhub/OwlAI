@@ -1,99 +1,159 @@
-# OWL AI - Complete Project
+# 🦉 OWL AI - Intelligent Study Partner
 
-Your intelligent AI study partner for competitive exams and academic success.
+> Your AI-powered companion for competitive exams and academic excellence
 
-## 📁 Project Structure
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-10.0-orange?style=flat-square&logo=firebase)](https://firebase.google.com/)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
+
+## 🎯 Overview
+
+OWL AI is a cutting-edge educational platform that revolutionizes how students prepare for competitive exams. Built with modern web technologies, it provides an intelligent, real-time chat interface powered by advanced AI to deliver personalized study assistance, practice questions, and comprehensive exam preparation tools.
+
+## 🏗️ Architecture
 
 ```
-nextowl/
-├── frontend/                  # Next.js Frontend Application
-│   ├── src/                  # Source code
-│   ├── public/               # Static assets
-│   ├── package.json          # Frontend dependencies
-│   └── README.md             # Frontend documentation
-└── README.md                 # This file
+OwlAI/
+├── frontend/                    # Next.js 15 Application
+│   ├── src/
+│   │   ├── app/                # App Router (Next.js 15)
+│   │   │   ├── api/            # API Routes
+│   │   │   ├── chat/           # Chat Interface
+│   │   │   └── dashboard/      # User Dashboard
+│   │   ├── components/         # React Components
+│   │   │   ├── ui/             # Shadcn/ui Components
+│   │   │   ├── chat_interface/ # Chat System
+│   │   │   └── sidebar/        # Navigation
+│   │   ├── lib/                # Utilities & Services
+│   │   │   ├── firebase.ts     # Firebase Configuration
+│   │   │   ├── analytics.ts    # Analytics Service
+│   │   │   └── utils.ts        # Helper Functions
+│   │   └── types/              # TypeScript Definitions
+│   ├── public/                 # Static Assets
+│   ├── eslint.config.mjs       # ESLint Configuration
+│   ├── next.config.ts          # Next.js Configuration
+│   └── package.json            # Dependencies
+├── pnpm-workspace.yaml         # Monorepo Configuration
+├── vercel.json                 # Deployment Configuration
+└── README.md                   # Project Documentation
 ```
 
 ## 🚀 Quick Start
 
-### Frontend Development
+### Prerequisites
+- **Node.js** 18.0 or higher
+- **pnpm** 8.0 or higher (recommended package manager)
+- **Firebase Project** (for backend services)
 
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
+### Installation
 
-### Backend Setup
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/owlai.git
+   cd owlai
+   ```
 
-```bash
-cd backend
-# Backend setup instructions here
-```
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-## 🎯 Project Overview
+3. **Environment Setup**
+   ```bash
+   cd frontend
+   cp .env.example .env.local
+   # Configure your Firebase and API keys
+   ```
 
-OWL AI is a comprehensive educational platform designed to help students prepare for competitive exams and academic success. The project is structured as a monorepo with separate frontend and backend components.
+4. **Start development server**
+   ```bash
+   pnpm dev
+   ```
 
-### Frontend Features
-
-- **Intelligent Chat Interface** - AI-powered study assistance
-- **Clean UI Design** - Apple-level design with modern aesthetics
-- **Real-time Messaging** - Instant responses and smooth conversations
-- **Account Management** - User profiles and settings
-- **Chat History** - Persistent conversation storage
-- **Responsive Design** - Works on all devices
-
-### Backend Features
-
-- **Firebase Integration** - Real-time database and authentication
-- **API Routes** - Next.js API endpoints
-- **Data Management** - Chat and message handling
-- **Analytics** - User interaction tracking
+5. **Open your browser**
+   ```
+   http://localhost:3000
+   ```
 
 ## 🛠️ Technology Stack
 
 ### Frontend
+- **[Next.js 15.5.2](https://nextjs.org/)** - React framework with App Router
+- **[TypeScript 5.0](https://www.typescriptlang.org/)** - Type-safe development
+- **[Tailwind CSS 3.4](https://tailwindcss.com/)** - Utility-first styling
+- **[Shadcn/ui](https://ui.shadcn.com/)** - Modern component library
+- **[Framer Motion](https://www.framer.com/motion/)** - Smooth animations
+- **[React Markdown](https://github.com/remarkjs/react-markdown)** - Markdown rendering
 
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
-- **Shadcn/ui** - Component library
-- **Framer Motion** - Animations
-- **Firebase** - Real-time database
+### Backend & Services
+- **[Firebase Firestore](https://firebase.google.com/docs/firestore)** - Real-time NoSQL database
+- **[Firebase Auth](https://firebase.google.com/docs/auth)** - Authentication system
+- **[Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)** - Serverless functions
+- **[Flowise AI](https://flowiseai.com/)** - AI workflow management
 
-### Backend
+### Development Tools
+- **[ESLint](https://eslint.org/)** - Code linting with TypeScript support
+- **[Prettier](https://prettier.io/)** - Code formatting
+- **[pnpm](https://pnpm.io/)** - Fast, disk space efficient package manager
+- **[Turbopack](https://turbo.build/pack)** - Next.js bundler for faster builds
 
-- **Firebase Firestore** - NoSQL database
-- **Firebase Auth** - Authentication (ready to implement)
-- **Next.js API Routes** - Serverless functions
-- **Real-time Subscriptions** - Live data updates
+## 🚀 Deployment
 
-## 📱 Key Features
+### Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-### Chat System
-
-- **Welcome Screen** - Beautiful landing with starter prompts
-- **Real-time Messaging** - Instant AI responses
-- **Message History** - Persistent conversation storage
-- **Copy/Feedback** - Message interaction features
-
-### User Experience
-
-- **New Chat** - Create fresh conversations
-- **Chat History** - Access previous conversations
-- **Account Management** - User profile and settings
-- **Delete All** - Clean conversation history
-
-### Design System
-
-- **Colors**: Teal green, white, and black theme
-- **Typography**: Geist Sans and Geist Mono fonts
-- **Components**: Clean, minimal design
-- **Animations**: Smooth transitions
-
+# Deploy
+vercel --prod
 ```
+
+### Manual Deployment
+```bash
+# Build the application
+pnpm build
+
+# Start production server
+pnpm start
+```
+
+## 🧪 Development
+
+### Available Scripts
+```bash
+# Development
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm start            # Start production server
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm lint:fix         # Fix ESLint errors
+pnpm format           # Format with Prettier
+pnpm type-check       # TypeScript type checking
+
+# Comprehensive Checks
+pnpm check-all        # Run all quality checks
+pnpm fix-all          # Fix all auto-fixable issues
+```
+
+### Code Standards
+- **TypeScript** - Strict type checking enabled
+- **ESLint** - Comprehensive linting rules
+- **Prettier** - Consistent code formatting
+- **Conventional Commits** - Standardized commit messages
+
+
 ## 📄 License
 
-This project is part of the OWL AI ecosystem. All rights reserved.
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Next.js Team** - For the amazing React framework
+- **Vercel** - For seamless deployment platform
+- **Firebase** - For robust backend services
+- **Shadcn** - For beautiful UI components
+- **OpenAI** - For AI capabilities
