@@ -1,15 +1,24 @@
 'use client';
 
 import DashboardPage from '@/app/dashboard/page';
-import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
 function ChatPageContent() {
   const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const q = searchParams.get('q');
 
   useEffect(() => {
+    // Check authentication
+    if (!loading && !user) {
+      router.push('/auth');
+      return;
+    }
+
     // Simulate minimal loading time for better UX
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -23,7 +32,7 @@ function ChatPageContent() {
     }
 
     return () => clearTimeout(timer);
-  }, [q]);
+  }, [q, user, loading, router]);
 
   if (isLoading) {
     return (

@@ -17,10 +17,10 @@ export const dynamic = 'force-dynamic';
 
 // Simple GET endpoint for health check
 export async function GET() {
-  return NextResponse.json({ 
-    status: 'ok', 
+  return NextResponse.json({
+    status: 'ok',
     message: 'AI API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
