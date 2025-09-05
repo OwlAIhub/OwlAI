@@ -60,8 +60,7 @@ export async function POST(req: NextRequest) {
       feedbackId: feedbackRef.id,
       message: 'Feedback recorded successfully',
     });
-  } catch (error) {
-    console.error('Feedback submission error:', error);
+  } catch {
     return NextResponse.json(
       { error: 'Failed to submit feedback' },
       { status: 500 }

@@ -25,8 +25,7 @@ export function FeedbackStats({ chatId }: FeedbackStatsProps) {
       try {
         const data = await getFeedbackStats(chatId);
         setStats(data);
-      } catch (error) {
-        console.error('Failed to load feedback stats:', error);
+      } catch {
       } finally {
         setLoading(false);
       }

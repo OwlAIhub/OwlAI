@@ -1,7 +1,7 @@
 'use client';
 
 import type { LucideIcon } from 'lucide-react';
-import { SquareTerminal } from 'lucide-react';
+import { MessageSquare, Plus, SquareTerminal } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 
@@ -58,6 +58,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const [chats, setChats] = React.useState<ChatListItem[]>([]);
   const [navItems, setNavItems] = React.useState<NavItem[]>(data.navMain);
+  const [currentChatTitle, setCurrentChatTitle] =
+    React.useState<string>('New Chat');
 
   // Optimize chat subscription with useCallback
   const handleChatsUpdate = React.useCallback((items: ChatListItem[]) => {
@@ -95,8 +97,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setNavItems(optimizedNavItems);
   }, [optimizedNavItems]);
 
+  // Listen for chat changes to update breadcrumb
+  React.useEffect(() => {
+    const handleChatSwitched = (e: CustomEvent) => {
+      const { chatId } = e.detail;
+      if (chatId) {
+        const chat = chats.find(c => c.id === chatId);
+        setCurrentChatTitle(chat?.title || 'Untitled Chat');
+      } else {
+        setCurrentChatTitle('New Chat');
+      }
+    };
+
+    document.addEventListener(
+      'chat:switched',
+      handleChatSwitched as EventListener
+    );
+    return () => {
+      document.removeEventListener(
+        'chat:switched',
+        handleChatSwitched as EventListener
+      );
+    };
+  }, [chats]);
+
   return (
-    <Sidebar className='h-screen bg-sidebar' collapsible='offcanvas' {...props}>
+    <Sidebar
+      className='h-screen bg-sidebar border-r border-border/50'
+      collapsible='icon'
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -126,6 +156,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/* Breadcrumb */}
+        <div className='px-3 py-2 border-t border-border/50'>
+          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+            <MessageSquare className='w-4 h-4' />
+            <span className='truncate font-medium text-foreground'>
+              {currentChatTitle}
+            </span>
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <div className='px-4 py-3'>
@@ -146,7 +186,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }, [])}
             aria-label='Create new chat'
           >
-            <SquareTerminal className='size-4' />
+            <Plus className='size-4' />
             New Chat
           </button>
         </div>

@@ -9,11 +9,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const chatId = searchParams.get('chatId');
 
-    let query = adminDb.collection('feedback');
-
-    if (chatId) {
-      query = query.where('chatId', '==', chatId);
-    }
+    const feedbackCollection = adminDb.collection('feedback');
+    const query = chatId
+      ? feedbackCollection.where('chatId', '==', chatId)
+      : feedbackCollection;
 
     const snapshot = await query.get();
     const feedbacks = snapshot.docs.map(doc => doc.data());
@@ -29,8 +28,7 @@ export async function GET(req: NextRequest) {
       negative,
       positiveRate: Math.round(positiveRate * 100) / 100, // Round to 2 decimal places
     });
-  } catch (error) {
-    console.error('Feedback stats error:', error);
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get feedback stats' },
       { status: 500 }

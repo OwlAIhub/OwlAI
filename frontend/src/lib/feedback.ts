@@ -22,8 +22,7 @@ export async function submitFeedback(data: FeedbackData): Promise<boolean> {
 
     const result = await response.json();
     return result.success === true;
-  } catch (error) {
-    console.error('Failed to submit feedback:', error);
+  } catch {
     return false;
   }
 }
@@ -45,8 +44,7 @@ export async function getFeedbackStats(chatId?: string): Promise<{
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Failed to get feedback stats:', error);
+  } catch {
     return {
       total: 0,
       positive: 0,
