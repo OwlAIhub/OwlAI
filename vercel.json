@@ -1,5 +1,9 @@
 {
+  "framework": "nextjs",
   "buildCommand": "cd frontend && yarn install --frozen-lockfile && yarn build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "yarn install --frozen-lockfile"
+  "installCommand": "yarn install --frozen-lockfile",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }
