@@ -1,4 +1,6 @@
 const nextConfig = {
+  // Static file handling
+  trailingSlash: false,
   // Performance optimizations
   experimental: {
     optimizePackageImports: [
@@ -32,6 +34,9 @@ const nextConfig = {
     minimumCacheTTL: 31536000, // 1 year
     unoptimized: false,
     remotePatterns: [],
+    // Ensure static images are properly served
+    loader: 'default',
+    path: '/_next/image',
   },
   // Compiler optimizations
   compiler: {

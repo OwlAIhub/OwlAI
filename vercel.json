@@ -4,6 +4,9 @@
   "outputDirectory": "frontend/.next",
   "installCommand": "yarn install --frozen-lockfile",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)).*)",
+      "destination": "/"
+    }
   ]
 }
