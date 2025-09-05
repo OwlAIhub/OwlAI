@@ -133,9 +133,31 @@ export function ChatInterface() {
         unsubRef.current = null;
       }
     };
+    const onInitiateQuery = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { query: string };
+      if (detail?.query) {
+        // Pre-fill the search bar with the query
+        setPrefillQuery(detail.query);
+        // Hide starter prompts and show empty chat state
+        setShowStarterPrompts(false);
+        setMessages([]);
+        // Clear current chat ID to ensure fresh start
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('currentChatId');
+        }
+        if (unsubRef.current) {
+          unsubRef.current();
+          unsubRef.current = null;
+        }
+      }
+    };
     window.addEventListener('storage', onStorage);
     document.addEventListener('chat:switched', onSwitched as EventListener);
     document.addEventListener('chat:reset', onReset);
+    document.addEventListener(
+      'chat:initiate-query',
+      onInitiateQuery as EventListener
+    );
 
     return () => {
       if (unsubRef.current) unsubRef.current();
@@ -145,6 +167,10 @@ export function ChatInterface() {
         onSwitched as EventListener
       );
       document.removeEventListener('chat:reset', onReset);
+      document.removeEventListener(
+        'chat:initiate-query',
+        onInitiateQuery as EventListener
+      );
     };
   }, []);
 
@@ -423,6 +449,7 @@ export function ChatInterface() {
           <ChatSearchBar
             onSubmit={handleSendMessage}
             placeholder='Ask me anything about your studies...'
+            initialValue={prefillQuery}
           />
         </div>
       </div>

@@ -47,9 +47,10 @@ export function ChatSearchBar({
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 
-  // Auto-focus on mount
+  // Auto-focus on mount and update value when initialValue changes
   useEffect(() => {
     if (initialValue) {
+      setValue(initialValue);
       inputRef.current?.focus();
     }
   }, [initialValue]);
