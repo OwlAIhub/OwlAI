@@ -3,17 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3000",
-    "build": "next build --turbopack",
-    "start": "next start --port 3000",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "dev": "cd frontend && next dev --turbopack --port 3000",
+    "build": "cd frontend && next build --turbopack",
+    "start": "cd frontend && next start --port 3000",
+    "lint": "cd frontend && next lint",
+    "lint:fix": "cd frontend && next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "tsc --noEmit",
-    "lint:strict": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
-    "analyze": "ANALYZE=true next build",
-    "perf": "next build && next start"
+    "type-check": "cd frontend && tsc --noEmit",
+    "lint:strict": "cd frontend && eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
+    "analyze": "cd frontend && ANALYZE=true next build",
+    "perf": "cd frontend && next build && next start"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
