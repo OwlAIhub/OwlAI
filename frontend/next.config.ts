@@ -30,6 +30,8 @@ const nextConfig = {
     qualities: [95],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year
+    unoptimized: false,
+    remotePatterns: [],
   },
   // Compiler optimizations
   compiler: {

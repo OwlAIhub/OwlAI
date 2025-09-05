@@ -82,9 +82,9 @@ export default function RootLayout({
   return (
     <html lang='en' className='scroll-smooth' data-scroll-behavior='smooth'>
       <head>
-        <link rel='icon' href='/owl-ai-logo.png' sizes='any' />
+        <link rel='icon' href='/favicon.ico' sizes='any' />
         <link rel='icon' href='/owl-ai-logo.png' type='image/png' />
-        <link rel='apple-touch-icon' href='/owl-ai-logo.png' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
         <link rel='manifest' href='/manifest.json' />
         <meta name='theme-color' content='#0D9488' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
