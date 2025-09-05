@@ -236,7 +236,6 @@ export function ResponsiveImage({
       loading={priority ? 'eager' : loading}
       width={width}
       height={height}
-      quality={95}
       sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
       {...props}
     />

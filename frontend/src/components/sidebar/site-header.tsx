@@ -26,13 +26,13 @@ export function SiteHeader() {
     <header className='sticky top-0 z-50 flex w-full items-center border-b border-sidebar-border bg-sidebar'>
       <div className='flex h-10 w-full items-center gap-1 sm:gap-2 px-2 sm:px-3'>
         <Button
-          className='h-6 w-6 sm:h-7 sm:w-7 hover:bg-muted/50 transition-colors duration-150'
+          className='h-6 w-6 sm:h-7 sm:w-7 hover:bg-muted/50 transition-all duration-200 ease-out'
           variant='ghost'
           size='icon'
           onClick={handleToggleSidebar}
           aria-label='Toggle sidebar'
         >
-          <SidebarIcon className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
+          <SidebarIcon className='h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200 ease-out' />
         </Button>
         <Separator
           orientation='vertical'

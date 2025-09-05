@@ -1,7 +1,7 @@
 'use client';
 
 import type { LucideIcon } from 'lucide-react';
-import { MessageSquare, Plus, SquareTerminal } from 'lucide-react';
+import { Plus, SquareTerminal } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 
@@ -58,8 +58,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const [chats, setChats] = React.useState<ChatListItem[]>([]);
   const [navItems, setNavItems] = React.useState<NavItem[]>(data.navMain);
-  const [currentChatTitle, setCurrentChatTitle] =
-    React.useState<string>('New Chat');
 
   // Optimize chat subscription with useCallback
   const handleChatsUpdate = React.useCallback((items: ChatListItem[]) => {
@@ -69,8 +67,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   React.useEffect(() => {
     const gid = getGuestId();
     if (!gid) return;
-    const unsub = subscribeToChatsForGuest(gid, handleChatsUpdate);
-    return () => unsub();
+    const unsubscribe = subscribeToChatsForGuest(gid, handleChatsUpdate);
+    return () => unsubscribe();
   }, [handleChatsUpdate]);
 
   // Optimize nav items update with useMemo
@@ -97,34 +95,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setNavItems(optimizedNavItems);
   }, [optimizedNavItems]);
 
-  // Listen for chat changes to update breadcrumb
-  React.useEffect(() => {
-    const handleChatSwitched = (e: CustomEvent) => {
-      const { chatId } = e.detail;
-      if (chatId) {
-        const chat = chats.find(c => c.id === chatId);
-        setCurrentChatTitle(chat?.title || 'Untitled Chat');
-      } else {
-        setCurrentChatTitle('New Chat');
-      }
-    };
-
-    document.addEventListener(
-      'chat:switched',
-      handleChatSwitched as EventListener
-    );
-    return () => {
-      document.removeEventListener(
-        'chat:switched',
-        handleChatSwitched as EventListener
-      );
-    };
-  }, [chats]);
-
   return (
     <Sidebar
       className='h-screen bg-sidebar border-r border-border/50'
-      collapsible='icon'
+      collapsible='offcanvas'
       {...props}
     >
       <SidebarHeader>
@@ -156,22 +130,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-
-        {/* Breadcrumb */}
-        <div className='px-3 py-2 border-t border-border/50'>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            <MessageSquare className='w-4 h-4' />
-            <span className='truncate font-medium text-foreground'>
-              {currentChatTitle}
-            </span>
-          </div>
-        </div>
       </SidebarHeader>
       <SidebarContent>
         <div className='px-4 py-3'>
           <button
             type='button'
-            className='w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-150 flex items-center gap-2.5 justify-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 min-h-[44px]'
+            className='w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-3 py-2.5 transition-colors duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 min-h-[44px] shadow-sm'
             onClick={React.useCallback(() => {
               // Show welcome screen for new chat
               if (typeof window !== 'undefined') {
@@ -187,7 +151,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             aria-label='Create new chat'
           >
             <Plus className='size-4' />
-            New Chat
           </button>
         </div>
 

@@ -30,17 +30,12 @@ const nextConfig = {
     },
   },
   images: {
-    // Allow using quality=95 in <Image /> and custom components
-    qualities: [95],
+    // Disable image optimization for static images to fix Vercel issues
+    unoptimized: true,
+    // Keep basic configuration
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 31536000, // 1 year
-    unoptimized: false,
+    minimumCacheTTL: 31536000,
     remotePatterns: [],
-    // Ensure static images are properly served
-    loader: 'default',
-    path: '/_next/image',
-    // Vercel-specific image optimization
-    domains: [],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
