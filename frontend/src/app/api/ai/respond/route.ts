@@ -1,16 +1,5 @@
-import { FieldValue, adminDb } from '@/lib/firebase-admin';
-import {
-  SOFT_QUOTA_MESSAGES,
-  archiveOldMessages,
-  buildTrimmedHistory,
-} from '@/lib/retention';
-import { extractAnswer, queryFlowiseWithRetry } from '@/services/flowise';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  trackError,
-  trackMessageInteraction,
-  updateChatAnalytics,
-} from '../../../../lib/analytics';
+import { trackError } from '../../../../lib/analytics';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -26,10 +15,14 @@ export async function GET() {
 
 const MAX_HISTORY = 30; // last N messages to keep prompt small
 
-function buildPrompt(
+async function buildPrompt(
   persona: Record<string, unknown>,
   messages: Array<{ role: string; text: string }>
 ) {
+  const { SOFT_QUOTA_MESSAGES, buildTrimmedHistory } = await import(
+    '@/lib/retention'
+  );
+
   const preferences = persona?.preferences as
     | Record<string, unknown>
     | undefined;
@@ -55,6 +48,16 @@ export async function POST(req: NextRequest) {
   let chatId: string | undefined;
 
   try {
+    // Dynamic imports to prevent build-time execution
+    const { FieldValue, adminDb } = await import('@/lib/firebase-admin');
+    const { archiveOldMessages } = await import('@/lib/retention');
+    const { extractAnswer, queryFlowiseWithRetry } = await import(
+      '@/services/flowise'
+    );
+    const { trackMessageInteraction, updateChatAnalytics } = await import(
+      '../../../../lib/analytics'
+    );
+
     const body = await req.json();
     const { chatId: extractedChatId, messageId } = body;
     chatId = extractedChatId;
@@ -100,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     // Found messages
 
-    const prompt = buildPrompt(chatData?.persona ?? {}, messages);
+    const prompt = await buildPrompt(chatData?.persona ?? {}, messages);
 
     // Call LLM via Flowise
     // console.log('Sending to Flowise:', {

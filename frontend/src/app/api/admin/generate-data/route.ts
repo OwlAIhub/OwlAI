@@ -1,12 +1,3 @@
-import {
-  generateDailyAnalytics,
-  getSystemHealthMetrics,
-} from '@/lib/analytics';
-import {
-  generateAnalyticsData,
-  generateSampleData,
-  initializeDatabaseWithSampleData,
-} from '@/lib/data-generator';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Force dynamic rendering
@@ -22,6 +13,16 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Dynamic imports to prevent build-time execution
+    const { generateDailyAnalytics, getSystemHealthMetrics } = await import(
+      '@/lib/analytics'
+    );
+    const {
+      generateAnalyticsData,
+      generateSampleData,
+      initializeDatabaseWithSampleData,
+    } = await import('@/lib/data-generator');
 
     const body = await req.json();
     const { action, count, days } = body;
@@ -91,6 +92,9 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    // Dynamic import to prevent build-time execution
+    const { getSystemHealthMetrics } = await import('@/lib/analytics');
+
     // Get system status
     const healthMetrics = await getSystemHealthMetrics();
 
