@@ -1,6 +1,8 @@
 const nextConfig = {
   // Static file handling
   trailingSlash: false,
+  // Ensure static files are served correctly
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   // Performance optimizations
   experimental: {
     optimizePackageImports: [
@@ -37,6 +39,10 @@ const nextConfig = {
     // Ensure static images are properly served
     loader: 'default',
     path: '/_next/image',
+    // Vercel-specific image optimization
+    domains: [],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   // Compiler optimizations
   compiler: {
