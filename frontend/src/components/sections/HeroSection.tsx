@@ -115,7 +115,7 @@ export function HeroSection() {
               <Button
                 onClick={() => {
                   setIsNavigating(true);
-                  router.push('/auth');
+                  router.push('/chat');
                 }}
                 disabled={isNavigating}
                 size='sm'
@@ -175,7 +175,7 @@ export function HeroSection() {
                   onClick={() => {
                     setIsMenuOpen(false);
                     setIsNavigating(true);
-                    router.push('/auth');
+                    router.push('/chat');
                   }}
                 >
                   {isNavigating ? 'Loading...' : 'Get Started'}

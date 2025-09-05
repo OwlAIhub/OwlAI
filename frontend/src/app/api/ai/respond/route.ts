@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { trackError } from '../../../../lib/analytics';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -19,10 +18,6 @@ async function buildPrompt(
   persona: Record<string, unknown>,
   messages: Array<{ role: string; text: string }>
 ) {
-  const { SOFT_QUOTA_MESSAGES, buildTrimmedHistory } = await import(
-    '@/lib/retention'
-  );
-
   const preferences = persona?.preferences as
     | Record<string, unknown>
     | undefined;
@@ -31,13 +26,10 @@ async function buildPrompt(
   const language = preferences?.language ?? 'English';
   const preamble = `Persona: {tone: ${tone}, focus: ${focus}, language: ${language}}\nTask: Answer the user's last message concisely and follow persona. Use clean GitHub-flavored Markdown with headings, lists, tables when useful, code fences for code, and a short Memory Hook if relevant.`;
 
-  const trimmed = buildTrimmedHistory(
-    messages as Array<{ role: 'user' | 'ai'; text: string }>,
-    SOFT_QUOTA_MESSAGES
-  );
+  // Simple message trimming - just take last MAX_HISTORY messages
+  const trimmed = messages.slice(-MAX_HISTORY);
 
   const history = trimmed
-    .slice(-MAX_HISTORY)
     .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
     .join('\n');
 
@@ -50,12 +42,8 @@ export async function POST(req: NextRequest) {
   try {
     // Dynamic imports to prevent build-time execution
     const { FieldValue, adminDb } = await import('@/lib/firebase-admin');
-    const { archiveOldMessages } = await import('@/lib/retention');
     const { extractAnswer, queryFlowiseWithRetry } = await import(
       '@/services/flowise'
-    );
-    const { trackMessageInteraction, updateChatAnalytics } = await import(
-      '../../../../lib/analytics'
     );
 
     const body = await req.json();
@@ -68,8 +56,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // AI respond API called
 
     const chatRef = adminDb.collection('chats').doc(chatId);
 
@@ -101,28 +87,15 @@ export async function POST(req: NextRequest) {
       text: string;
     }>;
 
-    // Found messages
-
     const prompt = await buildPrompt(chatData?.persona ?? {}, messages);
 
     // Call LLM via Flowise
-    // console.log('Sending to Flowise:', {
-    //   prompt: prompt.substring(0, 200) + '...', // Truncate for logging
-    //   promptLength: prompt.length,
-    //   chatId,
-    //   messageId,
-    //   messagesCount: messages.length,
-    // });
-    const startTime = Date.now();
     let res;
     try {
       res = await queryFlowiseWithRetry({ question: prompt }, {}, 2, 400);
     } catch (error) {
-      // Flowise API error logged
       throw error;
     }
-    const responseTime = (Date.now() - startTime) / 1000;
-    // console.log('Flowise response:', res);
     const aiText =
       extractAnswer(res) || 'Sorry, I could not generate a response.';
 
@@ -134,28 +107,9 @@ export async function POST(req: NextRequest) {
         role: 'ai',
         text: aiText,
         createdAt: FieldValue.serverTimestamp(),
-        meta: {},
-        ai: {
-          model: 'gpt-4-turbo',
-          version: '2024-01-15',
-          temperature: 0.7,
-          maxTokens: 1000,
-          responseTime: responseTime,
-          confidence: 0.89,
-          sources: ['textbook_page_45', 'research_paper_2023'],
-        },
-        analytics: {
-          readTime: 0,
-          reactions: [],
-          followUpQuestions: 0,
-          comprehensionLevel: 'medium',
-        },
       });
       t.update(chatRef, {
         updatedAt: FieldValue.serverTimestamp(),
-        'meta.messageCount': (chatData?.meta?.messageCount || 0) + 1,
-        'analytics.aiResponseTime': responseTime,
-        'analytics.messageCount': FieldValue.increment(1),
       });
       // Optionally set title if still default and first user message exists
       const title = (chatData?.title as string) || 'Untitled Chat';
@@ -168,45 +122,8 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Best-effort archive beyond retention in background (do not block response)
-    archiveOldMessages(chatId).catch(() => {});
-
-    // Track analytics in background
-    try {
-      await trackMessageInteraction(
-        chatId,
-        aiMsgRef.id,
-        chatData?.guestId || 'unknown',
-        {
-          type: 'received',
-          data: { responseTime, messageLength: aiText.length },
-        }
-      );
-
-      await updateChatAnalytics(chatId, {
-        aiResponseTime: responseTime,
-        messageCount: 1,
-      });
-    } catch {
-      // Analytics tracking error
-    }
-
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (e: unknown) {
-    // AI respond API error logged
-
-    // Track error for monitoring
-    try {
-      await trackError({
-        type: 'ai_response_error',
-        message: e instanceof Error ? e.message : 'Unknown error',
-        chatId: chatId || 'unknown',
-        context: { error: e instanceof Error ? e.stack : undefined },
-      });
-    } catch {
-      // Error tracking failed
-    }
-
     return NextResponse.json(
       { error: e instanceof Error ? e.message : 'Internal Error' },
       { status: 500 }
