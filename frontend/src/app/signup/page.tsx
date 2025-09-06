@@ -24,13 +24,7 @@ export default function SignupPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'
-    >
+    <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
       {/* Background Pattern */}
       <div className='absolute inset-0 opacity-5'>
         <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
@@ -115,6 +109,6 @@ export default function SignupPage() {
           </motion.div>
         </ResponsiveContainer>
       </div>
-    </motion.div>
+    </div>
   );
 }
