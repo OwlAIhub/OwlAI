@@ -33,24 +33,27 @@ const features = [
 
 export function AboutSection() {
   return (
-    <section id='about' className='py-20 bg-white'>
-      <ResponsiveContainer maxWidth='6xl' padding='md'>
+    <section
+      id='about'
+      className='min-h-screen flex items-center px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 lg:py-0 bg-white'
+    >
+      <ResponsiveContainer maxWidth='5xl' padding='none'>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-16'
+          className='text-center mb-8 sm:mb-10 md:mb-12 lg:mb-16'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4'
+            className='inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-primary/10 rounded-2xl mb-4 sm:mb-6'
           >
-            <BookOpen className='w-8 h-8 text-primary' />
+            <BookOpen className='w-6 h-6 sm:w-8 sm:h-8 text-primary' />
           </motion.div>
           <ResponsiveText
             as='h2'
@@ -60,7 +63,7 @@ export function AboutSection() {
               preferred: '0.875rem + 3vw',
               max: '2.25rem',
             }}
-            className='font-bold text-foreground mb-4 leading-tight'
+            className='font-bold text-foreground mb-3 sm:mb-4 leading-tight px-4'
           >
             <span className='text-foreground'>About </span>
             <span className='bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent relative'>
@@ -79,7 +82,7 @@ export function AboutSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed'
+            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4'
           >
             Discover how Owl AI revolutionizes your exam preparation with
             cutting-edge technology and personalized learning experiences.
@@ -87,14 +90,14 @@ export function AboutSection() {
         </motion.div>
 
         {/* Content */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-16 items-center'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center'>
           {/* Content Side */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='space-y-8 order-2 md:order-1'
+            className='space-y-6 sm:space-y-7 md:space-y-8 order-2 md:order-1'
           >
             {/* Main Description */}
             <motion.div
@@ -102,7 +105,7 @@ export function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.4 }}
               viewport={{ once: true }}
-              className='space-y-5'
+              className='space-y-4 sm:space-y-5 px-4 md:px-0'
             >
               <ResponsiveText
                 as='p'
@@ -133,9 +136,9 @@ export function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
               viewport={{ once: true }}
-              className=''
+              className='px-4 md:px-0'
             >
-              <div className='space-y-5'>
+              <div className='space-y-4 sm:space-y-5'>
                 {features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
@@ -143,16 +146,16 @@ export function AboutSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
                     viewport={{ once: true }}
-                    className='flex items-start gap-4'
+                    className='flex items-start gap-3 sm:gap-4'
                   >
-                    <div className='flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5'>
-                      <feature.icon className='w-3 h-3 text-primary' />
+                    <div className='flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5'>
+                      <feature.icon className='w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary' />
                     </div>
                     <div className='flex-1'>
                       <ResponsiveText
                         as='h4'
                         size='base'
-                        className='font-semibold text-foreground mb-1.5'
+                        className='font-semibold text-foreground mb-1 sm:mb-1.5'
                       >
                         {feature.title}
                       </ResponsiveText>
@@ -176,9 +179,9 @@ export function AboutSection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='flex items-center justify-center md:justify-end order-1 md:order-2'
+            className='flex items-center justify-center md:justify-end order-1 md:order-2 px-4 md:px-0'
           >
-            <div className='w-full max-w-md'>
+            <div className='w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg'>
               <ResponsiveImage
                 src='/about-section.png'
                 alt='Owl AI - Intelligent Learning Assistant for Competitive Exam Preparation'

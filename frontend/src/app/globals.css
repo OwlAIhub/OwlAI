@@ -7,62 +7,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Handle browser extension modifications gracefully */
-[bis_skin_checked] {
-  /* Reset any browser extension modifications */
-  all: unset;
-  /* Reapply necessary styles */
-  display: revert;
-  box-sizing: border-box;
-}
-
 html {
   scroll-behavior: smooth;
-}
-
-/* Custom scrollbar styles for better UX */
-.scrollbar-thin {
-  scrollbar-width: thin;
-}
-
-.scrollbar-track-transparent {
-  scrollbar-color: transparent transparent;
-}
-
-.scrollbar-thumb-border {
-  scrollbar-color: hsl(var(--border)) transparent;
-}
-
-.scrollbar-thumb-border:hover {
-  scrollbar-color: hsl(var(--border) / 0.6) transparent;
-}
-
-.scrollbar-thumb-rounded-full {
-  scrollbar-width: thin;
-}
-
-/* Webkit scrollbar styles */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
-  border-radius: 3px;
-  transition: background-color 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--border) / 0.6);
-}
-
-.scrollbar-thin::-webkit-scrollbar-corner {
-  background: transparent;
 }
 
 /* Optimize animations */
@@ -193,6 +139,17 @@ html {
     box-sizing: border-box;
   }
 
+  /* Hide browser extension attributes that cause hydration issues */
+  [bis_skin_checked],
+  [data-new-gr-c-s-check-loaded],
+  [data-gr-ext-installed],
+  [data-gramm_editor],
+  [data-gramm],
+  [data-lexical-editor] {
+    /* These attributes are added by browser extensions and cause hydration mismatches */
+    /* They don't affect visual appearance, so we can safely ignore them */
+  }
+
   html {
     font-size: 16px;
     scroll-behavior: smooth;
@@ -310,8 +267,22 @@ html {
   }
 }
 
-/* Code block styling - No external dependencies */
+/* Syntax highlighting styles for code blocks */
 @layer components {
+  /* Import highlight.js theme */
+  @import 'highlight.js/styles/github.css';
+
+  /* Dark mode syntax highlighting */
+  .dark {
+    @import 'highlight.js/styles/github-dark.css';
+  }
+
+  /* Custom code block styling */
+  .hljs {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
   /* Inline code styling */
   code:not(.hljs) {
     @apply px-1.5 py-0.5 rounded bg-muted text-foreground text-sm font-mono;
@@ -319,21 +290,7 @@ html {
 
   /* Code block container */
   pre {
-    @apply overflow-x-auto bg-muted/50 p-4 rounded-lg;
-  }
-
-  /* Code block styling */
-  pre code {
-    @apply bg-transparent p-0 text-sm font-mono;
-  }
-
-  /* Custom syntax highlighting fallback */
-  .code-block {
-    @apply bg-muted/30 border border-border rounded-lg p-4 overflow-x-auto;
-  }
-
-  .code-block code {
-    @apply bg-transparent text-foreground font-mono text-sm;
+    @apply overflow-x-auto;
   }
 
   /* Table styling improvements */

@@ -7,22 +7,22 @@ export function cn(...inputs: ClassValue[]) {
 
 // Logger utility for consistent logging across the app
 export const logger = {
-  info: (_message: string, _context?: string, _data?: unknown) => {
+  info: (message: string, context?: string, data?: unknown) => {
     if (process.env.NODE_ENV === 'development') {
-      // Info log: ${message}
+      console.log(`ℹ️ [${context || 'App'}] ${message}`, data || '');
     }
   },
-  error: (_message: string, _context?: string, _data?: unknown) => {
-    // Error log: ${message}
+  error: (message: string, context?: string, data?: unknown) => {
+    console.error(`❌ [${context || 'App'}] ${message}`, data || '');
   },
-  warn: (_message: string, _context?: string, _data?: unknown) => {
+  warn: (message: string, context?: string, data?: unknown) => {
     if (process.env.NODE_ENV === 'development') {
-      // Warn log: ${message}
+      console.warn(`⚠️ [${context || 'App'}] ${message}`, data || '');
     }
   },
-  debug: (_message: string, _context?: string, _data?: unknown) => {
+  debug: (message: string, context?: string, data?: unknown) => {
     if (process.env.NODE_ENV === 'development') {
-      // Debug log: ${message}
+      console.debug(`🔍 [${context || 'App'}] ${message}`, data || '');
     }
   },
 };

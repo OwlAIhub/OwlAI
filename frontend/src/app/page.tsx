@@ -4,7 +4,7 @@ import MainPage from '@/components/sections/mainpage';
 
 export default function Home() {
   return (
-    <div className='bg-background' suppressHydrationWarning>
+    <div className='bg-background'>
       <MainPage />
     </div>
   );
