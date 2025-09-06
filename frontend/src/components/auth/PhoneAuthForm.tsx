@@ -3,9 +3,11 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { setAuthUser } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Smartphone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface PhoneAuthFormProps {
@@ -21,6 +23,7 @@ export function PhoneAuthForm({
   onModeChange,
   onBack,
 }: PhoneAuthFormProps) {
+  const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
@@ -36,8 +39,19 @@ export function PhoneAuthForm({
     if (!otpSent) {
       setOtpSent(true);
     } else {
-      // Handle OTP verification
+      // Handle OTP verification and navigate to chat
       console.log('OTP verified:', otp);
+      // Simulate successful authentication
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Set authentication state
+      setAuthUser({
+        id: `user_${Date.now()}`,
+        phoneNumber,
+        isAuthenticated: true,
+      });
+
+      router.push('/chat');
     }
 
     setIsLoading(false);
