@@ -1,27 +1,21 @@
 {
-  "name": "owlai-workspace",
+  "name": "owlai",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
-    "dev": "cd frontend && yarn dev",
-    "build": "cd frontend && yarn build",
-    "start": "cd frontend && yarn start",
-    "lint": "cd frontend && yarn lint",
-    "lint:fix": "cd frontend && yarn lint:fix",
-    "format": "cd frontend && yarn format",
-    "format:check": "cd frontend && yarn format:check",
-    "format:fix": "cd frontend && yarn format:fix",
-    "type-check": "cd frontend && yarn type-check",
-    "lint:strict": "cd frontend && yarn lint:strict",
-    "check-all": "cd frontend && yarn check-all",
-    "fix-all": "cd frontend && yarn fix-all",
-    "analyze": "cd frontend && yarn analyze",
-    "perf": "cd frontend && yarn perf"
-  },
-  "devDependencies": {
-    "prettier": "^3.6.2"
+    "dev": "cd frontend && bun dev",
+    "build": "cd frontend && bun build",
+    "start": "cd frontend && bun start",
+    "lint": "cd frontend && bun lint",
+    "lint:fix": "cd frontend && bun lint:fix",
+    "format": "cd frontend && bun format",
+    "format:check": "cd frontend && bun format:check",
+    "format:fix": "cd frontend && bun format:fix",
+    "type-check": "cd frontend && bun type-check",
+    "lint:strict": "cd frontend && bun lint:strict",
+    "check-all": "cd frontend && bun check-all",
+    "fix-all": "cd frontend && bun fix-all",
+    "analyze": "cd frontend && bun analyze",
+    "perf": "cd frontend && bun perf"
   }
 }

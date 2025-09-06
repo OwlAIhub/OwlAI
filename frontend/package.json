@@ -13,8 +13,8 @@
     "format:check": "prettier --check .",
     "format:fix": "prettier --write . && eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
-    "check-all": "yarn type-check && yarn lint:strict && yarn format:check",
-    "fix-all": "yarn format:fix && yarn type-check",
+    "check-all": "bun type-check && bun lint:strict && bun format:check",
+    "fix-all": "bun format:fix && bun type-check",
     "analyze": "ANALYZE=true next build",
     "perf": "next build && next start"
   },

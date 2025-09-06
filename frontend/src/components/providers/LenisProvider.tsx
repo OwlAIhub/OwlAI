@@ -12,14 +12,19 @@ export function LenisProvider({ children }: LenisProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only enable smooth scrolling on the main page, not chat/dashboard pages
-    if (!pathname || pathname === '/dashboard' || pathname === '/chat') {
+    // Only enable smooth scrolling on the main page (root path)
+    if (!pathname || pathname !== '/') {
       return;
     }
 
     const lenis = new Lenis({
-      duration: 0.8, // Faster duration for better responsiveness
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smoothTouch: false,
+      touchMultiplier: 2,
     });
 
     function raf(time: number) {

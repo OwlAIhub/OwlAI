@@ -49,18 +49,15 @@ const faqs = [
 
 export function FAQSection() {
   return (
-    <section
-      id='faq'
-      className='min-h-screen flex items-start justify-center px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-12 sm:pb-16 md:pb-20 lg:pb-16 bg-white'
-    >
-      <ResponsiveContainer maxWidth='7xl' padding='none'>
+    <section id='faq' className='py-20 bg-white'>
+      <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12'
+          className='text-center mb-16'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

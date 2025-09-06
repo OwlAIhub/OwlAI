@@ -72,25 +72,25 @@ export function WhyOwlSection() {
   return (
     <section
       id='why-choose-us'
-      className='min-h-screen flex items-start justify-center px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-12 sm:pb-16 md:pb-20 lg:pb-16 bg-white'
+      className='py-20 bg-white'
     >
-      <ResponsiveContainer maxWidth='7xl' padding='none'>
+      <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-8 sm:mb-10 md:mb-12 lg:mb-14'
+          className='text-center mb-16'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-primary/10 rounded-2xl mb-3 sm:mb-4 md:mb-5'
+            className='inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4'
           >
-            <Zap className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-primary' />
+            <Zap className='w-8 h-8 text-primary' />
           </motion.div>
           <ResponsiveText
             as='h2'
@@ -100,7 +100,7 @@ export function WhyOwlSection() {
               preferred: '0.875rem + 3vw',
               max: '2.25rem',
             }}
-            className='font-bold text-foreground mb-3 sm:mb-4 md:mb-5 leading-tight px-4 text-center max-w-4xl mx-auto'
+            className='font-bold text-foreground mb-4 leading-tight text-center max-w-4xl mx-auto'
           >
             <span className='text-foreground'>The Ultimate </span>
             <span className='bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent relative'>
@@ -119,7 +119,7 @@ export function WhyOwlSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 text-center'
+            className='text-muted-foreground max-w-3xl mx-auto leading-relaxed text-center'
           >
             Discover why thousands of students choose Owl AI for their
             competitive exam preparation journey.
@@ -127,7 +127,7 @@ export function WhyOwlSection() {
         </motion.div>
 
         {/* Features Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 relative z-10 py-6 sm:py-8 md:py-10 max-w-7xl mx-auto'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 relative z-10'>
           {features.map((feature, index) => (
             <Feature key={feature.title} {...feature} index={index} />
           ))}
@@ -155,7 +155,7 @@ const Feature = ({
       transition={{ duration: 0.5, delay: index * 0.1 }}
       viewport={{ once: true }}
       className={cn(
-        'flex flex-col lg:border-r border-border/50 py-4 sm:py-6 md:py-8 relative group/feature',
+        'flex flex-col lg:border-r border-border/50 py-8 relative group/feature',
         (index === 0 || index === 4) && 'lg:border-l border-border/50',
         index < 4 && 'lg:border-b border-border/50'
       )}
@@ -167,11 +167,11 @@ const Feature = ({
         <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none' />
       )}
 
-      <div className='mb-2 sm:mb-3 md:mb-4 relative z-10 px-4 sm:px-6 md:px-10 text-primary'>
+      <div className='mb-4 relative z-10 px-6 text-primary'>
         {icon}
       </div>
 
-      <div className='text-sm sm:text-base md:text-lg font-bold mb-1 sm:mb-2 md:mb-3 relative z-10 px-4 sm:px-6 md:px-10'>
+      <div className='text-lg font-bold mb-3 relative z-10 px-6'>
         <div className='absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-border group-hover/feature:bg-primary transition-all duration-200 origin-center' />
         <span className='group-hover/feature:translate-x-2 transition duration-200 inline-block text-foreground'>
           {title}
@@ -181,7 +181,7 @@ const Feature = ({
       <ResponsiveText
         as='p'
         size='sm'
-        className='text-muted-foreground max-w-xs relative z-10 px-4 sm:px-6 md:px-10 leading-relaxed'
+        className='text-muted-foreground max-w-xs relative z-10 px-6 leading-relaxed'
       >
         {description}
       </ResponsiveText>

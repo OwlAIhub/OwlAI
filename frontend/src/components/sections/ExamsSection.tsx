@@ -75,25 +75,25 @@ export function ExamsSection() {
   return (
     <section
       id='exams'
-      className='min-h-screen flex items-start justify-center px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-12 sm:pb-16 md:pb-20 lg:pb-16 bg-white'
+      className='py-20 bg-white'
     >
-      <ResponsiveContainer maxWidth='7xl' padding='none'>
+      <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12'
+          className='text-center mb-16'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-primary/10 rounded-2xl mb-3 sm:mb-4 md:mb-5'
+            className='inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4'
           >
-            <GraduationCap className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-primary' />
+            <GraduationCap className='w-8 h-8 text-primary' />
           </motion.div>
           <ResponsiveText
             as='h2'
@@ -103,7 +103,7 @@ export function ExamsSection() {
               preferred: '0.875rem + 3vw',
               max: '2.25rem',
             }}
-            className='font-bold text-foreground mb-3 sm:mb-4 md:mb-5 leading-tight px-4'
+            className='font-bold text-foreground mb-4 leading-tight'
           >
             <span className='text-foreground'>Supported </span>
             <span className='bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent relative'>
@@ -122,7 +122,7 @@ export function ExamsSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4'
+            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed'
           >
             Comprehensive preparation for all major competitive exams with
             AI-powered personalized learning
@@ -130,7 +130,7 @@ export function ExamsSection() {
         </motion.div>
 
         {/* Feature Tiles */}
-        <div className='flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10 md:mb-12 px-4'>
+        <div className='flex flex-wrap justify-center gap-4 mb-12'>
           {featureTiles.map((feature, index) => (
             <motion.div
               key={feature}
@@ -138,12 +138,12 @@ export function ExamsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className='flex items-center gap-2 sm:gap-3'
+              className='flex items-center gap-3'
             >
               <div className='w-2 h-2 bg-primary rounded-full' />
               <ResponsiveText
                 as='p'
-                className='text-xs sm:text-sm font-medium text-foreground'
+                className='text-sm font-medium text-foreground'
               >
                 {feature}
               </ResponsiveText>
@@ -152,7 +152,7 @@ export function ExamsSection() {
         </div>
 
         {/* Exam Cards */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 px-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
           {exams.map((exam, index) => (
             <motion.div
               key={exam.title}
@@ -160,15 +160,15 @@ export function ExamsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className='group relative bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50 hover:border-primary/30'
+              className='group relative bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50 hover:border-primary/30'
             >
               {/* Exam Header */}
-              <div className='flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4'>
+              <div className='flex items-center gap-3 mb-4'>
                 <div className='p-2 bg-primary/10 rounded-lg'>{exam.icon}</div>
                 <ResponsiveImage
                   src={exam.image}
                   alt={exam.title}
-                  className='w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 object-contain opacity-70 group-hover:opacity-100 transition-opacity'
+                  className='w-8 h-8 object-contain opacity-70 group-hover:opacity-100 transition-opacity'
                   loading='lazy'
                 />
               </div>
@@ -176,7 +176,7 @@ export function ExamsSection() {
               {/* Exam Title */}
               <ResponsiveText
                 as='h3'
-                className='text-base sm:text-lg font-bold text-foreground mb-2 sm:mb-3'
+                className='text-lg font-bold text-foreground mb-3'
               >
                 {exam.title}
               </ResponsiveText>
@@ -184,20 +184,20 @@ export function ExamsSection() {
               {/* Exam Description */}
               <ResponsiveText
                 as='p'
-                className='text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 leading-relaxed'
+                className='text-sm text-muted-foreground mb-4 leading-relaxed'
               >
                 {exam.description}
               </ResponsiveText>
 
               {/* Subjects */}
-              <div className='space-y-2 sm:space-y-3'>
+              <div className='space-y-3'>
                 <ResponsiveText
                   as='p'
                   className='text-xs font-semibold text-foreground uppercase tracking-wide'
                 >
                   Key Subjects:
                 </ResponsiveText>
-                <div className='space-y-1.5 sm:space-y-2'>
+                <div className='space-y-2'>
                   {exam.subjects.slice(0, 3).map(subject => (
                     <div key={subject} className='flex items-center gap-2'>
                       <div className='w-1.5 h-1.5 bg-primary rounded-full' />
@@ -226,9 +226,9 @@ export function ExamsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           viewport={{ once: true }}
-          className='text-center mt-6 sm:mt-8'
+          className='text-center mt-8'
         >
-          <div className='flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground'>
+          <div className='flex items-center justify-center gap-3 text-sm text-muted-foreground'>
             <div className='w-1 h-1 bg-primary rounded-full' />
             <span>Choose your exam to begin</span>
             <div className='w-1 h-1 bg-primary rounded-full' />

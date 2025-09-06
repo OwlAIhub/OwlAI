@@ -6,7 +6,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-10.0-orange?style=flat-square&logo=firebase)](https://firebase.google.com/)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
 ## 🎯 Overview
 
@@ -35,8 +34,6 @@ OwlAI/
 │   ├── eslint.config.mjs       # ESLint Configuration
 │   ├── next.config.ts          # Next.js Configuration
 │   └── package.json            # Dependencies
-├── pnpm-workspace.yaml         # Monorepo Configuration
-├── vercel.json                 # Deployment Configuration
 └── README.md                   # Project Documentation
 ```
 
@@ -44,7 +41,7 @@ OwlAI/
 
 ### Prerequisites
 - **Node.js** 18.0 or higher
-- **Yarn** 1.22 or higher (recommended package manager)
+- **Bun** 1.0 or higher (recommended package manager)
 - **Firebase Project** (for backend services)
 
 ### Installation
@@ -57,7 +54,7 @@ OwlAI/
 
 2. **Install dependencies**
    ```bash
-   yarn install
+   cd frontend && bun install
    ```
 
 3. **Environment Setup**
@@ -69,7 +66,7 @@ OwlAI/
 
 4. **Start development server**
    ```bash
-   yarn dev
+   bun dev
    ```
 
 5. **Open your browser**
@@ -86,7 +83,7 @@ OwlAI/
 - **[Shadcn/ui](https://ui.shadcn.com/)** - Modern component library
 - **[Framer Motion](https://www.framer.com/motion/)** - Smooth animations
 - **[React Markdown](https://github.com/remarkjs/react-markdown)** - Markdown rendering
-- **[Yarn](https://yarnpkg.com/)** - Fast, reliable package manager
+- **[Bun](https://bun.sh/)** - Fast, reliable package manager
 
 ### Backend & Services
 - **[Firebase Firestore](https://firebase.google.com/docs/firestore)** - Real-time NoSQL database
@@ -97,27 +94,18 @@ OwlAI/
 ### Development Tools
 - **[ESLint](https://eslint.org/)** - Code linting with TypeScript support
 - **[Prettier](https://prettier.io/)** - Code formatting
-- **[Yarn](https://yarnpkg.com/)** - Fast, reliable package manager
+- **[Bun](https://bun.sh/)** - Fast, reliable package manager
 - **[Next.js Bundler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)** - Optimized production builds
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-```
-
 ### Manual Deployment
 ```bash
 # Build the application
-yarn build
+bun build
 
 # Start production server
-yarn start
+bun start
 ```
 
 ## 🧪 Development
@@ -125,19 +113,19 @@ yarn start
 ### Available Scripts
 ```bash
 # Development
-yarn dev              # Start development server
-yarn build            # Build for production
-yarn start            # Start production server
+bun dev              # Start development server
+bun build            # Build for production
+bun start            # Start production server
 
 # Code Quality
-yarn lint             # Run ESLint
-yarn lint:fix         # Fix ESLint errors
-yarn format           # Format with Prettier
-yarn type-check       # TypeScript type checking
+bun lint             # Run ESLint
+bun lint:fix         # Fix ESLint errors
+bun format           # Format with Prettier
+bun type-check       # TypeScript type checking
 
 # Comprehensive Checks
-yarn check-all        # Run all quality checks
-yarn fix-all          # Fix all auto-fixable issues
+bun check-all        # Run all quality checks
+bun fix-all          # Fix all auto-fixable issues
 ```
 
 ### Code Standards
@@ -154,7 +142,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **Next.js Team** - For the amazing React framework
-- **Vercel** - For seamless deployment platform
 - **Firebase** - For robust backend services
 - **Shadcn** - For beautiful UI components
 - **OpenAI** - For AI capabilities
