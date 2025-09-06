@@ -4,7 +4,6 @@ import {
   ResponsiveContainer,
   ResponsiveText,
 } from '@/components/ui/responsive-container';
-import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -127,7 +126,7 @@ export function WhyOwlSection() {
         </motion.div>
 
         {/* Features Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 relative z-10 py-6 sm:py-8 md:py-10 max-w-7xl mx-auto'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 relative z-10 py-6 sm:py-8 md:py-10 max-w-7xl mx-auto'>
           {features.map((feature, index) => (
             <Feature key={feature.title} {...feature} index={index} />
           ))}
@@ -150,41 +149,72 @@ const Feature = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.1,
+        type: 'spring',
+        stiffness: 100,
+        damping: 15,
+      }}
       viewport={{ once: true }}
-      className={cn(
-        'flex flex-col lg:border-r border-border/50 py-4 sm:py-6 md:py-8 relative group/feature',
-        (index === 0 || index === 4) && 'lg:border-l border-border/50',
-        index < 4 && 'lg:border-b border-border/50'
-      )}
+      whileHover={{
+        y: -8,
+        scale: 1.02,
+        transition: { duration: 0.3, ease: 'easeOut' },
+      }}
+      className='group/feature relative'
     >
-      {index < 4 && (
-        <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-primary/5 to-transparent pointer-events-none' />
-      )}
-      {index >= 4 && (
-        <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none' />
-      )}
+      {/* Card Container */}
+      <div className='relative h-full bg-white/80 backdrop-blur-sm border border-border/20 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden'>
+        {/* Animated Background Gradient */}
+        <div className='absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500' />
 
-      <div className='mb-2 sm:mb-3 md:mb-4 relative z-10 px-4 sm:px-6 md:px-10 text-primary'>
-        {icon}
-      </div>
+        {/* Floating Particles Effect */}
+        <div className='absolute inset-0 overflow-hidden'>
+          <div className='absolute top-4 right-4 w-2 h-2 bg-primary/20 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-ping transition-opacity duration-500' />
+          <div className='absolute bottom-6 left-6 w-1.5 h-1.5 bg-accent/30 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-pulse transition-opacity duration-700' />
+          <div className='absolute top-1/2 right-8 w-1 h-1 bg-primary/40 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-bounce transition-opacity duration-600' />
+        </div>
 
-      <div className='text-sm sm:text-base md:text-lg font-bold mb-1 sm:mb-2 md:mb-3 relative z-10 px-4 sm:px-6 md:px-10'>
-        <div className='absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-border group-hover/feature:bg-primary transition-all duration-200 origin-center' />
-        <span className='group-hover/feature:translate-x-2 transition duration-200 inline-block text-foreground'>
+        {/* Icon Container with Enhanced Styling */}
+        <motion.div
+          className='relative mb-6'
+          whileHover={{ rotate: 5, scale: 1.1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className='inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 group-hover/feature:border-primary/40 transition-all duration-300'>
+            <div className='text-primary group-hover/feature:text-accent transition-colors duration-300'>
+              {icon}
+            </div>
+          </div>
+
+          {/* Icon Glow Effect */}
+          <div className='absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl blur-xl opacity-0 group-hover/feature:opacity-50 transition-opacity duration-500' />
+        </motion.div>
+
+        {/* Title with Enhanced Typography */}
+        <motion.h3
+          className='text-lg sm:text-xl font-bold text-foreground mb-4 leading-tight group-hover/feature:text-primary transition-colors duration-300'
+          whileHover={{ x: 4 }}
+          transition={{ duration: 0.2 }}
+        >
           {title}
-        </span>
-      </div>
+        </motion.h3>
 
-      <ResponsiveText
-        as='p'
-        size='sm'
-        className='text-muted-foreground max-w-xs relative z-10 px-4 sm:px-6 md:px-10 leading-relaxed'
-      >
-        {description}
-      </ResponsiveText>
+        {/* Description with Better Spacing */}
+        <p className='text-sm sm:text-base text-muted-foreground leading-relaxed group-hover/feature:text-foreground/80 transition-colors duration-300'>
+          {description}
+        </p>
+
+        {/* Bottom Accent Line */}
+        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500' />
+
+        {/* Corner Decoration */}
+        <div className='absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/20 rounded-tr-lg opacity-0 group-hover/feature:opacity-100 group-hover/feature:border-primary/60 transition-all duration-500' />
+        <div className='absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-accent/20 rounded-bl-lg opacity-0 group-hover/feature:opacity-100 group-hover/feature:border-accent/60 transition-all duration-500' />
+      </div>
     </motion.div>
   );
 };

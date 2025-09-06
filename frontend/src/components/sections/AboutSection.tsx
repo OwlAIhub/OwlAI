@@ -35,7 +35,7 @@ export function AboutSection() {
   return (
     <section
       id='about'
-      className='min-h-screen flex items-center px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-16 sm:pb-20 md:pb-24 bg-white'
+      className='py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 bg-white'
     >
       <ResponsiveContainer maxWidth='5xl' padding='none'>
         {/* Header */}
@@ -44,7 +44,7 @@ export function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12'
+          className='text-center mb-6 sm:mb-8'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -90,14 +90,14 @@ export function AboutSection() {
         </motion.div>
 
         {/* Content */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center'>
           {/* Content Side */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='space-y-4 sm:space-y-5 md:space-y-6 order-2 md:order-1'
+            className='space-y-3 sm:space-y-4 order-2 md:order-1'
           >
             {/* Main Description */}
             <motion.div
@@ -105,7 +105,7 @@ export function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.4 }}
               viewport={{ once: true }}
-              className='space-y-3 sm:space-y-4 px-4 md:px-0'
+              className='space-y-2 px-4 md:px-0'
             >
               <ResponsiveText
                 as='p'
@@ -138,7 +138,7 @@ export function AboutSection() {
               viewport={{ once: true }}
               className='px-4 md:px-0'
             >
-              <div className='space-y-3 sm:space-y-4'>
+              <div className='space-y-2'>
                 {features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
@@ -146,7 +146,7 @@ export function AboutSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
                     viewport={{ once: true }}
-                    className='flex items-start gap-3 sm:gap-4'
+                    className='flex items-start gap-2 sm:gap-3'
                   >
                     <div className='flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5'>
                       <feature.icon className='w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary' />
@@ -155,7 +155,7 @@ export function AboutSection() {
                       <ResponsiveText
                         as='h4'
                         size='base'
-                        className='font-semibold text-foreground mb-1 sm:mb-1.5'
+                        className='font-semibold text-foreground mb-1'
                       >
                         {feature.title}
                       </ResponsiveText>

@@ -17,6 +17,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
 import {
+  Clock,
   Github,
   Linkedin,
   Mail,
@@ -103,241 +104,422 @@ export function ContactSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4'
+            className='text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4'
           >
-            We’d love to hear from you. Send a message and we’ll get back soon.
+            Ready to transform your learning journey? We're here to help you
+            succeed. Get in touch and let's discuss how Owl AI can accelerate
+            your exam preparation.
           </ResponsiveText>
         </motion.div>
 
-        {/* Stats Strip */}
+        {/* Enhanced Stats Strip */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
-          className='px-4 mb-6 sm:mb-8'
+          className='px-4 mb-8 sm:mb-10'
         >
-          <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
-            <div className='rounded-xl border border-primary/20 bg-primary/5 px-3 sm:px-4 py-3 text-center'>
-              <div className='text-xs sm:text-sm text-muted-foreground'>
-                Avg. response time
-              </div>
-              <div className='text-sm sm:text-base text-foreground font-semibold'>
-                under 24 hours
-              </div>
-            </div>
-            <div className='rounded-xl border border-primary/20 bg-primary/5 px-3 sm:px-4 py-3 text-center'>
-              <div className='text-xs sm:text-sm text-muted-foreground'>
-                Support window
-              </div>
-              <div className='text-sm sm:text-base text-foreground font-semibold'>
-                Mon–Sat, 9am–7pm IST
-              </div>
-            </div>
-            <div className='rounded-xl border border-primary/20 bg-primary/5 px-3 sm:px-4 py-3 text-center'>
-              <div className='text-xs sm:text-sm text-muted-foreground'>
-                Priority
-              </div>
-              <div className='text-sm sm:text-base text-foreground font-semibold'>
-                Students first
-              </div>
-            </div>
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6'>
+            {[
+              {
+                icon: <Clock className='w-4 h-4 sm:w-5 sm:h-5' />,
+                label: 'Response Time',
+                value: 'Under 24 Hours',
+                description: 'Quick support',
+              },
+              {
+                icon: <MessageSquare className='w-4 h-4 sm:w-5 sm:h-5' />,
+                label: 'Support Hours',
+                value: 'Mon–Sat, 9am–7pm',
+                description: 'IST Timezone',
+              },
+              {
+                icon: <Send className='w-4 h-4 sm:w-5 sm:h-5' />,
+                label: 'Priority',
+                value: 'Students First',
+                description: 'Always',
+              },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.3 + index * 0.1,
+                  type: 'spring',
+                  stiffness: 100,
+                }}
+                viewport={{ once: true }}
+                whileHover={{
+                  y: -4,
+                  scale: 1.02,
+                  transition: { duration: 0.2 },
+                }}
+                className='group relative'
+              >
+                <div className='relative bg-white/80 backdrop-blur-sm border border-primary/20 rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden'>
+                  {/* Animated background */}
+                  <div className='absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+
+                  {/* Icon */}
+                  <div className='relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl mb-3 mx-auto group-hover:scale-110 transition-transform duration-300'>
+                    <div className='text-primary group-hover:text-accent transition-colors duration-300'>
+                      {stat.icon}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className='text-center relative z-10'>
+                    <div className='text-xs sm:text-sm text-muted-foreground mb-1'>
+                      {stat.label}
+                    </div>
+                    <div className='text-sm sm:text-base font-bold text-foreground mb-1'>
+                      {stat.value}
+                    </div>
+                    <div className='text-xs text-muted-foreground/70'>
+                      {stat.description}
+                    </div>
+                  </div>
+
+                  {/* Decorative elements */}
+                  <div className='absolute top-2 right-2 w-2 h-2 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-500' />
+                  <div className='absolute bottom-2 left-2 w-1.5 h-1.5 bg-accent/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-700' />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
 
         {/* Content Grid */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 px-4'>
-          {/* Info (condensed) */}
+          {/* Enhanced Contact Info */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             viewport={{ once: true }}
             className='space-y-4'
           >
-            <Card className='border border-primary/20 bg-primary/5 hover:border-primary/30 transition-all'>
-              <CardHeader className='p-4 sm:p-6'>
-                <CardTitle className='text-sm sm:text-base'>
-                  Contact Details
-                </CardTitle>
-                <CardDescription className='text-xs sm:text-sm'>
-                  Everything in one place
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='p-4 sm:p-6 pt-0'>
-                <div className='space-y-3 sm:space-y-4'>
-                  <div className='flex items-start gap-2 sm:gap-3'>
-                    <div className='p-1.5 sm:p-2 bg-primary/10 rounded-lg'>
-                      <Mail className='w-4 h-4 sm:w-5 sm:h-5 text-primary' />
+            <motion.div
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+              className='group relative'
+            >
+              <Card className='relative overflow-hidden border border-primary/20 bg-white/80 backdrop-blur-sm hover:border-primary/40 hover:shadow-xl transition-all duration-300'>
+                {/* Animated background */}
+                <div className='absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+
+                <CardHeader className='relative p-4 sm:p-6'>
+                  <div className='flex items-center gap-3 mb-2'>
+                    <div className='p-2 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl'>
+                      <MessageSquare className='w-5 h-5 text-primary' />
                     </div>
                     <div>
-                      <div className='text-xs sm:text-sm font-medium text-foreground'>
-                        Email
-                      </div>
-                      <div className='text-xs sm:text-sm text-muted-foreground'>
-                        hello@owlai.com
-                      </div>
+                      <CardTitle className='text-base sm:text-lg font-bold'>
+                        Contact Details
+                      </CardTitle>
+                      <CardDescription className='text-sm'>
+                        Everything in one place
+                      </CardDescription>
                     </div>
                   </div>
-                  <div className='h-px bg-primary/15' />
-                  <div className='flex items-start gap-2 sm:gap-3'>
-                    <div className='p-1.5 sm:p-2 bg-primary/10 rounded-lg'>
-                      <Phone className='w-4 h-4 sm:w-5 sm:h-5 text-primary' />
-                    </div>
-                    <div>
-                      <div className='text-xs sm:text-sm font-medium text-foreground'>
-                        Phone
-                      </div>
-                      <div className='text-xs sm:text-sm text-muted-foreground'>
-                        +91 98765 43210
-                      </div>
-                    </div>
-                  </div>
-                  <div className='h-px bg-primary/15' />
-                  <div className='flex items-start gap-2 sm:gap-3'>
-                    <div className='p-1.5 sm:p-2 bg-primary/10 rounded-lg'>
-                      <MapPin className='w-4 h-4 sm:w-5 sm:h-5 text-primary' />
-                    </div>
-                    <div>
-                      <div className='text-xs sm:text-sm font-medium text-foreground'>
-                        Address
-                      </div>
-                      <div className='text-xs sm:text-sm text-muted-foreground'>
-                        Bengaluru, India · IST (UTC+5:30)
-                      </div>
-                    </div>
-                  </div>
-                  <div className='h-px bg-primary/15' />
-                  <div>
-                    <div className='text-xs sm:text-sm font-medium text-foreground mb-2'>
-                      Social
-                    </div>
-                    <div className='flex flex-wrap items-center gap-2 sm:gap-3'>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        className='gap-1 sm:gap-1.5 border-primary/30 text-xs sm:text-sm'
+                </CardHeader>
+
+                <CardContent className='relative p-4 sm:p-6 pt-0'>
+                  <div className='space-y-4'>
+                    {[
+                      {
+                        icon: <Mail className='w-4 h-4 sm:w-5 sm:h-5' />,
+                        label: 'Email',
+                        value: 'hello@owlai.com',
+                        href: 'mailto:hello@owlai.com',
+                      },
+                      {
+                        icon: <Phone className='w-4 h-4 sm:w-5 sm:h-5' />,
+                        label: 'Phone',
+                        value: '+91 98765 43210',
+                        href: 'tel:+919876543210',
+                      },
+                      {
+                        icon: <MapPin className='w-4 h-4 sm:w-5 sm:h-5' />,
+                        label: 'Location',
+                        value: 'Bengaluru, India',
+                        subtext: 'IST (UTC+5:30)',
+                      },
+                    ].map((contact, index) => (
+                      <motion.div
+                        key={contact.label}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                        viewport={{ once: true }}
+                        className='group/contact'
                       >
-                        <Twitter className='w-3 h-3 sm:w-4 sm:h-4' /> Twitter
-                      </Button>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        className='gap-1 sm:gap-1.5 border-primary/30 text-xs sm:text-sm'
-                      >
-                        <Linkedin className='w-3 h-3 sm:w-4 sm:h-4' /> LinkedIn
-                      </Button>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        className='gap-1 sm:gap-1.5 border-primary/30 text-xs sm:text-sm'
-                      >
-                        <Github className='w-3 h-3 sm:w-4 sm:h-4' /> GitHub
-                      </Button>
-                    </div>
+                        <div className='flex items-start gap-3 p-3 rounded-xl hover:bg-primary/5 transition-colors duration-200'>
+                          <div className='p-2 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg group-hover/contact:scale-110 transition-transform duration-200'>
+                            <div className='text-primary group-hover/contact:text-accent transition-colors duration-200'>
+                              {contact.icon}
+                            </div>
+                          </div>
+                          <div className='flex-1'>
+                            <div className='text-sm font-semibold text-foreground mb-1'>
+                              {contact.label}
+                            </div>
+                            {contact.href ? (
+                              <a
+                                href={contact.href}
+                                className='text-sm text-muted-foreground hover:text-primary transition-colors duration-200 block'
+                              >
+                                {contact.value}
+                              </a>
+                            ) : (
+                              <div className='text-sm text-muted-foreground'>
+                                {contact.value}
+                              </div>
+                            )}
+                            {contact.subtext && (
+                              <div className='text-xs text-muted-foreground/70 mt-1'>
+                                {contact.subtext}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {index < 2 && (
+                          <div className='h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent my-2' />
+                        )}
+                      </motion.div>
+                    ))}
+
+                    {/* Social Links */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.7 }}
+                      viewport={{ once: true }}
+                      className='pt-4 border-t border-primary/10'
+                    >
+                      <div className='text-sm font-semibold text-foreground mb-3'>
+                        Follow Us
+                      </div>
+                      <div className='flex flex-wrap gap-2'>
+                        {[
+                          {
+                            icon: <Twitter className='w-4 h-4' />,
+                            label: 'Twitter',
+                            href: '#',
+                          },
+                          {
+                            icon: <Linkedin className='w-4 h-4' />,
+                            label: 'LinkedIn',
+                            href: '#',
+                          },
+                          {
+                            icon: <Github className='w-4 h-4' />,
+                            label: 'GitHub',
+                            href: '#',
+                          },
+                        ].map((social, index) => (
+                          <motion.a
+                            key={social.label}
+                            href={social.href}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            className='flex items-center gap-2 px-3 py-2 bg-white/50 border border-primary/20 rounded-lg hover:bg-primary/5 hover:border-primary/40 transition-all duration-200 text-sm'
+                          >
+                            <div className='text-primary'>{social.icon}</div>
+                            <span className='text-foreground'>
+                              {social.label}
+                            </span>
+                          </motion.a>
+                        ))}
+                      </div>
+                    </motion.div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
 
-          {/* Form */}
+          {/* Enhanced Contact Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
             className='lg:col-span-2'
           >
-            <Card className='relative overflow-hidden border border-primary/20 hover:border-primary/30 transition-all'>
-              <div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5' />
-              <CardHeader className='p-4 sm:p-6'>
-                <CardTitle className='text-sm sm:text-base'>
-                  Send us a message
-                </CardTitle>
-                <CardDescription className='text-xs sm:text-sm'>
-                  We typically reply within 24 hours.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='p-4 sm:p-6 pt-0'>
-                <form
-                  onSubmit={onSubmit}
-                  className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'
-                >
-                  <div className='space-y-1.5 sm:space-y-2'>
-                    <Label htmlFor='name' className='text-xs sm:text-sm'>
-                      Name
-                    </Label>
-                    <Input
-                      id='name'
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder='Your full name'
-                      className='text-xs sm:text-sm'
-                      required
-                    />
+            <motion.div
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.2 }}
+              className='group relative'
+            >
+              <Card className='relative overflow-hidden border border-primary/20 bg-white/80 backdrop-blur-sm hover:border-primary/40 hover:shadow-xl transition-all duration-300'>
+                {/* Animated background */}
+                <div className='absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+
+                {/* Floating particles */}
+                <div className='absolute inset-0 overflow-hidden pointer-events-none'>
+                  <div className='absolute top-6 right-6 w-2 h-2 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-500' />
+                  <div className='absolute bottom-8 left-8 w-1.5 h-1.5 bg-accent/30 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-700' />
+                </div>
+
+                <CardHeader className='relative p-4 sm:p-6'>
+                  <div className='flex items-center gap-3 mb-2'>
+                    <div className='p-2 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl'>
+                      <Send className='w-5 h-5 text-primary' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-base sm:text-lg font-bold'>
+                        Send us a message
+                      </CardTitle>
+                      <CardDescription className='text-sm'>
+                        We typically reply within 24 hours.
+                      </CardDescription>
+                    </div>
                   </div>
-                  <div className='space-y-1.5 sm:space-y-2'>
-                    <Label htmlFor='email' className='text-xs sm:text-sm'>
-                      Email
-                    </Label>
-                    <Input
-                      id='email'
-                      type='email'
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder='you@example.com'
-                      className='text-xs sm:text-sm'
-                      required
-                    />
-                  </div>
-                  <div className='space-y-1.5 sm:space-y-2 md:col-span-2'>
-                    <Label htmlFor='message' className='text-xs sm:text-sm'>
-                      Message
-                    </Label>
-                    <Textarea
-                      id='message'
-                      value={message}
-                      onChange={e => setMessage(e.target.value)}
-                      placeholder='How can we help?'
-                      rows={5}
-                      className='text-xs sm:text-sm'
-                      required
-                    />
-                    <p className='text-xs text-muted-foreground'>
-                      By sending, you agree to our response via email. We
-                      respect your privacy.
-                    </p>
-                  </div>
-                  <div className='md:col-span-2'>
-                    <Button
-                      type='submit'
-                      className='w-full md:w-auto bg-primary hover:bg-primary/90 shadow-sm text-xs sm:text-sm'
-                      disabled={submitting}
+                </CardHeader>
+
+                <CardContent className='relative p-4 sm:p-6 pt-0'>
+                  <form onSubmit={onSubmit} className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.5 }}
+                        viewport={{ once: true }}
+                        className='space-y-2'
+                      >
+                        <Label
+                          htmlFor='name'
+                          className='text-sm font-semibold text-foreground'
+                        >
+                          Full Name
+                        </Label>
+                        <Input
+                          id='name'
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          placeholder='Enter your full name'
+                          className='h-11 bg-white/50 border-primary/20 focus:border-primary/40 focus:ring-primary/20 transition-all duration-200'
+                          required
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.6 }}
+                        viewport={{ once: true }}
+                        className='space-y-2'
+                      >
+                        <Label
+                          htmlFor='email'
+                          className='text-sm font-semibold text-foreground'
+                        >
+                          Email Address
+                        </Label>
+                        <Input
+                          id='email'
+                          type='email'
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          placeholder='your.email@example.com'
+                          className='h-11 bg-white/50 border-primary/20 focus:border-primary/40 focus:ring-primary/20 transition-all duration-200'
+                          required
+                        />
+                      </motion.div>
+                    </div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.7 }}
+                      viewport={{ once: true }}
+                      className='space-y-2'
                     >
-                      {submitting ? (
-                        <span className='inline-flex items-center gap-1.5 sm:gap-2'>
-                          <Send className='w-3 h-3 sm:w-4 sm:h-4 animate-pulse' />{' '}
-                          Sending…
-                        </span>
-                      ) : sent ? (
-                        'Sent ✓'
-                      ) : (
-                        <span className='inline-flex items-center gap-1.5 sm:gap-2'>
-                          <Send className='w-3 h-3 sm:w-4 sm:h-4' /> Send
-                          Message
-                        </span>
+                      <Label
+                        htmlFor='message'
+                        className='text-sm font-semibold text-foreground'
+                      >
+                        Your Message
+                      </Label>
+                      <Textarea
+                        id='message'
+                        value={message}
+                        onChange={e => setMessage(e.target.value)}
+                        placeholder='Tell us how we can help you succeed in your exam preparation...'
+                        rows={6}
+                        className='bg-white/50 border-primary/20 focus:border-primary/40 focus:ring-primary/20 transition-all duration-200 resize-none'
+                        required
+                      />
+                      <p className='text-xs text-muted-foreground'>
+                        By sending this message, you agree to receive our
+                        response via email. We respect your privacy and won't
+                        share your information.
+                      </p>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.8 }}
+                      viewport={{ once: true }}
+                      className='pt-2'
+                    >
+                      <Button
+                        type='submit'
+                        className='w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed'
+                        disabled={submitting}
+                      >
+                        {submitting ? (
+                          <span className='inline-flex items-center gap-2'>
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                ease: 'linear',
+                              }}
+                            >
+                              <Send className='w-4 h-4' />
+                            </motion.div>
+                            Sending your message...
+                          </span>
+                        ) : sent ? (
+                          <span className='inline-flex items-center gap-2'>
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: 'spring', stiffness: 200 }}
+                            >
+                              ✓
+                            </motion.div>
+                            Message sent successfully!
+                          </span>
+                        ) : (
+                          <span className='inline-flex items-center gap-2'>
+                            <Send className='w-4 h-4' />
+                            Send Message
+                          </span>
+                        )}
+                      </Button>
+
+                      {error && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className='mt-3 p-3 bg-red-50 border border-red-200 rounded-lg'
+                        >
+                          <p className='text-sm text-red-600'>{error}</p>
+                        </motion.div>
                       )}
-                    </Button>
-                    {error && (
-                      <div className='mt-3 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2'>
-                        {error}
-                      </div>
-                    )}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+                    </motion.div>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
         </div>
       </ResponsiveContainer>
