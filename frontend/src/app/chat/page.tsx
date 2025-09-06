@@ -18,7 +18,7 @@ import {
 import { getAuthUser } from '@/lib/auth';
 import { Copy, RefreshCw, Send, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Textarea } from '../../components/ui/textarea';
 
@@ -30,10 +30,21 @@ interface Message {
 }
 
 const starterPrompts = [
-  'Explain a concept simply',
-  'Summarize this document',
-  'Generate practice questions',
-  'Continue my last session',
+  'Explain Teaching Aptitude concepts',
+  'Generate UGC NET Paper 1 MCQs',
+  'Summarize Research Methodology',
+  'Help with Communication topics',
+];
+
+const placeholderTexts = [
+  'Ask me about UGC NET Paper 1...',
+  'Explain Teaching Aptitude concepts...',
+  'Generate practice MCQs for me...',
+  'Help with Research Methodology...',
+  'Summarize Communication topics...',
+  'Create study notes for me...',
+  "What's the latest in Higher Education?",
+  'Help me understand Data Interpretation...',
 ];
 
 export default function ChatPage() {
@@ -41,6 +52,7 @@ export default function ChatPage() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastMessage, setLastMessage] = useState('');
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   // Check if user is authenticated
   const user = getAuthUser();
@@ -48,6 +60,16 @@ export default function ChatPage() {
     router.push('/login');
     return null;
   }
+
+  // Cycle through placeholder texts
+  useEffect(() => {
+    if (messages.length === 0 && !message) {
+      const interval = setInterval(() => {
+        setCurrentPlaceholder(prev => (prev + 1) % placeholderTexts.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [messages.length, message]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,6 +211,9 @@ export default function ChatPage() {
               {/* Welcome Text */}
               {messages.length === 0 && (
                 <div className='text-center mb-8'>
+                  <h1 className='text-4xl font-bold text-primary mb-4'>
+                    OWLAI
+                  </h1>
                   <h2 className='text-2xl font-semibold text-foreground mb-2'>
                     How can I help you today?
                   </h2>
@@ -217,8 +242,8 @@ export default function ChatPage() {
                   <Textarea
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    placeholder='Message Owl AI...'
-                    className='w-full min-h-[52px] max-h-[200px] pr-12 pl-4 py-3 bg-white/90 backdrop-blur-sm border border-border/30 rounded-2xl resize-none shadow-sm focus:shadow-md transition-shadow'
+                    placeholder={placeholderTexts[currentPlaceholder]}
+                    className='w-full min-h-[52px] max-h-[200px] pr-12 pl-4 py-3 bg-white/90 backdrop-blur-sm border border-border/30 rounded-2xl resize-none shadow-sm focus:shadow-md transition-all duration-300 text-center placeholder:text-center placeholder:text-muted-foreground/70'
                     rows={1}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) {
