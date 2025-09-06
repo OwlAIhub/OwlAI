@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     'Owl AI',
     'AI learning assistant',
     'study partner',
-    'educational chatbot',
+    'educational assistant',
     'personalized learning',
     'AI tutor',
     'UGC NET preparation',

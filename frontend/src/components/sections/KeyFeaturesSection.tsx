@@ -34,13 +34,13 @@ export function KeyFeaturesSection() {
     {
       title: 'Personalized Learning',
       description:
-        'Chat-based learning that adapts to your questions and study needs. The AI remembers your conversation context to provide relevant follow-up explanations and study guidance.',
+        'Personalized learning that adapts to your questions and study needs. The AI provides relevant explanations and study guidance tailored to your learning style.',
       icon: <Sparkles className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
     },
     {
       title: 'Secure & Private',
       description:
-        'Your chat conversations and study data are protected with standard security measures. We respect your privacy and keep your study sessions confidential.',
+        'Your study data and interactions are protected with standard security measures. We respect your privacy and keep your study sessions confidential.',
       icon: <ShieldCheck className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
     },
     {
@@ -58,13 +58,13 @@ export function KeyFeaturesSection() {
     {
       title: 'Progress Insights',
       description:
-        'Track your chat history and study conversations. Review your previous questions and answers to identify areas where you need more practice and understanding.',
+        'Track your study progress and learning journey. Review your previous questions and answers to identify areas where you need more practice and understanding.',
       icon: <BarChart3 className='w-6 h-6 text-primary' />,
     },
     {
       title: 'Distraction‑Free UI',
       description:
-        'Clean, simple interface designed for focused learning. Easy-to-use chat interface that helps you concentrate on your studies without unnecessary distractions.',
+        'Clean, simple interface designed for focused learning. Easy-to-use interface that helps you concentrate on your studies without unnecessary distractions.',
       icon: <Layout className='w-6 h-6 text-primary' />,
     },
     {

@@ -18,7 +18,7 @@ const faqs = [
   {
     question: 'How does Owl AI work?',
     answer:
-      'Owl AI is a chat-based study assistant that helps you with questions about competitive exams like UGC-NET, CSIR-NET, SSC, and CTET. You can ask questions and get explanations to help with your exam preparation.',
+      'Owl AI is an intelligent study assistant that helps you with questions about competitive exams like UGC-NET, CSIR-NET, SSC, and CTET. You can get explanations and study materials to help with your exam preparation.',
   },
   {
     question: 'What subjects does Owl AI cover?',
@@ -28,7 +28,7 @@ const faqs = [
   {
     question: 'Is my data secure and private?',
     answer:
-      'Yes, we take privacy seriously. Your chat conversations are protected with standard security measures, and we respect your privacy by keeping your study sessions confidential.',
+      'Yes, we take privacy seriously. Your study data and interactions are protected with standard security measures, and we respect your privacy by keeping your study sessions confidential.',
   },
   {
     question: "How accurate are Owl AI's responses?",
@@ -43,7 +43,7 @@ const faqs = [
   {
     question: 'What makes Owl AI different?',
     answer:
-      'Owl AI is specifically designed for competitive exam preparation with a focus on UGC-NET, CSIR-NET, SSC, and CTET. It provides a simple chat interface to help you study and understand concepts relevant to these exams.',
+      'Owl AI is specifically designed for competitive exam preparation with a focus on UGC-NET, CSIR-NET, SSC, and CTET. It provides a simple interface to help you study and understand concepts relevant to these exams.',
   },
 ];
 

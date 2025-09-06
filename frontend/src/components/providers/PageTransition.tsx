@@ -10,8 +10,8 @@ interface PageTransitionProps {
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
 
-  // Skip animations for chat/dashboard pages for better performance
-  if (pathname === '/chat' || pathname === '/dashboard') {
+  // Skip animations for specific pages for better performance
+  if (pathname === '/dashboard') {
     return <>{children}</>;
   }
 

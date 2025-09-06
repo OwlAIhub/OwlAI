@@ -12,8 +12,8 @@ export function LenisProvider({ children }: LenisProviderProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only enable smooth scrolling on the main page, not chat/dashboard pages
-    if (!pathname || pathname === '/dashboard' || pathname === '/chat') {
+    // Only enable smooth scrolling on the main page, not dashboard pages
+    if (!pathname || pathname === '/dashboard') {
       return;
     }
 

@@ -114,8 +114,10 @@ export function HeroSection() {
             <div className='hidden lg:flex items-center ml-auto z-10'>
               <Button
                 onClick={() => {
-                  setIsNavigating(true);
-                  router.push('/chat');
+                  // Navigate to contact section instead
+                  document
+                    .getElementById('contact')
+                    ?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 disabled={isNavigating}
                 size='sm'
@@ -174,8 +176,10 @@ export function HeroSection() {
                   disabled={isNavigating}
                   onClick={() => {
                     setIsMenuOpen(false);
-                    setIsNavigating(true);
-                    router.push('/chat');
+                    // Navigate to contact section instead
+                    document
+                      .getElementById('contact')
+                      ?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
                   {isNavigating ? 'Loading...' : 'Get Started'}
@@ -284,10 +288,8 @@ export function HeroSection() {
                   onChange={e => setSearchQuery(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !isNavigating) {
-                      setIsNavigating(true);
-                      router.push(
-                        `/chat${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ''}`
-                      );
+                      // Navigate to contact section with search query
+                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
                   placeholder='Ask any UGC NET question...'
@@ -300,10 +302,8 @@ export function HeroSection() {
                   className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-70'
                   onClick={() => {
                     if (!isNavigating) {
-                      setIsNavigating(true);
-                      router.push(
-                        `/chat${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ''}`
-                      );
+                      // Navigate to contact section with search query
+                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
                 >

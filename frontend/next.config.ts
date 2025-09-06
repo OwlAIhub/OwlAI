@@ -14,18 +14,20 @@ const nextConfig = {
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
     ],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  },
+  // Turbopack configuration (moved from experimental.turbo)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
+    // Set root directory to avoid lockfile warnings
+    root: './',
   },
   // Handle hydration issues caused by browser extensions
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     // Allow using quality=95 in <Image /> and custom components
     qualities: [95],
