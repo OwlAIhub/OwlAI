@@ -114,8 +114,7 @@ export function HeroSection() {
             <div className='hidden lg:flex items-center ml-auto z-10 space-x-3'>
               <Button
                 onClick={() => {
-                  // Navigate to login page
-                  router.push('/login');
+                  router.push('/auth');
                 }}
                 disabled={isNavigating}
                 size='sm'
@@ -125,10 +124,7 @@ export function HeroSection() {
               </Button>
               <Button
                 onClick={() => {
-                  // Navigate to contact section instead
-                  document
-                    .getElementById('contact')
-                    ?.scrollIntoView({ behavior: 'smooth' });
+                  router.push('/auth');
                 }}
                 disabled={isNavigating}
                 size='sm'
@@ -187,7 +183,7 @@ export function HeroSection() {
                   disabled={isNavigating}
                   onClick={() => {
                     setIsMenuOpen(false);
-                    router.push('/login');
+                    router.push('/auth');
                   }}
                 >
                   Login
@@ -198,10 +194,7 @@ export function HeroSection() {
                   disabled={isNavigating}
                   onClick={() => {
                     setIsMenuOpen(false);
-                    // Navigate to contact section instead
-                    document
-                      .getElementById('contact')
-                      ?.scrollIntoView({ behavior: 'smooth' });
+                    router.push('/auth');
                   }}
                 >
                   {isNavigating ? 'Loading...' : 'Get Started'}
