@@ -114,7 +114,7 @@ export function PhoneAuthForm({
               className='h-12 text-base'
             />
             <p className='text-xs text-muted-foreground'>
-              We'll send you a verification code via SMS
+              We&apos;ll send you a verification code via SMS
             </p>
           </div>
         ) : (
@@ -135,7 +135,7 @@ export function PhoneAuthForm({
               maxLength={6}
             />
             <p className='text-xs text-muted-foreground text-center'>
-              Didn't receive the code?{' '}
+              Didn&apos;t receive the code?{' '}
               <button
                 type='button'
                 className='text-primary hover:underline'

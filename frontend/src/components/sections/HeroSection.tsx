@@ -26,7 +26,7 @@ export function HeroSection() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [isNavigating] = useState(false);
   const router = useRouter();
 
   const handleScroll = useCallback(() => {
@@ -112,26 +112,38 @@ export function HeroSection() {
 
             {/* Desktop CTA aligned to the right */}
             <div className='hidden lg:flex items-center ml-auto z-10 space-x-3'>
-              <Button
-                onClick={() => {
-                  router.push('/auth');
-                }}
-                disabled={isNavigating}
-                size='sm'
-                className='text-sm bg-white text-black hover:bg-white/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70'
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1, ease: 'easeInOut' }}
               >
-                Login
-              </Button>
-              <Button
-                onClick={() => {
-                  router.push('/auth');
-                }}
-                disabled={isNavigating}
-                size='sm'
-                className='text-sm bg-primary hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70'
+                <Button
+                  onClick={() => {
+                    router.push('/login');
+                  }}
+                  disabled={isNavigating}
+                  size='sm'
+                  className='text-sm bg-white text-black hover:bg-white/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70 transition-all duration-200 active:scale-95'
+                >
+                  Login
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1, ease: 'easeInOut' }}
               >
-                {isNavigating ? 'Loading...' : 'Get Started'}
-              </Button>
+                <Button
+                  onClick={() => {
+                    router.push('/signup');
+                  }}
+                  disabled={isNavigating}
+                  size='sm'
+                  className='text-sm bg-primary hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70 transition-all duration-200 active:scale-95'
+                >
+                  {isNavigating ? 'Loading...' : 'Get Started'}
+                </Button>
+              </motion.div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -177,28 +189,40 @@ export function HeroSection() {
                 </button>
               ))}
               <div className='px-4 pt-3 border-t border-border/10 space-y-2'>
-                <Button
-                  size='sm'
-                  className='w-full text-sm bg-white text-black hover:bg-white/90 py-3 disabled:opacity-70'
-                  disabled={isNavigating}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    router.push('/auth');
-                  }}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.1, ease: 'easeInOut' }}
                 >
-                  Login
-                </Button>
-                <Button
-                  size='sm'
-                  className='w-full text-sm bg-primary hover:bg-primary/90 py-3 disabled:opacity-70'
-                  disabled={isNavigating}
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    router.push('/auth');
-                  }}
+                  <Button
+                    size='sm'
+                    className='w-full text-sm bg-white text-black hover:bg-white/90 py-3 disabled:opacity-70 transition-all duration-200 active:scale-95'
+                    disabled={isNavigating}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      router.push('/login');
+                    }}
+                  >
+                    Login
+                  </Button>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.1, ease: 'easeInOut' }}
                 >
-                  {isNavigating ? 'Loading...' : 'Get Started'}
-                </Button>
+                  <Button
+                    size='sm'
+                    className='w-full text-sm bg-primary hover:bg-primary/90 py-3 disabled:opacity-70 transition-all duration-200 active:scale-95'
+                    disabled={isNavigating}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      router.push('/signup');
+                    }}
+                  >
+                    {isNavigating ? 'Loading...' : 'Get Started'}
+                  </Button>
+                </motion.div>
               </div>
             </div>
           </motion.div>

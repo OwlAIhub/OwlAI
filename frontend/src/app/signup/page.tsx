@@ -9,18 +9,28 @@ import {
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
-export default function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+export default function SignupPage() {
   const router = useRouter();
 
   const handleBackToHome = () => {
     router.push('/');
   };
 
+  const handleModeChange = (mode: 'login' | 'signup') => {
+    if (mode === 'login') {
+      router.push('/login');
+    }
+  };
+
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'
+    >
       {/* Background Pattern */}
       <div className='absolute inset-0 opacity-5'>
         <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
@@ -78,8 +88,8 @@ export default function AuthPage() {
             {/* Auth Card */}
             <div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8'>
               <PhoneAuthForm
-                mode={mode}
-                onModeChange={setMode}
+                mode='signup'
+                onModeChange={handleModeChange}
                 onBack={handleBackToHome}
               />
             </div>
@@ -105,6 +115,6 @@ export default function AuthPage() {
           </motion.div>
         </ResponsiveContainer>
       </div>
-    </div>
+    </motion.div>
   );
 }

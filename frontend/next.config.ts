@@ -14,6 +14,10 @@ const nextConfig = {
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
     ],
+    // Enable faster page transitions
+    scrollRestoration: true,
+    // Optimize client-side navigation
+    optimizeCss: true,
   },
   // Turbopack configuration (moved from experimental.turbo)
   turbopack: {

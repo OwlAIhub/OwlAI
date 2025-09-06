@@ -54,8 +54,8 @@ export function ContactSection() {
             Get in Touch
           </h2>
           <p className='text-muted-foreground max-w-2xl mx-auto'>
-            Ready to transform your learning journey? We're here to help you
-            succeed.
+            Ready to transform your learning journey? We&apos;re here to help
+            you succeed.
           </p>
         </motion.div>
 
