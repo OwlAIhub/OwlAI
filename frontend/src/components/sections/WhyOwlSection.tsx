@@ -70,10 +70,7 @@ export function WhyOwlSection() {
   ];
 
   return (
-    <section
-      id='why-choose-us'
-      className='py-20 bg-white'
-    >
+    <section id='why-choose-us' className='py-20 bg-white'>
       <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Section Header */}
         <motion.div
@@ -167,9 +164,7 @@ const Feature = ({
         <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none' />
       )}
 
-      <div className='mb-4 relative z-10 px-6 text-primary'>
-        {icon}
-      </div>
+      <div className='mb-4 relative z-10 px-6 text-primary'>{icon}</div>
 
       <div className='text-lg font-bold mb-3 relative z-10 px-6'>
         <div className='absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-border group-hover/feature:bg-primary transition-all duration-200 origin-center' />

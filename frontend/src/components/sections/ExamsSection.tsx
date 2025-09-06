@@ -73,10 +73,7 @@ const exams = [
 
 export function ExamsSection() {
   return (
-    <section
-      id='exams'
-      className='py-20 bg-white'
-    >
+    <section id='exams' className='py-20 bg-white'>
       <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Section Header */}
         <motion.div

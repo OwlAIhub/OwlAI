@@ -33,10 +33,7 @@ const features = [
 
 export function AboutSection() {
   return (
-    <section
-      id='about'
-      className='py-20 bg-white'
-    >
+    <section id='about' className='py-20 bg-white'>
       <ResponsiveContainer maxWidth='6xl' padding='md'>
         {/* Header */}
         <motion.div

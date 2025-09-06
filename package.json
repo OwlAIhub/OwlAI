@@ -16,6 +16,11 @@
     "check-all": "cd frontend && bun check-all",
     "fix-all": "cd frontend && bun fix-all",
     "analyze": "cd frontend && bun analyze",
-    "perf": "cd frontend && bun perf"
+    "perf": "cd frontend && bun perf",
+    "prepare": "husky",
+    "clean": "cd frontend && bun clean",
+    "fresh": "cd frontend && bun fresh",
+    "validate": "cd frontend && bun validate",
+    "commit": "cd frontend && bun commit"
   }
 }
