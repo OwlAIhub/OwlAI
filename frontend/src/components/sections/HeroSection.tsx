@@ -289,7 +289,9 @@ export function HeroSection() {
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !isNavigating) {
                       // Navigate to contact section with search query
-                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                      document
+                        .getElementById('contact')
+                        ?.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
                   placeholder='Ask any UGC NET question...'
@@ -303,7 +305,9 @@ export function HeroSection() {
                   onClick={() => {
                     if (!isNavigating) {
                       // Navigate to contact section with search query
-                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                      document
+                        .getElementById('contact')
+                        ?.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
                 >

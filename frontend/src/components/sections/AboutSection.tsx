@@ -35,7 +35,7 @@ export function AboutSection() {
   return (
     <section
       id='about'
-      className='min-h-screen flex items-center px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24 lg:py-0 bg-white'
+      className='min-h-screen flex items-center px-4 sm:px-6 md:px-8 pt-24 sm:pt-28 md:pt-32 lg:pt-36 pb-16 sm:pb-20 md:pb-24 bg-white'
     >
       <ResponsiveContainer maxWidth='5xl' padding='none'>
         {/* Header */}
@@ -44,16 +44,16 @@ export function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className='text-center mb-8 sm:mb-10 md:mb-12 lg:mb-16'
+          className='text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12'
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-primary/10 rounded-2xl mb-4 sm:mb-6'
+            className='inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-2xl mb-3 sm:mb-4'
           >
-            <BookOpen className='w-6 h-6 sm:w-8 sm:h-8 text-primary' />
+            <BookOpen className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />
           </motion.div>
           <ResponsiveText
             as='h2'
@@ -97,7 +97,7 @@ export function AboutSection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className='space-y-6 sm:space-y-7 md:space-y-8 order-2 md:order-1'
+            className='space-y-4 sm:space-y-5 md:space-y-6 order-2 md:order-1'
           >
             {/* Main Description */}
             <motion.div
@@ -105,7 +105,7 @@ export function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.4 }}
               viewport={{ once: true }}
-              className='space-y-4 sm:space-y-5 px-4 md:px-0'
+              className='space-y-3 sm:space-y-4 px-4 md:px-0'
             >
               <ResponsiveText
                 as='p'
@@ -138,7 +138,7 @@ export function AboutSection() {
               viewport={{ once: true }}
               className='px-4 md:px-0'
             >
-              <div className='space-y-4 sm:space-y-5'>
+              <div className='space-y-3 sm:space-y-4'>
                 {features.map((feature, index) => (
                   <motion.div
                     key={feature.title}
