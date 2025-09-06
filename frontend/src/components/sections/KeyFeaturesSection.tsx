@@ -1,77 +1,44 @@
 'use client';
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   ResponsiveContainer,
   ResponsiveText,
 } from '@/components/ui/responsive-container';
 import { motion } from 'framer-motion';
-import {
-  BarChart3,
-  Gauge,
-  Layout,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  Timer,
-  Zap,
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { useId } from 'react';
 
 export function KeyFeaturesSection() {
   const features = [
     {
-      title: 'Instant Answers',
+      title: 'AI-Powered Learning',
       description:
-        'Get quick responses to your study questions using AI technology. Ask questions about UGC-NET, CSIR-NET, SSC, and CTET topics and receive helpful explanations to support your learning.',
-      icon: <Zap className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Advanced artificial intelligence that adapts to your learning style and provides personalized explanations for complex topics with intelligent recommendations.',
     },
     {
-      title: 'Personalized Learning',
+      title: 'Multi-Language Support',
       description:
-        'Personalized learning that adapts to your questions and study needs. The AI provides relevant explanations and study guidance tailored to your learning style.',
-      icon: <Sparkles className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Study in English, Hindi, or regional languages with explanations and answers in your preferred language for enhanced understanding and accessibility.',
     },
     {
-      title: 'Secure & Private',
+      title: 'Comprehensive Solutions',
       description:
-        'Your study data and interactions are protected with standard security measures. We respect your privacy and keep your study sessions confidential.',
-      icon: <ShieldCheck className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Access thousands of solved problems with detailed step-by-step explanations and expert-curated study materials covering all major competitive exam topics.',
     },
     {
-      title: 'Always Available',
+      title: 'Exam-Focused Content',
       description:
-        'Access your study assistant whenever you need help. Available on web browsers and mobile devices for convenient learning support throughout your preparation.',
-      icon: <Timer className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Content specifically curated for UGC-NET, CSIR-NET, SSC, CTET, and other competitive exams with comprehensive syllabus coverage and updates.',
     },
     {
-      title: 'Exam‑Aligned Content',
+      title: '24/7 Availability',
       description:
-        'Focused on competitive exam preparation including UGC-NET, CSIR-NET, SSC, and CTET. Get explanations and guidance relevant to these exam patterns and syllabus requirements.',
-      icon: <Target className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        "Study anytime, anywhere with our AI assistant that's always ready to help you learn, even during late-night study sessions and weekends.",
     },
     {
-      title: 'Progress Insights',
+      title: 'Progress Tracking',
       description:
-        'Track your study progress and learning journey. Review your previous questions and answers to identify areas where you need more practice and understanding.',
-      icon: <BarChart3 className='w-6 h-6 text-primary' />,
-    },
-    {
-      title: 'Distraction‑Free UI',
-      description:
-        'Clean, simple interface designed for focused learning. Easy-to-use interface that helps you concentrate on your studies without unnecessary distractions.',
-      icon: <Layout className='w-6 h-6 text-primary' />,
-    },
-    {
-      title: 'Lightweight & Fast',
-      description:
-        'Fast loading and responsive interface that works well on most devices and internet connections. Quick access to your study assistant without technical barriers.',
-      icon: <Gauge className='w-6 h-6 text-primary' />,
+        'Track your study progress and learning journey with detailed insights to identify areas where you need more practice and understanding.',
     },
   ];
 
@@ -121,7 +88,7 @@ export function KeyFeaturesSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4'
+            className='text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4'
           >
             The essentials that make Owl AI a seamless companion for serious
             learners - blending speed, accuracy, and security with adaptive
@@ -131,49 +98,96 @@ export function KeyFeaturesSection() {
         </motion.div>
 
         {/* Feature Cards */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 px-4'>
-          {features.map((f, index) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.08 }}
-              viewport={{ once: true }}
-            >
-              <Card className='h-full border border-border/50 hover:border-primary/30 transition-all'>
-                <CardHeader className='flex flex-row items-center gap-2 sm:gap-3 p-4 sm:p-6'>
-                  <div className='p-1.5 sm:p-2 bg-primary/10 rounded-lg'>
-                    {f.icon}
-                  </div>
-                  <CardTitle className='text-sm sm:text-base'>
-                    {f.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className='p-4 sm:p-6 pt-0'>
-                  <CardDescription className='text-xs sm:text-sm leading-relaxed'>
-                    {f.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Subtle CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          viewport={{ once: true }}
-          className='text-center mt-6 sm:mt-8'
-        >
-          <div className='flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground'>
-            <div className='w-1 h-1 bg-primary rounded-full' />
-            <span>Refine your strengths and close your gaps with Owl AI</span>
-            <div className='w-1 h-1 bg-primary rounded-full' />
+        <div className='py-8 lg:py-16'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-6 max-w-6xl mx-auto'>
+            {features.map(feature => (
+              <div
+                key={feature.title}
+                className='relative bg-gradient-to-b from-neutral-100 to-white p-6 rounded-3xl overflow-hidden'
+              >
+                <GridPattern size={20} />
+                <p className='text-base font-bold text-neutral-800 relative z-20'>
+                  {feature.title}
+                </p>
+                <p className='text-neutral-600 mt-2 text-sm font-normal relative z-20'>
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
-        </motion.div>
+        </div>
       </ResponsiveContainer>
     </section>
+  );
+}
+
+export const GridPattern = ({
+  pattern,
+  size,
+}: {
+  pattern?: number[][];
+  size?: number;
+}) => {
+  const p = pattern ?? [
+    [7, 1],
+    [8, 2],
+    [9, 3],
+    [10, 4],
+    [11, 5],
+  ];
+  return (
+    <div className='pointer-events-none absolute left-1/2 top-0  -ml-20 -mt-8 h-full w-full [mask-image:linear-gradient(white,transparent)]'>
+      <div className='absolute inset-0 bg-gradient-to-r  [mask-image:radial-gradient(farthest-side_at_top,white,transparent)] from-zinc-100/30 to-zinc-300/30 opacity-100'>
+        <GridSVG
+          width={size ?? 20}
+          height={size ?? 20}
+          x='-12'
+          y='-4'
+          squares={p}
+          className='absolute inset-0 h-full w-full  mix-blend-overlay stroke-black/10 fill-black/10'
+        />
+      </div>
+    </div>
+  );
+};
+
+export function GridSVG({ width, height, x, y, squares, ...props }: any) {
+  const patternId = useId();
+
+  return (
+    <svg aria-hidden='true' {...props}>
+      <defs>
+        <pattern
+          id={patternId}
+          width={width}
+          height={height}
+          patternUnits='userSpaceOnUse'
+          x={x}
+          y={y}
+        >
+          <path d={`M.5 ${height}V.5H${width}`} fill='none' />
+        </pattern>
+      </defs>
+      <rect
+        width='100%'
+        height='100%'
+        strokeWidth={0}
+        fill={`url(#${patternId})`}
+      />
+      {squares && (
+        <svg x={x} y={y} className='overflow-visible'>
+          {squares.map(([x, y]: any, index: number) => (
+            <rect
+              strokeWidth='0'
+              key={`${x}-${y}-${index}`}
+              width={width + 1}
+              height={height + 1}
+              x={x * width}
+              y={y * height}
+            />
+          ))}
+        </svg>
+      )}
+    </svg>
   );
 }
