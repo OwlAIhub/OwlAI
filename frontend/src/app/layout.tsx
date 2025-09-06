@@ -1,5 +1,4 @@
 import { LenisProvider } from '@/components/providers/LenisProvider';
-import { PageTransition } from '@/components/providers/PageTransition';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -107,9 +106,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <LenisProvider>
-          <PageTransition>{children}</PageTransition>
-        </LenisProvider>
+        <LenisProvider>{children}</LenisProvider>
         {/* Performance monitoring and hydration fixes */}
         <script
           dangerouslySetInnerHTML={{
