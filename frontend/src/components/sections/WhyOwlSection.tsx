@@ -4,67 +4,69 @@ import {
   ResponsiveContainer,
   ResponsiveText,
 } from '@/components/ui/responsive-container';
-import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import {
-  BookOpen,
-  Brain,
-  Clock,
-  Globe,
-  Shield,
-  Target,
-  Users,
-  Zap,
-} from 'lucide-react';
+  IconAdjustmentsBolt,
+  IconCloud,
+  IconCurrencyDollar,
+  IconEaseInOut,
+  IconHeart,
+  IconHelp,
+  IconRouteAltLeft,
+  IconTerminal2,
+} from '@tabler/icons-react';
+import { motion } from 'framer-motion';
+import { Zap } from 'lucide-react';
 
 export function WhyOwlSection() {
   const features = [
     {
-      title: 'AI-Powered Learning',
+      title: 'Built for students',
       description:
-        'Advanced artificial intelligence that adapts to your learning style and provides personalized explanations for complex topics with intelligent recommendations.',
-      icon: <Brain className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Built for students, learners, dreamers, thinkers and achievers preparing for competitive exams.',
+      icon: <IconTerminal2 />,
     },
     {
-      title: 'Multi-Language Support',
+      title: 'Ease of learning',
       description:
-        'Study in English, Hindi, or regional languages with explanations and answers in your preferred language for enhanced understanding and accessibility.',
-      icon: <Globe className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        "It's as simple as asking a question, and as powerful as having a personal tutor.",
+      icon: <IconEaseInOut />,
     },
     {
-      title: 'Comprehensive Solutions',
+      title: 'Free forever',
       description:
-        'Access thousands of solved problems with detailed step-by-step explanations and expert-curated study materials covering all major competitive exam topics.',
-      icon: <BookOpen className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Our platform is completely free. No cap, no lock, no credit card required for basic features.',
+      icon: <IconCurrencyDollar />,
     },
     {
-      title: 'Instant Responses',
+      title: '99.9% Uptime guarantee',
       description:
-        'Get accurate answers in seconds with our optimized AI that delivers lightning-fast responses to maintain your study momentum and focus.',
-      icon: <Zap className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'We ensure our AI is always available when you need to study.',
+      icon: <IconCloud />,
     },
     {
-      title: '100% Secure & Private',
+      title: 'Multi-language Support',
       description:
-        'Your data is protected with enterprise-grade security protocols ensuring your study sessions and questions remain completely private and confidential.',
-      icon: <Shield className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Study in your preferred language - English, Hindi, or regional languages',
+      icon: <IconRouteAltLeft />,
     },
     {
-      title: 'Exam-Focused Content',
+      title: '24/7 AI Support',
       description:
-        'Content specifically curated for UGC-NET, CSIR-NET, SSC, CTET, and other competitive exams with comprehensive syllabus coverage and updates.',
-      icon: <Target className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Our AI assistant is available 100% of the time. Study whenever inspiration strikes.',
+      icon: <IconHelp />,
     },
     {
-      title: '24/7 Availability',
+      title: 'Exam-focused content',
       description:
-        "Study anytime, anywhere with our AI assistant that's always ready to help you learn, even during late-night study sessions and weekends.",
-      icon: <Clock className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        "If you don't like our content, we'll help you find exactly what you need for your exam.",
+      icon: <IconAdjustmentsBolt />,
     },
     {
-      title: 'Community Learning',
+      title: 'And everything else',
       description:
-        'Join thousands of students preparing for the same exams to share insights, discuss strategies, and learn from collective knowledge and experiences.',
-      icon: <Users className='w-5 h-5 sm:w-6 sm:h-6 text-primary' />,
+        'Comprehensive study materials, practice tests, and expert guidance all in one place.',
+      icon: <IconHeart />,
     },
   ];
 
@@ -118,15 +120,20 @@ export function WhyOwlSection() {
           <ResponsiveText
             as='p'
             size='lg'
-            className='text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 text-center'
+            className='text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4 text-center'
           >
             Discover why thousands of students choose Owl AI for their
-            competitive exam preparation journey.
+            competitive exam preparation journey. From personalized learning
+            paths to instant AI-powered assistance, we provide everything you
+            need to excel in UGC-NET, CSIR-NET, SSC, CTET, and other competitive
+            examinations. Join our community of successful learners who have
+            transformed their study experience with cutting-edge technology and
+            expert guidance.
           </ResponsiveText>
         </motion.div>
 
         {/* Features Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 relative z-10 py-6 sm:py-8 md:py-10 max-w-7xl mx-auto'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 py-10 max-w-7xl mx-auto'>
           {features.map((feature, index) => (
             <Feature key={feature.title} {...feature} index={index} />
           ))}
@@ -148,73 +155,29 @@ const Feature = ({
   index: number;
 }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
-      }}
-      viewport={{ once: true }}
-      whileHover={{
-        y: -8,
-        scale: 1.02,
-        transition: { duration: 0.3, ease: 'easeOut' },
-      }}
-      className='group/feature relative'
+    <div
+      className={cn(
+        'flex flex-col lg:border-r py-10 relative group/feature border-neutral-200',
+        (index === 0 || index === 4) && 'lg:border-l border-neutral-200',
+        index < 4 && 'lg:border-b border-neutral-200'
+      )}
     >
-      {/* Card Container */}
-      <div className='relative h-full bg-white/80 backdrop-blur-sm border border-border/20 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden'>
-        {/* Animated Background Gradient */}
-        <div className='absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500' />
-
-        {/* Floating Particles Effect */}
-        <div className='absolute inset-0 overflow-hidden'>
-          <div className='absolute top-4 right-4 w-2 h-2 bg-primary/20 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-ping transition-opacity duration-500' />
-          <div className='absolute bottom-6 left-6 w-1.5 h-1.5 bg-accent/30 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-pulse transition-opacity duration-700' />
-          <div className='absolute top-1/2 right-8 w-1 h-1 bg-primary/40 rounded-full opacity-0 group-hover/feature:opacity-100 group-hover/feature:animate-bounce transition-opacity duration-600' />
-        </div>
-
-        {/* Icon Container with Enhanced Styling */}
-        <motion.div
-          className='relative mb-6'
-          whileHover={{ rotate: 5, scale: 1.1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className='inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 group-hover/feature:border-primary/40 transition-all duration-300'>
-            <div className='text-primary group-hover/feature:text-accent transition-colors duration-300'>
-              {icon}
-            </div>
-          </div>
-
-          {/* Icon Glow Effect */}
-          <div className='absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl blur-xl opacity-0 group-hover/feature:opacity-50 transition-opacity duration-500' />
-        </motion.div>
-
-        {/* Title with Enhanced Typography */}
-        <motion.h3
-          className='text-lg sm:text-xl font-bold text-foreground mb-4 leading-tight group-hover/feature:text-primary transition-colors duration-300'
-          whileHover={{ x: 4 }}
-          transition={{ duration: 0.2 }}
-        >
+      {index < 4 && (
+        <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 to-transparent pointer-events-none' />
+      )}
+      {index >= 4 && (
+        <div className='opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 to-transparent pointer-events-none' />
+      )}
+      <div className='mb-4 relative z-10 px-10 text-neutral-600'>{icon}</div>
+      <div className='text-lg font-bold mb-2 relative z-10 px-10'>
+        <div className='absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-neutral-300 group-hover/feature:bg-teal-500 transition-all duration-200 origin-center' />
+        <span className='group-hover/feature:translate-x-2 transition duration-200 inline-block text-neutral-800'>
           {title}
-        </motion.h3>
-
-        {/* Description with Better Spacing */}
-        <p className='text-sm sm:text-base text-muted-foreground leading-relaxed group-hover/feature:text-foreground/80 transition-colors duration-300'>
-          {description}
-        </p>
-
-        {/* Bottom Accent Line */}
-        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500' />
-
-        {/* Corner Decoration */}
-        <div className='absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/20 rounded-tr-lg opacity-0 group-hover/feature:opacity-100 group-hover/feature:border-primary/60 transition-all duration-500' />
-        <div className='absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-accent/20 rounded-bl-lg opacity-0 group-hover/feature:opacity-100 group-hover/feature:border-accent/60 transition-all duration-500' />
+        </span>
       </div>
-    </motion.div>
+      <p className='text-sm text-neutral-600 max-w-xs relative z-10 px-10'>
+        {description}
+      </p>
+    </div>
   );
 };
