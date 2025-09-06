@@ -70,7 +70,7 @@ export function HeroSection() {
         }`}
       >
         <ResponsiveContainer maxWidth='6xl' padding='sm'>
-          <div className='flex items-center justify-between h-14'>
+          <div className='flex items-center justify-between h-14 relative'>
             {/* Logo */}
             <motion.a
               href='#'
@@ -111,7 +111,18 @@ export function HeroSection() {
             </nav>
 
             {/* Desktop CTA aligned to the right */}
-            <div className='hidden lg:flex items-center ml-auto z-10'>
+            <div className='hidden lg:flex items-center ml-auto z-10 space-x-3'>
+              <Button
+                onClick={() => {
+                  // Navigate to login page
+                  router.push('/login');
+                }}
+                disabled={isNavigating}
+                size='sm'
+                className='text-sm bg-white text-black hover:bg-white/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70'
+              >
+                Login
+              </Button>
               <Button
                 onClick={() => {
                   // Navigate to contact section instead
@@ -129,7 +140,7 @@ export function HeroSection() {
 
             {/* Mobile Menu Button */}
             <button
-              className='lg:hidden p-2 rounded-md hover:bg-white/20 transition-colors z-10'
+              className='lg:hidden p-2 rounded-md hover:bg-white/20 transition-colors z-20 relative'
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label='Toggle mobile menu'
             >
@@ -149,9 +160,9 @@ export function HeroSection() {
               height: isMenuOpen ? 'auto' : 0,
             }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className='lg:hidden overflow-hidden'
+            className='lg:hidden overflow-hidden absolute top-full left-0 right-0 z-30'
           >
-            <div className='py-4 space-y-2 border-t border-border/10 bg-white/95 backdrop-blur-md rounded-b-lg shadow-lg'>
+            <div className='py-4 space-y-2 border-t border-border/10 bg-white/95 backdrop-blur-md rounded-b-lg shadow-lg mx-4'>
               {navItems.map(item => (
                 <button
                   key={item.name}
@@ -169,7 +180,18 @@ export function HeroSection() {
                   {item.name}
                 </button>
               ))}
-              <div className='px-4 pt-3 border-t border-border/10'>
+              <div className='px-4 pt-3 border-t border-border/10 space-y-2'>
+                <Button
+                  size='sm'
+                  className='w-full text-sm bg-white text-black hover:bg-white/90 py-3 disabled:opacity-70'
+                  disabled={isNavigating}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    router.push('/login');
+                  }}
+                >
+                  Login
+                </Button>
                 <Button
                   size='sm'
                   className='w-full text-sm bg-primary hover:bg-primary/90 py-3 disabled:opacity-70'
