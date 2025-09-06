@@ -1,3 +1,5 @@
+'use client';
+
 import { Footer } from '@/components/layout/Footer';
 import { AboutSection } from './AboutSection';
 import { ContactSection } from './ContactSection';

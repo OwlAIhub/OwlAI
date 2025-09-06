@@ -1,8 +1,6 @@
 const nextConfig = {
   // Static file handling
   trailingSlash: false,
-  // Ensure static files are served correctly
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   // Performance optimizations
   experimental: {
     optimizePackageImports: [
@@ -19,16 +17,6 @@ const nextConfig = {
       '@radix-ui/react-tooltip',
     ],
   },
-  // Turbopack configuration (moved from experimental.turbo)
-  turbopack: {
-    root: __dirname,
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
   images: {
     // Disable image optimization for static images to fix Vercel issues
     unoptimized: true,
@@ -42,29 +30,6 @@ const nextConfig = {
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
-  },
-  // Bundle optimization
-  webpack: (
-    config: Record<string, unknown>,
-    { dev, isServer }: { dev: boolean; isServer: boolean }
-  ) => {
-    if (!dev && !isServer) {
-      (
-        config as Record<string, unknown> & {
-          optimization: { splitChunks: unknown };
-        }
-      ).optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      };
-    }
-    return config;
   },
 };
 

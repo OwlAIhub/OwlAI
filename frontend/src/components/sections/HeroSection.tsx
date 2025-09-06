@@ -8,8 +8,7 @@ import {
   ResponsiveText,
 } from '@/components/ui/responsive-container';
 import { motion } from 'framer-motion';
-import { CheckCircle, Menu, Search, Sparkles, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { CheckCircle, Menu, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 const navItems = [
@@ -25,9 +24,6 @@ const navItems = [
 export function HeroSection() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isNavigating, setIsNavigating] = useState(false);
-  const router = useRouter();
 
   const handleScroll = useCallback(() => {
     const heroSection = document.getElementById('home');
@@ -114,14 +110,15 @@ export function HeroSection() {
             <div className='hidden lg:flex items-center ml-auto z-10'>
               <Button
                 onClick={() => {
-                  setIsNavigating(true);
-                  router.push('/chat');
+                  // Scroll to contact section
+                  document
+                    .getElementById('contact')
+                    ?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                disabled={isNavigating}
                 size='sm'
-                className='text-sm bg-primary hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70'
+                className='text-sm bg-primary hover:bg-primary/90 px-3 py-1.5 md:px-4 md:py-2'
               >
-                {isNavigating ? 'Loading...' : 'Get Started'}
+                Contact Us
               </Button>
             </div>
 
@@ -170,15 +167,16 @@ export function HeroSection() {
               <div className='px-4 pt-3 border-t border-border/10'>
                 <Button
                   size='sm'
-                  className='w-full text-sm bg-primary hover:bg-primary/90 py-3 disabled:opacity-70'
-                  disabled={isNavigating}
+                  className='w-full text-sm bg-primary hover:bg-primary/90 py-3'
                   onClick={() => {
                     setIsMenuOpen(false);
-                    setIsNavigating(true);
-                    router.push('/chat');
+                    // Scroll to contact section
+                    document
+                      .getElementById('contact')
+                      ?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  {isNavigating ? 'Loading...' : 'Get Started'}
+                  Contact Us
                 </Button>
               </div>
             </div>
@@ -269,48 +267,6 @@ export function HeroSection() {
               Get instant answers to your study questions. Powered by advanced
               AI to help you excel in your UGC NET and competitive exams.
             </motion.p>
-
-            {/* Search Bar - Optimized for All Screen Sizes */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className='flex justify-center mb-6 md:mb-8 px-4'
-            >
-              <div className='relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg'>
-                <input
-                  type='text'
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !isNavigating) {
-                      setIsNavigating(true);
-                      router.push(
-                        `/chat${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ''}`
-                      );
-                    }
-                  }}
-                  placeholder='Ask any UGC NET question...'
-                  className='w-full px-4 py-3 pl-10 pr-12 text-sm bg-white/95 backdrop-blur-sm border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/70 shadow-lg hover:shadow-xl'
-                />
-                <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground/70' />
-                <Button
-                  aria-label='Search'
-                  disabled={isNavigating}
-                  className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-70'
-                  onClick={() => {
-                    if (!isNavigating) {
-                      setIsNavigating(true);
-                      router.push(
-                        `/chat${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ''}`
-                      );
-                    }
-                  }}
-                >
-                  <Search className='w-4 h-4' />
-                </Button>
-              </div>
-            </motion.div>
 
             {/* Popular Questions */}
             <motion.div
