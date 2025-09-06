@@ -37,14 +37,18 @@ const starterPrompts = [
 ];
 
 const placeholderTexts = [
-  'Ask me about UGC NET Paper 1...',
-  'Explain Teaching Aptitude concepts...',
-  'Generate practice MCQs for me...',
-  'Help with Research Methodology...',
-  'Summarize Communication topics...',
-  'Create study notes for me...',
-  "What's the latest in Higher Education?",
-  'Help me understand Data Interpretation...',
+  "Ask me anything about UGC NET Paper 1 preparation and I'll help you succeed...",
+  'Explain Teaching Aptitude concepts like learning theories and teaching methods...',
+  'Generate practice MCQs for UGC NET Paper 1 with detailed explanations...',
+  'Help me understand Research Methodology and data analysis techniques...',
+  'Summarize Communication topics including verbal and non-verbal communication...',
+  'Create comprehensive study notes for Higher Education System topics...',
+  'What are the latest trends and policies in Indian Higher Education?',
+  'Help me master Data Interpretation with charts, graphs, and statistics...',
+  'Explain Logical Reasoning concepts and analytical thinking strategies...',
+  'Guide me through Information and Communication Technology basics...',
+  'Help me understand People and Environment topics for UGC NET...',
+  'Create practice questions for Mathematical Reasoning and aptitude...',
 ];
 
 export default function ChatPage() {
@@ -243,7 +247,7 @@ export default function ChatPage() {
                     value={message}
                     onChange={e => setMessage(e.target.value)}
                     placeholder={placeholderTexts[currentPlaceholder]}
-                    className='w-full min-h-[52px] max-h-[200px] pr-12 pl-4 py-3 bg-white/90 backdrop-blur-sm border border-border/30 rounded-2xl resize-none shadow-sm focus:shadow-md transition-all duration-300 text-center placeholder:text-center placeholder:text-muted-foreground/70'
+                    className='w-full min-h-[52px] max-h-[200px] pr-12 pl-4 py-3 bg-white/90 backdrop-blur-sm border border-border/30 rounded-2xl resize-none shadow-sm text-center placeholder:text-center placeholder:text-muted-foreground/70'
                     rows={1}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) {
