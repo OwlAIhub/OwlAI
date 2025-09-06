@@ -301,22 +301,8 @@ html {
   }
 }
 
-/* Syntax highlighting styles for code blocks */
+/* Code block styling - No external dependencies */
 @layer components {
-  /* Import highlight.js theme */
-  @import 'highlight.js/styles/github.css';
-
-  /* Dark mode syntax highlighting */
-  .dark {
-    @import 'highlight.js/styles/github-dark.css';
-  }
-
-  /* Custom code block styling */
-  .hljs {
-    background: transparent !important;
-    padding: 0 !important;
-  }
-
   /* Inline code styling */
   code:not(.hljs) {
     @apply px-1.5 py-0.5 rounded bg-muted text-foreground text-sm font-mono;
@@ -324,7 +310,21 @@ html {
 
   /* Code block container */
   pre {
-    @apply overflow-x-auto;
+    @apply overflow-x-auto bg-muted/50 p-4 rounded-lg;
+  }
+
+  /* Code block styling */
+  pre code {
+    @apply bg-transparent p-0 text-sm font-mono;
+  }
+
+  /* Custom syntax highlighting fallback */
+  .code-block {
+    @apply bg-muted/30 border border-border rounded-lg p-4 overflow-x-auto;
+  }
+
+  .code-block code {
+    @apply bg-transparent text-foreground font-mono text-sm;
   }
 
   /* Table styling improvements */

@@ -10,10 +10,7 @@ interface PageTransitionProps {
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
 
-  // Skip animations for chat/dashboard pages for better performance
-  if (pathname === '/chat' || pathname === '/dashboard') {
-    return <>{children}</>;
-  }
+  // All pages use animations now that we have a simple landing page
 
   return (
     <AnimatePresence mode='wait'>

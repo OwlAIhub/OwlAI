@@ -96,8 +96,6 @@ export default function RootLayout({
           crossOrigin='anonymous'
         />
         <link rel='dns-prefetch' href='https://fonts.googleapis.com' />
-        {/* Preload chat route for faster navigation */}
-        <link rel='prefetch' href='/chat' />
         {/* No CSP in development to avoid blocking reCAPTCHA and Firebase scripts */}
       </head>
       <body
@@ -118,7 +116,7 @@ export default function RootLayout({
                       // Preload critical resources
                       const link = document.createElement('link');
                       link.rel = 'prefetch';
-                      link.href = '/chat';
+                      link.href = '/';
                       document.head.appendChild(link);
                     });
                   }
