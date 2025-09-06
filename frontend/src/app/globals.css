@@ -7,6 +7,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Handle browser extension modifications gracefully */
+[bis_skin_checked] {
+  /* Reset any browser extension modifications */
+  all: unset;
+  /* Reapply necessary styles */
+  display: revert;
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
 }

@@ -11,6 +11,20 @@ const nextConfig = {
       '@radix-ui/react-separator',
       '@radix-ui/react-slot',
     ],
+    // Reduce hydration mismatches
+    optimizeCss: true,
+  },
+  // Webpack configuration to fix module resolution issues
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
   images: {
     // Disable image optimization for static images to fix Vercel issues

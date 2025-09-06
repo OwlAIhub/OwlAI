@@ -82,7 +82,12 @@ export default function RootLayout({
     <html lang='en' className='scroll-smooth' data-scroll-behavior='smooth'>
       <head>
         <link rel='icon' href='/favicon.ico' sizes='any' />
-        <link rel='icon' href='/owl-ai-logo.png' type='image/png' />
+        <link
+          rel='icon'
+          href='/owl-ai-logo.png'
+          type='image/png'
+          sizes='32x32'
+        />
         <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
         <link rel='manifest' href='/manifest.json' />
         <meta name='theme-color' content='#0D9488' />
@@ -105,11 +110,38 @@ export default function RootLayout({
         <LenisProvider>
           <PageTransition>{children}</PageTransition>
         </LenisProvider>
-        {/* Performance monitoring */}
+        {/* Performance monitoring and hydration fixes */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined') {
+                // Handle browser extension modifications
+                const observer = new MutationObserver((mutations) => {
+                  mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'bis_skin_checked') {
+                      // Remove browser extension attributes that cause hydration mismatches
+                      mutation.target.removeAttribute('bis_skin_checked');
+                    }
+                  });
+                });
+
+                // Start observing when DOM is ready
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', () => {
+                    observer.observe(document.body, {
+                      attributes: true,
+                      subtree: true,
+                      attributeFilter: ['bis_skin_checked']
+                    });
+                  });
+                } else {
+                  observer.observe(document.body, {
+                    attributes: true,
+                    subtree: true,
+                    attributeFilter: ['bis_skin_checked']
+                  });
+                }
+
                 window.addEventListener('load', () => {
                   if ('requestIdleCallback' in window) {
                     requestIdleCallback(() => {

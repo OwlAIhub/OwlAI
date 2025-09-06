@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -9,8 +10,16 @@ interface PageTransitionProps {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
 
-  // All pages use animations now that we have a simple landing page
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering animations on server
+  if (!isClient) {
+    return <div suppressHydrationWarning>{children}</div>;
+  }
 
   return (
     <AnimatePresence mode='wait'>
@@ -20,6 +29,7 @@ export function PageTransition({ children }: PageTransitionProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -4 }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
+        suppressHydrationWarning
       >
         {children}
       </motion.div>

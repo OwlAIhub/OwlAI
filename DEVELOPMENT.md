@@ -1,14 +1,14 @@
 # 🚀 Development Setup Guide
 
-This project is now fully configured with modern development tools and best practices using **Bun** as the package manager.
+This project is now fully configured with modern development tools and best practices using **pnpm** as the package manager.
 
 ## 📦 Package Manager
 
-**Bun** is used exclusively for all package management:
+**pnpm** is used exclusively for all package management:
 
 - ✅ Fast installation and updates
-- ✅ Built-in TypeScript support
-- ✅ Native bundling capabilities
+- ✅ Disk space efficiency
+- ✅ Stricter dependency resolution
 - ✅ Compatible with npm ecosystem
 
 ## 🛠️ Development Tools
@@ -38,27 +38,27 @@ This project is now fully configured with modern development tools and best prac
 ### Development
 
 ```bash
-bun dev              # Start development server
-bun build            # Build for production
-bun start            # Start production server
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm start            # Start production server
 ```
 
 ### Code Quality
 
 ```bash
-bun lint             # Run ESLint
-bun lint:fix         # Fix ESLint errors
-bun format           # Format with Prettier
-bun type-check       # TypeScript type checking
-bun validate         # Run all quality checks
+pnpm lint             # Run ESLint
+pnpm lint:fix         # Fix ESLint errors
+pnpm format           # Format with Prettier
+pnpm type-check       # TypeScript type checking
+pnpm validate         # Run all quality checks
 ```
 
 ### Utilities
 
 ```bash
-bun clean            # Clean build cache
-bun fresh            # Clean install and start dev
-bun commit           # Stage and commit changes
+pnpm clean            # Clean build cache
+pnpm fresh            # Clean install and start dev
+pnpm commit           # Stage and commit changes
 ```
 
 ## 📁 Project Structure
@@ -135,7 +135,7 @@ chore: maintenance tasks
 
 1. Create feature branch
 2. Make changes
-3. Run `bun validate` to check quality
+3. Run `pnpm validate` to check quality
 4. Commit with conventional format
 5. Push and create PR
 
@@ -145,13 +145,13 @@ chore: maintenance tasks
 
    ```bash
    cd frontend
-   bun install
+   pnpm install
    ```
 
 2. **Start development:**
 
    ```bash
-   bun dev
+   pnpm dev
    ```
 
 3. **Open browser:**
@@ -161,7 +161,7 @@ chore: maintenance tasks
 
 ## 📚 Resources
 
-- [Bun Documentation](https://bun.sh/docs)
+- [pnpm Documentation](https://pnpm.io/docs)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs)
 - [ESLint Rules](https://eslint.org/docs/rules)

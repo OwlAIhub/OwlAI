@@ -34,5 +34,5 @@ export function LenisProvider({ children }: LenisProviderProps) {
     };
   }, [pathname]);
 
-  return <>{children}</>;
+  return <div suppressHydrationWarning>{children}</div>;
 }

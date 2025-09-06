@@ -11,7 +11,7 @@ import { WhyOwlSection } from './WhyOwlSection';
 
 const MainPage = () => {
   return (
-    <>
+    <div suppressHydrationWarning>
       <HeroSection />
       <AboutSection />
       <WhyOwlSection />
@@ -20,7 +20,7 @@ const MainPage = () => {
       <FAQSection />
       <ContactSection />
       <Footer />
-    </>
+    </div>
   );
 };
 
