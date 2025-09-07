@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/components/providers/AuthProvider';
+import { EnvironmentProvider } from '@/components/providers/EnvironmentProvider';
 import { HydrationFix } from '@/components/providers/HydrationFix';
 import { LenisProvider } from '@/components/providers/LenisProvider';
 import { PageTransition } from '@/components/providers/PageTransition';
@@ -106,11 +107,13 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <HydrationFix />
-        <AuthProvider>
-          <LenisProvider>
-            <PageTransition>{children}</PageTransition>
-          </LenisProvider>
-        </AuthProvider>
+        <EnvironmentProvider>
+          <AuthProvider>
+            <LenisProvider>
+              <PageTransition>{children}</PageTransition>
+            </LenisProvider>
+          </AuthProvider>
+        </EnvironmentProvider>
         <Toaster />
         {/* Performance monitoring */}
         <script

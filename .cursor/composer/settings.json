@@ -1,0 +1,32 @@
+{
+  "enabled": true,
+  "autoApply": false,
+  "iterateOnLints": true,
+  "contextAwareness": "high",
+  "maxFileCount": 15,
+  "includeTestFiles": true,
+  "smartSelection": true,
+  "filePatterns": {
+    "include": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.json",
+      "**/*.md"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/coverage/**"
+    ]
+  },
+  "contextFilters": {
+    "includeRelatedFiles": true,
+    "includeImports": true,
+    "includeTests": true,
+    "maxContextFiles": 20
+  }
+}

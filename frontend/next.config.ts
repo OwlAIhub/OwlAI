@@ -1,5 +1,41 @@
 import type { NextConfig } from 'next';
 
+// Environment variable validation for production builds
+const validateEnvironmentVariables = () => {
+  const requiredVars = [
+    'NEXT_PUBLIC_FIREBASE_API_KEY',
+    'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+    'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+    'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+    'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+    'NEXT_PUBLIC_FIREBASE_APP_ID',
+  ];
+
+  const missingVars = requiredVars.filter(varName => !process.env[varName]);
+
+  if (missingVars.length > 0) {
+    console.error(
+      '❌ Missing required environment variables:',
+      missingVars.join(', ')
+    );
+    console.error(
+      'Please check your .env.local file and ensure all required variables are set.'
+    );
+
+    // In production builds, fail the build if environment variables are missing
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        `Missing required environment variables: ${missingVars.join(', ')}`
+      );
+    }
+  } else {
+    console.log('✅ All required environment variables are present');
+  }
+};
+
+// Validate environment variables during build
+validateEnvironmentVariables();
+
 const nextConfig: NextConfig = {
   // Firebase Hosting configuration
   output: 'standalone',

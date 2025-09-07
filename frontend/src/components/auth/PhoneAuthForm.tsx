@@ -49,18 +49,25 @@ export function PhoneAuthForm({
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Setup reCAPTCHA (invisible) - client-side only
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Clean up existing verifier
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-      }
-
       // Only setup reCAPTCHA for real phone numbers (not test numbers)
       if (phoneNumber && phoneNumber !== '+91 98765 43210') {
         try {
+          // Clean up existing verifier safely
+          if (window.recaptchaVerifier) {
+            try {
+              window.recaptchaVerifier.clear();
+            } catch (clearError) {
+              console.warn('Error clearing existing reCAPTCHA:', clearError);
+            }
+            window.recaptchaVerifier = undefined;
+          }
+
+          // Create new verifier
           window.recaptchaVerifier = new RecaptchaVerifier(
             auth,
             'recaptcha-container',
@@ -71,30 +78,68 @@ export function PhoneAuthForm({
               },
               'expired-callback': () => {
                 console.log('reCAPTCHA expired, will retry');
-                // Re-initialize on expiry
-                if (window.recaptchaVerifier) {
-                  window.recaptchaVerifier.clear();
-                }
+                // Don't clear here, let the component handle it
               },
             }
           );
           console.log('reCAPTCHA setup for real number:', phoneNumber);
         } catch (error) {
           console.error('reCAPTCHA setup failed:', error);
-          // Don't throw error, let the user try anyway
+          // Reset verifier on error
+          window.recaptchaVerifier = undefined;
         }
       } else {
         console.log('Test number detected, skipping reCAPTCHA setup');
+        // Clean up verifier for test numbers
+        if (window.recaptchaVerifier) {
+          try {
+            window.recaptchaVerifier.clear();
+          } catch (clearError) {
+            console.warn(
+              'Error clearing reCAPTCHA for test number:',
+              clearError
+            );
+          }
+          window.recaptchaVerifier = undefined;
+        }
       }
     }
 
-    // Cleanup on unmount
+    // Cleanup on unmount - only if component is actually unmounting
     return () => {
-      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-      }
+      // Don't clear here as it can cause issues during re-renders
+      // The cleanup will happen in the next effect or on unmount
     };
   }, [phoneNumber]);
+
+  // Cleanup reCAPTCHA on component unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (error) {
+          console.warn('Error clearing reCAPTCHA on unmount:', error);
+        }
+        window.recaptchaVerifier = undefined;
+      }
+    };
+  }, []);
+
+  // Retry function for failed operations
+  const retryOperation = () => {
+    setRetryCount(prev => prev + 1);
+    setError(null);
+    // Reset reCAPTCHA verifier for retry
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (clearError) {
+        console.warn('Error clearing reCAPTCHA for retry:', clearError);
+      }
+      window.recaptchaVerifier = undefined;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +193,22 @@ export function PhoneAuthForm({
                 setError(
                   'Invalid phone number format. Please check and try again.'
                 );
+              } else if (error.message.includes('auth/internal-error')) {
+                setError(
+                  'Authentication service temporarily unavailable. Please refresh the page and try again.'
+                );
+                // Reset reCAPTCHA verifier on internal error
+                if (window.recaptchaVerifier) {
+                  try {
+                    window.recaptchaVerifier.clear();
+                  } catch (clearError) {
+                    console.warn(
+                      'Error clearing reCAPTCHA after internal error:',
+                      clearError
+                    );
+                  }
+                  window.recaptchaVerifier = undefined;
+                }
               } else {
                 setError(
                   'Failed to send OTP. Please check your phone number and try again.'
@@ -398,6 +459,22 @@ export function PhoneAuthForm({
                   setError(
                     'Too many attempts. Please wait before trying again.'
                   );
+                } else if (error.message.includes('auth/internal-error')) {
+                  setError(
+                    'Authentication service temporarily unavailable. Please refresh the page and try again.'
+                  );
+                  // Reset reCAPTCHA verifier on internal error
+                  if (window.recaptchaVerifier) {
+                    try {
+                      window.recaptchaVerifier.clear();
+                    } catch (clearError) {
+                      console.warn(
+                        'Error clearing reCAPTCHA after internal error:',
+                        clearError
+                      );
+                    }
+                    window.recaptchaVerifier = undefined;
+                  }
                 } else {
                   setError('OTP verification failed. Please try again.');
                 }
@@ -489,6 +566,18 @@ export function PhoneAuthForm({
                 className='text-xs'
               >
                 Try Login Instead
+              </Button>
+            </div>
+          )}
+          {error.includes('temporarily unavailable') && retryCount < 3 && (
+            <div className='mt-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={retryOperation}
+                className='text-xs'
+              >
+                Retry ({retryCount}/3)
               </Button>
             </div>
           )}
