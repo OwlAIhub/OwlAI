@@ -5,16 +5,19 @@
 
 'use client';
 
-import { updateUserProfile } from '@/lib/auth';
+import { getUserId, updateUserProfile } from '@/lib/auth';
 import {
   QUESTIONNAIRE_CONFIG,
-  STORAGE_KEYS,
   getNextStep,
   getPreviousStep,
   getStepById,
   isStepOptional,
   isStepRequired,
 } from '@/lib/config/questionnaire';
+import {
+  completeOnboarding,
+  updateOnboardingProgress,
+} from '@/lib/database/users';
 import { OnboardingProgress } from '@/lib/types/user';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -46,25 +49,22 @@ export default function QuestionnaireContainer({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load progress from localStorage
-  const loadProgress = useCallback(() => {
+  // Load progress from Firestore
+  const loadProgress = useCallback(async () => {
     try {
-      const savedProgress = localStorage.getItem(
-        STORAGE_KEYS.ONBOARDING_PROGRESS
-      );
-      if (savedProgress) {
-        const progress: OnboardingProgress = JSON.parse(savedProgress);
-        setCurrentStep(progress.currentStep);
-        setCompletedSteps(progress.completedSteps);
-        setAnswers(progress.answers);
+      const userId = getUserId();
+      if (userId) {
+        // TODO: Implement loadProgress from Firestore
+        // For now, start fresh
+        console.log('Loading progress from Firestore for user:', userId);
       }
     } catch (error) {
-      console.warn('Failed to load progress from localStorage:', error);
+      console.warn('Failed to load progress from Firestore:', error);
     }
   }, []);
 
-  // Save progress to localStorage
-  const saveProgress = useCallback(() => {
+  // Save progress to Firestore
+  const saveProgress = useCallback(async () => {
     try {
       const progress: OnboardingProgress = {
         currentStep,
@@ -74,21 +74,24 @@ export default function QuestionnaireContainer({
         lastUpdated: new Date(),
         isCompleted: false,
       };
-      localStorage.setItem(
-        STORAGE_KEYS.ONBOARDING_PROGRESS,
-        JSON.stringify(progress)
-      );
+
+      // Save to Firestore
+      const userId = getUserId();
+      if (userId) {
+        await updateOnboardingProgress(userId, progress);
+        console.log('Progress saved to Firestore');
+      }
     } catch (error) {
-      console.warn('Failed to save progress to localStorage:', error);
+      console.error('Failed to save progress to Firestore:', error);
     }
   }, [currentStep, completedSteps, answers]);
 
-  // Load progress from localStorage on mount
+  // Load progress from Firestore on mount
   useEffect(() => {
     loadProgress();
   }, [loadProgress]);
 
-  // Save progress to localStorage whenever it changes
+  // Save progress to Firestore whenever it changes
   useEffect(() => {
     saveProgress();
   }, [saveProgress]);
@@ -141,11 +144,15 @@ export default function QuestionnaireContainer({
         await onComplete(answers);
       }
 
+      // Complete onboarding in Firestore
+      const userId = getUserId();
+      if (userId) {
+        await completeOnboarding(userId, answers);
+        console.log('Onboarding completed in Firestore');
+      }
+
       // Mark onboarding as completed in user profile
       updateUserProfile({ onboardingCompleted: true });
-
-      // Clear localStorage
-      localStorage.removeItem(STORAGE_KEYS.ONBOARDING_PROGRESS);
 
       // Redirect to chat
       router.push('/chat');

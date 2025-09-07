@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/inputs/input';
 import { Label } from '@/components/ui/inputs/label';
 import { getAuthUser, setAuthUser } from '@/lib/auth';
+import { createUserProfile } from '@/lib/database/users';
 import { auth } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import {
@@ -191,14 +192,23 @@ export function PhoneAuthForm({
             return;
           } else {
             // Signup mode - create new account
+            const userId = `user_${Date.now()}`;
             const newUser = {
-              id: `user_${Date.now()}`,
+              id: userId,
               phoneNumber: phoneNumber,
               isAuthenticated: true,
               createdAt: new Date(),
               lastLoginAt: new Date(),
               onboardingCompleted: false, // New users need to complete questionnaire
             };
+
+            // Create user profile in Firestore for test numbers too
+            await createUserProfile(
+              userId,
+              phoneNumber,
+              'User' // Default name, will be updated in questionnaire
+            );
+            console.log('Test user profile created in Firestore');
 
             setAuthUser(newUser);
             router.push('/questionnaire');
@@ -262,6 +272,14 @@ export function PhoneAuthForm({
                   lastLoginAt: new Date(),
                   onboardingCompleted: false, // New users need to complete questionnaire
                 };
+
+                // Create user profile in Firestore
+                await createUserProfile(
+                  user.uid,
+                  user.phoneNumber || phoneNumber,
+                  'User' // Default name, will be updated in questionnaire
+                );
+                console.log('User profile created in Firestore');
 
                 setAuthUser(newUser);
                 router.push('/questionnaire');
