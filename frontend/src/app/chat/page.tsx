@@ -1,308 +1,150 @@
 'use client';
 
-import { AppSidebar } from '@/components/sidebar/app-sidebar';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Separator } from '@/components/ui/separator';
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { getAuthUser } from '@/lib/auth';
-import { Copy, RefreshCw, Send, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { RouteProtection } from '@/components/auth/RouteProtection';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { Button } from '@/components/ui/button';
+import { ResponsiveContainer } from '@/components/ui/responsive-container';
+import { motion } from 'framer-motion';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Button } from '../../components/ui/button';
-import { Textarea } from '../../components/ui/textarea';
-
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
-
-const starterPrompts = [
-  'Explain Teaching Aptitude concepts',
-  'Generate UGC NET Paper 1 MCQs',
-  'Summarize Research Methodology',
-  'Help with Communication topics',
-];
-
-const placeholderTexts = [
-  "Ask me anything about UGC NET Paper 1 preparation and I'll help you succeed...",
-  'Explain Teaching Aptitude concepts like learning theories and teaching methods...',
-  'Generate practice MCQs for UGC NET Paper 1 with detailed explanations...',
-  'Help me understand Research Methodology and data analysis techniques...',
-  'Summarize Communication topics including verbal and non-verbal communication...',
-  'Create comprehensive study notes for Higher Education System topics...',
-  'What are the latest trends and policies in Indian Higher Education?',
-  'Help me master Data Interpretation with charts, graphs, and statistics...',
-  'Explain Logical Reasoning concepts and analytical thinking strategies...',
-  'Guide me through Information and Communication Technology basics...',
-  'Help me understand People and Environment topics for UGC NET...',
-  'Create practice questions for Mathematical Reasoning and aptitude...',
-];
 
 export default function ChatPage() {
   const router = useRouter();
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [lastMessage, setLastMessage] = useState('');
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const { user, logout, isLoading } = useAuth();
 
-  // Check if user is authenticated
-  const [user, setUser] = useState(getAuthUser());
+  const handleBackToHome = () => {
+    router.push('/');
+  };
 
-  // Update user state when component mounts or when navigating to chat
-  useEffect(() => {
-    setUser(getAuthUser());
-  }, []);
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
 
-  // Cycle through placeholder texts
-  useEffect(() => {
-    if (messages.length === 0 && !message) {
-      const interval = setInterval(() => {
-        setCurrentPlaceholder(prev => (prev + 1) % placeholderTexts.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [messages.length, message]);
-
-  // Check authentication and questionnaire completion
-  useEffect(() => {
-    if (!user?.isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-
-    // Check if questionnaire is completed
-    if (user && !user.isQuestionnaireComplete) {
-      router.push('/questionnaire');
-      return;
-    }
-  }, [user, router]);
-
-  if (!user?.isAuthenticated || !user?.isQuestionnaireComplete) {
-    return null; // Will redirect via useEffect
+  if (isLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600'></div>
+      </div>
+    );
   }
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
-    const newMessage = {
-      id: messages.length + 1,
-      text: message,
-      isUser: true,
-      timestamp: new Date(),
-    };
-
-    setLastMessage(message);
-    setMessages(prev => [...prev, newMessage]);
-    setMessage('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = {
-        id: messages.length + 2,
-        text: "That's a great question! Let me help you with that. Could you provide more details about what specific topic you'd like to study?",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-  };
-
-  const handleStarterPrompt = (prompt: string) => {
-    setMessage(prompt);
-  };
-
-  const handleRecallLastMessage = () => {
-    if (lastMessage) {
-      setMessage(lastMessage);
-    }
-  };
-
-  const handleCopyMessage = (text: string) => {
-    if (typeof window !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-    }
-  };
-
-  const handleRegenerateResponse = () => {
-    // Regenerate logic would go here
-  };
-
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className='flex h-16 shrink-0 items-center gap-2'>
-          <div className='flex items-center gap-2 px-4'>
-            <SidebarTrigger className='-ml-1' />
-            <Separator
-              orientation='vertical'
-              className='mr-2 data-[orientation=vertical]:h-4'
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className='hidden md:block'>
-                  <BreadcrumbLink href='#'>Owl AI</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className='hidden md:block' />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Chat</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
-          {/* Messages */}
-          {messages.length > 0 && (
-            <div className='flex-1 overflow-y-auto space-y-4 mb-4'>
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] p-4 rounded-2xl ${
-                      msg.isUser
-                        ? 'bg-primary text-white'
-                        : 'bg-white/90 backdrop-blur-sm border border-border/20 shadow-sm'
-                    }`}
-                  >
-                    <p className='text-sm leading-relaxed'>{msg.text}</p>
-
-                    {/* Message Actions */}
-                    <div
-                      className={`flex items-center justify-between mt-3 ${
-                        msg.isUser ? 'text-white/70' : 'text-muted-foreground'
-                      }`}
-                    >
-                      <span className='text-xs'>
-                        {typeof window !== 'undefined'
-                          ? msg.timestamp.toLocaleTimeString()
-                          : msg.timestamp.toISOString()}
-                      </span>
-
-                      {!msg.isUser && (
-                        <div className='flex items-center space-x-2'>
-                          <button
-                            onClick={() => handleCopyMessage(msg.text)}
-                            className='p-1 hover:bg-white/20 rounded transition-colors'
-                            title='Copy'
-                          >
-                            <Copy className='w-3 h-3' />
-                          </button>
-                          <button
-                            onClick={handleRegenerateResponse}
-                            className='p-1 hover:bg-white/20 rounded transition-colors'
-                            title='Regenerate'
-                          >
-                            <RefreshCw className='w-3 h-3' />
-                          </button>
-                          <button
-                            className='p-1 hover:bg-white/20 rounded transition-colors'
-                            title='Like'
-                          >
-                            <ThumbsUp className='w-3 h-3' />
-                          </button>
-                          <button
-                            className='p-1 hover:bg-white/20 rounded transition-colors'
-                            title='Dislike'
-                          >
-                            <ThumbsDown className='w-3 h-3' />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ChatGPT-style Input */}
-          <div className='flex items-center justify-center min-h-[calc(100vh-200px)]'>
-            <div className='w-full max-w-2xl'>
-              {/* Welcome Text */}
-              {messages.length === 0 && (
-                <div className='text-center mb-8'>
-                  <h1 className='text-4xl font-bold text-primary mb-4'>
-                    Owl AI
-                  </h1>
-                  <h2 className='text-2xl font-semibold text-foreground mb-2'>
-                    How can I help you today?
-                  </h2>
-                  <p className='text-muted-foreground mb-6'>
-                    Ask me anything about your studies, exams, or learning
-                    goals.
-                  </p>
-
-                  {/* Starter Prompts */}
-                  <div className='grid grid-cols-2 gap-3 max-w-md mx-auto'>
-                    {starterPrompts.map((prompt, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleStarterPrompt(prompt)}
-                        className='p-3 text-sm bg-white/80 hover:bg-white/90 border border-border/20 rounded-xl text-left transition-all duration-200 hover:shadow-sm'
-                      >
-                        {prompt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSendMessage} className='relative'>
-                <div className='relative'>
-                  <Textarea
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    placeholder={placeholderTexts[currentPlaceholder]}
-                    className='w-full min-h-[52px] max-h-[200px] pr-12 pl-4 py-3 bg-white/90 backdrop-blur-sm border border-border/30 rounded-2xl resize-none shadow-sm text-center placeholder:text-center placeholder:text-muted-foreground/70'
-                    rows={1}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage(e);
-                      } else if (e.key === 'ArrowUp' && !message.trim()) {
-                        e.preventDefault();
-                        handleRecallLastMessage();
-                      }
-                    }}
-                  />
-
-                  <Button
-                    type='submit'
-                    size='sm'
-                    className='absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 bg-primary hover:bg-primary/90 rounded-xl'
-                    disabled={!message.trim()}
-                  >
-                    <Send className='w-4 h-4' />
-                  </Button>
-                </div>
-
-                {/* Input Hints */}
-                <div className='flex items-center justify-center mt-2 text-xs text-muted-foreground space-x-4'>
-                  <span>Press Enter to send</span>
-                  <span>↑ to recall last message</span>
-                </div>
-              </form>
-            </div>
-          </div>
+    <RouteProtection requireAuth={true} requireQuestionnaire={true}>
+      <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
+        {/* Background Pattern */}
+        <div className='absolute inset-0 opacity-5'>
+          <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+
+        {/* Header */}
+        <motion.header
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className='relative z-10 p-4'
+        >
+          <ResponsiveContainer maxWidth='6xl' padding='none'>
+            <div className='flex items-center justify-between'>
+              {/* Back Button */}
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleBackToHome}
+                className='text-muted-foreground hover:text-foreground'
+              >
+                <ArrowLeft className='w-4 h-4 mr-2' />
+                Back to Home
+              </Button>
+
+              {/* User Info & Logout */}
+              <div className='flex items-center gap-4'>
+                {user?.questionnaireData?.fullName && (
+                  <span className='text-sm text-muted-foreground'>
+                    Welcome, {user.questionnaireData.fullName}
+                  </span>
+                )}
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleLogout}
+                  className='text-muted-foreground hover:text-foreground'
+                >
+                  <LogOut className='w-4 h-4 mr-2' />
+                  Logout
+                </Button>
+              </div>
+            </div>
+          </ResponsiveContainer>
+        </motion.header>
+
+        {/* Main Content */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className='relative z-10 flex-1 flex items-center justify-center p-4'
+        >
+          <ResponsiveContainer maxWidth='4xl'>
+            <div className='text-center'>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className='mb-8'
+              >
+                <h1 className='text-4xl font-bold text-foreground mb-4'>
+                  Welcome to Owl AI Chat
+                </h1>
+                <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
+                  Your AI study partner is ready to help you learn and excel in
+                  your exams.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className='bg-card/50 backdrop-blur-sm border rounded-lg p-8 max-w-2xl mx-auto'
+              >
+                <h2 className='text-2xl font-semibold mb-4'>
+                  Chat Interface Coming Soon
+                </h2>
+                <p className='text-muted-foreground mb-6'>
+                  The chat interface is being developed. You&apos;re
+                  successfully authenticated and ready to use Owl AI!
+                </p>
+
+                {user?.questionnaireData && (
+                  <div className='text-left bg-muted/50 rounded-lg p-4 mb-6'>
+                    <h3 className='font-semibold mb-2'>Your Profile:</h3>
+                    <p>
+                      <strong>Name:</strong> {user.questionnaireData.fullName}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {user.phoneNumber}
+                    </p>
+                    <p>
+                      <strong>Exam:</strong> {user.questionnaireData.exam}
+                    </p>
+                    <p>
+                      <strong>Subject:</strong> {user.questionnaireData.subject}
+                    </p>
+                  </div>
+                )}
+
+                <Button
+                  onClick={handleBackToHome}
+                  className='bg-primary hover:bg-primary/90'
+                >
+                  Back to Home
+                </Button>
+              </motion.div>
+            </div>
+          </ResponsiveContainer>
+        </motion.div>
+      </div>
+    </RouteProtection>
   );
 }

@@ -50,9 +50,14 @@ export function PhoneAuthForm({
     useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Setup reCAPTCHA (invisible) - only for real phone numbers
+  // Setup reCAPTCHA (invisible) - client-side only
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Clean up existing verifier
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+      }
+
       // Only setup reCAPTCHA for real phone numbers (not test numbers)
       if (phoneNumber && phoneNumber !== '+91 98765 43210') {
         try {
@@ -62,10 +67,14 @@ export function PhoneAuthForm({
             {
               size: 'invisible',
               callback: () => {
-                console.log('reCAPTCHA verified for real number');
+                console.log('reCAPTCHA verified successfully');
               },
               'expired-callback': () => {
-                console.log('reCAPTCHA expired');
+                console.log('reCAPTCHA expired, will retry');
+                // Re-initialize on expiry
+                if (window.recaptchaVerifier) {
+                  window.recaptchaVerifier.clear();
+                }
               },
             }
           );
@@ -78,6 +87,13 @@ export function PhoneAuthForm({
         console.log('Test number detected, skipping reCAPTCHA setup');
       }
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+      }
+    };
   }, [phoneNumber]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,29 +116,45 @@ export function PhoneAuthForm({
               throw new Error('reCAPTCHA not initialized');
             }
 
+            console.log('Sending OTP to:', phoneNumber);
             const confirmation = await signInWithPhoneNumber(
               auth,
               phoneNumber,
               appVerifier
             );
 
+            console.log(
+              'OTP sent successfully, confirmation result:',
+              confirmation
+            );
             setConfirmationResult(confirmation);
             setOtpSent(true);
             console.log('Real OTP sent to:', phoneNumber);
           } catch (error) {
             console.error('Failed to send OTP:', error);
-            if (
-              error instanceof Error &&
-              (error.message.includes('reCAPTCHA') ||
-                error.message.includes('site key'))
-            ) {
-              setError(
-                'reCAPTCHA configuration issue. Please try again or contact support.'
-              );
+
+            // Handle specific error types
+            if (error instanceof Error) {
+              if (
+                error.message.includes('reCAPTCHA') ||
+                error.message.includes('site key')
+              ) {
+                setError(
+                  'reCAPTCHA configuration issue. Please refresh and try again.'
+                );
+              } else if (error.message.includes('quota')) {
+                setError('Daily limit reached. Please try again tomorrow.');
+              } else if (error.message.includes('invalid-phone-number')) {
+                setError(
+                  'Invalid phone number format. Please check and try again.'
+                );
+              } else {
+                setError(
+                  'Failed to send OTP. Please check your phone number and try again.'
+                );
+              }
             } else {
-              setError(
-                'Failed to send OTP. Please check your phone number and try again.'
-              );
+              setError('Failed to send OTP. Please try again.');
             }
           }
         }
@@ -239,10 +271,14 @@ export function PhoneAuthForm({
           // Real number - use Firebase verification
           if (confirmationResult) {
             try {
+              console.log('Verifying OTP:', otp);
               const result = await confirmationResult.confirm(otp);
               const user = result.user;
 
-              console.log('Real user authenticated:', user.phoneNumber);
+              console.log(
+                'Real user authenticated successfully:',
+                user.phoneNumber
+              );
 
               // Check if user already exists in Firestore
               let existingUser = null;
@@ -351,7 +387,23 @@ export function PhoneAuthForm({
               }
             } catch (error) {
               console.error('OTP verification failed:', error);
-              setError('Invalid OTP. Please check the code and try again.');
+
+              // Handle specific OTP verification errors
+              if (error instanceof Error) {
+                if (error.message.includes('invalid-verification-code')) {
+                  setError('Invalid OTP code. Please check and try again.');
+                } else if (error.message.includes('code-expired')) {
+                  setError('OTP code has expired. Please request a new one.');
+                } else if (error.message.includes('too-many-requests')) {
+                  setError(
+                    'Too many attempts. Please wait before trying again.'
+                  );
+                } else {
+                  setError('OTP verification failed. Please try again.');
+                }
+              } else {
+                setError('Invalid OTP. Please check the code and try again.');
+              }
             }
           }
         }

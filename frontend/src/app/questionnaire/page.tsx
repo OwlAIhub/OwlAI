@@ -1,6 +1,7 @@
 'use client';
 
 import { QuestionnaireContainer } from '@/components/auth/QuestionnaireContainer';
+import { RouteProtection } from '@/components/auth/RouteProtection';
 import { Button } from '@/components/ui/button';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { QuestionnaireData, getAuthUser, setAuthUser } from '@/lib/auth';
@@ -72,108 +73,110 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
-      {/* Background Pattern */}
-      <div className='absolute inset-0 opacity-5'>
-        <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
-      </div>
+    <RouteProtection requireAuth={true} requireQuestionnaire={true}>
+      <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
+        {/* Background Pattern */}
+        <div className='absolute inset-0 opacity-5'>
+          <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
+        </div>
 
-      {/* Header */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className='relative z-10 p-4'
-      >
-        <ResponsiveContainer maxWidth='6xl' padding='none'>
-          <div className='flex items-center justify-between'>
-            {/* Back Button */}
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={handleBackToHome}
-              className='text-muted-foreground hover:text-foreground'
-            >
-              <ArrowLeft className='w-4 h-4 mr-2' />
-              Back to Home
-            </Button>
+        {/* Header */}
+        <motion.header
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className='relative z-10 p-4'
+        >
+          <ResponsiveContainer maxWidth='6xl' padding='none'>
+            <div className='flex items-center justify-between'>
+              {/* Back Button */}
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleBackToHome}
+                className='text-muted-foreground hover:text-foreground'
+              >
+                <ArrowLeft className='w-4 h-4 mr-2' />
+                Back to Home
+              </Button>
 
-            {/* Logo */}
-            <motion.a
-              href='/'
-              className='flex items-center space-x-2 text-lg font-bold text-foreground'
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src='/owl-ai-logo.png'
-                alt='Owl AI - Your Personal AI Study Partner'
-                width={32}
-                height={32}
-                className='w-8 h-8'
-                priority={true}
-              />
-              <span>Owl AI</span>
-            </motion.a>
-          </div>
-        </ResponsiveContainer>
-      </motion.header>
-
-      {/* Main Content */}
-      <div className='relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)] p-4'>
-        <ResponsiveContainer maxWidth='4xl' padding='none'>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className='w-full'
-          >
-            {/* Questionnaire Card */}
-            <div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6'>
-              <QuestionnaireContainer
-                onComplete={handleQuestionnaireComplete}
-                onBack={handleBackToHome}
-                isSaving={isSaving}
-              />
-
-              {/* Error Message */}
-              {saveError && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className='mt-4 p-4 bg-red-50 border border-red-200 rounded-lg'
-                >
-                  <p className='text-red-600 text-sm text-center'>
-                    {saveError}
-                  </p>
-                  <div className='mt-3 text-center'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() => setSaveError(null)}
-                      className='text-red-600 border-red-300 hover:bg-red-50'
-                    >
-                      Try Again
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
+              {/* Logo */}
+              <motion.a
+                href='/'
+                className='flex items-center space-x-2 text-lg font-bold text-foreground'
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Image
+                  src='/owl-ai-logo.png'
+                  alt='Owl AI - Your Personal AI Study Partner'
+                  width={32}
+                  height={32}
+                  className='w-8 h-8'
+                  priority={true}
+                />
+                <span>Owl AI</span>
+              </motion.a>
             </div>
+          </ResponsiveContainer>
+        </motion.header>
 
-            {/* Footer Text */}
+        {/* Main Content */}
+        <div className='relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)] p-4'>
+          <ResponsiveContainer maxWidth='4xl' padding='none'>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className='text-center mt-8'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className='w-full'
             >
-              <p className='text-sm text-muted-foreground'>
-                Help us personalize your learning experience
-              </p>
+              {/* Questionnaire Card */}
+              <div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6'>
+                <QuestionnaireContainer
+                  onComplete={handleQuestionnaireComplete}
+                  onBack={handleBackToHome}
+                  isSaving={isSaving}
+                />
+
+                {/* Error Message */}
+                {saveError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className='mt-4 p-4 bg-red-50 border border-red-200 rounded-lg'
+                  >
+                    <p className='text-red-600 text-sm text-center'>
+                      {saveError}
+                    </p>
+                    <div className='mt-3 text-center'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={() => setSaveError(null)}
+                        className='text-red-600 border-red-300 hover:bg-red-50'
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Footer Text */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+                className='text-center mt-8'
+              >
+                <p className='text-sm text-muted-foreground'>
+                  Help us personalize your learning experience
+                </p>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
       </div>
-    </div>
+    </RouteProtection>
   );
 }
