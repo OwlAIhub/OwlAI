@@ -1,0 +1,67 @@
+# Firebase App Hosting Configuration - Production Environment
+# This file overrides apphosting.yaml for production deployments
+# Set environment to "production" in Firebase console to use this file
+
+env:
+  # Firebase Configuration (Production)
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: 'AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: 'owl-ai-1ef31.firebaseapp.com'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: 'owl-ai-1ef31'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: 'owl-ai-1ef31.firebasestorage.app'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: '202604444478'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: '1:202604444478:web:26493d1dbdc5cb92cbca6f'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Optional: Firebase Measurement ID for Analytics (Production)
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: 'G-9902XT617E'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Application Configuration (Production)
+  - variable: NEXT_PUBLIC_APP_URL
+    value: 'https://owlai.bot'
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NODE_ENV
+    value: 'production' # Production environment
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: APP_ENV
+    value: 'production' # Custom app environment
+    availability:
+      - BUILD
+      - RUNTIME

@@ -1,33 +1,97 @@
+# ================================
+# SECURITY & SECRETS - CRITICAL
+# ================================
+
+# Environment Variables (ALL VARIANTS)
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+.env.staging.local
+
+# Firebase Secrets & Keys
+firebase-adminsdk-*.json
+service-account*.json
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+
+# Firebase Functions Environment
+functions/.env
+functions/.env.*
+functions/.env.local
+functions/.env.development
+functions/.env.production
+functions/.env.staging
+functions/.env.test
+
+# API Keys & Secrets (Common Patterns)
+**/secrets/**
+**/secret/**
+**/*secret*
+**/*key*
+**/*keys*
+**/credentials/**
+**/*credential*
+**/config/secrets*
+**/config/keys*
+
+# Certificate & Key Files
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+
+# Database & Connection Strings
+database.url
+db.url
+*connection*string*
+
+# ================================
+# BUILD & DEPENDENCIES
+# ================================
+
 # Dependencies
 node_modules/
 .pnpm-store/
+.yarn/
+.pnp.*
+.yarn-integrity
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.staging
-
-# Next.js
+# Next.js Build
 .next/
 out/
 build/
 dist/
+.vercel/
 
-# Firebase
+# Firebase Build
 .firebase/
 firebase-debug.log*
 firebase-debug.*.log*
-functions/.env.local
-functions/.env.staging
-functions/.env.production
 functions/lib/
+functions/node_modules/
+.firebaserc.local
 
-# TypeScript
+# TypeScript Build
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+
+# ================================
+# DEVELOPMENT & DEBUGGING
+# ================================
 
 # Logs
 logs/
@@ -36,46 +100,131 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Runtime data
+# Runtime Data
 pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Coverage
+# Coverage & Testing
 coverage/
 .nyc_output/
 *.lcov
+.jest/
+test-results/
+playwright-report/
 
-# Cache
+# Cache Files
 .cache/
 .parcel-cache/
 .eslintcache
 .stylelintcache
 .turbo/
+.swc/
 
-# IDE
+# ================================
+# IDE & EDITOR
+# ================================
+
+# VSCode
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
 .idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
 *.swp
 *.swo
 *~
+.vim/
 
-# OS
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ================================
+# OPERATING SYSTEM
+# ================================
+
+# macOS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
+.AppleDouble
+.LSOverride
+Icon?
 
-# Temporary
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ================================
+# TEMPORARY & MISC
+# ================================
+
+# Temporary Files
 tmp/
 temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
 
-# Package manager
-.yarn/
-.pnp.*
-.yarn-integrity
+# Archive Files (potentially sensitive)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+
+# ================================
+# PROJECT SPECIFIC
+# ================================
+
+# Storybook
+storybook-static/
+
+# Bundle Analysis
+.bundle-analyzer/
+bundle-report.html
+
+# Sentry
+.sentryclirc
+
+# Environment Config Summary (contains sensitive info)
+ENVIRONMENT_CONFIG_SUMMARY.md
