@@ -2,7 +2,6 @@
 
 import { getAuthUser, setAuthUser, User } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
-import { FirestoreService } from '@/lib/firestore';
 import {
   User as FirebaseUser,
   onAuthStateChanged,
@@ -45,19 +44,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const localUser = getAuthUser();
       if (localUser && firebaseUser) {
-        // Fetch fresh data from Firestore
-        const firestoreUser = await FirestoreService.getUserByPhone(
-          firebaseUser.phoneNumber || ''
-        );
-
-        if (firestoreUser) {
-          const updatedUser = {
-            ...FirestoreService.convertToLocalUser(firestoreUser),
-            isAuthenticated: true,
-          };
-          setAuthUser(updatedUser);
-          setUser(updatedUser);
-        }
+        // For now, just use local user data
+        setUser(localUser);
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
@@ -98,27 +86,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
               // Local user data exists
               setUser(localUser);
             } else {
-              // Try to fetch from Firestore
-              try {
-                const firestoreUser = await FirestoreService.getUserByPhone(
-                  firebaseUser.phoneNumber || ''
-                );
-
-                if (firestoreUser) {
-                  const updatedUser = {
-                    ...FirestoreService.convertToLocalUser(firestoreUser),
-                    isAuthenticated: true,
-                  };
-                  setAuthUser(updatedUser);
-                  setUser(updatedUser);
-                } else {
-                  // User not found in Firestore, clear auth
-                  setUser(null);
-                }
-              } catch (error) {
-                console.error('Error fetching user from Firestore:', error);
-                setUser(null);
-              }
+              // Create basic user from Firebase user
+              const basicUser = {
+                id: firebaseUser.uid,
+                phoneNumber: firebaseUser.phoneNumber || '',
+                isAuthenticated: true,
+                isQuestionnaireComplete: false,
+                questionnaireData: null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              setAuthUser(basicUser);
+              setUser(basicUser);
             }
           } else {
             // No Firebase user

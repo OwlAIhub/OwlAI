@@ -2,66 +2,12 @@
   "hosting": {
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "predeploy": [
-      "NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=owl-ai-1ef31.firebaseapp.com NEXT_PUBLIC_FIREBASE_PROJECT_ID=owl-ai-1ef31 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=owl-ai-1ef31.firebasestorage.app NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=202604444478 NEXT_PUBLIC_FIREBASE_APP_ID=1:202604444478:web:26493d1dbdc5cb92cbca6f NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-9902XT617E NODE_ENV=production pnpm run build"
-    ],
+    "predeploy": ["pnpm run build"],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
-    ],
-    "headers": [
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "X-Frame-Options",
-            "value": "DENY"
-          },
-          {
-            "key": "X-Content-Type-Options",
-            "value": "nosniff"
-          },
-          {
-            "key": "Referrer-Policy",
-            "value": "origin-when-cross-origin"
-          },
-          {
-            "key": "Permissions-Policy",
-            "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-          },
-          {
-            "key": "Strict-Transport-Security",
-            "value": "max-age=31536000; includeSubDomains"
-          }
-        ]
-      },
-      {
-        "source": "/api/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          },
-          {
-            "key": "Access-Control-Allow-Origin",
-            "value": "https://owlai.bot"
-          },
-          {
-            "key": "Access-Control-Allow-Methods",
-            "value": "GET, POST, PUT, DELETE, OPTIONS"
-          },
-          {
-            "key": "Access-Control-Allow-Headers",
-            "value": "Content-Type, Authorization"
-          }
-        ]
-      }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
   }
 }

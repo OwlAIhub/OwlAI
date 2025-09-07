@@ -5,11 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuthUser, setAuthUser } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
-import {
-  FirestoreService,
-  FirestoreUser,
-  handleFirestoreError,
-} from '@/lib/firestore';
 import { cn } from '@/lib/utils';
 import {
   ConfirmationResult,
@@ -51,71 +46,41 @@ export function PhoneAuthForm({
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Setup reCAPTCHA (invisible) - client-side only
+  // Initialize reCAPTCHA
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Only setup reCAPTCHA for real phone numbers (not test numbers)
-      if (phoneNumber && phoneNumber !== '+91 98765 43210') {
-        try {
-          // Clean up existing verifier safely
-          if (window.recaptchaVerifier) {
-            try {
-              window.recaptchaVerifier.clear();
-            } catch (clearError) {
-              console.warn('Error clearing existing reCAPTCHA:', clearError);
-            }
-            window.recaptchaVerifier = undefined;
-          }
+    if (typeof window === 'undefined') return;
 
-          // Create new verifier
-          window.recaptchaVerifier = new RecaptchaVerifier(
-            auth,
-            'recaptcha-container',
-            {
-              size: 'invisible',
-              callback: () => {
-                console.log('reCAPTCHA verified successfully');
-              },
-              'expired-callback': () => {
-                console.log('reCAPTCHA expired, will retry');
-                // Don't clear here, let the component handle it
-              },
-            }
-          );
-          console.log('reCAPTCHA setup for real number:', phoneNumber);
-        } catch (error) {
-          console.error('reCAPTCHA setup failed:', error);
-          // Reset verifier on error
-          window.recaptchaVerifier = undefined;
-        }
-      } else {
-        console.log('Test number detected, skipping reCAPTCHA setup');
-        // Clean up verifier for test numbers
-        if (window.recaptchaVerifier) {
-          try {
-            window.recaptchaVerifier.clear();
-          } catch (clearError) {
-            console.warn(
-              'Error clearing reCAPTCHA for test number:',
-              clearError
-            );
-          }
-          window.recaptchaVerifier = undefined;
-        }
+    // Clear existing verifier
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.warn('Error clearing existing reCAPTCHA:', error);
       }
     }
 
-    // Cleanup on unmount - only if component is actually unmounting
-    return () => {
-      // Don't clear here as it can cause issues during re-renders
-      // The cleanup will happen in the next effect or on unmount
-    };
-  }, [phoneNumber]);
+    // Create new verifier
+    try {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        'recaptcha-container',
+        {
+          size: 'invisible',
+          callback: () => {
+            console.log('reCAPTCHA solved');
+          },
+          'expired-callback': () => {
+            console.log('reCAPTCHA expired');
+            setError('reCAPTCHA expired. Please try again.');
+          },
+        }
+      );
+    } catch (error) {
+      console.error('Error initializing reCAPTCHA:', error);
+    }
 
-  // Cleanup reCAPTCHA on component unmount
-  useEffect(() => {
     return () => {
-      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+      if (window.recaptchaVerifier) {
         try {
           window.recaptchaVerifier.clear();
         } catch (error) {
@@ -124,27 +89,12 @@ export function PhoneAuthForm({
         window.recaptchaVerifier = undefined;
       }
     };
-  }, []);
-
-  // Retry function for failed operations
-  const retryOperation = () => {
-    setRetryCount(prev => prev + 1);
-    setError(null);
-    // Reset reCAPTCHA verifier for retry
-    if (window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier.clear();
-      } catch (clearError) {
-        console.warn('Error clearing reCAPTCHA for retry:', clearError);
-      }
-      window.recaptchaVerifier = undefined;
-    }
-  };
+  }, [phoneNumber]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
       if (!otpSent) {
@@ -168,22 +118,13 @@ export function PhoneAuthForm({
               appVerifier
             );
 
-            console.log(
-              'OTP sent successfully, confirmation result:',
-              confirmation
-            );
+            console.log('OTP sent successfully');
             setConfirmationResult(confirmation);
             setOtpSent(true);
-            console.log('Real OTP sent to:', phoneNumber);
           } catch (error) {
             console.error('Failed to send OTP:', error);
-
-            // Handle specific error types
             if (error instanceof Error) {
-              if (
-                error.message.includes('reCAPTCHA') ||
-                error.message.includes('site key')
-              ) {
+              if (error.message.includes('reCAPTCHA')) {
                 setError(
                   'reCAPTCHA configuration issue. Please refresh and try again.'
                 );
@@ -193,22 +134,6 @@ export function PhoneAuthForm({
                 setError(
                   'Invalid phone number format. Please check and try again.'
                 );
-              } else if (error.message.includes('auth/internal-error')) {
-                setError(
-                  'Authentication service temporarily unavailable. Please refresh the page and try again.'
-                );
-                // Reset reCAPTCHA verifier on internal error
-                if (window.recaptchaVerifier) {
-                  try {
-                    window.recaptchaVerifier.clear();
-                  } catch (clearError) {
-                    console.warn(
-                      'Error clearing reCAPTCHA after internal error:',
-                      clearError
-                    );
-                  }
-                  window.recaptchaVerifier = undefined;
-                }
               } else {
                 setError(
                   'Failed to send OTP. Please check your phone number and try again.'
@@ -223,110 +148,61 @@ export function PhoneAuthForm({
         // Step 2: Verify OTP
         if (phoneNumber === '+91 98765 43210') {
           // Test number - simulate OTP verification
-          console.log(
-            'Test mode: Simulating OTP verification for:',
-            phoneNumber
-          );
+          console.log('Test mode: Simulating OTP verification');
 
-          // Check if user already exists in Firestore
-          let existingUser = null;
-          try {
-            existingUser = await FirestoreService.getUserByPhone(phoneNumber);
-          } catch (error) {
-            console.error('Error checking existing user:', error);
-            // Fallback to localStorage for backward compatibility
-            const localUser = getAuthUser();
-            if (localUser && localUser.phoneNumber === phoneNumber) {
-              // Create a mock FirestoreUser for backward compatibility
-              const { Timestamp } = await import('firebase/firestore');
-              existingUser = {
-                ...FirestoreService.convertToFirestoreUser(localUser),
-                createdAt: Timestamp.fromDate(new Date()),
-                updatedAt: Timestamp.fromDate(new Date()),
-              } as FirestoreUser;
-            }
-          }
-
-          const isExistingUser = existingUser !== null;
+          // Check if user already exists locally
+          const existingUser = getAuthUser();
+          const isExistingUser =
+            existingUser && existingUser.phoneNumber === phoneNumber;
 
           if (isExistingUser) {
             // User already exists
             if (mode === 'signup') {
-              // Signup mode - existing user should login instead
               setError(
                 'This phone number is already registered. Please log in instead.'
               );
-              // Reset form to allow login
               setOtpSent(false);
               setOtp('');
               return;
             } else {
               // Login mode - existing user can proceed
-              if (!existingUser) {
-                setError('User data not found. Please try again.');
-                return;
+              setAuthUser({
+                ...existingUser,
+                isAuthenticated: true,
+              });
+
+              // Redirect based on questionnaire completion
+              if (existingUser.isQuestionnaireComplete) {
+                router.push('/chat');
+              } else {
+                router.push('/questionnaire');
               }
-
-              try {
-                // Update last login in Firestore
-                await FirestoreService.updateLastLogin(existingUser.id);
-
-                // Convert to local user format and update localStorage
-                const localUser =
-                  FirestoreService.convertToLocalUser(existingUser);
-                setAuthUser({
-                  ...localUser,
-                  isAuthenticated: true,
-                });
-
-                // Redirect based on questionnaire completion
-                if (existingUser.isQuestionnaireComplete) {
-                  router.push('/chat');
-                } else {
-                  router.push('/questionnaire');
-                }
-                return;
-              } catch (error) {
-                console.error('Error updating last login:', error);
-                setError(handleFirestoreError(error));
-                return;
-              }
+              return;
             }
           }
 
           // New user
           if (mode === 'login') {
-            // Login mode - new user should sign up instead
             setError(
               'This phone number is not registered. Please sign up first.'
             );
-            // Reset form to allow signup
             setOtpSent(false);
             setOtp('');
             return;
           } else {
             // Signup mode - create new account
-            try {
-              const newUser = {
-                id: `user_${Date.now()}`,
-                phoneNumber: phoneNumber,
-                isAuthenticated: true,
-                isQuestionnaireComplete: false,
-              };
+            const newUser = {
+              id: `user_${Date.now()}`,
+              phoneNumber: phoneNumber,
+              isAuthenticated: true,
+              isQuestionnaireComplete: false,
+              questionnaireData: null,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
 
-              // Create user in Firestore
-              await FirestoreService.createUser(newUser);
-
-              // Also update localStorage for immediate access
-              setAuthUser(newUser);
-
-              // New user always goes to questionnaire
-              router.push('/questionnaire');
-            } catch (error) {
-              console.error('Error creating new user:', error);
-              setError(handleFirestoreError(error));
-              return;
-            }
+            setAuthUser(newUser);
+            router.push('/questionnaire');
           }
         } else {
           // Real number - use Firebase verification
@@ -336,158 +212,84 @@ export function PhoneAuthForm({
               const result = await confirmationResult.confirm(otp);
               const user = result.user;
 
-              console.log(
-                'Real user authenticated successfully:',
-                user.phoneNumber
-              );
+              console.log('User authenticated successfully:', user.phoneNumber);
 
-              // Check if user already exists in Firestore
-              let existingUser = null;
-              try {
-                existingUser = await FirestoreService.getUserByPhone(
-                  user.phoneNumber || phoneNumber
-                );
-              } catch (error) {
-                console.error('Error checking existing user:', error);
-                // Fallback to localStorage for backward compatibility
-                const localUser = getAuthUser();
-                if (
-                  localUser &&
-                  localUser.phoneNumber === (user.phoneNumber || phoneNumber)
-                ) {
-                  // Create a mock FirestoreUser for backward compatibility
-                  const { Timestamp } = await import('firebase/firestore');
-                  existingUser = {
-                    ...FirestoreService.convertToFirestoreUser(localUser),
-                    createdAt: Timestamp.fromDate(new Date()),
-                    updatedAt: Timestamp.fromDate(new Date()),
-                  } as FirestoreUser;
-                }
-              }
-
-              const isExistingUser = existingUser !== null;
+              // Check if user already exists locally
+              const existingUser = getAuthUser();
+              const isExistingUser =
+                existingUser && existingUser.phoneNumber === user.phoneNumber;
 
               if (isExistingUser) {
                 // User already exists
                 if (mode === 'signup') {
-                  // Signup mode - existing user should login instead
                   setError(
                     'This phone number is already registered. Please log in instead.'
                   );
-                  // Reset form to allow login
                   setOtpSent(false);
                   setOtp('');
                   return;
                 } else {
                   // Login mode - existing user can proceed
-                  if (!existingUser) {
-                    setError('User data not found. Please try again.');
-                    return;
+                  setAuthUser({
+                    ...existingUser,
+                    isAuthenticated: true,
+                  });
+
+                  // Redirect based on questionnaire completion
+                  if (existingUser.isQuestionnaireComplete) {
+                    router.push('/chat');
+                  } else {
+                    router.push('/questionnaire');
                   }
-
-                  try {
-                    // Update last login in Firestore
-                    await FirestoreService.updateLastLogin(existingUser.id);
-
-                    // Convert to local user format and update localStorage
-                    const localUser =
-                      FirestoreService.convertToLocalUser(existingUser);
-                    setAuthUser({
-                      ...localUser,
-                      isAuthenticated: true,
-                    });
-
-                    // Redirect based on questionnaire completion
-                    if (existingUser.isQuestionnaireComplete) {
-                      router.push('/chat');
-                    } else {
-                      router.push('/questionnaire');
-                    }
-                    return;
-                  } catch (error) {
-                    console.error('Error updating last login:', error);
-                    setError(handleFirestoreError(error));
-                    return;
-                  }
+                  return;
                 }
               }
 
               // New user
               if (mode === 'login') {
-                // Login mode - new user should sign up instead
                 setError(
                   'This phone number is not registered. Please sign up first.'
                 );
-                // Reset form to allow signup
                 setOtpSent(false);
                 setOtp('');
                 return;
               } else {
                 // Signup mode - create new account
-                try {
-                  const newUser = {
-                    id: user.uid,
-                    phoneNumber: user.phoneNumber || phoneNumber,
-                    isAuthenticated: true,
-                    isQuestionnaireComplete: false,
-                  };
+                const newUser = {
+                  id: user.uid,
+                  phoneNumber: user.phoneNumber || phoneNumber,
+                  isAuthenticated: true,
+                  isQuestionnaireComplete: false,
+                  questionnaireData: null,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                };
 
-                  // Create user in Firestore
-                  await FirestoreService.createUser(newUser);
-
-                  // Also update localStorage for immediate access
-                  setAuthUser(newUser);
-
-                  // New user always goes to questionnaire
-                  router.push('/questionnaire');
-                } catch (error) {
-                  console.error('Error creating new user:', error);
-                  setError(handleFirestoreError(error));
-                  return;
-                }
+                setAuthUser(newUser);
+                router.push('/questionnaire');
               }
             } catch (error) {
-              console.error('OTP verification failed:', error);
-
-              // Handle specific OTP verification errors
+              console.error('Failed to verify OTP:', error);
               if (error instanceof Error) {
                 if (error.message.includes('invalid-verification-code')) {
-                  setError('Invalid OTP code. Please check and try again.');
+                  setError('Invalid OTP. Please check and try again.');
                 } else if (error.message.includes('code-expired')) {
-                  setError('OTP code has expired. Please request a new one.');
-                } else if (error.message.includes('too-many-requests')) {
-                  setError(
-                    'Too many attempts. Please wait before trying again.'
-                  );
-                } else if (error.message.includes('auth/internal-error')) {
-                  setError(
-                    'Authentication service temporarily unavailable. Please refresh the page and try again.'
-                  );
-                  // Reset reCAPTCHA verifier on internal error
-                  if (window.recaptchaVerifier) {
-                    try {
-                      window.recaptchaVerifier.clear();
-                    } catch (clearError) {
-                      console.warn(
-                        'Error clearing reCAPTCHA after internal error:',
-                        clearError
-                      );
-                    }
-                    window.recaptchaVerifier = undefined;
-                  }
+                  setError('OTP expired. Please request a new one.');
                 } else {
-                  setError('OTP verification failed. Please try again.');
+                  setError('Failed to verify OTP. Please try again.');
                 }
               } else {
-                setError('Invalid OTP. Please check the code and try again.');
+                setError('Failed to verify OTP. Please try again.');
               }
             }
+          } else {
+            setError('OTP verification failed. Please try again.');
           }
         }
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      // You can add error handling UI here
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -497,97 +299,83 @@ export function PhoneAuthForm({
     if (otpSent) {
       setOtpSent(false);
       setOtp('');
+      setError(null);
     } else if (onBack) {
       onBack();
     }
   };
 
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+
+    // Add +91 prefix if not present
+    if (digits.length > 0 && !digits.startsWith('91')) {
+      return '+91 ' + digits;
+    } else if (digits.startsWith('91')) {
+      return '+91 ' + digits.substring(2);
+    }
+
+    return value;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formatted);
+  };
+
   return (
-    <motion.form
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={cn('flex flex-col gap-6', className)}
-      onSubmit={handleSubmit}
-    >
-      {/* Header */}
-      <div className='flex flex-col items-center gap-2 text-center'>
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-          className='w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4'
-        >
-          <Smartphone className='w-8 h-8 text-primary' />
-        </motion.div>
-
-        <h1 className='text-2xl font-bold text-foreground'>
-          {otpSent
-            ? 'Verify your phone'
-            : `${mode === 'login' ? 'Login' : 'Sign up'} with phone`}
-        </h1>
-        <p className='text-muted-foreground text-sm text-balance max-w-sm'>
-          {otpSent
-            ? `Enter the 6-digit code sent to ${phoneNumber}`
-            : mode === 'login'
-              ? 'Enter your phone number to log in'
-              : 'Enter your phone number to get started'}
-        </p>
-      </div>
-
-      {/* Back Button */}
-      {(otpSent || onBack) && (
-        <Button
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={handleBack}
-          className='self-start -ml-2 text-muted-foreground hover:text-foreground'
-        >
-          <ArrowLeft className='w-4 h-4 mr-2' />
-          Back
-        </Button>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className='p-3 bg-red-50 border border-red-200 rounded-lg'>
-          <p className='text-sm text-red-600'>{error}</p>
-          {error.includes('already registered') && (
-            <div className='mt-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => {
-                  setError(null);
-                  setOtpSent(false);
-                  setOtp('');
-                }}
-                className='text-xs'
-              >
-                Try Login Instead
-              </Button>
-            </div>
-          )}
-          {error.includes('temporarily unavailable') && retryCount < 3 && (
-            <div className='mt-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={retryOperation}
-                className='text-xs'
-              >
-                Retry ({retryCount}/3)
-              </Button>
-            </div>
-          )}
+    <div className={cn('w-full max-w-md mx-auto', className)}>
+      <form onSubmit={handleSubmit} className='space-y-6'>
+        {/* Header */}
+        <div className='text-center space-y-2'>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className='flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-full'
+          >
+            <Smartphone className='w-8 h-8 text-primary' />
+          </motion.div>
+          <motion.h2
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className='text-2xl font-bold text-foreground'
+          >
+            {mode === 'login' ? 'Welcome Back' : 'Get Started'}
+          </motion.h2>
+          <motion.p
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className='text-muted-foreground'
+          >
+            {mode === 'login'
+              ? 'Enter your phone number to sign in'
+              : 'Enter your phone number to create an account'}
+          </motion.p>
         </div>
-      )}
 
-      {/* Form Fields */}
-      <div className='grid gap-6'>
-        {!otpSent ? (
-          <div className='grid gap-3'>
+        {/* Error Message */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='p-3 bg-red-50 border border-red-200 rounded-lg'
+          >
+            <p className='text-red-600 text-sm text-center'>{error}</p>
+          </motion.div>
+        )}
+
+        {/* Phone Number Input */}
+        {!otpSent && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+            className='space-y-2'
+          >
             <Label htmlFor='phone' className='text-sm font-medium'>
               Phone Number
             </Label>
@@ -596,88 +384,113 @@ export function PhoneAuthForm({
               type='tel'
               placeholder='+91 98765 43210'
               value={phoneNumber}
-              onChange={e => setPhoneNumber(e.target.value)}
+              onChange={handlePhoneChange}
+              className='w-full'
               required
-              className='h-12 text-base'
+              disabled={isLoading}
             />
             <p className='text-xs text-muted-foreground'>
-              We&apos;ll send you a verification code via SMS
+              We'll send you a verification code
             </p>
-          </div>
-        ) : (
-          <div className='grid gap-3'>
+          </motion.div>
+        )}
+
+        {/* OTP Input */}
+        {otpSent && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className='space-y-2'
+          >
             <Label htmlFor='otp' className='text-sm font-medium'>
               Verification Code
             </Label>
             <Input
               id='otp'
               type='text'
-              placeholder='123456'
+              placeholder='Enter 6-digit code'
               value={otp}
               onChange={e =>
                 setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
               }
+              className='w-full text-center text-lg tracking-widest'
               required
-              className='h-12 text-center text-2xl tracking-widest'
-              maxLength={6}
+              disabled={isLoading}
             />
             <p className='text-xs text-muted-foreground text-center'>
-              Did not receive the code?{' '}
-              <button
-                type='button'
-                className='text-primary hover:underline'
-                onClick={() => {
-                  // Resend OTP logic
-                  console.log('Resending OTP to:', phoneNumber);
-                }}
-              >
-                Resend
-              </button>
+              Enter the code sent to {phoneNumber}
             </p>
-          </div>
+          </motion.div>
         )}
 
-        <Button
-          type='submit'
-          className='w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium'
-          disabled={
-            isLoading ||
-            (!otpSent && !phoneNumber) ||
-            (otpSent && otp.length !== 6)
-          }
+        {/* Submit Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className='w-5 h-5 border-2 border-white border-t-transparent rounded-full'
-            />
-          ) : otpSent ? (
-            'Verify & Continue'
-          ) : (
-            `Send ${mode === 'login' ? 'Login' : 'Verification'} Code`
-          )}
-        </Button>
-      </div>
+          <Button
+            type='submit'
+            className='w-full'
+            disabled={isLoading || (otpSent && otp.length !== 6)}
+          >
+            {isLoading ? (
+              <div className='flex items-center space-x-2'>
+                <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                <span>{otpSent ? 'Verifying...' : 'Sending...'}</span>
+              </div>
+            ) : otpSent ? (
+              'Verify Code'
+            ) : (
+              'Send Code'
+            )}
+          </Button>
+        </motion.div>
 
-      {/* Mode Toggle */}
-      {!otpSent && (
-        <div className='text-center text-sm'>
-          {mode === 'login'
-            ? "Don't have an account? "
-            : 'Already have an account? '}
+        {/* Back Button */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          className='text-center'
+        >
+          <Button
+            type='button'
+            variant='ghost'
+            size='sm'
+            onClick={handleBack}
+            className='text-muted-foreground hover:text-foreground'
+          >
+            <ArrowLeft className='w-4 h-4 mr-2' />
+            {otpSent ? 'Change Number' : 'Back'}
+          </Button>
+        </motion.div>
+
+        {/* Mode Switch */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.6 }}
+          className='text-center text-sm'
+        >
+          <span className='text-muted-foreground'>
+            {mode === 'login'
+              ? "Don't have an account? "
+              : 'Already have an account? '}
+          </span>
           <button
             type='button'
-            className='text-primary hover:underline font-medium'
             onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
+            className='text-primary hover:underline font-medium'
           >
-            {mode === 'login' ? 'Sign up' : 'Login'}
+            {mode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
-        </div>
-      )}
+        </motion.div>
+      </form>
 
-      {/* reCAPTCHA container (invisible) */}
-      <div id='recaptcha-container'></div>
-    </motion.form>
+      {/* reCAPTCHA Container */}
+      <div id='recaptcha-container' className='hidden' />
+    </div>
   );
 }

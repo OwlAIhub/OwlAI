@@ -2,7 +2,7 @@
 
 import { getAuthUser, User } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
-import { FirestoreService } from '@/lib/firestore';
+// Removed Firestore dependency
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -65,38 +65,22 @@ export function RouteProtection({
               const localUser = getAuthUser();
 
               if (!localUser?.isAuthenticated) {
-                // Local user data missing, try to fetch from Firestore
-                try {
-                  const firestoreUser = await FirestoreService.getUserByPhone(
-                    firebaseUser.phoneNumber || ''
-                  );
-
-                  if (firestoreUser) {
-                    // Update local storage with Firestore data
-                    const updatedLocalUser = {
-                      ...FirestoreService.convertToLocalUser(firestoreUser),
-                      isAuthenticated: true,
-                    };
-                    localStorage.setItem(
-                      'authUser',
-                      JSON.stringify(updatedLocalUser)
-                    );
-
-                    setAuthState(prev => ({
-                      ...prev,
-                      user: updatedLocalUser,
-                      firebaseUser,
-                    }));
-                  } else {
-                    // User not found in Firestore, redirect to questionnaire
-                    router.push('/questionnaire');
-                    return;
-                  }
-                } catch (error) {
-                  console.error('Error fetching user from Firestore:', error);
-                  router.push('/');
-                  return;
-                }
+                // Create basic user from Firebase user
+                const basicUser = {
+                  id: firebaseUser.uid,
+                  phoneNumber: firebaseUser.phoneNumber || '',
+                  isAuthenticated: true,
+                  isQuestionnaireComplete: false,
+                  questionnaireData: null,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                };
+                localStorage.setItem('authUser', JSON.stringify(basicUser));
+                setAuthState(prev => ({
+                  ...prev,
+                  user: basicUser,
+                  firebaseUser,
+                }));
               } else {
                 setAuthState(prev => ({
                   ...prev,

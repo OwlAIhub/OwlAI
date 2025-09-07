@@ -5,7 +5,7 @@ import { RouteProtection } from '@/components/auth/RouteProtection';
 import { Button } from '@/components/ui/button';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { QuestionnaireData, getAuthUser, setAuthUser } from '@/lib/auth';
-import { FirestoreService, handleFirestoreError } from '@/lib/firestore';
+// Removed Firestore dependency
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
@@ -38,8 +38,7 @@ export default function QuestionnairePage() {
         throw new Error('User not found. Please log in again.');
       }
 
-      // Save questionnaire data to Firestore
-      await FirestoreService.updateQuestionnaireData(currentUser.id, data);
+      // Save questionnaire data locally (no Firestore)
 
       // Update local user data
       const updatedUser = {
@@ -54,7 +53,7 @@ export default function QuestionnairePage() {
       router.push('/chat');
     } catch (error) {
       console.error('Error saving questionnaire data:', error);
-      setSaveError(handleFirestoreError(error));
+      setSaveError('Failed to save questionnaire data. Please try again.');
     } finally {
       setIsSaving(false);
     }
