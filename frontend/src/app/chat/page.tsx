@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/components/auth/providers/AuthProvider';
+import { ChatContainer } from '@/components/chat';
 import { AppSidebar } from '@/components/layout/sidebar/app-sidebar';
 import {
   Breadcrumb,
@@ -10,29 +11,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/buttons/button';
 import { Separator } from '@/components/ui/separator';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { motion } from 'framer-motion';
 import { Home, LogOut, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { Button } from '../../components/ui/buttons/button';
 
 export default function ChatPage() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
-  const [messages, setMessages] = useState<
-    Array<{
-      id: number;
-      type: 'user' | 'bot';
-      content: string;
-      timestamp: Date;
-    }>
-  >([]);
 
   const handleBackToHome = () => {
     router.push('/');
@@ -107,36 +98,8 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Content */}
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
-          {/* Chat Messages */}
-          <div className='flex-1 rounded-xl bg-muted/50 p-4'>
-            <div className='space-y-4 max-h-[500px] overflow-y-auto'>
-              {messages.map(msg => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className={`flex ${
-                    msg.type === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      msg.type === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background border'
-                    }`}
-                  >
-                    <p className='text-sm'>{msg.content}</p>
-                    <p className='text-xs opacity-70 mt-1'>
-                      {msg.timestamp.toLocaleTimeString()}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+        <div className='flex-1 flex flex-col'>
+          <ChatContainer />
         </div>
       </SidebarInset>
     </SidebarProvider>
