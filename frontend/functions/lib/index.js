@@ -19,7 +19,7 @@ const path_1 = __importDefault(require("path"));
 const nextApp = (0, next_1.default)({
     dev: false,
     conf: {
-        distDir: path_1.default.join(__dirname, '../../.next'),
+        distDir: path_1.default.join(__dirname, '../../../.next'),
         experimental: {
             serverComponentsExternalPackages: ['firebase-admin'],
         },
