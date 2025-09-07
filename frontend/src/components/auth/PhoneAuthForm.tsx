@@ -16,7 +16,6 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from 'firebase/auth';
-import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Smartphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -25,7 +24,7 @@ import { useEffect, useState } from 'react';
 // Extend Window interface for reCAPTCHA
 declare global {
   interface Window {
-    recaptchaVerifier: RecaptchaVerifier;
+    recaptchaVerifier?: RecaptchaVerifier;
   }
 }
 
@@ -51,35 +50,59 @@ export function PhoneAuthForm({
     useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Setup reCAPTCHA (invisible) - only for real phone numbers
+  // Setup reCAPTCHA (invisible) - only when needed
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Only setup reCAPTCHA for real phone numbers (not test numbers)
-      if (phoneNumber && phoneNumber !== '+91 98765 43210') {
-        try {
-          window.recaptchaVerifier = new RecaptchaVerifier(
-            auth,
-            'recaptcha-container',
-            {
-              size: 'invisible',
-              callback: () => {
-                console.log('reCAPTCHA verified for real number');
-              },
-              'expired-callback': () => {
-                console.log('reCAPTCHA expired');
-              },
-            }
-          );
-          console.log('reCAPTCHA setup for real number:', phoneNumber);
-        } catch (error) {
-          console.error('reCAPTCHA setup failed:', error);
-          // Don't throw error, let the user try anyway
-        }
-      } else {
-        console.log('Test number detected, skipping reCAPTCHA setup');
+      // Clear any existing reCAPTCHA
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = undefined;
       }
     }
-  }, [phoneNumber]);
+
+    // Cleanup on unmount
+    return () => {
+      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = undefined;
+      }
+    };
+  }, []);
+
+  // Setup reCAPTCHA when user enters a real phone number
+  const setupRecaptcha = () => {
+    if (typeof window === 'undefined') return;
+
+    // Only setup reCAPTCHA for real phone numbers (not test numbers)
+    if (phoneNumber && phoneNumber !== '+91 98765 43210') {
+      try {
+        // Clear any existing reCAPTCHA first
+        if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+        }
+
+        window.recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          'recaptcha-container',
+          {
+            size: 'invisible',
+            callback: () => {
+              console.log('reCAPTCHA verified for real number');
+            },
+            'expired-callback': () => {
+              console.log('reCAPTCHA expired');
+            },
+          }
+        );
+        console.log('reCAPTCHA setup for real number:', phoneNumber);
+      } catch (error) {
+        console.error('reCAPTCHA setup failed:', error);
+        // Don't throw error, let the user try anyway
+      }
+    } else {
+      console.log('Test number detected, skipping reCAPTCHA setup');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +119,9 @@ export function PhoneAuthForm({
         } else {
           // Real number - use Firebase with reCAPTCHA
           try {
+            // Setup reCAPTCHA if not already done
+            setupRecaptcha();
+
             const appVerifier = window.recaptchaVerifier;
             if (!appVerifier) {
               throw new Error('reCAPTCHA not initialized');
@@ -146,6 +172,7 @@ export function PhoneAuthForm({
             const localUser = getAuthUser();
             if (localUser && localUser.phoneNumber === phoneNumber) {
               // Create a mock FirestoreUser for backward compatibility
+              const { Timestamp } = await import('firebase/firestore');
               existingUser = {
                 ...FirestoreService.convertToFirestoreUser(localUser),
                 createdAt: Timestamp.fromDate(new Date()),
@@ -259,6 +286,7 @@ export function PhoneAuthForm({
                   localUser.phoneNumber === (user.phoneNumber || phoneNumber)
                 ) {
                   // Create a mock FirestoreUser for backward compatibility
+                  const { Timestamp } = await import('firebase/firestore');
                   existingUser = {
                     ...FirestoreService.convertToFirestoreUser(localUser),
                     createdAt: Timestamp.fromDate(new Date()),
