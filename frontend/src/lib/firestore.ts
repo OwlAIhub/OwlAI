@@ -240,7 +240,7 @@ export class FirestoreService {
       phoneNumber: localUser.phoneNumber,
       fullName: localUser.questionnaireData?.fullName,
       isAuthenticated: localUser.isAuthenticated,
-      isQuestionnaireComplete: localUser.isQuestionnaireComplete ?? false,
+      isQuestionnaireComplete: Boolean(localUser.isQuestionnaireComplete),
       questionnaireData: localUser.questionnaireData,
     };
   }
