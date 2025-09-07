@@ -1,4 +1,3 @@
-import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 // Route configuration
@@ -45,8 +44,8 @@ function isAuthRoute(pathname: string): boolean {
   return ROUTES.AUTH.some(route => pathname.startsWith(route));
 }
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export function middleware(request: Request) {
+  const { pathname } = new URL(request.url);
 
   // Allow all public routes
   if (isPublicRoute(pathname)) {

@@ -1,13 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for Firebase Hosting
-  output: 'export',
+  // Full production mode - no static export
   trailingSlash: true,
   images: {
     unoptimized: true,
   },
 
-  // Security headers disabled for static export
+  // Enable experimental features for production
+  experimental: {
+    serverComponentsExternalPackages: ['firebase-admin'],
+  },
+
+  // Security headers - handled by middleware now
   // async headers() {
   //   return [
   //     {
