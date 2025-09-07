@@ -11,19 +11,24 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
-          background: 'linear-gradient(135deg, #0D9488 0%, #14B8A6 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          fontWeight: 'bold',
+          background: 'linear-gradient(135deg, #0D9488 0%, #14B8A6 100%)',
           borderRadius: '8px',
         }}
       >
-        🦉
+        <div
+          style={{
+            fontSize: '20px',
+            color: 'white',
+            fontWeight: 'bold',
+          }}
+        >
+          🦉
+        </div>
       </div>
     ),
     {

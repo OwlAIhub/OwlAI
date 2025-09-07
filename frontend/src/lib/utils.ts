@@ -178,6 +178,10 @@ export function isValidPhone(phone: string): boolean {
  * Copy text to clipboard
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
   try {
     await navigator.clipboard.writeText(text);
     return true;

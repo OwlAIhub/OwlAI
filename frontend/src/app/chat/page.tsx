@@ -114,7 +114,9 @@ export default function ChatPage() {
   };
 
   const handleCopyMessage = (text: string) => {
-    navigator.clipboard.writeText(text);
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
   };
 
   const handleRegenerateResponse = () => {
@@ -170,7 +172,9 @@ export default function ChatPage() {
                       }`}
                     >
                       <span className='text-xs'>
-                        {msg.timestamp.toLocaleTimeString()}
+                        {typeof window !== 'undefined'
+                          ? msg.timestamp.toLocaleTimeString()
+                          : msg.timestamp.toISOString()}
                       </span>
 
                       {!msg.isUser && (

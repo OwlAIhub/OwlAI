@@ -33,10 +33,17 @@ const nextConfig = {
   // Handle hydration issues caused by browser extensions
   reactStrictMode: true,
   images: {
-    // Allow using quality=95 in <Image /> and custom components
-    qualities: [95],
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 31536000, // 1 year
+    // Disable image optimization for Firebase Hosting compatibility
+    unoptimized: true,
+    // Allow external domains for images
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.aceternity.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   // Compiler optimizations
   compiler: {
