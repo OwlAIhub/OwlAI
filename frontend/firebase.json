@@ -1,9 +1,14 @@
 {
   "hosting": {
-    "source": ".",
-    "use": "@firebase/hosting-frameworks",
+    "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "predeploy": ["npm run build"],
+    "predeploy": ["pnpm run build"],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "headers": [
       {
         "source": "**",

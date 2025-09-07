@@ -37,13 +37,10 @@ const validateEnvironmentVariables = () => {
 validateEnvironmentVariables();
 
 const nextConfig: NextConfig = {
-  // Firebase Hosting configuration
-  output: 'standalone',
+  // Firebase Hosting configuration (Static Export)
+  output: 'export',
   trailingSlash: true,
-  outputFileTracingRoot: __dirname,
-
-  // Firebase Admin SDK support
-  serverExternalPackages: ['firebase-admin'],
+  distDir: 'out',
 
   // Performance optimizations
   experimental: {
