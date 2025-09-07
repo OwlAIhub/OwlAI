@@ -1,16 +1,41 @@
 'use client';
 
-// Removed RouteProtection
 import { useAuth } from '@/components/auth/providers/AuthProvider';
+import { AppSidebar } from '@/components/layout/sidebar/app-sidebar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/buttons/button';
-import { ResponsiveContainer } from '@/components/ui/responsive-container';
+import { Input } from '@/components/ui/inputs/input';
+import { Separator } from '@/components/ui/separator';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { motion } from 'framer-motion';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { Home, LogOut, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function ChatPage() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      type: 'bot',
+      content:
+        "Hello! I'm Owl AI, your study companion. How can I help you today?",
+      timestamp: new Date(),
+    },
+  ]);
 
   const handleBackToHome = () => {
     router.push('/');
@@ -19,6 +44,34 @@ export default function ChatPage() {
   const handleLogout = async () => {
     await logout();
     router.push('/');
+  };
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+
+    // Add user message
+    const userMessage = {
+      id: messages.length + 1,
+      type: 'user' as const,
+      content: message,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+
+    // Simulate bot response
+    setTimeout(() => {
+      const botMessage = {
+        id: messages.length + 2,
+        type: 'bot' as const,
+        content:
+          "I'm here to help with your studies! This is a demo response. The full AI integration is coming soon.",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, botMessage]);
+    }, 1000);
+
+    setMessage('');
   };
 
   if (isLoading) {
@@ -30,113 +83,129 @@ export default function ChatPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background via-background to-primary/5'>
-      {/* Background Pattern */}
-      <div className='absolute inset-0 opacity-5'>
-        <div className='absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]' />
-      </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        {/* Header */}
+        <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
+          <div className='flex items-center gap-2 px-4'>
+            <SidebarTrigger className='-ml-1' />
+            <Separator orientation='vertical' className='mr-2 h-4' />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className='hidden md:block'>
+                  <BreadcrumbLink href='/'>
+                    <Home className='h-4 w-4' />
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className='hidden md:block' />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className='flex items-center gap-2'>
+                    <MessageSquare className='h-4 w-4' />
+                    Chat
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
 
-      {/* Header */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className='relative z-10 p-4'
-      >
-        <ResponsiveContainer maxWidth='6xl' padding='none'>
-          <div className='flex items-center justify-between'>
-            {/* Back Button */}
+          {/* Header Actions */}
+          <div className='ml-auto flex items-center gap-2 px-4'>
+            {user?.phoneNumber && (
+              <span className='text-sm text-muted-foreground hidden md:block'>
+                {user.phoneNumber}
+              </span>
+            )}
             <Button
               variant='ghost'
               size='sm'
               onClick={handleBackToHome}
               className='text-muted-foreground hover:text-foreground'
             >
-              <ArrowLeft className='w-4 h-4 mr-2' />
-              Back to Home
+              <Home className='w-4 h-4 mr-2' />
+              Home
             </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleLogout}
+              className='text-muted-foreground hover:text-foreground'
+            >
+              <LogOut className='w-4 h-4 mr-2' />
+              Logout
+            </Button>
+          </div>
+        </header>
 
-            {/* User Info & Logout */}
-            <div className='flex items-center gap-4'>
-              {user?.phoneNumber && (
-                <span className='text-sm text-muted-foreground'>
-                  Welcome, {user.phoneNumber}
-                </span>
-              )}
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleLogout}
-                className='text-muted-foreground hover:text-foreground'
-              >
-                <LogOut className='w-4 h-4 mr-2' />
-                Logout
-              </Button>
+        {/* Chat Content */}
+        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
+          {/* Welcome Message */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className='rounded-xl bg-muted/50 p-6'
+          >
+            <div className='flex items-center gap-3 mb-3'>
+              <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10'>
+                <Sparkles className='h-5 w-5 text-primary' />
+              </div>
+              <div>
+                <h2 className='text-lg font-semibold'>
+                  Welcome to Owl AI Chat
+                </h2>
+                <p className='text-sm text-muted-foreground'>
+                  Your AI study partner is ready to help you excel in your exams
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Chat Messages */}
+          <div className='flex-1 rounded-xl bg-muted/50 p-4'>
+            <div className='space-y-4 max-h-[500px] overflow-y-auto'>
+              {messages.map(msg => (
+                <motion.div
+                  key={msg.id}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex ${
+                    msg.type === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[70%] rounded-lg p-3 ${
+                      msg.type === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background border'
+                    }`}
+                  >
+                    <p className='text-sm'>{msg.content}</p>
+                    <p className='text-xs opacity-70 mt-1'>
+                      {msg.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
-        </ResponsiveContainer>
-      </motion.header>
 
-      {/* Main Content */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className='relative z-10 flex-1 flex items-center justify-center p-4'
-      >
-        <ResponsiveContainer maxWidth='4xl'>
-          <div className='text-center'>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className='mb-8'
-            >
-              <h1 className='text-4xl font-bold text-foreground mb-4'>
-                Welcome to Owl AI Chat
-              </h1>
-              <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Your AI study partner is ready to help you learn and excel in
-                your exams.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className='bg-card/50 backdrop-blur-sm border rounded-lg p-8 max-w-2xl mx-auto'
-            >
-              <h2 className='text-2xl font-semibold mb-4'>
-                Chat Interface Coming Soon
-              </h2>
-              <p className='text-muted-foreground mb-6'>
-                The chat interface is being developed. You&apos;re successfully
-                authenticated and ready to use Owl AI!
-              </p>
-
-              {user && (
-                <div className='text-left bg-muted/50 rounded-lg p-4 mb-6'>
-                  <h3 className='font-semibold mb-2'>Your Profile:</h3>
-                  <p>
-                    <strong>Phone:</strong> {user.phoneNumber}
-                  </p>
-                  <p>
-                    <strong>User ID:</strong> {user.id}
-                  </p>
-                </div>
-              )}
-
-              <Button
-                onClick={handleBackToHome}
-                className='bg-primary hover:bg-primary/90'
-              >
-                Back to Home
-              </Button>
-            </motion.div>
+          {/* Message Input */}
+          <div className='flex gap-2'>
+            <Input
+              placeholder='Ask me anything about your studies...'
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+              className='flex-1'
+            />
+            <Button onClick={handleSendMessage} size='icon'>
+              <Send className='h-4 w-4' />
+            </Button>
           </div>
-        </ResponsiveContainer>
-      </motion.div>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
