@@ -1,4 +1,6 @@
 import {
+  FieldValue,
+  Timestamp,
   collection,
   deleteDoc,
   doc,
@@ -27,9 +29,9 @@ export interface FirestoreUser {
   isAuthenticated: boolean;
   isQuestionnaireComplete: boolean;
   questionnaireData?: QuestionnaireData;
-  createdAt: any; // Firestore timestamp
-  updatedAt: any; // Firestore timestamp
-  lastLoginAt?: any; // Firestore timestamp
+  createdAt: Timestamp | FieldValue; // Firestore timestamp
+  updatedAt: Timestamp | FieldValue; // Firestore timestamp
+  lastLoginAt?: Timestamp | FieldValue; // Firestore timestamp
 }
 
 // Error handling class
@@ -37,7 +39,7 @@ export class FirestoreError extends Error {
   constructor(
     message: string,
     public code?: string,
-    public originalError?: any
+    public originalError?: unknown
   ) {
     super(message);
     this.name = 'FirestoreError';
@@ -245,14 +247,15 @@ export class FirestoreService {
 }
 
 // Helper function to handle Firestore errors gracefully
-export function handleFirestoreError(error: any): string {
+export function handleFirestoreError(error: unknown): string {
   if (error instanceof FirestoreError) {
     return error.message;
   }
 
   // Handle specific Firestore error codes
-  if (error.code) {
-    switch (error.code) {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const firestoreError = error as { code: string };
+    switch (firestoreError.code) {
       case 'permission-denied':
         return 'You do not have permission to perform this action.';
       case 'unavailable':

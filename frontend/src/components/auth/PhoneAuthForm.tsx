@@ -16,6 +16,7 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from 'firebase/auth';
+import { Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Smartphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -147,8 +148,8 @@ export function PhoneAuthForm({
               // Create a mock FirestoreUser for backward compatibility
               existingUser = {
                 ...FirestoreService.convertToFirestoreUser(localUser),
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                createdAt: Timestamp.fromDate(new Date()),
+                updatedAt: Timestamp.fromDate(new Date()),
               } as FirestoreUser;
             }
           }
@@ -260,8 +261,8 @@ export function PhoneAuthForm({
                   // Create a mock FirestoreUser for backward compatibility
                   existingUser = {
                     ...FirestoreService.convertToFirestoreUser(localUser),
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
+                    createdAt: Timestamp.fromDate(new Date()),
+                    updatedAt: Timestamp.fromDate(new Date()),
                   } as FirestoreUser;
                 }
               }

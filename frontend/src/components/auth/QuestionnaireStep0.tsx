@@ -18,9 +18,11 @@ export function QuestionnaireStep0({
   return (
     <div className='space-y-6'>
       <div className='text-center space-y-2'>
-        <h2 className='text-xl font-bold text-foreground'>What's your name?</h2>
+        <h2 className='text-xl font-bold text-foreground'>
+          What&apos;s your name?
+        </h2>
         <p className='text-muted-foreground'>
-          We'd love to know what to call you
+          We&apos;d love to know what to call you
         </p>
       </div>
 
