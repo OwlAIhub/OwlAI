@@ -59,31 +59,13 @@
     ]
   },
   "functions": {
-    "source": ".",
+    "source": "functions",
     "runtime": "nodejs18",
     "ignore": [
       "node_modules",
       ".git",
       "firebase-debug.log",
-      "firebase-debug.*.log",
-      "src/**",
-      "public/**",
-      "*.md",
-      "*.json",
-      "*.js",
-      "*.ts",
-      "*.tsx",
-      "*.css",
-      "*.scss",
-      "*.html",
-      "*.yml",
-      "*.yaml",
-      "*.toml",
-      "*.lock",
-      "*.log",
-      "*.env*",
-      "!.next/**",
-      "!functions/**"
+      "firebase-debug.*.log"
     ]
   },
   "firestore": {
