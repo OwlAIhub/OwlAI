@@ -1,7 +1,7 @@
 'use client';
 
-import { PhoneAuthForm } from '@/components/auth/PhoneAuthForm';
-import { Button } from '@/components/ui/button';
+import { PhoneAuthForm } from '@/components/auth/forms/PhoneAuthForm';
+import { Button } from '@/components/ui/buttons/button';
 import {
   ResponsiveContainer,
   ResponsiveImage,

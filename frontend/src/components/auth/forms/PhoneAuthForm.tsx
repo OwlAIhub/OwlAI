@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/buttons/button';
+import { Input } from '@/components/ui/inputs/input';
+import { Label } from '@/components/ui/inputs/label';
 import { getAuthUser, setAuthUser } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
 import { cn } from '@/lib/utils';

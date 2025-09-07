@@ -1,4 +1,4 @@
-import { Footer } from '@/components/layout/Footer';
+import { Footer } from '@/components/layout/footer/Footer';
 import { AboutSection } from './AboutSection';
 import { ContactSection } from './ContactSection';
 import { ExamsSection } from './ExamsSection';

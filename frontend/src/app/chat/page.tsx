@@ -1,8 +1,8 @@
 'use client';
 
 // Removed RouteProtection
-import { useAuth } from '@/components/providers/AuthProvider';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/auth/providers/AuthProvider';
+import { Button } from '@/components/ui/buttons/button';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { motion } from 'framer-motion';
 import { ArrowLeft, LogOut } from 'lucide-react';
