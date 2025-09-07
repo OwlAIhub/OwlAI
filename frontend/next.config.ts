@@ -35,6 +35,8 @@ const nextConfig = {
   images: {
     // Disable image optimization for Firebase Hosting compatibility
     unoptimized: true,
+    // Configure qualities to avoid warnings
+    qualities: [95],
     // Allow external domains for images
     remotePatterns: [
       {

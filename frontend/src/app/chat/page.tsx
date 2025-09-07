@@ -59,7 +59,12 @@ export default function ChatPage() {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   // Check if user is authenticated
-  const user = getAuthUser();
+  const [user, setUser] = useState(getAuthUser());
+
+  // Update user state when component mounts or when navigating to chat
+  useEffect(() => {
+    setUser(getAuthUser());
+  }, []);
 
   // Cycle through placeholder texts
   useEffect(() => {
@@ -71,9 +76,22 @@ export default function ChatPage() {
     }
   }, [messages.length, message]);
 
-  if (!user?.isAuthenticated) {
-    router.push('/login');
-    return null;
+  // Check authentication and questionnaire completion
+  useEffect(() => {
+    if (!user?.isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    // Check if questionnaire is completed
+    if (user && !user.isQuestionnaireComplete) {
+      router.push('/questionnaire');
+      return;
+    }
+  }, [user, router]);
+
+  if (!user?.isAuthenticated || !user?.isQuestionnaireComplete) {
+    return null; // Will redirect via useEffect
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
