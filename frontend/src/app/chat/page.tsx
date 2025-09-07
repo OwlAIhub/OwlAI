@@ -31,47 +31,49 @@ export default function ChatPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        {/* Header */}
-        <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
-          <div className='flex items-center gap-2 px-4'>
-            <SidebarTrigger className='-ml-1' />
-            <Separator orientation='vertical' className='mr-2 h-4' />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className='hidden md:block'>
-                  <BreadcrumbLink href='/'>
-                    <Home className='h-4 w-4' />
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className='hidden md:block' />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className='flex items-center gap-2'>
-                    <MessageSquare className='h-4 w-4' />
-                    Chat
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+    <div className='h-screen flex overflow-hidden'>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className='flex flex-col h-full w-full'>
+          {/* Fixed Header - Never scrolls */}
+          <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b border-gray-200'>
+            <div className='flex items-center gap-2 px-4'>
+              <SidebarTrigger className='-ml-1' />
+              <Separator orientation='vertical' className='mr-2 h-4' />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className='hidden md:block'>
+                    <BreadcrumbLink href='/'>
+                      <Home className='h-4 w-4' />
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className='hidden md:block' />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className='flex items-center gap-2'>
+                      <MessageSquare className='h-4 w-4' />
+                      Chat
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
 
-          {/* Header Actions */}
-          <div className='ml-auto flex items-center gap-2 px-4'>
-            {user?.phoneNumber && (
-              <span className='text-sm text-muted-foreground hidden md:block'>
-                {user.phoneNumber}
-              </span>
-            )}
-          </div>
-        </header>
+            {/* Header Actions */}
+            <div className='ml-auto flex items-center gap-2 px-4'>
+              {user?.phoneNumber && (
+                <span className='text-sm text-muted-foreground hidden md:block'>
+                  {user.phoneNumber}
+                </span>
+              )}
+            </div>
+          </header>
 
-        {/* Chat Content */}
-        <div className='flex-1 flex flex-col'>
-          <ChatContainer />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+          {/* Chat Container - Takes remaining space */}
+          <div className='flex-1 min-h-0'>
+            <ChatContainer />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }

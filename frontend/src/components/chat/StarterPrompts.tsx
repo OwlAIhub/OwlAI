@@ -56,14 +56,23 @@ export function StarterPrompts({
               onClick={() => onPromptClick(prompt.prompt)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: 0.3 + index * 0.05 }}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              transition={{
+                duration: 0.3,
+                delay: 0.3 + index * 0.05,
+                ease: [0.4, 0, 0.2, 1],
+              }}
+              whileHover={{
+                scale: 1.02,
+                y: -2,
+                transition: { type: 'spring', stiffness: 400, damping: 17 },
+              }}
+              whileTap={{ scale: 0.98 }}
               className={cn(
-                'group flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200',
-                'bg-white hover:bg-gray-50 transition-all duration-200',
-                'focus:outline-none focus:ring-1 focus:ring-teal-500',
-                'text-left'
+                'group flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200',
+                'bg-white hover:bg-gray-50 transition-all duration-300',
+                'focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2',
+                'text-left shadow-sm hover:shadow-md',
+                'backdrop-blur-sm bg-white/90'
               )}
             >
               <Icon className='w-4 h-4 text-gray-500 group-hover:text-teal-600 transition-colors duration-200' />

@@ -55,12 +55,13 @@ export function ChatInput({
         className={cn(
           'relative flex items-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-full shadow-lg transition-all duration-300',
           'hover:shadow-xl focus-within:shadow-xl focus-within:border-teal-300 focus-within:ring-2 focus-within:ring-teal-100',
-          isFocused && 'scale-[1.02]',
+          'backdrop-blur-sm bg-white/95',
+          isFocused && 'scale-[1.02] border-teal-300 shadow-xl',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* Input Field */}
         <div className='flex-1 min-h-[24px] flex items-center'>
@@ -88,23 +89,40 @@ export function ChatInput({
         </div>
 
         {/* Send Button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        >
           <Button
             type='submit'
             disabled={!message.trim() || isLoading || disabled}
             size='icon'
             className={cn(
               'h-8 w-8 rounded-full transition-all duration-200',
-              'bg-teal-600 hover:bg-teal-700 text-white',
+              'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white',
               'disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed',
               'shadow-md hover:shadow-lg border border-teal-700/20',
-              'hover:scale-105 active:scale-95'
+              'hover:scale-105 active:scale-95',
+              'relative overflow-hidden'
             )}
           >
             {isLoading ? (
-              <Loader2 className='h-4 w-4 animate-spin' />
+              <motion.div
+                initial={{ rotate: 0 }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              >
+                <Loader2 className='h-4 w-4' />
+              </motion.div>
             ) : (
-              <Send className='h-4 w-4' />
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Send className='h-4 w-4' />
+              </motion.div>
             )}
           </Button>
         </motion.div>
