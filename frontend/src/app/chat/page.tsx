@@ -60,10 +60,6 @@ export default function ChatPage() {
 
   // Check if user is authenticated
   const user = getAuthUser();
-  if (!user?.isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
 
   // Cycle through placeholder texts
   useEffect(() => {
@@ -74,6 +70,11 @@ export default function ChatPage() {
       return () => clearInterval(interval);
     }
   }, [messages.length, message]);
+
+  if (!user?.isAuthenticated) {
+    router.push('/login');
+    return null;
+  }
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +117,7 @@ export default function ChatPage() {
     navigator.clipboard.writeText(text);
   };
 
-  const handleRegenerateResponse = (messageId: number) => {
+  const handleRegenerateResponse = () => {
     // Regenerate logic would go here
   };
 
@@ -182,7 +183,7 @@ export default function ChatPage() {
                             <Copy className='w-3 h-3' />
                           </button>
                           <button
-                            onClick={() => handleRegenerateResponse(msg.id)}
+                            onClick={handleRegenerateResponse}
                             className='p-1 hover:bg-white/20 rounded transition-colors'
                             title='Regenerate'
                           >
@@ -216,7 +217,7 @@ export default function ChatPage() {
               {messages.length === 0 && (
                 <div className='text-center mb-8'>
                   <h1 className='text-4xl font-bold text-primary mb-4'>
-                    OWLAI
+                    Owl AI
                   </h1>
                   <h2 className='text-2xl font-semibold text-foreground mb-2'>
                     How can I help you today?

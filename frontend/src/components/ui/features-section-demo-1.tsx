@@ -1,5 +1,4 @@
-import React from 'react';
-import { useId } from 'react';
+import React, { useId } from 'react';
 
 export default function FeaturesSectionDemo() {
   return (
@@ -87,8 +86,8 @@ export const Grid = ({
         <GridPattern
           width={size ?? 20}
           height={size ?? 20}
-          x='-12'
-          y='4'
+          x={-12}
+          y={4}
           squares={p}
           className='absolute inset-0 h-full w-full  mix-blend-overlay dark:fill-white/10 dark:stroke-white/10 stroke-black/10 fill-black/10'
         />
@@ -97,7 +96,20 @@ export const Grid = ({
   );
 };
 
-export function GridPattern({ width, height, x, y, squares, ...props }: any) {
+export function GridPattern({
+  width,
+  height,
+  x,
+  y,
+  squares,
+  ...props
+}: {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  squares?: number[][];
+} & React.SVGProps<SVGSVGElement>) {
   const patternId = useId();
 
   return (
@@ -122,16 +134,19 @@ export function GridPattern({ width, height, x, y, squares, ...props }: any) {
       />
       {squares && (
         <svg x={x} y={y} className='overflow-visible'>
-          {squares.map(([x, y]: any) => (
-            <rect
-              strokeWidth='0'
-              key={`${x}-${y}`}
-              width={width + 1}
-              height={height + 1}
-              x={x * width}
-              y={y * height}
-            />
-          ))}
+          {squares.map((square: number[], index: number) => {
+            const [x, y] = square;
+            return (
+              <rect
+                strokeWidth='0'
+                key={`${x}-${y}-${index}`}
+                width={width + 1}
+                height={height + 1}
+                x={x * width}
+                y={y * height}
+              />
+            );
+          })}
         </svg>
       )}
     </svg>
