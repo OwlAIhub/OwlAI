@@ -1,4 +1,14 @@
-const nextConfig = {
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  // Firebase Hosting configuration
+  output: 'standalone',
+  trailingSlash: true,
+  outputFileTracingRoot: __dirname,
+
+  // Firebase Admin SDK support
+  serverExternalPackages: ['firebase-admin'],
+
   // Performance optimizations
   experimental: {
     optimizePackageImports: [
@@ -19,19 +29,10 @@ const nextConfig = {
     // Optimize client-side navigation
     optimizeCss: true,
   },
-  // Turbopack configuration (moved from experimental.turbo)
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-    // Set root directory to avoid lockfile warnings
-    root: './',
-  },
+
   // Handle hydration issues caused by browser extensions
   reactStrictMode: true,
+
   images: {
     // Disable image optimization for Firebase Hosting compatibility
     unoptimized: true,
@@ -47,15 +48,14 @@ const nextConfig = {
       },
     ],
   },
+
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+
   // Bundle optimization
-  webpack: (
-    config: any,
-    { dev, isServer }: { dev: boolean; isServer: boolean }
-  ) => {
+  webpack: (config, { dev, isServer }: { dev: boolean; isServer: boolean }) => {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
