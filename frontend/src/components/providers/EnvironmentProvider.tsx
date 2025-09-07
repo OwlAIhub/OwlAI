@@ -1,9 +1,5 @@
 'use client';
 
-import {
-  getEnvironmentInfo,
-  validateAllEnvironments,
-} from '@/lib/env-validation';
 import { useEffect, useState } from 'react';
 
 interface EnvironmentProviderProps {
@@ -15,18 +11,15 @@ export function EnvironmentProvider({ children }: EnvironmentProviderProps) {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    // Only run validation in development or if there are issues
-    if (process.env.NODE_ENV === 'development') {
-      const result = validateAllEnvironments();
-      setIsValid(result.isValid);
-      setValidationErrors(result.errors);
-
-      if (!result.isValid) {
-        console.error('Environment validation failed:', result.errors);
-      }
-
-      // Log environment info in development
-      console.log('Environment Info:', getEnvironmentInfo());
+    // Skip client-side validation since process.env is not fully available on client
+    // Environment validation happens at build time in next.config.ts
+    if (
+      typeof window !== 'undefined' &&
+      process.env.NODE_ENV === 'development'
+    ) {
+      console.log(
+        'Environment Provider loaded - validation handled at build time'
+      );
     }
   }, []);
 

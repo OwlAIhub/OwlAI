@@ -2,15 +2,21 @@
 
 Complete guide for setting up development and production environments.
 
-## 📁 Environment Structure
+## 📁 Environment Structure (Next.js Standard)
 
 ```
-config/environments/
-├── .env.local              # Development environment
-├── .env.production         # Production environment
-├── .env.staging           # Staging environment (optional)
-└── .env.example           # Template file
+frontend/ (root)
+├── .env.local              # Development environment (gitignored)
+├── .env.production         # Production environment (gitignored)
+├── .env.example           # Template file (committed to git)
+└── .env                   # Default environment (optional)
 ```
+
+**Note**: Next.js automatically loads environment files from the project root in this order:
+
+1. `.env.local` (loaded in development only)
+2. `.env.production` (loaded when NODE_ENV=production)
+3. `.env` (loaded in all environments)
 
 ## 🔧 Setup Process
 
