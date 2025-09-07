@@ -1,40 +1,10 @@
 import type { NextConfig } from 'next';
 
-// Environment variable validation for production builds
-const validateEnvironmentVariables = () => {
-  const requiredVars = [
-    'NEXT_PUBLIC_FIREBASE_API_KEY',
-    'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-    'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-    'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
-    'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-    'NEXT_PUBLIC_FIREBASE_APP_ID',
-  ];
+// Import configuration to validate environment variables
+import './src/lib/config';
 
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
-
-  if (missingVars.length > 0) {
-    console.error(
-      '❌ Missing required environment variables:',
-      missingVars.join(', ')
-    );
-    console.error(
-      'Please check your .env.local file and ensure all required variables are set.'
-    );
-
-    // In production builds, fail the build if environment variables are missing
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(
-        `Missing required environment variables: ${missingVars.join(', ')}`
-      );
-    }
-  } else {
-    console.log('✅ All required environment variables are present');
-  }
-};
-
-// Validate environment variables during build
-validateEnvironmentVariables();
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
   // Firebase Hosting configuration (Static Export)
@@ -61,7 +31,7 @@ const nextConfig: NextConfig = {
     // Enable faster page transitions
     scrollRestoration: true,
     // Optimize client-side navigation
-    optimizeCss: true,
+    optimizeCss: isProduction,
   },
 
   // Handle hydration issues caused by browser extensions
@@ -85,7 +55,11 @@ const nextConfig: NextConfig = {
 
   // Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: isProduction
+      ? {
+          exclude: ['error', 'warn'],
+        }
+      : false,
   },
 
   // Bundle optimization
@@ -99,10 +73,78 @@ const nextConfig: NextConfig = {
             name: 'vendors',
             chunks: 'all',
           },
+          firebase: {
+            test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
+            name: 'firebase',
+            chunks: 'all',
+            priority: 10,
+          },
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
+            name: 'ui',
+            chunks: 'all',
+            priority: 9,
+          },
         },
       };
     }
     return config;
+  },
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value:
+              'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+      {
+        source: '/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Redirects for production
+  async redirects() {
+    return [
+      {
+        source: '/dashboard',
+        destination: '/chat',
+        permanent: true,
+      },
+    ];
   },
 };
 
