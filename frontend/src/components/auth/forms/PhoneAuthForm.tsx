@@ -171,8 +171,12 @@ export function PhoneAuthForm({
                 isAuthenticated: true,
               });
 
-              // Redirect to chat
-              router.push('/chat');
+              // Check if user needs to complete questionnaire
+              if (!existingUser.onboardingCompleted) {
+                router.push('/questionnaire');
+              } else {
+                router.push('/chat');
+              }
               return;
             }
           }
@@ -193,10 +197,11 @@ export function PhoneAuthForm({
               isAuthenticated: true,
               createdAt: new Date(),
               lastLoginAt: new Date(),
+              onboardingCompleted: false, // New users need to complete questionnaire
             };
 
             setAuthUser(newUser);
-            router.push('/chat');
+            router.push('/questionnaire');
           }
         } else {
           // Real number - use Firebase verification
@@ -229,8 +234,12 @@ export function PhoneAuthForm({
                     isAuthenticated: true,
                   });
 
-                  // Redirect to chat
-                  router.push('/chat');
+                  // Check if user needs to complete questionnaire
+                  if (!existingUser.onboardingCompleted) {
+                    router.push('/questionnaire');
+                  } else {
+                    router.push('/chat');
+                  }
                   return;
                 }
               }
@@ -251,10 +260,11 @@ export function PhoneAuthForm({
                   isAuthenticated: true,
                   createdAt: new Date(),
                   lastLoginAt: new Date(),
+                  onboardingCompleted: false, // New users need to complete questionnaire
                 };
 
                 setAuthUser(newUser);
-                router.push('/chat');
+                router.push('/questionnaire');
               }
             } catch (error) {
               console.error('Failed to verify OTP:', error);

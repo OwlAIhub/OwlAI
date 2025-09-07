@@ -7,8 +7,8 @@ interface EnvironmentProviderProps {
 }
 
 export function EnvironmentProvider({ children }: EnvironmentProviderProps) {
-  const [isValid, setIsValid] = useState(true);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isValid] = useState(true);
+  const [validationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     // Skip client-side validation since process.env is not fully available on client

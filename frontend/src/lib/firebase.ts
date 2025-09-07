@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
 // Initialize Firebase with error handling
@@ -15,6 +16,9 @@ try {
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+
+// Initialize Firestore and get a reference to the service
+export const db = getFirestore(app);
 
 // Additional production environment validation
 if (process.env.NODE_ENV === 'production') {

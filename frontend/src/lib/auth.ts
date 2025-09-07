@@ -15,6 +15,7 @@ export interface User {
   avatar?: string;
   createdAt?: Date;
   lastLoginAt?: Date;
+  onboardingCompleted?: boolean;
 }
 
 // Simple in-memory storage for development
