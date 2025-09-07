@@ -17,7 +17,7 @@ interface ChatInputProps {
 export function ChatInput({
   onSendMessage,
   isLoading = false,
-  placeholder = 'Message OwlAI...',
+  placeholder = 'Ask me anything about your studies...',
   disabled = false,
   className,
 }: ChatInputProps) {
@@ -53,9 +53,9 @@ export function ChatInput({
       <motion.form
         onSubmit={handleSubmit}
         className={cn(
-          'relative flex items-end gap-3 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm transition-all duration-200',
-          'hover:shadow-md focus-within:shadow-lg focus-within:border-teal-300',
-          isFocused && 'ring-2 ring-teal-100',
+          'relative flex items-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-full shadow-lg transition-all duration-300',
+          'hover:shadow-xl focus-within:shadow-xl focus-within:border-teal-300 focus-within:ring-2 focus-within:ring-teal-100',
+          isFocused && 'scale-[1.02]',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
         initial={{ y: 20, opacity: 0 }}
@@ -75,8 +75,8 @@ export function ChatInput({
             disabled={disabled || isLoading}
             className={cn(
               'w-full resize-none border-0 outline-none bg-transparent text-gray-900 placeholder-gray-500',
-              'text-base leading-6 min-h-[24px] max-h-[200px]',
-              'focus:ring-0 focus:outline-none'
+              'text-base leading-6 min-h-[24px] max-h-[160px] font-medium',
+              'focus:ring-0 focus:outline-none placeholder:font-medium placeholder:text-gray-400'
             )}
             rows={1}
             style={{
@@ -93,10 +93,11 @@ export function ChatInput({
             disabled={!message.trim() || isLoading || disabled}
             size='icon'
             className={cn(
-              'h-8 w-8 rounded-lg transition-all duration-200',
+              'h-8 w-8 rounded-full transition-all duration-200',
               'bg-teal-600 hover:bg-teal-700 text-white',
               'disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed',
-              'shadow-sm hover:shadow-md'
+              'shadow-md hover:shadow-lg border border-teal-700/20',
+              'hover:scale-105 active:scale-95'
             )}
           >
             {isLoading ? (
@@ -116,7 +117,7 @@ export function ChatInput({
         className='mt-2 text-center'
       >
         <p className='text-xs text-gray-500'>
-          Press Enter to send, Shift + Enter for new line
+          Press Enter to send • Shift + Enter for new line
         </p>
       </motion.div>
     </div>
