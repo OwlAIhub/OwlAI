@@ -11,28 +11,16 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/buttons/button';
 import { Separator } from '@/components/ui/separator';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Home, LogOut, MessageSquare } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Home, MessageSquare } from 'lucide-react';
 
 export default function ChatPage() {
-  const router = useRouter();
-  const { user, logout, isLoading } = useAuth();
-
-  const handleBackToHome = () => {
-    router.push('/');
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -76,24 +64,6 @@ export default function ChatPage() {
                 {user.phoneNumber}
               </span>
             )}
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={handleBackToHome}
-              className='text-muted-foreground hover:text-foreground'
-            >
-              <Home className='w-4 h-4 mr-2' />
-              Home
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={handleLogout}
-              className='text-muted-foreground hover:text-foreground'
-            >
-              <LogOut className='w-4 h-4 mr-2' />
-              Logout
-            </Button>
           </div>
         </header>
 
