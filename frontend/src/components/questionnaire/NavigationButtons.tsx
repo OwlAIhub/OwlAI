@@ -93,7 +93,7 @@ export default function NavigationButtons({
               ${
                 isLastStep
                   ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-teal-600 hover:bg-teal-700 text-white'
+                  : 'bg-gray-600 hover:bg-gray-700 text-white'
               }
               ${!canGoNext ? 'opacity-50 cursor-not-allowed' : ''}
             `}
@@ -115,7 +115,7 @@ export default function NavigationButtons({
 
 // Button variants for different states
 export const ButtonStates = {
-  enabled: 'bg-teal-600 hover:bg-teal-700 text-white',
+  enabled: 'bg-gray-600 hover:bg-gray-700 text-white',
   disabled: 'bg-gray-300 text-gray-500 cursor-not-allowed',
   loading: 'bg-teal-500 text-white cursor-wait',
   skip: 'bg-transparent text-gray-500 hover:text-gray-700 border border-gray-300',

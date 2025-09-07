@@ -69,7 +69,7 @@ export default function SubjectSelection({
             placeholder='Search subjects...'
             value={searchQuery}
             onChange={handleSearchChange}
-            className='w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
+            className='w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent'
           />
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function SubjectSelection({
           </p>
           <button
             onClick={() => setSearchQuery('')}
-            className='mt-2 text-teal-600 hover:text-teal-700 text-sm'
+            className='mt-2 text-gray-600 hover:text-gray-700 text-sm'
           >
             Clear search
           </button>
