@@ -44,7 +44,7 @@ export function PhoneAuthForm({
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  // Removed unused retryCount state
 
   // Initialize reCAPTCHA
   useEffect(() => {
@@ -378,7 +378,7 @@ export function PhoneAuthForm({
               disabled={isLoading}
             />
             <p className='text-xs text-muted-foreground'>
-              We'll send you a verification code
+              We&apos;ll send you a verification code
             </p>
           </motion.div>
         )}
