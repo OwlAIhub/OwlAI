@@ -16,7 +16,7 @@ setGlobalOptions({
 const nextApp = next({
   dev: false,
   conf: {
-    distDir: path.join(__dirname, '../../../.next'),
+    distDir: path.join(__dirname, '../../.next'),
     experimental: {
       serverComponentsExternalPackages: ['firebase-admin'],
     },
