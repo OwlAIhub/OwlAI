@@ -18,12 +18,14 @@ interface QuestionnaireContainerProps {
   onComplete: (data: QuestionnaireData) => void;
   onBack?: () => void;
   className?: string;
+  isSaving?: boolean;
 }
 
 export function QuestionnaireContainer({
   onComplete,
   onBack,
   className,
+  isSaving = false,
 }: QuestionnaireContainerProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<QuestionnaireData>({
@@ -125,6 +127,7 @@ export function QuestionnaireContainer({
         canProceed={canProceed()}
         onNext={nextStep}
         onPrev={prevStep}
+        isSaving={isSaving}
       />
     </div>
   );

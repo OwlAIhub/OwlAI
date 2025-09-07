@@ -5,6 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuthUser, setAuthUser } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
+import {
+  FirestoreService,
+  FirestoreUser,
+  handleFirestoreError,
+} from '@/lib/firestore';
 import { cn } from '@/lib/utils';
 import {
   ConfirmationResult,
@@ -130,32 +135,105 @@ export function PhoneAuthForm({
             phoneNumber
           );
 
-          // Check if user already exists and has completed questionnaire
-          const existingUser = getAuthUser();
-          const isExistingUser =
-            existingUser && existingUser.phoneNumber === phoneNumber;
+          // Check if user already exists in Firestore
+          let existingUser = null;
+          try {
+            existingUser = await FirestoreService.getUserByPhone(phoneNumber);
+          } catch (error) {
+            console.error('Error checking existing user:', error);
+            // Fallback to localStorage for backward compatibility
+            const localUser = getAuthUser();
+            if (localUser && localUser.phoneNumber === phoneNumber) {
+              // Create a mock FirestoreUser for backward compatibility
+              existingUser = {
+                ...FirestoreService.convertToFirestoreUser(localUser),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              } as FirestoreUser;
+            }
+          }
+
+          const isExistingUser = existingUser !== null;
 
           if (isExistingUser) {
-            // User already exists - show "already logged in" message
+            // User already exists
+            if (mode === 'signup') {
+              // Signup mode - existing user should login instead
+              setError(
+                'This phone number is already registered. Please log in instead.'
+              );
+              // Reset form to allow login
+              setOtpSent(false);
+              setOtp('');
+              return;
+            } else {
+              // Login mode - existing user can proceed
+              if (!existingUser) {
+                setError('User data not found. Please try again.');
+                return;
+              }
+
+              try {
+                // Update last login in Firestore
+                await FirestoreService.updateLastLogin(existingUser.id);
+
+                // Convert to local user format and update localStorage
+                const localUser =
+                  FirestoreService.convertToLocalUser(existingUser);
+                setAuthUser({
+                  ...localUser,
+                  isAuthenticated: true,
+                });
+
+                // Redirect based on questionnaire completion
+                if (existingUser.isQuestionnaireComplete) {
+                  router.push('/chat');
+                } else {
+                  router.push('/questionnaire');
+                }
+                return;
+              } catch (error) {
+                console.error('Error updating last login:', error);
+                setError(handleFirestoreError(error));
+                return;
+              }
+            }
+          }
+
+          // New user
+          if (mode === 'login') {
+            // Login mode - new user should sign up instead
             setError(
-              'This phone number is already registered. Please log in instead.'
+              'This phone number is not registered. Please sign up first.'
             );
-            // Reset form to allow login
+            // Reset form to allow signup
             setOtpSent(false);
             setOtp('');
             return;
+          } else {
+            // Signup mode - create new account
+            try {
+              const newUser = {
+                id: `user_${Date.now()}`,
+                phoneNumber: phoneNumber,
+                isAuthenticated: true,
+                isQuestionnaireComplete: false,
+              };
+
+              // Create user in Firestore
+              await FirestoreService.createUser(newUser);
+
+              // Also update localStorage for immediate access
+              setAuthUser(newUser);
+
+              // New user always goes to questionnaire
+              router.push('/questionnaire');
+            } catch (error) {
+              console.error('Error creating new user:', error);
+              setError(handleFirestoreError(error));
+              return;
+            }
           }
-
-          // New user - create account and go to questionnaire
-          setAuthUser({
-            id: `user_${Date.now()}`,
-            phoneNumber: phoneNumber,
-            isAuthenticated: true,
-            isQuestionnaireComplete: false,
-          });
-
-          // New user always goes to questionnaire
-          router.push('/questionnaire');
         } else {
           // Real number - use Firebase verification
           if (confirmationResult) {
@@ -165,33 +243,110 @@ export function PhoneAuthForm({
 
               console.log('Real user authenticated:', user.phoneNumber);
 
-              // Check if user already exists and has completed questionnaire
-              const existingUser = getAuthUser();
-              const isExistingUser =
-                existingUser &&
-                existingUser.phoneNumber === (user.phoneNumber || phoneNumber);
+              // Check if user already exists in Firestore
+              let existingUser = null;
+              try {
+                existingUser = await FirestoreService.getUserByPhone(
+                  user.phoneNumber || phoneNumber
+                );
+              } catch (error) {
+                console.error('Error checking existing user:', error);
+                // Fallback to localStorage for backward compatibility
+                const localUser = getAuthUser();
+                if (
+                  localUser &&
+                  localUser.phoneNumber === (user.phoneNumber || phoneNumber)
+                ) {
+                  // Create a mock FirestoreUser for backward compatibility
+                  existingUser = {
+                    ...FirestoreService.convertToFirestoreUser(localUser),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  } as FirestoreUser;
+                }
+              }
+
+              const isExistingUser = existingUser !== null;
 
               if (isExistingUser) {
-                // User already exists - show "already logged in" message
+                // User already exists
+                if (mode === 'signup') {
+                  // Signup mode - existing user should login instead
+                  setError(
+                    'This phone number is already registered. Please log in instead.'
+                  );
+                  // Reset form to allow login
+                  setOtpSent(false);
+                  setOtp('');
+                  return;
+                } else {
+                  // Login mode - existing user can proceed
+                  if (!existingUser) {
+                    setError('User data not found. Please try again.');
+                    return;
+                  }
+
+                  try {
+                    // Update last login in Firestore
+                    await FirestoreService.updateLastLogin(existingUser.id);
+
+                    // Convert to local user format and update localStorage
+                    const localUser =
+                      FirestoreService.convertToLocalUser(existingUser);
+                    setAuthUser({
+                      ...localUser,
+                      isAuthenticated: true,
+                    });
+
+                    // Redirect based on questionnaire completion
+                    if (existingUser.isQuestionnaireComplete) {
+                      router.push('/chat');
+                    } else {
+                      router.push('/questionnaire');
+                    }
+                    return;
+                  } catch (error) {
+                    console.error('Error updating last login:', error);
+                    setError(handleFirestoreError(error));
+                    return;
+                  }
+                }
+              }
+
+              // New user
+              if (mode === 'login') {
+                // Login mode - new user should sign up instead
                 setError(
-                  'This phone number is already registered. Please log in instead.'
+                  'This phone number is not registered. Please sign up first.'
                 );
-                // Reset form to allow login
+                // Reset form to allow signup
                 setOtpSent(false);
                 setOtp('');
                 return;
+              } else {
+                // Signup mode - create new account
+                try {
+                  const newUser = {
+                    id: user.uid,
+                    phoneNumber: user.phoneNumber || phoneNumber,
+                    isAuthenticated: true,
+                    isQuestionnaireComplete: false,
+                  };
+
+                  // Create user in Firestore
+                  await FirestoreService.createUser(newUser);
+
+                  // Also update localStorage for immediate access
+                  setAuthUser(newUser);
+
+                  // New user always goes to questionnaire
+                  router.push('/questionnaire');
+                } catch (error) {
+                  console.error('Error creating new user:', error);
+                  setError(handleFirestoreError(error));
+                  return;
+                }
               }
-
-              // New user - create account and go to questionnaire
-              setAuthUser({
-                id: user.uid,
-                phoneNumber: user.phoneNumber || phoneNumber,
-                isAuthenticated: true,
-                isQuestionnaireComplete: false,
-              });
-
-              // New user always goes to questionnaire
-              router.push('/questionnaire');
             } catch (error) {
               console.error('OTP verification failed:', error);
               setError('Invalid OTP. Please check the code and try again.');
@@ -243,7 +398,9 @@ export function PhoneAuthForm({
         <p className='text-muted-foreground text-sm text-balance max-w-sm'>
           {otpSent
             ? `Enter the 6-digit code sent to ${phoneNumber}`
-            : 'Enter your phone number to get started'}
+            : mode === 'login'
+              ? 'Enter your phone number to log in'
+              : 'Enter your phone number to get started'}
         </p>
       </div>
 

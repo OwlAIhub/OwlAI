@@ -9,6 +9,7 @@ interface QuestionnaireNavigationProps {
   canProceed: boolean;
   onNext: () => void;
   onPrev: () => void;
+  isSaving?: boolean;
 }
 
 export function QuestionnaireNavigation({
@@ -17,6 +18,7 @@ export function QuestionnaireNavigation({
   canProceed,
   onNext,
   onPrev,
+  isSaving = false,
 }: QuestionnaireNavigationProps) {
   return (
     <div className='flex items-center justify-between mt-8'>
@@ -31,11 +33,20 @@ export function QuestionnaireNavigation({
 
       <Button
         onClick={onNext}
-        disabled={!canProceed}
+        disabled={!canProceed || isSaving}
         className='flex items-center gap-2 bg-primary hover:bg-primary/90'
       >
-        {currentStep === totalSteps ? 'Complete Setup' : 'Next'}
-        <ArrowRight className='w-4 h-4' />
+        {isSaving ? (
+          <>
+            <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
+            Saving...
+          </>
+        ) : (
+          <>
+            {currentStep === totalSteps ? 'Complete Setup' : 'Next'}
+            <ArrowRight className='w-4 h-4' />
+          </>
+        )}
       </Button>
     </div>
   );

@@ -4,6 +4,7 @@ import { QuestionnaireContainer } from '@/components/auth/QuestionnaireContainer
 import { Button } from '@/components/ui/button';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { QuestionnaireData, getAuthUser, setAuthUser } from '@/lib/auth';
+import { FirestoreService, handleFirestoreError } from '@/lib/firestore';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
@@ -13,6 +14,8 @@ import { useEffect, useState } from 'react';
 export default function QuestionnairePage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -22,20 +25,37 @@ export default function QuestionnairePage() {
     router.push('/');
   };
 
-  const handleQuestionnaireComplete = (data: QuestionnaireData) => {
-    // Update user data with questionnaire responses
-    if (typeof window !== 'undefined') {
-      const currentUser = getAuthUser();
-      if (currentUser) {
-        const updatedUser = {
-          ...currentUser,
-          questionnaireData: data,
-          isQuestionnaireComplete: true,
-        };
+  const handleQuestionnaireComplete = async (data: QuestionnaireData) => {
+    if (typeof window === 'undefined') return;
 
-        setAuthUser(updatedUser);
-        router.push('/chat');
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      const currentUser = getAuthUser();
+      if (!currentUser) {
+        throw new Error('User not found. Please log in again.');
       }
+
+      // Save questionnaire data to Firestore
+      await FirestoreService.updateQuestionnaireData(currentUser.id, data);
+
+      // Update local user data
+      const updatedUser = {
+        ...currentUser,
+        questionnaireData: data,
+        isQuestionnaireComplete: true,
+      };
+
+      setAuthUser(updatedUser);
+
+      // Redirect to chat
+      router.push('/chat');
+    } catch (error) {
+      console.error('Error saving questionnaire data:', error);
+      setSaveError(handleFirestoreError(error));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -113,7 +133,31 @@ export default function QuestionnairePage() {
               <QuestionnaireContainer
                 onComplete={handleQuestionnaireComplete}
                 onBack={handleBackToHome}
+                isSaving={isSaving}
               />
+
+              {/* Error Message */}
+              {saveError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className='mt-4 p-4 bg-red-50 border border-red-200 rounded-lg'
+                >
+                  <p className='text-red-600 text-sm text-center'>
+                    {saveError}
+                  </p>
+                  <div className='mt-3 text-center'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => setSaveError(null)}
+                      className='text-red-600 border-red-300 hover:bg-red-50'
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Footer Text */}
