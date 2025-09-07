@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { QuestionnaireNavigation } from './QuestionnaireNavigation';
 import { QuestionnaireProgress } from './QuestionnaireProgress';
+import { QuestionnaireStep0 } from './QuestionnaireStep0';
 import { QuestionnaireStep1 } from './QuestionnaireStep1';
 import { QuestionnaireStep2 } from './QuestionnaireStep2';
 import { QuestionnaireStep3 } from './QuestionnaireStep3';
@@ -26,6 +27,7 @@ export function QuestionnaireContainer({
 }: QuestionnaireContainerProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<QuestionnaireData>({
+    fullName: '',
     exam: null,
     subject: null,
     attempt: null,
@@ -34,7 +36,7 @@ export function QuestionnaireContainer({
     marketingSource: null,
   });
 
-  const totalSteps = 6;
+  const totalSteps = 7;
 
   const updateData = (updates: Partial<QuestionnaireData>) => {
     setData(prev => ({ ...prev, ...updates }));
@@ -59,16 +61,18 @@ export function QuestionnaireContainer({
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return data.exam !== null;
+        return data.fullName.trim().length > 0;
       case 2:
-        return data.subject !== null;
+        return data.exam !== null;
       case 3:
-        return data.attempt !== null;
+        return data.subject !== null;
       case 4:
-        return true; // Optional
+        return data.attempt !== null;
       case 5:
-        return true; // Always has default
+        return true; // Optional
       case 6:
+        return true; // Always has default
+      case 7:
         return true; // Optional
       default:
         return false;
@@ -80,16 +84,18 @@ export function QuestionnaireContainer({
 
     switch (currentStep) {
       case 1:
-        return <QuestionnaireStep1 {...commonProps} />;
+        return <QuestionnaireStep0 {...commonProps} />;
       case 2:
-        return <QuestionnaireStep2 {...commonProps} />;
+        return <QuestionnaireStep1 {...commonProps} />;
       case 3:
-        return <QuestionnaireStep3 {...commonProps} />;
+        return <QuestionnaireStep2 {...commonProps} />;
       case 4:
-        return <QuestionnaireStep4 {...commonProps} />;
+        return <QuestionnaireStep3 {...commonProps} />;
       case 5:
-        return <QuestionnaireStep5 {...commonProps} />;
+        return <QuestionnaireStep4 {...commonProps} />;
       case 6:
+        return <QuestionnaireStep5 {...commonProps} />;
+      case 7:
         return <QuestionnaireStep6 {...commonProps} />;
       default:
         return null;

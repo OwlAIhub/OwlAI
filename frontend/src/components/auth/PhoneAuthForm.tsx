@@ -132,23 +132,30 @@ export function PhoneAuthForm({
 
           // Check if user already exists and has completed questionnaire
           const existingUser = getAuthUser();
-          const isNewUser =
-            !existingUser || existingUser.phoneNumber !== phoneNumber;
+          const isExistingUser =
+            existingUser && existingUser.phoneNumber === phoneNumber;
 
+          if (isExistingUser) {
+            // User already exists - show "already logged in" message
+            setError(
+              'This phone number is already registered. Please log in instead.'
+            );
+            // Reset form to allow login
+            setOtpSent(false);
+            setOtp('');
+            return;
+          }
+
+          // New user - create account and go to questionnaire
           setAuthUser({
             id: `user_${Date.now()}`,
             phoneNumber: phoneNumber,
             isAuthenticated: true,
-            isQuestionnaireComplete:
-              existingUser?.isQuestionnaireComplete || false,
+            isQuestionnaireComplete: false,
           });
 
-          // Only show questionnaire for new users or users who haven't completed it
-          if (isNewUser || !existingUser?.isQuestionnaireComplete) {
-            router.push('/questionnaire');
-          } else {
-            router.push('/chat');
-          }
+          // New user always goes to questionnaire
+          router.push('/questionnaire');
         } else {
           // Real number - use Firebase verification
           if (confirmationResult) {
@@ -160,24 +167,31 @@ export function PhoneAuthForm({
 
               // Check if user already exists and has completed questionnaire
               const existingUser = getAuthUser();
-              const isNewUser =
-                !existingUser ||
-                existingUser.phoneNumber !== (user.phoneNumber || phoneNumber);
+              const isExistingUser =
+                existingUser &&
+                existingUser.phoneNumber === (user.phoneNumber || phoneNumber);
 
+              if (isExistingUser) {
+                // User already exists - show "already logged in" message
+                setError(
+                  'This phone number is already registered. Please log in instead.'
+                );
+                // Reset form to allow login
+                setOtpSent(false);
+                setOtp('');
+                return;
+              }
+
+              // New user - create account and go to questionnaire
               setAuthUser({
                 id: user.uid,
                 phoneNumber: user.phoneNumber || phoneNumber,
                 isAuthenticated: true,
-                isQuestionnaireComplete:
-                  existingUser?.isQuestionnaireComplete || false,
+                isQuestionnaireComplete: false,
               });
 
-              // Only show questionnaire for new users or users who haven't completed it
-              if (isNewUser || !existingUser?.isQuestionnaireComplete) {
-                router.push('/questionnaire');
-              } else {
-                router.push('/chat');
-              }
+              // New user always goes to questionnaire
+              router.push('/questionnaire');
             } catch (error) {
               console.error('OTP verification failed:', error);
               setError('Invalid OTP. Please check the code and try again.');
@@ -251,6 +265,22 @@ export function PhoneAuthForm({
       {error && (
         <div className='p-3 bg-red-50 border border-red-200 rounded-lg'>
           <p className='text-sm text-red-600'>{error}</p>
+          {error.includes('already registered') && (
+            <div className='mt-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setError(null);
+                  setOtpSent(false);
+                  setOtp('');
+                }}
+                className='text-xs'
+              >
+                Try Login Instead
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

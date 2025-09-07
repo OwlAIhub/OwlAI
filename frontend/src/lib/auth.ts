@@ -5,6 +5,7 @@
  */
 
 export interface QuestionnaireData {
+  fullName: string;
   exam: 'UGC NET' | 'CSIR NET' | null;
   subject: string | null;
   attempt: '1st' | '2nd' | '3rd+' | null;
