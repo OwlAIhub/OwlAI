@@ -50,59 +50,35 @@ export function PhoneAuthForm({
     useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Setup reCAPTCHA (invisible) - only when needed
+  // Setup reCAPTCHA (invisible) - only for real phone numbers
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Clear any existing reCAPTCHA
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    };
-  }, []);
-
-  // Setup reCAPTCHA when user enters a real phone number
-  const setupRecaptcha = () => {
-    if (typeof window === 'undefined') return;
-
-    // Only setup reCAPTCHA for real phone numbers (not test numbers)
-    if (phoneNumber && phoneNumber !== '+91 98765 43210') {
-      try {
-        // Clear any existing reCAPTCHA first
-        if (window.recaptchaVerifier) {
-          window.recaptchaVerifier.clear();
+      // Only setup reCAPTCHA for real phone numbers (not test numbers)
+      if (phoneNumber && phoneNumber !== '+91 98765 43210') {
+        try {
+          window.recaptchaVerifier = new RecaptchaVerifier(
+            auth,
+            'recaptcha-container',
+            {
+              size: 'invisible',
+              callback: () => {
+                console.log('reCAPTCHA verified for real number');
+              },
+              'expired-callback': () => {
+                console.log('reCAPTCHA expired');
+              },
+            }
+          );
+          console.log('reCAPTCHA setup for real number:', phoneNumber);
+        } catch (error) {
+          console.error('reCAPTCHA setup failed:', error);
+          // Don't throw error, let the user try anyway
         }
-
-        window.recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          'recaptcha-container',
-          {
-            size: 'invisible',
-            callback: () => {
-              console.log('reCAPTCHA verified for real number');
-            },
-            'expired-callback': () => {
-              console.log('reCAPTCHA expired');
-            },
-          }
-        );
-        console.log('reCAPTCHA setup for real number:', phoneNumber);
-      } catch (error) {
-        console.error('reCAPTCHA setup failed:', error);
-        // Don't throw error, let the user try anyway
+      } else {
+        console.log('Test number detected, skipping reCAPTCHA setup');
       }
-    } else {
-      console.log('Test number detected, skipping reCAPTCHA setup');
     }
-  };
+  }, [phoneNumber]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +95,6 @@ export function PhoneAuthForm({
         } else {
           // Real number - use Firebase with reCAPTCHA
           try {
-            // Setup reCAPTCHA if not already done
-            setupRecaptcha();
-
             const appVerifier = window.recaptchaVerifier;
             if (!appVerifier) {
               throw new Error('reCAPTCHA not initialized');
