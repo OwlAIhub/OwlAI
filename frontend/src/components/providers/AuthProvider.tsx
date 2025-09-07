@@ -14,7 +14,6 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  isQuestionnaireComplete: boolean;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -58,7 +57,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await signOut(auth);
 
       // Clear local storage
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('owlai_user');
 
       // Reset state
       setUser(null);
@@ -91,10 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 id: firebaseUser.uid,
                 phoneNumber: firebaseUser.phoneNumber || '',
                 isAuthenticated: true,
-                isQuestionnaireComplete: false,
-                questionnaireData: null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: new Date(),
+                lastLoginAt: new Date(),
               };
               setAuthUser(basicUser);
               setUser(basicUser);
@@ -126,7 +123,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     firebaseUser,
     isLoading,
     isAuthenticated: !!user?.isAuthenticated,
-    isQuestionnaireComplete: !!user?.isQuestionnaireComplete,
     logout,
     refreshUser,
   };

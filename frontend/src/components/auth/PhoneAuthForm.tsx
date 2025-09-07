@@ -171,12 +171,8 @@ export function PhoneAuthForm({
                 isAuthenticated: true,
               });
 
-              // Redirect based on questionnaire completion
-              if (existingUser.isQuestionnaireComplete) {
-                router.push('/chat');
-              } else {
-                router.push('/questionnaire');
-              }
+              // Redirect to chat
+              router.push('/chat');
               return;
             }
           }
@@ -195,14 +191,12 @@ export function PhoneAuthForm({
               id: `user_${Date.now()}`,
               phoneNumber: phoneNumber,
               isAuthenticated: true,
-              isQuestionnaireComplete: false,
-              questionnaireData: null,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: new Date(),
+              lastLoginAt: new Date(),
             };
 
             setAuthUser(newUser);
-            router.push('/questionnaire');
+            router.push('/chat');
           }
         } else {
           // Real number - use Firebase verification
@@ -235,12 +229,8 @@ export function PhoneAuthForm({
                     isAuthenticated: true,
                   });
 
-                  // Redirect based on questionnaire completion
-                  if (existingUser.isQuestionnaireComplete) {
-                    router.push('/chat');
-                  } else {
-                    router.push('/questionnaire');
-                  }
+                  // Redirect to chat
+                  router.push('/chat');
                   return;
                 }
               }
@@ -259,14 +249,12 @@ export function PhoneAuthForm({
                   id: user.uid,
                   phoneNumber: user.phoneNumber || phoneNumber,
                   isAuthenticated: true,
-                  isQuestionnaireComplete: false,
-                  questionnaireData: null,
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date(),
+                  lastLoginAt: new Date(),
                 };
 
                 setAuthUser(newUser);
-                router.push('/questionnaire');
+                router.push('/chat');
               }
             } catch (error) {
               console.error('Failed to verify OTP:', error);

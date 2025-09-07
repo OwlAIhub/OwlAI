@@ -4,15 +4,7 @@
  * In production, you would integrate with Firebase Auth or another auth provider
  */
 
-export interface QuestionnaireData {
-  fullName: string;
-  exam: 'UGC NET' | 'CSIR NET' | null;
-  subject: string | null;
-  attempt: '1st' | '2nd' | '3rd+' | null;
-  examCycle: string | null;
-  language: 'English' | 'Hinglish';
-  marketingSource: string | null;
-}
+// Removed QuestionnaireData interface
 
 export interface User {
   id: string;
@@ -23,8 +15,6 @@ export interface User {
   avatar?: string;
   createdAt?: Date;
   lastLoginAt?: Date;
-  questionnaireData?: QuestionnaireData;
-  isQuestionnaireComplete?: boolean;
 }
 
 // Simple in-memory storage for development
