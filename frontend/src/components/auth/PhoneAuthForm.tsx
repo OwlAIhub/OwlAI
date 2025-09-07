@@ -66,7 +66,8 @@ export function PhoneAuthForm({
           );
           console.log('reCAPTCHA setup for real number:', phoneNumber);
         } catch (error) {
-          console.log('reCAPTCHA setup failed, will use test mode:', error);
+          console.error('reCAPTCHA setup failed:', error);
+          // Don't throw error, let the user try anyway
         }
       } else {
         console.log('Test number detected, skipping reCAPTCHA setup');
@@ -105,9 +106,19 @@ export function PhoneAuthForm({
             console.log('Real OTP sent to:', phoneNumber);
           } catch (error) {
             console.error('Failed to send OTP:', error);
-            setError(
-              'Failed to send OTP. Please check your phone number and try again.'
-            );
+            if (
+              error instanceof Error &&
+              (error.message.includes('reCAPTCHA') ||
+                error.message.includes('site key'))
+            ) {
+              setError(
+                'reCAPTCHA configuration issue. Please try again or contact support.'
+              );
+            } else {
+              setError(
+                'Failed to send OTP. Please check your phone number and try again.'
+              );
+            }
           }
         }
       } else {
