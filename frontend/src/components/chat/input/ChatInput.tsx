@@ -63,7 +63,7 @@ export function ChatInput({
         transition={{ duration: 0.3 }}
       >
         {/* Input Field */}
-        <div className='flex-1 min-h-[24px]'>
+        <div className='flex-1 min-h-[24px] flex items-center'>
           <textarea
             ref={textareaRef}
             value={message}
@@ -76,7 +76,8 @@ export function ChatInput({
             className={cn(
               'w-full resize-none border-0 outline-none bg-transparent text-gray-900 placeholder-gray-500',
               'text-base leading-6 min-h-[24px] max-h-[160px] font-medium',
-              'focus:ring-0 focus:outline-none placeholder:font-medium placeholder:text-gray-400'
+              'focus:ring-0 focus:outline-none placeholder:font-normal placeholder:text-gray-400',
+              'placeholder:leading-6 placeholder:align-middle py-0'
             )}
             rows={1}
             style={{
