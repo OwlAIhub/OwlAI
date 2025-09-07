@@ -82,14 +82,14 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 py-8'>
+    <div className='min-h-screen bg-gray-50 py-4'>
       <div className='container mx-auto px-4'>
         {/* Header */}
-        <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+        <div className='text-center mb-4'>
+          <h1 className='text-xl font-bold text-gray-900 mb-1'>
             Welcome to OwlAI
           </h1>
-          <p className='text-gray-600'>
+          <p className='text-sm text-gray-600'>
             Let&apos;s set up your personalized learning experience
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function QuestionnairePage() {
         {/* Questionnaire */}
         <QuestionnaireContainer
           onComplete={handleComplete}
-          className='bg-white rounded-xl shadow-sm border p-8'
+          className='bg-white rounded-lg shadow-sm border p-4'
         />
       </div>
     </div>

@@ -37,8 +37,8 @@ export default function ExamSelection({
   };
 
   return (
-    <div className={`w-full max-w-2xl mx-auto ${className}`}>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+    <div className={`w-full max-w-xl mx-auto ${className}`}>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {Object.entries(EXAM_CONFIGS).map(([examKey, config]) => {
           const exam = examKey as ExamType;
           const isSelected = selectedExam === exam;
@@ -49,18 +49,18 @@ export default function ExamSelection({
             <motion.div
               key={exam}
               className={`
-                relative p-6 rounded-xl border-2 cursor-pointer transition-all duration-300
+                relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
                 ${
                   isSelected
-                    ? 'border-teal-500 bg-teal-50 shadow-lg'
+                    ? 'border-teal-500 bg-teal-50 shadow-md'
                     : isHovered
-                      ? 'border-teal-300 bg-teal-25 shadow-md'
+                      ? 'border-gray-300 bg-gray-50 shadow-sm'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                 }
                 ${!isSupported ? 'opacity-50 cursor-not-allowed' : ''}
               `}
-              whileHover={{ scale: isSupported ? 1.02 : 1 }}
-              whileTap={{ scale: isSupported ? 0.98 : 1 }}
+              whileHover={{ scale: isSupported ? 1.01 : 1 }}
+              whileTap={{ scale: isSupported ? 0.99 : 1 }}
               onClick={() => isSupported && handleExamSelect(exam)}
               onMouseEnter={() => setHoveredExam(exam)}
               onMouseLeave={() => setHoveredExam(null)}
@@ -77,18 +77,20 @@ export default function ExamSelection({
               )}
 
               {/* Exam Logo Placeholder */}
-              <div className='w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center'>
-                <span className='text-2xl font-bold text-white'>
+              <div className='w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center'>
+                <span className='text-lg font-bold text-white'>
                   {exam === 'UGC-NET' ? 'U' : 'C'}
                 </span>
               </div>
 
               {/* Exam Info */}
               <div className='text-center'>
-                <h3 className='text-xl font-bold text-gray-900 mb-2'>
+                <h3 className='text-lg font-bold text-gray-900 mb-1'>
                   {config.name}
                 </h3>
-                <p className='text-gray-600 mb-4'>{config.description}</p>
+                <p className='text-sm text-gray-600 mb-3'>
+                  {config.description}
+                </p>
 
                 {/* Features */}
                 <div className='space-y-2'>

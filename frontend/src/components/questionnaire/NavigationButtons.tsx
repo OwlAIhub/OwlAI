@@ -51,7 +51,7 @@ export default function NavigationButtons({
           variant='outline'
           onClick={onPrevious}
           disabled={isFirstStep || isLoading}
-          className='flex items-center space-x-2 px-6 py-2'
+          className='flex items-center space-x-2 px-4 py-2 text-sm'
         >
           <ArrowLeft className='w-4 h-4' />
           <span>Back</span>
@@ -71,7 +71,7 @@ export default function NavigationButtons({
               variant='ghost'
               onClick={onSkip}
               disabled={isLoading}
-              className='flex items-center space-x-2 px-4 py-2 text-gray-500 hover:text-gray-700'
+              className='flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700'
             >
               <SkipForward className='w-4 h-4' />
               <span>Skip</span>
@@ -89,7 +89,7 @@ export default function NavigationButtons({
             onClick={onNext}
             disabled={!canGoNext || isLoading}
             className={`
-              flex items-center space-x-2 px-6 py-2
+              flex items-center space-x-2 px-4 py-2 text-sm
               ${
                 isLastStep
                   ? 'bg-green-600 hover:bg-green-700 text-white'

@@ -31,16 +31,16 @@ export default function LanguageSelection({
   };
 
   return (
-    <div className={`w-full max-w-3xl mx-auto ${className}`}>
+    <div className={`w-full max-w-2xl mx-auto ${className}`}>
       {/* Header */}
-      <div className='text-center mb-8'>
-        <p className='text-gray-600'>
+      <div className='text-center mb-6'>
+        <p className='text-sm text-gray-600'>
           Choose your preferred language for the AI responses and interface
         </p>
       </div>
 
       {/* Language Options */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {Object.entries(LANGUAGE_CONFIGS).map(([langKey, config]) => {
           const language = langKey as LanguageType;
           const isSelected = selectedLanguage === language;
@@ -50,17 +50,17 @@ export default function LanguageSelection({
             <motion.div
               key={language}
               className={`
-                relative p-8 rounded-xl border-2 cursor-pointer transition-all duration-300
+                relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200
                 ${
                   isSelected
-                    ? 'border-teal-500 bg-teal-50 shadow-lg'
+                    ? 'border-teal-500 bg-teal-50 shadow-md'
                     : isHovered
-                      ? 'border-teal-300 bg-teal-25 shadow-md'
+                      ? 'border-gray-300 bg-gray-50 shadow-sm'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                 }
               `}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleLanguageSelect(language)}
               onMouseEnter={() => setHoveredLanguage(language)}
               onMouseLeave={() => setHoveredLanguage(null)}

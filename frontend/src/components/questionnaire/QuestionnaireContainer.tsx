@@ -200,13 +200,13 @@ export default function QuestionnaireContainer({
   }
 
   return (
-    <div className={`max-w-4xl mx-auto p-6 ${className}`}>
+    <div className={`max-w-3xl mx-auto p-4 ${className}`}>
       {/* Progress Bar */}
       <ProgressBar
         currentStep={currentStep}
         totalSteps={QUESTIONNAIRE_CONFIG.totalSteps}
         completedSteps={completedSteps}
-        className='mb-8'
+        className='mb-4'
       />
 
       {/* Error Message */}
@@ -214,7 +214,7 @@ export default function QuestionnaireContainer({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className='mb-6 p-4 bg-red-50 border border-red-200 rounded-lg'
+          className='mb-4 p-3 bg-red-50 border border-red-200 rounded-lg'
         >
           <p className='text-red-600 text-sm'>{error}</p>
         </motion.div>
@@ -227,19 +227,21 @@ export default function QuestionnaireContainer({
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-          className='mb-8'
+          transition={{ duration: 0.2 }}
+          className='mb-4'
         >
           {/* Step Header */}
-          <div className='text-center mb-8'>
-            <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+          <div className='text-center mb-6'>
+            <h2 className='text-xl font-bold text-gray-900 mb-2'>
               {currentStepData.title}
             </h2>
-            <p className='text-gray-600'>{currentStepData.description}</p>
+            <p className='text-sm text-gray-600'>
+              {currentStepData.description}
+            </p>
           </div>
 
           {/* Step Component */}
-          <div className='min-h-[300px]'>
+          <div className='min-h-[150px]'>
             {currentStep === 1 && (
               <ExamSelection
                 selectedExam={answers.exam}
@@ -292,7 +294,7 @@ export default function QuestionnaireContainer({
         onNext={handleNext}
         onSkip={isStepOptional(currentStep) ? handleSkip : undefined}
         isLoading={isLoading}
-        className='mt-8'
+        className='mt-4'
       />
     </div>
   );

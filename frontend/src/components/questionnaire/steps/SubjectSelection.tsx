@@ -59,23 +59,23 @@ export default function SubjectSelection({
   };
 
   return (
-    <div className={`w-full max-w-4xl mx-auto ${className}`}>
+    <div className={`w-full max-w-3xl mx-auto ${className}`}>
       {/* Search Bar */}
-      <div className='mb-6'>
-        <div className='relative max-w-md mx-auto'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
+      <div className='mb-4'>
+        <div className='relative max-w-sm mx-auto'>
+          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
           <input
             type='text'
             placeholder='Search subjects...'
             value={searchQuery}
             onChange={handleSearchChange}
-            className='w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
+            className='w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
           />
         </div>
       </div>
 
       {/* Exam Context */}
-      <div className='text-center mb-6'>
+      <div className='text-center mb-4'>
         <p className='text-sm text-gray-600'>
           Select your{' '}
           <span className='font-semibold text-teal-600'>{selectedExam}</span>{' '}
@@ -84,7 +84,7 @@ export default function SubjectSelection({
       </div>
 
       {/* Subjects Grid */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
         {filteredSubjects.map(subject => {
           const isSelected = selectedSubject === subject;
           const isHovered = hoveredSubject === subject;
@@ -93,17 +93,17 @@ export default function SubjectSelection({
             <motion.div
               key={subject}
               className={`
-                relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-300
+                relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-200
                 ${
                   isSelected
-                    ? 'border-teal-500 bg-teal-50 shadow-md'
+                    ? 'border-teal-500 bg-teal-50 shadow-sm'
                     : isHovered
-                      ? 'border-teal-300 bg-teal-25 shadow-sm'
+                      ? 'border-gray-300 bg-gray-50 shadow-sm'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                 }
               `}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleSubjectSelect(subject as SubjectType)}
               onMouseEnter={() => setHoveredSubject(subject as SubjectType)}
               onMouseLeave={() => setHoveredSubject(null)}

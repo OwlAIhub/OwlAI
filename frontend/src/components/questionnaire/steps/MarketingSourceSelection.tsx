@@ -77,16 +77,16 @@ export default function MarketingSourceSelection({
   };
 
   return (
-    <div className={`w-full max-w-4xl mx-auto ${className}`}>
+    <div className={`w-full max-w-3xl mx-auto ${className}`}>
       {/* Header */}
-      <div className='text-center mb-8'>
-        <p className='text-gray-600'>
+      <div className='text-center mb-6'>
+        <p className='text-sm text-gray-600'>
           Help us understand how you discovered OwlAI (optional)
         </p>
       </div>
 
       {/* Marketing Sources Grid */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4'>
         {Object.entries(MARKETING_CONFIGS).map(([sourceKey, config]) => {
           const source = sourceKey as MarketingSource;
           const isSelected = selectedSource === source;
@@ -96,17 +96,17 @@ export default function MarketingSourceSelection({
             <motion.div
               key={source}
               className={`
-                relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-300
+                relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
                 ${
                   isSelected
-                    ? 'border-teal-500 bg-teal-50 shadow-md'
+                    ? 'border-teal-500 bg-teal-50 shadow-sm'
                     : isHovered
-                      ? 'border-teal-300 bg-teal-25 shadow-sm'
+                      ? 'border-gray-300 bg-gray-50 shadow-sm'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                 }
               `}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleSourceSelect(source)}
               onMouseEnter={() => setHoveredSource(source)}
               onMouseLeave={() => setHoveredSource(null)}

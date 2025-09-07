@@ -28,7 +28,7 @@ export default function ProgressBar({
   return (
     <div className={`w-full ${className}`}>
       {/* Progress Header */}
-      <div className='flex items-center justify-between mb-4'>
+      <div className='flex items-center justify-between mb-3'>
         <div className='flex items-center space-x-2'>
           <span className='text-sm font-medium text-gray-600'>
             Step {currentStep} of {totalSteps}
@@ -56,7 +56,7 @@ export default function ProgressBar({
         </div>
 
         {/* Step Indicators */}
-        <div className='flex justify-between mt-3'>
+        <div className='flex justify-between mt-2'>
           {Array.from({ length: totalSteps }, (_, index) => {
             const stepNumber = index + 1;
             const isCompleted = completedSteps.includes(stepNumber);
@@ -71,7 +71,7 @@ export default function ProgressBar({
                 {/* Step Circle */}
                 <motion.div
                   className={`
-                    w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold
+                    w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold
                     transition-all duration-300
                     ${
                       isCompleted
@@ -86,7 +86,7 @@ export default function ProgressBar({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {isCompleted ? <Check className='w-4 h-4' /> : stepNumber}
+                  {isCompleted ? <Check className='w-3 h-3' /> : stepNumber}
                 </motion.div>
 
                 {/* Step Label (Mobile) */}
