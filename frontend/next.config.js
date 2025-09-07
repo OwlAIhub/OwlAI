@@ -9,6 +9,7 @@ const nextConfig = {
   // Enable experimental features for production
   experimental: {
     serverComponentsExternalPackages: ['firebase-admin'],
+    outputFileTracingRoot: __dirname,
   },
 
   // Security headers - handled by middleware now
