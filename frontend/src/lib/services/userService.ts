@@ -1,7 +1,14 @@
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { User } from 'firebase/auth';
-import { db } from '../firebaseConfig';
-import { handleFirebaseError } from '../firebaseCheck';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+  Timestamp,
+} from "firebase/firestore";
+import { User } from "firebase/auth";
+import { db } from "../firebaseConfig";
+import { handleFirebaseError } from "../firebaseCheck";
 
 export interface UserProfile {
   uid: string;
@@ -14,7 +21,7 @@ export interface UserProfile {
   lastLoginAt: Timestamp;
   isActive: boolean;
   metadata: {
-    signUpMethod: 'phone';
+    signUpMethod: "phone";
     deviceInfo?: string;
     ipAddress?: string;
   };
@@ -29,18 +36,21 @@ export interface CreateUserData {
 /**
  * Create or update user profile in Firestore
  */
-export const createUserProfile = async (user: User, additionalData?: Partial<CreateUserData>): Promise<UserProfile> => {
+export const createUserProfile = async (
+  user: User,
+  additionalData?: Partial<CreateUserData>,
+): Promise<UserProfile> => {
   if (!user.uid) {
-    throw new Error('User UID is required');
+    throw new Error("User UID is required");
   }
 
-  const userRef = doc(db, 'users', user.uid);
-  
+  const userRef = doc(db, "users", user.uid);
+
   try {
     // Check if user already exists
     const userDoc = await getDoc(userRef);
     const now = serverTimestamp() as Timestamp;
-    
+
     if (userDoc.exists()) {
       // User exists, update last login
       const updateData = {
@@ -48,11 +58,11 @@ export const createUserProfile = async (user: User, additionalData?: Partial<Cre
         updatedAt: now,
         isActive: true,
         // Update phone number if it changed
-        ...(user.phoneNumber && { phoneNumber: user.phoneNumber })
+        ...(user.phoneNumber && { phoneNumber: user.phoneNumber }),
       };
-      
+
       await updateDoc(userRef, updateData);
-      
+
       // Return updated user data
       const updatedDoc = await getDoc(userRef);
       return updatedDoc.data() as UserProfile;
@@ -60,25 +70,26 @@ export const createUserProfile = async (user: User, additionalData?: Partial<Cre
       // New user, create profile
       const userProfile: UserProfile = {
         uid: user.uid,
-        phoneNumber: user.phoneNumber || additionalData?.phoneNumber || '',
-        displayName: additionalData?.displayName || user.displayName || '',
-        email: additionalData?.email || user.email || '',
-        photoURL: user.photoURL || '',
+        phoneNumber: user.phoneNumber || additionalData?.phoneNumber || "",
+        displayName: additionalData?.displayName || user.displayName || "",
+        email: additionalData?.email || user.email || "",
+        photoURL: user.photoURL || "",
         createdAt: now,
         updatedAt: now,
         lastLoginAt: now,
         isActive: true,
         metadata: {
-          signUpMethod: 'phone',
-          deviceInfo: typeof window !== 'undefined' ? navigator.userAgent : undefined,
-        }
+          signUpMethod: "phone",
+          deviceInfo:
+            typeof window !== "undefined" ? navigator.userAgent : undefined,
+        },
       };
-      
+
       await setDoc(userRef, userProfile);
       return userProfile;
     }
   } catch (error) {
-    console.error('Error creating/updating user profile:', error);
+    console.error("Error creating/updating user profile:", error);
     const errorMessage = handleFirebaseError(error);
     throw new Error(`Failed to create user profile: ${errorMessage}`);
   }
@@ -87,22 +98,24 @@ export const createUserProfile = async (user: User, additionalData?: Partial<Cre
 /**
  * Get user profile from Firestore
  */
-export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+export const getUserProfile = async (
+  uid: string,
+): Promise<UserProfile | null> => {
   if (!uid) {
-    throw new Error('User UID is required');
+    throw new Error("User UID is required");
   }
 
   try {
-    const userRef = doc(db, 'users', uid);
+    const userRef = doc(db, "users", uid);
     const userDoc = await getDoc(userRef);
-    
+
     if (userDoc.exists()) {
       return userDoc.data() as UserProfile;
     }
-    
+
     return null;
   } catch (error) {
-    console.error('Error getting user profile:', error);
+    console.error("Error getting user profile:", error);
     const errorMessage = handleFirebaseError(error);
     throw new Error(`Failed to get user profile: ${errorMessage}`);
   }
@@ -111,21 +124,24 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 /**
  * Update user profile
  */
-export const updateUserProfile = async (uid: string, updateData: Partial<UserProfile>): Promise<void> => {
+export const updateUserProfile = async (
+  uid: string,
+  updateData: Partial<UserProfile>,
+): Promise<void> => {
   if (!uid) {
-    throw new Error('User UID is required');
+    throw new Error("User UID is required");
   }
 
   try {
-    const userRef = doc(db, 'users', uid);
+    const userRef = doc(db, "users", uid);
     const dataToUpdate = {
       ...updateData,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     };
-    
+
     await updateDoc(userRef, dataToUpdate);
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    console.error("Error updating user profile:", error);
     const errorMessage = handleFirebaseError(error);
     throw new Error(`Failed to update user profile: ${errorMessage}`);
   }
@@ -136,16 +152,16 @@ export const updateUserProfile = async (uid: string, updateData: Partial<UserPro
  */
 export const deactivateUser = async (uid: string): Promise<void> => {
   if (!uid) {
-    throw new Error('User UID is required');
+    throw new Error("User UID is required");
   }
 
   try {
     await updateUserProfile(uid, {
       isActive: false,
-      updatedAt: serverTimestamp() as Timestamp
+      updatedAt: serverTimestamp() as Timestamp,
     });
   } catch (error) {
-    console.error('Error deactivating user:', error);
+    console.error("Error deactivating user:", error);
     throw error;
   }
 };
@@ -153,7 +169,9 @@ export const deactivateUser = async (uid: string): Promise<void> => {
 /**
  * Check if phone number is already registered
  */
-export const isPhoneNumberRegistered = async (phoneNumber: string): Promise<boolean> => {
+export const isPhoneNumberRegistered = async (
+  phoneNumber: string,
+): Promise<boolean> => {
   // Note: This would require a compound query or phone number index
   // For now, we'll rely on Firebase Auth's built-in duplicate prevention
   // In production, you might want to maintain a separate phone number index

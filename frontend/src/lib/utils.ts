@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
  * Utility function to merge Tailwind CSS classes with clsx
@@ -14,10 +14,10 @@ export function cn(...inputs: ClassValue[]) {
  * Format a date to a readable string
  */
 export function formatDate(date: Date | string | number): string {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   }).format(new Date(date));
 }
 
@@ -28,26 +28,26 @@ export function formatRelativeTime(date: Date | string | number): string {
   const now = new Date();
   const targetDate = new Date(date);
   const diffInSeconds = Math.floor(
-    (now.getTime() - targetDate.getTime()) / 1000
+    (now.getTime() - targetDate.getTime()) / 1000,
   );
 
   if (diffInSeconds < 60) {
-    return 'just now';
+    return "just now";
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"} ago`;
   }
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) {
-    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`;
   }
 
   return formatDate(date);
@@ -65,7 +65,7 @@ export function generateId(): string {
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return (...args: Parameters<T>) => {
@@ -79,7 +79,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   return (...args: Parameters<T>) => {
@@ -96,9 +96,9 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
  */
 export function isEmpty(value: unknown): boolean {
   if (value == null) return true;
-  if (typeof value === 'string') return value.trim().length === 0;
+  if (typeof value === "string") return value.trim().length === 0;
   if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === 'object')
+  if (typeof value === "object")
     return Object.keys(value as Record<string, unknown>).length === 0;
   return false;
 }
@@ -115,8 +115,8 @@ export function capitalize(str: string): string {
  */
 export function kebabCase(str: string): string {
   return str
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/[\s_]+/g, "-")
     .toLowerCase();
 }
 
@@ -128,13 +128,13 @@ export function camelCase(str: string): string {
     .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     })
-    .replace(/\s+/g, '');
+    .replace(/\s+/g, "");
 }
 
 /**
  * Truncate text to a specified length
  */
-export function truncate(str: string, length: number, suffix = '...'): string {
+export function truncate(str: string, length: number, suffix = "..."): string {
   if (str.length <= length) return str;
   return str.substring(0, length - suffix.length) + suffix;
 }
@@ -143,7 +143,7 @@ export function truncate(str: string, length: number, suffix = '...'): string {
  * Sleep function for async operations
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -151,9 +151,9 @@ export function sleep(ms: number): Promise<void> {
  */
 export function getInitials(name: string): string {
   return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
     .toUpperCase()
     .substring(0, 2);
 }
@@ -171,14 +171,14 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidPhone(phone: string): boolean {
   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  return phoneRegex.test(phone.replace(/\s/g, ""));
 }
 
 /**
  * Copy text to clipboard
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return false;
   }
 
@@ -187,13 +187,13 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     return true;
   } catch (err) {
     // Fallback for older browsers
-    const textArea = document.createElement('textarea');
+    const textArea = document.createElement("textarea");
     textArea.value = text;
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
     try {
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
       return true;
     } catch (err) {
@@ -208,14 +208,14 @@ export async function copyToClipboard(text: string): Promise<boolean> {
  */
 export function getRandomColor(): string {
   const colors = [
-    '#ef4444', // red
-    '#f97316', // orange
-    '#eab308', // yellow
-    '#22c55e', // green
-    '#06b6d4', // cyan
-    '#3b82f6', // blue
-    '#8b5cf6', // violet
-    '#ec4899', // pink
+    "#ef4444", // red
+    "#f97316", // orange
+    "#eab308", // yellow
+    "#22c55e", // green
+    "#06b6d4", // cyan
+    "#3b82f6", // blue
+    "#8b5cf6", // violet
+    "#ec4899", // pink
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -224,25 +224,25 @@ export function getRandomColor(): string {
  * Format file size in human readable format
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
 /**
  * Check if the current environment is development
  */
 export function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development';
+  return process.env.NODE_ENV === "development";
 }
 
 /**
  * Check if the current environment is production
  */
 export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production';
+  return process.env.NODE_ENV === "production";
 }
 
 /**
@@ -259,7 +259,7 @@ export function createSlug(str: string): string {
   return str
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
