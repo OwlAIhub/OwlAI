@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Copy, RotateCcw, ThumbsDown, ThumbsUp, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../ui/buttons/button';
-import { MarkdownRenderer } from '../MarkdownRenderer';
+import { ChatGPTRenderer } from '../ChatGPTRenderer';
 
 interface Message {
   id: string | number;
@@ -187,12 +187,12 @@ function MessageBubble({
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: index * 0.05 + 0.1, duration: 0.3 }}
         className={cn(
-          'max-w-[80%] rounded-2xl px-4 py-3 shadow-sm relative group/message',
+          'max-w-[80%] relative group/message',
           message.type === 'user'
-            ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white shadow-lg'
+            ? 'bg-teal-600 text-white rounded-2xl px-4 py-3'
             : message.error
-              ? 'bg-red-50 border border-red-200 text-red-800'
-              : 'bg-white border border-gray-200 text-gray-900 shadow-md hover:shadow-lg transition-shadow duration-200'
+              ? 'bg-red-50 border border-red-200 text-red-800 rounded-2xl px-4 py-3'
+              : 'text-gray-900' // No background, no borders - minimal like ChatGPT
         )}
       >
         {/* Message Text */}
@@ -200,9 +200,10 @@ function MessageBubble({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 + 0.3, duration: 0.5 }}
+          className={message.type === 'bot' ? 'pr-12' : ''}
         >
           {message.type === 'bot' ? (
-            <MarkdownRenderer content={message.content} />
+            <ChatGPTRenderer content={message.content} />
           ) : (
             <p className='text-sm leading-relaxed whitespace-pre-wrap'>
               {message.content}
@@ -230,22 +231,20 @@ function MessageBubble({
           </motion.div>
         )}
 
-        {/* Message Actions (for bot messages) */}
+        {/* Message Actions (for bot messages) - Minimal like ChatGPT */}
         {message.type === 'bot' && !message.error && (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: showActions ? 1 : 0, y: showActions ? 0 : 5 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'absolute -bottom-8 right-0 flex gap-1 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-lg',
+              'absolute top-3 right-3 flex gap-1',
               showActions ? 'pointer-events-auto' : 'pointer-events-none'
             )}
           >
-            <Button
+            <button
               onClick={handleCopy}
-              size='sm'
-              variant='ghost'
-              className='h-6 w-6 p-0 hover:bg-gray-100'
+              className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'
             >
               {copied ? (
                 <motion.div
@@ -256,23 +255,15 @@ function MessageBubble({
                   ✓
                 </motion.div>
               ) : (
-                <Copy className='w-3 h-3' />
+                <Copy className='w-3 h-3 text-gray-500' />
               )}
-            </Button>
-            <Button
-              size='sm'
-              variant='ghost'
-              className='h-6 w-6 p-0 hover:bg-gray-100'
-            >
-              <ThumbsUp className='w-3 h-3' />
-            </Button>
-            <Button
-              size='sm'
-              variant='ghost'
-              className='h-6 w-6 p-0 hover:bg-gray-100'
-            >
-              <ThumbsDown className='w-3 h-3' />
-            </Button>
+            </button>
+            <button className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'>
+              <ThumbsUp className='w-3 h-3 text-gray-500' />
+            </button>
+            <button className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'>
+              <ThumbsDown className='w-3 h-3 text-gray-500' />
+            </button>
           </motion.div>
         )}
 
