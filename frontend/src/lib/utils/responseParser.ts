@@ -15,30 +15,40 @@ import type {
   StructuredResponse,
 } from '@/lib/types/response';
 
+// Optimized parsing with memoization
+const parseMarkdownToStructuredOptimized = (() => {
+  const cache = new Map<string, StructuredResponse>();
+
+  return (content: string): StructuredResponse => {
+    // Check cache first
+    if (cache.has(content)) {
+      return cache.get(content)!;
+    }
+
+    const lines = content.split('\n').filter(line => line.trim());
+    const title = extractTitle(lines);
+    const sections = parseSections(lines);
+
+    const result: StructuredResponse = {
+      title,
+      sections,
+      metadata: {
+        subject: 'General',
+        difficulty: 'intermediate',
+        estimatedTime: '5-10 minutes',
+      },
+    };
+
+    // Cache the result
+    cache.set(content, result);
+    return result;
+  };
+})();
+
 /**
  * Parses markdown content and converts it to structured response format
  */
-export const parseMarkdownToStructured = (
-  content: string
-): StructuredResponse => {
-  const lines = content.split('\n').filter(line => line.trim());
-
-  // Extract title (first heading or first line)
-  const title = extractTitle(lines);
-
-  // Parse sections
-  const sections = parseSections(lines);
-
-  return {
-    title,
-    sections,
-    metadata: {
-      subject: 'General',
-      difficulty: 'intermediate',
-      estimatedTime: '5-10 minutes',
-    },
-  };
-};
+export const parseMarkdownToStructured = parseMarkdownToStructuredOptimized;
 
 /**
  * Extracts title from content

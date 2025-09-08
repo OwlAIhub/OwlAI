@@ -28,7 +28,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
   };
 
   return (
-    <div className={cn('h-full bg-white flex flex-col', className)}>
+    <div className={cn('h-full bg-white flex flex-col min-h-0', className)}>
       {messages.length === 0 ? (
         /* ChatGPT-style welcome screen - Scrollable */
         <div className='flex-1 overflow-y-auto'>
@@ -78,11 +78,10 @@ export function ChatContainer({ className }: ChatContainerProps) {
         /* ChatGPT-style chat layout */
         <>
           {/* Messages Area - Scrollable */}
-          <div className='flex-1 overflow-y-auto'>
+          <div className='flex-1 overflow-y-auto min-h-0'>
             <ChatMessages
               messages={messages}
               isLoading={isLoading}
-              className='h-full'
               onRetry={retryLastMessage}
             />
           </div>

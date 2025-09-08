@@ -35,7 +35,7 @@ export function ChatMessages({
   return (
     <div
       className={cn(
-        'h-full overflow-y-auto px-4 py-6 scrollbar-hide',
+        'flex-1 overflow-y-auto px-4 py-6 scrollbar-hide min-h-0',
         className
       )}
     >

@@ -42,12 +42,12 @@ export const HeadingComponent = ({
     .join('\n')
     .trim();
 
-  // Smooth, clean typography with proper spacing
+  // Smooth, clean typography with compact spacing
   const styles = {
-    1: 'text-2xl font-bold mb-4 mt-6 text-gray-900 leading-relaxed',
-    2: 'text-xl font-semibold mb-3 mt-5 text-gray-800 leading-relaxed',
-    3: 'text-lg font-medium mb-2 mt-4 text-gray-700 leading-relaxed',
-    4: 'text-base font-medium mb-2 mt-3 text-gray-700 leading-relaxed',
+    1: 'text-2xl font-bold mb-3 mt-4 text-gray-900 leading-relaxed',
+    2: 'text-xl font-semibold mb-2 mt-3 text-gray-800 leading-relaxed',
+    3: 'text-lg font-medium mb-2 mt-3 text-gray-700 leading-relaxed',
+    4: 'text-base font-medium mb-1 mt-2 text-gray-700 leading-relaxed',
     5: 'text-sm font-medium mb-1 mt-2 text-gray-600 leading-relaxed',
     6: 'text-sm font-medium mb-1 mt-2 text-gray-600 leading-relaxed',
   };
@@ -55,7 +55,7 @@ export const HeadingComponent = ({
   const className = styles[level as keyof typeof styles] || styles[6];
 
   return (
-    <div className='mb-4'>
+    <div className='mb-3'>
       {level === 1 && <h1 className={className}>{text}</h1>}
       {level === 2 && <h2 className={className}>{text}</h2>}
       {level === 3 && <h3 className={className}>{text}</h3>}
@@ -67,41 +67,54 @@ export const HeadingComponent = ({
   );
 };
 
-// Paragraph Component (ChatGPT minimal style) - smooth and clean
+// Optimized paragraph processing with memoization
+const processParagraphContent = (() => {
+  const cache = new Map<string, string>();
+
+  return (content: string): string => {
+    if (cache.has(content)) {
+      return cache.get(content)!;
+    }
+
+    // Clean any remaining markdown artifacts
+    let processedContent = cleanContent(content);
+
+    if (!processedContent) {
+      cache.set(content, '');
+      return '';
+    }
+
+    // Optimized regex processing
+    processedContent = processedContent
+      .replace(/`([^`]+)`/g, (match, code) => {
+        return `<code style="background-color: ${colors.codeBackground}; color: ${colors.text}; padding: 2px 4px; border-radius: 3px; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.875em; border: 1px solid ${colors.codeBorder};">${code}</code>`;
+      })
+      .replace(
+        /\*\*([^*]+?)\*\*/g,
+        '<strong style="font-weight: 600; color: #1f2937;">$1</strong>'
+      )
+      .replace(/\*([^*]+?)\*/g, '<em style="font-style: italic;">$1</em>')
+      .replace(/\*\*/g, '');
+
+    cache.set(content, processedContent);
+    return processedContent;
+  };
+})();
+
+// Paragraph Component (ChatGPT minimal style) - optimized
 export const ParagraphComponent = ({ content }: { content: string }) => {
-  // Clean any remaining markdown artifacts using the same function
-  const cleanedContent = cleanContent(content);
+  const processedContent = processParagraphContent(content);
 
-  if (!cleanedContent) return null;
-
-  // Handle inline code with clean styling
-  let processedContent = cleanedContent.replace(/`([^`]+)`/g, (match, code) => {
-    return `<code style="background-color: ${colors.codeBackground}; color: ${colors.text}; padding: 2px 4px; border-radius: 3px; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.875em; border: 1px solid ${colors.codeBorder};">${code}</code>`;
-  });
-
-  // Handle bold text
-  processedContent = processedContent.replace(
-    /\*\*([^*]+?)\*\*/g,
-    '<strong style="font-weight: 600; color: #1f2937;">$1</strong>'
-  );
-
-  // Handle italic text
-  processedContent = processedContent.replace(
-    /\*([^*]+?)\*/g,
-    '<em style="font-style: italic;">$1</em>'
-  );
-
-  // Clean up remaining **
-  processedContent = processedContent.replace(/\*\*/g, '');
+  if (!processedContent) return null;
 
   // Handle numbered lists in paragraphs - clean
-  if (/^\d+\./.test(cleanedContent)) {
-    const lines = cleanedContent.split('\n');
+  if (/^\d+\./.test(content)) {
+    const lines = content.split('\n');
     const listItems = lines.filter(line => /^\d+\./.test(line.trim()));
 
     if (listItems.length > 0) {
       return (
-        <ol className='space-y-2 mb-4 ml-4'>
+        <ol className='space-y-1 mb-3 ml-4'>
           {listItems.map((item, index) => {
             const cleanItem = item.replace(/^\d+\.\s*/, '').trim();
             const processedItem = cleanItem.replace(
@@ -126,13 +139,13 @@ export const ParagraphComponent = ({ content }: { content: string }) => {
   }
 
   // Handle bullet points in paragraphs - clean
-  if (/^[-*]\s/.test(cleanedContent)) {
-    const lines = cleanedContent.split('\n');
+  if (/^[-*]\s/.test(content)) {
+    const lines = content.split('\n');
     const listItems = lines.filter(line => /^[-*]\s/.test(line.trim()));
 
     if (listItems.length > 0) {
       return (
-        <ul className='space-y-2 mb-4 ml-4'>
+        <ul className='space-y-1 mb-3 ml-4'>
           {listItems.map((item, index) => {
             const cleanItem = item.replace(/^[-*]\s*/, '').trim();
             const processedItem = cleanItem.replace(
@@ -156,7 +169,7 @@ export const ParagraphComponent = ({ content }: { content: string }) => {
 
   return (
     <p
-      className='leading-relaxed mb-3 text-sm'
+      className='leading-relaxed mb-2 text-sm'
       style={{ color: colors.text }}
       dangerouslySetInnerHTML={{ __html: processedContent }}
     />
@@ -192,7 +205,7 @@ export const ListComponent = ({ content }: { content: string }) => {
   return (
     <ListTag
       className={cn(
-        'my-3 space-y-1',
+        'my-2 space-y-0.5',
         isOrdered ? 'list-decimal list-inside' : 'list-disc list-inside'
       )}
       style={{ color: colors.text }}
@@ -216,7 +229,7 @@ export const BlockquoteComponent = ({ content }: { content: string }) => {
   const text = content.replace(/^>\s*/, '');
   return (
     <blockquote
-      className='my-4 pl-4 border-l-4 border-gray-300 italic text-gray-600'
+      className='my-3 pl-4 border-l-4 border-gray-300 italic text-gray-600'
       style={{ borderColor: colors.accent }}
     >
       {text}

@@ -442,7 +442,7 @@ export function StructuredResponseRenderer({
   className,
 }: StructuredResponseRendererProps) {
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6 overflow-hidden', className)}>
       {/* Title */}
       <div className='text-center space-y-2'>
         <h1 className='text-3xl font-bold text-gray-900'>{response.title}</h1>

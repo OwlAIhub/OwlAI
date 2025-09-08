@@ -21,13 +21,11 @@ import { CodeBlock } from './components/CodeBlock';
 import {
   DiagramComponent,
   ExampleComponent,
-  FollowupComponent,
   FormulaComponent,
   KeyPointsComponent,
   MCQComponent,
   TheoryComponent,
 } from './components/EducationalComponents';
-import { splitIntoBlocks } from './utils/contentDetector';
 
 // ChatGPT exact minimal color scheme - smooth and clean
 const colors = {
@@ -58,7 +56,6 @@ const ComponentMap = {
   diagram: DiagramComponent,
   theory: TheoryComponent,
   example: ExampleComponent,
-  followup: FollowupComponent,
 };
 
 // Helper function to extract heading level
@@ -73,6 +70,85 @@ interface ChatGPTRendererProps {
   useStructured?: boolean;
 }
 
+// Optimized content type detection with memoization
+const detectContentTypeOptimized = (() => {
+  const cache = new Map<string, string>();
+
+  return (line: string): string => {
+    if (cache.has(line)) {
+      return cache.get(line)!;
+    }
+
+    let type = 'paragraph';
+
+    // Optimized detection with early returns
+    if (line.startsWith('```')) {
+      type = 'codeblock';
+    } else if (line.startsWith('#')) {
+      type = 'heading';
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      type = 'list';
+    } else if (/^\d+\./.test(line)) {
+      type = 'list';
+    } else if (line.startsWith('>')) {
+      type = 'blockquote';
+    } else if (line.includes('|') && line.includes('\n')) {
+      type = 'table';
+    } else if (
+      line.includes('Key Points:') ||
+      line.includes('Functions of') ||
+      line.includes('Steps in')
+    ) {
+      type = 'keypoints';
+    } else if (line.includes('Question:') || /^[A-D]\)/.test(line)) {
+      type = 'mcq';
+    } else if (line.includes('Formula:') || line.includes('Equation:')) {
+      type = 'formula';
+    } else if (line.includes('Example:') || line.includes('Case Study:')) {
+      type = 'example';
+    }
+
+    cache.set(line, type);
+    return type;
+  };
+})();
+
+// Optimized block parsing with streaming
+const parseContentOptimized = (content: string) => {
+  const lines = content.split('\n');
+  const blocks: Array<{ type: string; content: string }> = [];
+
+  let currentBlock = '';
+  let currentType = 'paragraph';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (!line) {
+      if (currentBlock.trim()) {
+        currentBlock += '\n';
+      }
+      continue;
+    }
+
+    const type = detectContentTypeOptimized(line);
+
+    if (type !== currentType && currentBlock.trim()) {
+      blocks.push({ type: currentType, content: currentBlock.trim() });
+      currentBlock = line;
+      currentType = type;
+    } else {
+      currentBlock += (currentBlock ? '\n' : '') + line;
+    }
+  }
+
+  if (currentBlock.trim()) {
+    blocks.push({ type: currentType, content: currentBlock.trim() });
+  }
+
+  return blocks;
+};
+
 export function ChatGPTRenderer({
   content,
   className,
@@ -85,7 +161,7 @@ export function ChatGPTRenderer({
     );
   }
 
-  // If useStructured is true, try to parse markdown to structured format
+  // Optimized structured parsing with error handling
   if (useStructured && typeof content === 'string') {
     try {
       const structuredResponse = parseMarkdownToStructured(content);
@@ -97,22 +173,22 @@ export function ChatGPTRenderer({
       );
     } catch (error) {
       console.warn(
-        'Failed to parse as structured response, falling back to markdown:',
+        'Structured parsing failed, using optimized markdown:',
         error
       );
     }
   }
 
-  // Fallback to original markdown rendering
-  const blocks = splitIntoBlocks(content as string);
+  // Production-level optimized markdown rendering
+  const blocks = parseContentOptimized(content as string);
 
   return (
     <div
-      className={cn('prose prose-sm max-w-none', className)}
+      className={cn('prose prose-sm max-w-none overflow-hidden', className)}
       style={{
         backgroundColor: 'transparent',
         color: colors.text,
-        lineHeight: '1.6', // Smooth, readable line height
+        lineHeight: '1.6',
       }}
     >
       {blocks.map((block, index) => {
@@ -120,7 +196,6 @@ export function ChatGPTRenderer({
           ComponentMap[block.type as keyof typeof ComponentMap] ||
           ComponentMap.paragraph;
 
-        // Special handling for headings to pass level
         if (block.type === 'heading') {
           const level = getHeadingLevel(block.content);
           return (

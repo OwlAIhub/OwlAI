@@ -3,8 +3,13 @@
  * Handles MCQ, Key Points, Formula, Diagram, Theory, Example, and Followup components
  */
 
-import { cn } from '@/lib/utils';
-import { CheckCircle, Circle, BookOpen, Calculator, BarChart3, Lightbulb, FileText, MessageCircle } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  Calculator,
+  Circle,
+  Lightbulb,
+} from 'lucide-react';
 
 // ChatGPT exact minimal color scheme - smooth and clean
 const colors = {
@@ -39,7 +44,7 @@ export const MCQComponent = ({ content }: { content: string }) => {
         {options.map((option, index) => {
           const optionText = option.replace(/^[A-D]\)\s*/, '').trim();
           const optionLetter = option.match(/^([A-D])\)/)?.[1] || '';
-          
+
           return (
             <div
               key={index}
@@ -48,7 +53,9 @@ export const MCQComponent = ({ content }: { content: string }) => {
               <div className='flex items-center justify-center w-6 h-6 mr-3'>
                 <Circle className='w-5 h-5 text-blue-600' />
               </div>
-              <span className='text-sm font-medium text-blue-800 mr-2'>{optionLetter}.</span>
+              <span className='text-sm font-medium text-blue-800 mr-2'>
+                {optionLetter}.
+              </span>
               <span className='text-sm text-gray-700'>{optionText}</span>
             </div>
           );
@@ -61,35 +68,51 @@ export const MCQComponent = ({ content }: { content: string }) => {
 // Key Points Component (Educational style)
 export const KeyPointsComponent = ({ content }: { content: string }) => {
   const lines = content.split('\n').filter(line => line.trim());
-  const title = lines.find(line => 
-    line.includes('Key Points:') || 
-    line.includes('Functions of') || 
-    line.includes('Steps in') || 
-    line.includes('Types of')
-  ) || 'Key Points';
+  const title =
+    lines.find(
+      line =>
+        line.includes('Key Points:') ||
+        line.includes('Functions of') ||
+        line.includes('Steps in') ||
+        line.includes('Types of')
+    ) || 'Key Points';
 
   const parseStructuredContent = () => {
     const sections: { type: string; content: string; items: string[] }[] = [];
-    let currentSection: { type: string; content: string; items: string[] } | null = null;
+    let currentSection: {
+      type: string;
+      content: string;
+      items: string[];
+    } | null = null;
 
     for (const line of lines) {
       const trimmed = line.trim();
-      
-      if (trimmed.includes('Key Points:') || trimmed.includes('Functions of') || trimmed.includes('Steps in') || trimmed.includes('Types of')) {
+
+      if (
+        trimmed.includes('Key Points:') ||
+        trimmed.includes('Functions of') ||
+        trimmed.includes('Steps in') ||
+        trimmed.includes('Types of')
+      ) {
         if (currentSection) sections.push(currentSection);
         currentSection = { type: 'header', content: trimmed, items: [] };
       } else if (/^\d+\./.test(trimmed)) {
-        if (!currentSection) currentSection = { type: 'numbered', content: '', items: [] };
+        if (!currentSection)
+          currentSection = { type: 'numbered', content: '', items: [] };
         currentSection.items.push(trimmed);
       } else if (/^[-*]\s/.test(trimmed)) {
-        if (!currentSection) currentSection = { type: 'bullets', content: '', items: [] };
+        if (!currentSection)
+          currentSection = { type: 'bullets', content: '', items: [] };
         currentSection.items.push(trimmed);
       } else if (trimmed.includes('|') && trimmed.includes('\n')) {
-        if (!currentSection) currentSection = { type: 'table', content: '', items: [] };
+        if (!currentSection)
+          currentSection = { type: 'table', content: '', items: [] };
         currentSection.items.push(trimmed);
       } else if (trimmed) {
-        if (!currentSection) currentSection = { type: 'text', content: '', items: [] };
-        currentSection.content += (currentSection.content ? '\n' : '') + trimmed;
+        if (!currentSection)
+          currentSection = { type: 'text', content: '', items: [] };
+        currentSection.content +=
+          (currentSection.content ? '\n' : '') + trimmed;
       }
     }
 
@@ -130,7 +153,7 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
 
       case 'bullets':
         return (
-          <ul key={index} className='space-y-2 mb-4'>
+          <ul key={index} className='space-y-0.5 mb-2'>
             {section.items.map((item: string, itemIndex: number) => {
               const cleanItem = item.replace(/^[-*]\s*/, '').trim();
               const processedItem = cleanItem.replace(
@@ -142,7 +165,7 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
                   key={itemIndex}
                   className='text-sm leading-relaxed flex items-start'
                 >
-                  <span className='text-teal-600 mr-2'>•</span>
+                  <span className='text-teal-600 mr-2 mt-0.5 text-xs'>•</span>
                   <span dangerouslySetInnerHTML={{ __html: processedItem }} />
                 </li>
               );
@@ -164,14 +187,14 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
           );
 
           return (
-            <div key={index} className='overflow-x-auto mb-4'>
+            <div key={index} className='overflow-x-auto mb-2'>
               <table className='min-w-full border border-gray-200 rounded-lg overflow-hidden'>
                 <thead className='bg-gray-50'>
                   <tr>
                     {headers.map((header: string, i: number) => (
                       <th
                         key={i}
-                        className='px-4 py-3 text-left text-sm font-semibold text-gray-900 border-b border-gray-200'
+                        className='px-3 py-2 text-left text-sm font-semibold text-gray-900 border-b border-gray-200'
                       >
                         {header}
                       </th>
@@ -185,10 +208,7 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
                       className='border-b border-gray-200 last:border-b-0'
                     >
                       {row.map((cell: string, j: number) => (
-                        <td
-                          key={j}
-                          className='px-4 py-3 text-sm text-gray-700'
-                        >
+                        <td key={j} className='px-3 py-2 text-sm text-gray-700'>
                           {cell}
                         </td>
                       ))}
@@ -208,7 +228,7 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
             '<strong style="font-weight: 600; color: #1f2937;">$1</strong>'
           );
           return (
-            <div key={index} className='mb-4'>
+            <div key={index} className='mb-2'>
               <p
                 className='text-sm leading-relaxed text-gray-700'
                 dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -221,17 +241,12 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
   };
 
   return (
-    <div
-      className='my-6 p-6 bg-gray-50 rounded-lg border-l-4 shadow-sm'
-      style={{ borderColor: colors.accent }}
-    >
-      <h4 className='text-lg font-semibold mb-4 text-gray-800 flex items-center'>
-        <div className='w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center mr-3'>
-          <span className='text-white text-xs font-bold'>📋</span>
-        </div>
+    <div className='my-4'>
+      <h4 className='text-base font-semibold mb-3 text-gray-800 flex items-center'>
+        <span className='text-teal-600 mr-2'>📋</span>
         {title}
       </h4>
-      <div className='space-y-2'>
+      <div className='space-y-1'>
         {sections.map((section, index) => renderSection(section, index))}
       </div>
     </div>
@@ -241,14 +256,14 @@ export const KeyPointsComponent = ({ content }: { content: string }) => {
 // Formula Component (Educational style)
 export const FormulaComponent = ({ content }: { content: string }) => {
   const text = content.replace(/^(Formula:|Equation:)\s*/, '').trim();
-  
+
   return (
-    <div className='my-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-500 shadow-sm'>
+    <div className='my-3 p-3 bg-green-50 rounded-lg border-l-4 border-green-500'>
       <h4 className='text-sm font-semibold mb-2 text-green-800 flex items-center'>
         <Calculator className='w-4 h-4 mr-2' />
         Formula
       </h4>
-      <div className='text-sm text-gray-700 font-mono bg-white p-3 rounded border'>
+      <div className='text-sm text-gray-700 font-mono bg-white p-2 rounded border'>
         {text}
       </div>
     </div>
@@ -258,16 +273,14 @@ export const FormulaComponent = ({ content }: { content: string }) => {
 // Diagram Component (Educational style)
 export const DiagramComponent = ({ content }: { content: string }) => {
   const text = content.replace(/^(Diagram:|Graph:|Chart:)\s*/, '').trim();
-  
+
   return (
-    <div className='my-4 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500 shadow-sm'>
+    <div className='my-3 p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500'>
       <h4 className='text-sm font-semibold mb-2 text-purple-800 flex items-center'>
         <BarChart3 className='w-4 h-4 mr-2' />
         Diagram
       </h4>
-      <div className='text-sm text-gray-700'>
-        {text}
-      </div>
+      <div className='text-sm text-gray-700'>{text}</div>
     </div>
   );
 };
@@ -275,16 +288,14 @@ export const DiagramComponent = ({ content }: { content: string }) => {
 // Theory Component (Educational style)
 export const TheoryComponent = ({ content }: { content: string }) => {
   const text = content.replace(/^(Theory:|Concept:|Definition:)\s*/, '').trim();
-  
+
   return (
-    <div className='my-4 p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500 shadow-sm'>
+    <div className='my-3 p-3 bg-indigo-50 rounded-lg border-l-4 border-indigo-500'>
       <h4 className='text-sm font-semibold mb-2 text-indigo-800 flex items-center'>
         <BookOpen className='w-4 h-4 mr-2' />
         Theory
       </h4>
-      <div className='text-sm text-gray-700'>
-        {text}
-      </div>
+      <div className='text-sm text-gray-700'>{text}</div>
     </div>
   );
 };
@@ -292,28 +303,14 @@ export const TheoryComponent = ({ content }: { content: string }) => {
 // Example Component (Educational style)
 export const ExampleComponent = ({ content }: { content: string }) => {
   const text = content.replace(/^(Example:|Case Study:)\s*/, '').trim();
-  
+
   return (
-    <div className='my-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500 shadow-sm'>
+    <div className='my-3 p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-500'>
       <h4 className='text-sm font-semibold mb-2 text-yellow-800 flex items-center'>
         <Lightbulb className='w-4 h-4 mr-2' />
         Example
       </h4>
-      <div className='text-sm text-gray-700'>
-        {text}
-      </div>
-    </div>
-  );
-};
-
-// Followup Component (Educational style)
-export const FollowupComponent = ({ content }: { content: string }) => {
-  return (
-    <div className='my-4 p-4 bg-gray-100 rounded-lg border-l-4 border-gray-400 shadow-sm'>
-      <h4 className='text-sm font-semibold mb-2 text-gray-700 flex items-center'>
-        <MessageCircle className='w-4 h-4 mr-2' />
-        Give more followup questions
-      </h4>
+      <div className='text-sm text-gray-700'>{text}</div>
     </div>
   );
 };
