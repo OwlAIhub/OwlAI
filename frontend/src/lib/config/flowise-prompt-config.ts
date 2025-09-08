@@ -14,21 +14,21 @@ ALWAYS format your responses using this EXACT structure template. Never output r
 
 # 🎯 [Main Topic/Question]
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 [2-3 line explanation of the main concept]
 
-### ✨ **Key Points**
-- **Point 1** - Brief explanation
-- **Point 2** - Brief explanation
-- **Point 3** - Brief explanation
+### ✨ Key Points
+- Point 1 - Brief explanation
+- Point 2 - Brief explanation
+- Point 3 - Brief explanation
 
-## 🔍 **Detailed Explanation**
+## 🔍 Detailed Explanation
 [Short paragraphs, max 3 lines each]
 
-### 💡 **Examples**
+### 💡 Examples
 [Practical examples or case studies]
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Tip 1** - Actionable advice
 2. **Tip 2** - Actionable advice
 3. **Tip 3** - Actionable advice
@@ -88,25 +88,25 @@ Remember: Your responses should look like professional documentation with clear 
 export const FLOWISE_RESPONSE_EXAMPLES = {
   studyStrategy: `# 🎯 UGC NET Study Strategy
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 UGC NET requires a systematic approach combining subject knowledge, teaching aptitude, and research methodology. Success comes from structured preparation and consistent practice.
 
-### ✨ **Key Points**
+### ✨ Key Points
 - **Paper 1** - Teaching aptitude and research methods
 - **Paper 2** - Subject-specific knowledge
 - **Time Management** - Balanced preparation approach
 
-## 🔍 **Detailed Explanation**
+## 🔍 Detailed Explanation
 Paper 1 tests your teaching ability and research understanding. Focus on communication skills, reasoning ability, and basic research concepts.
 
 Paper 2 is subject-specific and requires deep knowledge of your chosen discipline. Master core concepts, recent developments, and practical applications.
 
-### 💡 **Examples**
+### 💡 Examples
 - **Teaching Aptitude**: Practice with sample questions on classroom management
 - **Research Methods**: Understand qualitative vs quantitative research
 - **Current Affairs**: Follow education sector news and policies
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Daily Practice** - 2 hours minimum study time
 2. **Mock Tests** - Weekly practice tests
 3. **Revision** - 30 minutes daily review
@@ -119,25 +119,25 @@ Paper 2 is subject-specific and requires deep knowledge of your chosen disciplin
 
   researchMethodology: `# 🔬 Research Methodology Guide
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 Research methodology is the systematic approach to conducting research. It includes research design, data collection methods, and analysis techniques.
 
-### ✨ **Key Points**
+### ✨ Key Points
 - **Research Types** - Quantitative, qualitative, mixed methods
 - **Data Collection** - Surveys, interviews, observations
 - **Analysis** - Statistical and thematic analysis
 
-## 🔍 **Detailed Explanation**
+## 🔍 Detailed Explanation
 Quantitative research uses numerical data and statistical analysis. It's objective and generalizable.
 
 Qualitative research focuses on understanding human behavior through interviews and observations. It's subjective and context-specific.
 
-### 💡 **Examples**
+### 💡 Examples
 - **Quantitative**: Survey of 1000 students about study habits
 - **Qualitative**: In-depth interviews with 10 teachers
 - **Mixed Methods**: Survey + follow-up interviews
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Choose Method** - Based on research question
 2. **Sample Size** - Ensure statistical power
 3. **Ethics** - Get proper approvals
@@ -150,25 +150,25 @@ Qualitative research focuses on understanding human behavior through interviews 
 
   teachingAptitude: `# 👨‍🏫 Teaching Aptitude Mastery
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 Teaching aptitude assesses your ability to communicate, manage classrooms, and facilitate learning. It's about understanding how people learn and how to teach effectively.
 
-### ✨ **Key Points**
+### ✨ Key Points
 - **Communication** - Clear and effective delivery
 - **Classroom Management** - Creating positive learning environment
 - **Learning Theories** - Understanding how students learn
 
-## 🔍 **Detailed Explanation**
+## 🔍 Detailed Explanation
 Effective teaching requires understanding different learning styles and adapting your approach accordingly. Visual learners need diagrams, auditory learners need discussions, and kinesthetic learners need hands-on activities.
 
 Classroom management involves setting clear expectations, maintaining discipline, and creating an inclusive environment where all students can thrive.
 
-### 💡 **Examples**
+### 💡 Examples
 - **Visual Learning**: Use charts, diagrams, and presentations
 - **Auditory Learning**: Encourage discussions and verbal explanations
 - **Kinesthetic Learning**: Include hands-on activities and experiments
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Know Your Students** - Understand their learning styles
 2. **Plan Lessons** - Structure content logically
 3. **Engage Students** - Use interactive methods
@@ -193,21 +193,21 @@ export const FLOWISE_CHATFLOW_CONFIG = {
 export const RESPONSE_TEMPLATES = {
   explanation: `# 🎯 [Topic]
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 [2-3 line explanation]
 
-### ✨ **Key Points**
-- **Point 1** - Brief explanation
-- **Point 2** - Brief explanation
-- **Point 3** - Brief explanation
+### ✨ Key Points
+- Point 1 - Brief explanation
+- Point 2 - Brief explanation
+- Point 3 - Brief explanation
 
-## 🔍 **Detailed Explanation**
+## 🔍 Detailed Explanation
 [Short paragraphs, max 3 lines each]
 
-### 💡 **Examples**
+### 💡 Examples
 [Practical examples]
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Tip 1** - Actionable advice
 2. **Tip 2** - Actionable advice
 
@@ -218,7 +218,7 @@ export const RESPONSE_TEMPLATES = {
 
   comparison: `# 🎯 [Topic A] vs [Topic B]
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 [Brief comparison overview]
 
 ### ✨ **Key Differences**
@@ -242,7 +242,7 @@ export const RESPONSE_TEMPLATES = {
 
   stepByStep: `# 🎯 [Process/Task]
 
-## 📚 **Core Concept**
+## 📚 Core Concept
 [Brief explanation of the process]
 
 ### ✨ **Key Steps**
@@ -255,10 +255,10 @@ export const RESPONSE_TEMPLATES = {
 2. **Step 2: [Name]** - Detailed explanation
 3. **Step 3: [Name]** - Detailed explanation
 
-### 💡 **Examples**
+### 💡 Examples
 [Practical examples of the process]
 
-## ⚡ **Quick Tips**
+## ⚡ Quick Tips
 1. **Tip 1** - Actionable advice
 2. **Tip 2** - Actionable advice
 

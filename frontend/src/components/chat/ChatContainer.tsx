@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useFlowiseChat } from '@/hooks/useFlowiseChat';
 import { cn } from '@/lib/utils';
+import NextImage from 'next/image';
 import { StarterPrompts } from './StarterPrompts';
 import { ChatInput } from './input/ChatInput';
 import { ChatMessages } from './messages/ChatMessages';
@@ -36,10 +36,12 @@ export function ChatContainer({ className }: ChatContainerProps) {
             {/* Welcome Message */}
             <div className='text-center mb-8 max-w-2xl'>
               <div className='mx-auto mb-6 flex items-center justify-center'>
-                <img
+                <NextImage
                   src='/owl-ai-logo.png'
                   alt='OwlAI Logo'
-                  className='w-16 h-16 object-contain'
+                  width={64}
+                  height={64}
+                  className='object-contain'
                 />
               </div>
               <h1 className='text-3xl font-bold text-gray-900 mb-4'>

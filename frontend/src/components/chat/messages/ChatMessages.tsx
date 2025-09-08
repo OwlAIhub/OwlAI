@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Copy, RotateCcw, ThumbsDown, ThumbsUp, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../ui/buttons/button';
-import { ChatGPTRenderer } from '../ChatGPTRenderer';
 
 interface Message {
   id: string | number;
@@ -202,13 +201,9 @@ function MessageBubble({
           transition={{ delay: index * 0.05 + 0.3, duration: 0.5 }}
           className={message.type === 'bot' ? 'pr-12' : ''}
         >
-          {message.type === 'bot' ? (
-            <ChatGPTRenderer content={message.content} />
-          ) : (
-            <p className='text-sm leading-relaxed whitespace-pre-wrap'>
-              {message.content}
-            </p>
-          )}
+          <p className='text-sm leading-relaxed whitespace-pre-wrap'>
+            {message.content}
+          </p>
         </motion.div>
 
         {/* Error Actions */}

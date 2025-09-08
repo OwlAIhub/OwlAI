@@ -1,88 +1,73 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { BookOpen, Brain, Target, Zap } from 'lucide-react';
+import { BookOpen, Calculator, Lightbulb, Target } from 'lucide-react';
 
 interface StarterPromptsProps {
   onPromptClick: (prompt: string) => void;
-  className?: string;
 }
 
 const starterPrompts = [
   {
-    id: 1,
-    title: 'UGC NET Strategy',
-    prompt: 'Help me create a study strategy for UGC NET Paper 1 and Paper 2',
-    icon: Target,
+    icon: <BookOpen className='w-5 h-5' />,
+    title: 'Study Strategy',
+    description: 'Get personalized study plans for UGC NET',
+    prompt: 'Help me create a study strategy for UGC NET Paper 1',
   },
   {
-    id: 2,
-    title: 'Research Methodology',
-    prompt: 'Explain research methodology concepts for UGC NET',
-    icon: Brain,
+    icon: <Calculator className='w-5 h-5' />,
+    title: 'Practice Questions',
+    description: 'Solve practice problems with explanations',
+    prompt: 'Give me 5 practice questions on teaching aptitude',
   },
   {
-    id: 3,
-    title: 'Previous Year Papers',
-    prompt: 'Help me solve UGC NET previous year questions',
-    icon: BookOpen,
+    icon: <Lightbulb className='w-5 h-5' />,
+    title: 'Concept Explanation',
+    description: 'Understand complex topics easily',
+    prompt: 'Explain research methodology in simple terms',
   },
   {
-    id: 4,
-    title: 'Teaching Aptitude',
-    prompt: 'Explain teaching aptitude topics for UGC NET',
-    icon: Zap,
+    icon: <Target className='w-5 h-5' />,
+    title: 'Exam Preparation',
+    description: 'Get ready for competitive exams',
+    prompt: 'What are the key topics for CSIR NET preparation?',
   },
 ];
 
-export function StarterPrompts({
-  onPromptClick,
-  className,
-}: StarterPromptsProps) {
+export function StarterPrompts({ onPromptClick }: StarterPromptsProps) {
   return (
-    <div className={cn('w-full max-w-3xl mx-auto', className)}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-        className='grid grid-cols-2 gap-2'
-      >
-        {starterPrompts.map((prompt, index) => {
-          const Icon = prompt.icon;
-          return (
-            <motion.button
-              key={prompt.id}
-              onClick={() => onPromptClick(prompt.prompt)}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.3,
-                delay: 0.3 + index * 0.05,
-                ease: [0.4, 0, 0.2, 1],
-              }}
-              whileHover={{
-                scale: 1.02,
-                y: -2,
-                transition: { type: 'spring', stiffness: 400, damping: 17 },
-              }}
-              whileTap={{ scale: 0.98 }}
-              className={cn(
-                'group flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200',
-                'bg-white hover:bg-gray-50 transition-all duration-300',
-                'focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2',
-                'text-left shadow-sm hover:shadow-md',
-                'backdrop-blur-sm bg-white/90'
-              )}
-            >
-              <Icon className='w-4 h-4 text-gray-500 group-hover:text-teal-600 transition-colors duration-200' />
-              <span className='text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-200'>
-                {prompt.title}
-              </span>
-            </motion.button>
-          );
-        })}
-      </motion.div>
+    <div className='w-full max-w-4xl mx-auto'>
+      <h2 className='text-xl font-semibold text-gray-900 mb-6 text-center'>
+        Get Started
+      </h2>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        {starterPrompts.map((prompt, index) => (
+          <motion.button
+            key={index}
+            onClick={() => onPromptClick(prompt.prompt)}
+            className='group p-4 bg-white border border-gray-200 rounded-xl hover:border-teal-300 hover:shadow-md transition-all duration-200 text-left'
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.4 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className='flex items-start gap-3'>
+              <div className='flex-shrink-0 w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600 group-hover:bg-teal-200 transition-colors'>
+                {prompt.icon}
+              </div>
+              <div className='flex-1 min-w-0'>
+                <h3 className='font-medium text-gray-900 group-hover:text-teal-700 transition-colors'>
+                  {prompt.title}
+                </h3>
+                <p className='text-sm text-gray-600 mt-1'>
+                  {prompt.description}
+                </p>
+              </div>
+            </div>
+          </motion.button>
+        ))}
+      </div>
     </div>
   );
 }

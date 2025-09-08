@@ -9,12 +9,8 @@ export { AuthProvider } from './auth/providers/AuthProvider';
 export { AppSidebar } from './layout/sidebar/app-sidebar';
 
 // Chat Components
-export { MarkdownRenderer } from './chat/MarkdownRenderer';
-
-// ChatGPT-style Components (Carbon Copy)
-export { ChatGPTContainer } from './chat/ChatGPTContainer';
-export { ChatGPTMessage } from './chat/ChatGPTMessage';
-export { ChatGPTRenderer } from './chat/ChatGPTRenderer';
+export { ChatInput } from './chat/input/ChatInput';
+export { ChatMessages } from './chat/messages/ChatMessages';
 
 // User Components (Production Ready)
 export { UserAccountMenu } from './user/UserAccountMenu';
