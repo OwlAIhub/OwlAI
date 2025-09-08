@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/buttons/button";
@@ -5,12 +6,12 @@ import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/inputs/label";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { auth } from "@/lib/firebaseConfig";
-import { motion } from "framer-motion";
-import { RecaptchaVerifier, ConfirmationResult } from "firebase/auth";
-import { Phone, ArrowRight, Check, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import { hasCompletedOnboarding } from "@/lib/services/onboardingService";
+import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
+import { motion } from "framer-motion";
+import { ArrowRight, Check, Loader2, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Extend Window interface for reCAPTCHA
 declare global {

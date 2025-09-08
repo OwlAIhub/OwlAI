@@ -1,13 +1,13 @@
 "use client";
 
 import { PhoneAuthForm } from "@/components/auth/PhoneAuthForm";
-import { motion } from "framer-motion";
-import { ArrowLeft, Phone } from "lucide-react";
-import Link from "next/link";
 import {
   ResponsiveContainer,
   ResponsiveImage,
 } from "@/components/ui/responsive-container";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (

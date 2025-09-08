@@ -61,7 +61,6 @@ export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
 
     // Check if response is ok
     if (!response.ok) {
-      const errorText = await response.text();
       throw new FlowiseError({
         message: `API request failed: ${response.status} ${response.statusText}`,
         status: response.status,

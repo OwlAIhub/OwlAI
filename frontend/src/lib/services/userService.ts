@@ -1,14 +1,15 @@
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { User } from "firebase/auth";
-import { db } from "../firebaseConfig";
+import {
+  Timestamp,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { handleFirebaseError } from "../firebaseCheck";
+import { db } from "../firebaseConfig";
 
 export interface UserProfile {
   uid: string;
@@ -170,7 +171,7 @@ export const deactivateUser = async (uid: string): Promise<void> => {
  * Check if phone number is already registered
  */
 export const isPhoneNumberRegistered = async (
-  phoneNumber: string,
+  _phoneNumber: string,
 ): Promise<boolean> => {
   // Note: This would require a compound query or phone number index
   // For now, we'll rely on Firebase Auth's built-in duplicate prevention

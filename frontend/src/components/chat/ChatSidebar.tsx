@@ -25,7 +25,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import {
@@ -40,7 +39,6 @@ import {
   MoreHorizontal,
   Pin,
   Plus,
-  Settings,
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
