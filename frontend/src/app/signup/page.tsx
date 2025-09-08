@@ -1,6 +1,7 @@
 'use client';
 
 import { PhoneAuthForm } from '@/components/auth/forms/PhoneAuthForm';
+import { useAuth } from '@/components/auth/providers/AuthProvider';
 import { Button } from '@/components/ui/buttons/button';
 import {
   ResponsiveContainer,
@@ -9,9 +10,15 @@ import {
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) router.replace('/chat');
+  }, [isAuthenticated, router]);
 
   const handleBackToHome = () => {
     router.push('/');

@@ -112,10 +112,12 @@ export function PhoneAuthForm({
               throw new Error('reCAPTCHA not initialized');
             }
 
-            console.log('Sending OTP to:', phoneNumber);
+            // Use E.164 format (no spaces) for Firebase
+            const e164 = phoneNumber.replace(/\s+/g, '');
+            console.log('Sending OTP to:', e164);
             const confirmation = await signInWithPhoneNumber(
               auth,
-              phoneNumber,
+              e164,
               appVerifier
             );
 
