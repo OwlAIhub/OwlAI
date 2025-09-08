@@ -20,23 +20,41 @@ export function ContactSection() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
 
     if (!name.trim() || !email.trim() || !message.trim()) {
+      setError('Please fill in all fields');
       setSubmitting(false);
       return;
     }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    setSubmitting(false);
-    setName('');
-    setEmail('');
-    setMessage('');
+    try {
+      await submitContactForm({
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim()
+      });
+      
+      // Success!
+      setSubmitted(true);
+      setName('');
+      setEmail('');
+      setMessage('');
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      setError('Failed to send message. Please try again.');
+      console.error('Contact form error:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -164,13 +182,43 @@ export function ContactSection() {
                       required
                     />
                   </div>
+                  {/* Success Message */}
+                  {submitted && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className='flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800'
+                    >
+                      <CheckCircle className='w-4 h-4' />
+                      <span className='text-sm font-medium'>
+                         Message sent successfully! We&apos;ll get back to you soon.
+                       </span>
+                    </motion.div>
+                  )}
+                  
+                  {/* Error Message */}
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className='flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800'
+                    >
+                      <span className='text-sm font-medium'>{error}</span>
+                    </motion.div>
+                  )}
+                  
                   <Button
                     type='submit'
-                    disabled={submitting}
+                    disabled={submitting || submitted}
                     className='w-full'
                   >
                     {submitting ? (
                       'Sending...'
+                    ) : submitted ? (
+                      <>
+                        <CheckCircle className='w-4 h-4 mr-2' />
+                        Message Sent!
+                      </>
                     ) : (
                       <>
                         <Send className='w-4 h-4 mr-2' />
