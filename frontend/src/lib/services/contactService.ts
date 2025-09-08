@@ -1,5 +1,6 @@
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { Timestamp, addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp } from 'firebase/firestore';
+import { handleFirebaseError } from '../firebaseCheck';
+import { db } from '../firebaseConfig';
 
 export interface ContactSubmission {
   name: string;
@@ -26,12 +27,13 @@ export const submitContactForm = async (contactData: Omit<ContactSubmission, 'ti
       timestamp: serverTimestamp(),
       status: 'new'
     });
-    
+
     console.log('Contact form submitted with ID: ', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error submitting contact form: ', error);
-    throw new Error('Failed to submit contact form');
+    const errorMessage = handleFirebaseError(error);
+    throw new Error(errorMessage);
   }
 };
 
@@ -45,28 +47,30 @@ export const getContactSubmissions = async (limitCount: number = 50): Promise<Co
       orderBy('timestamp', 'desc'),
       limit(limitCount)
     );
-    
+
     const querySnapshot = await getDocs(q);
     const contacts: ContactSubmissionWithId[] = [];
-    
+
     querySnapshot.forEach((doc) => {
       contacts.push({
         id: doc.id,
         ...doc.data() as ContactSubmission
       });
     });
-    
+
     return contacts;
   } catch (error) {
     console.error('Error getting contact submissions: ', error);
-    throw new Error('Failed to get contact submissions');
+    const errorMessage = handleFirebaseError(error);
+    throw new Error(errorMessage);
   }
 };
 
 /**
  * Real-time listener for contact submissions (for admin dashboard)
+ * TODO: Implement with onSnapshot for real-time updates
  */
-export const subscribeToContactSubmissions = (callback: (contacts: ContactSubmissionWithId[]) => void) => {
+export const subscribeToContactSubmissions = () => {
   // This would be implemented with onSnapshot for real-time updates
   // For now, we'll just return the unsubscribe function
   return () => {};

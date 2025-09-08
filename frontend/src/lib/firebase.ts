@@ -18,13 +18,31 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Analytics (only in browser environment)
+// Initialize Analytics (only in browser environment and in production)
 let analytics;
-if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.warn('Analytics initialization failed:', error);
+  }
 }
 
 // Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
-export { analytics };
+const db = getFirestore(app);
+
+// Connect to Firestore emulator in development if needed
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+  // Only connect to emulator if not already connected
+  try {
+    // This will only work if you have the emulator running
+    // Remove this if you want to use production Firestore in development
+    // connectFirestoreEmulator(db, 'localhost', 8080);
+  } catch {
+    // Emulator connection failed, continue with production Firestore
+    console.log('Using production Firestore');
+  }
+}
+
+export { db, analytics };
 export default app;
