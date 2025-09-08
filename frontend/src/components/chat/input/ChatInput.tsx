@@ -113,7 +113,7 @@ export function ChatInput({
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               >
-                <Loader2 className='h-4 w-4' />
+                <Loader2 className='h-4 w-4 text-white' />
               </motion.div>
             ) : (
               <motion.div
@@ -121,7 +121,7 @@ export function ChatInput({
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
-                <Send className='h-4 w-4' />
+                <Send className='h-4 w-4 text-white' />
               </motion.div>
             )}
           </Button>
