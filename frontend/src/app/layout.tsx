@@ -1,4 +1,3 @@
-import { AuthProvider } from '@/components/auth/providers/AuthProvider';
 import { EnvironmentProvider } from '@/components/providers/EnvironmentProvider';
 import { HydrationFix } from '@/components/providers/HydrationFix';
 import { LenisProvider } from '@/components/providers/LenisProvider';
@@ -124,11 +123,9 @@ export default function RootLayout({
       >
         <HydrationFix />
         <EnvironmentProvider>
-          <AuthProvider>
-            <LenisProvider>
-              <PageTransition>{children}</PageTransition>
-            </LenisProvider>
-          </AuthProvider>
+          <LenisProvider>
+            <PageTransition>{children}</PageTransition>
+          </LenisProvider>
         </EnvironmentProvider>
         <Toaster />
         {/* Performance monitoring */}

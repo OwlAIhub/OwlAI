@@ -10,8 +10,9 @@ import {
 import { Input } from '@/components/ui/inputs/input';
 import { Label } from '@/components/ui/inputs/label';
 import { Textarea } from '@/components/ui/textarea';
+import { submitContactForm } from '@/lib/services/contactService';
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Phone, Send } from 'lucide-react';
+import { CheckCircle, Mail, MessageSquare, Phone, Send } from 'lucide-react';
 import { useState } from 'react';
 
 export function ContactSection() {
