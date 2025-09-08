@@ -44,6 +44,29 @@ service cloud.firestore {
              data.metadata.signUpMethod == 'phone';
     }
     
+    // Onboarding data - allow users to manage their own onboarding profile
+    match /onboarding/{userId} {
+      // Users can read, create, and update their own onboarding data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Validate onboarding data structure
+      allow create, update: if request.auth != null && 
+                              request.auth.uid == userId &&
+                              isValidOnboardingData();
+    }
+    
+    // Helper function to validate onboarding data
+    function isValidOnboardingData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'exam', 'subject', 'attempt', 'language', 'completedAt', 'createdAt', 'updatedAt', 'isComplete', 'metadata']) &&
+             data.uid is string && data.uid == request.auth.uid &&
+             data.exam is string &&
+             data.subject is string &&
+             data.attempt is string &&
+             data.language is string &&
+             data.isComplete is bool &&
+             data.metadata is map;
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

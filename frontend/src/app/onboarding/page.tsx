@@ -3,9 +3,17 @@
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Button } from '@/components/ui/buttons/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, BookOpen, Target, Globe, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, BookOpen, Target, Globe, Users, AlertTriangle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { 
+  saveOnboardingData, 
+  hasCompletedOnboarding, 
+  getValidationError,
+  isExamSupported,
+  isSubjectSupported,
+  OnboardingData 
+} from '@/lib/services/onboardingService';
 
 interface OnboardingData {
   exam: 'UGC-NET' | 'CSIR-NET' | '';
