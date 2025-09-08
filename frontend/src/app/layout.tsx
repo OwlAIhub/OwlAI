@@ -1,84 +1,84 @@
-import { EnvironmentProvider } from '@/components/providers/EnvironmentProvider';
-import { HydrationFix } from '@/components/providers/HydrationFix';
-import { LenisProvider } from '@/components/providers/LenisProvider';
-import { PageTransition } from '@/components/providers/PageTransition';
-import { AuthProvider } from '@/lib/contexts/AuthContext';
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import { Toaster } from 'sonner';
-import './globals.css';
+import { EnvironmentProvider } from "@/components/providers/EnvironmentProvider";
+import { HydrationFix } from "@/components/providers/HydrationFix";
+import { LenisProvider } from "@/components/providers/LenisProvider";
+import { PageTransition } from "@/components/providers/PageTransition";
+import { AuthProvider } from "@/lib/contexts/AuthContext";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
+import "./globals.css";
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-  display: 'swap',
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  display: "swap",
   preload: true,
-  fallback: ['system-ui', 'arial'],
+  fallback: ["system-ui", "arial"],
 });
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-  display: 'swap',
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
   preload: false, // Don't preload mono font for better performance
-  fallback: ['monospace'],
+  fallback: ["monospace"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Owl AI - Your Personal AI Study Partner',
-    template: '%s | Owl AI',
+    default: "Owl AI - Your Personal AI Study Partner",
+    template: "%s | Owl AI",
   },
   description:
-    'Transform your learning experience with Owl AI. Get instant answers, personalized explanations, and master any subject with our intelligent AI study partner.',
+    "Transform your learning experience with Owl AI. Get instant answers, personalized explanations, and master any subject with our intelligent AI study partner.",
   keywords: [
-    'Owl AI',
-    'AI learning assistant',
-    'study partner',
-    'educational assistant',
-    'personalized learning',
-    'AI tutor',
-    'UGC NET preparation',
-    'CSIR NET preparation',
-    'SSC preparation',
-    'CTET preparation',
+    "Owl AI",
+    "AI learning assistant",
+    "study partner",
+    "educational assistant",
+    "personalized learning",
+    "AI tutor",
+    "UGC NET preparation",
+    "CSIR NET preparation",
+    "SSC preparation",
+    "CTET preparation",
   ],
-  authors: [{ name: 'Owl AI Team' }],
-  creator: 'Owl AI',
+  authors: [{ name: "Owl AI Team" }],
+  creator: "Owl AI",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://owlai.com'),
+  metadataBase: new URL("https://owlai.com"),
   openGraph: {
-    type: 'website',
-    title: 'Owl AI - Your Personal AI Study Partner',
+    type: "website",
+    title: "Owl AI - Your Personal AI Study Partner",
     description:
-      'Transform your learning experience with intelligent, personalized assistance.',
-    siteName: 'Owl AI',
+      "Transform your learning experience with intelligent, personalized assistance.",
+    siteName: "Owl AI",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Owl AI - Your Personal AI Study Partner',
+    card: "summary_large_image",
+    title: "Owl AI - Your Personal AI Study Partner",
     description:
-      'Transform your learning experience with intelligent, personalized assistance.',
+      "Transform your learning experience with intelligent, personalized assistance.",
   },
   robots: {
     index: true,
     follow: true,
   },
   icons: {
-    icon: '/owl-ai-logo.png',
-    shortcut: '/owl-ai-logo.png',
-    apple: '/apple-touch-icon.png',
+    icon: "/owl-ai-logo.png",
+    shortcut: "/owl-ai-logo.png",
+    apple: "/apple-touch-icon.png",
   },
   other: {
-    'application-name': 'Owl AI',
-    'apple-mobile-web-app-title': 'Owl AI',
-    'apple-mobile-web-app-capable': 'yes',
-    'mobile-web-app-capable': 'yes',
-    'msapplication-TileColor': '#0D9488',
+    "application-name": "Owl AI",
+    "apple-mobile-web-app-title": "Owl AI",
+    "apple-mobile-web-app-capable": "yes",
+    "mobile-web-app-capable": "yes",
+    "msapplication-TileColor": "#0D9488",
   },
 };
 
@@ -88,34 +88,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='scroll-smooth' data-scroll-behavior='smooth'>
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
         <link
-          rel='icon'
-          href='/owl-ai-logo.png'
-          type='image/png'
-          sizes='32x32'
+          rel="icon"
+          href="/owl-ai-logo.png"
+          type="image/png"
+          sizes="32x32"
         />
         <link
-          rel='icon'
-          href='/owl-ai-logo.png'
-          type='image/png'
-          sizes='16x16'
+          rel="icon"
+          href="/owl-ai-logo.png"
+          type="image/png"
+          sizes="16x16"
         />
-        <link rel='shortcut icon' href='/owl-ai-logo.png' type='image/png' />
-        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
-        <link rel='manifest' href='/manifest.json' />
-        <meta name='theme-color' content='#0D9488' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <link rel="shortcut icon" href="/owl-ai-logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0D9488" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         {/* Performance optimizations */}
-        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
-          rel='preconnect'
-          href='https://fonts.gstatic.com'
-          crossOrigin='anonymous'
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
         />
-        <link rel='dns-prefetch' href='https://fonts.googleapis.com' />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         {/* No CSP in development to avoid blocking reCAPTCHA and Firebase scripts */}
       </head>
       <body

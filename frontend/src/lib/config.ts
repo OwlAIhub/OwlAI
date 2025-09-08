@@ -5,21 +5,23 @@
 
 // Environment validation
 const requiredEnvVars = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
-  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID',
+  "NEXT_PUBLIC_FIREBASE_API_KEY",
+  "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+  "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  "NEXT_PUBLIC_FIREBASE_APP_ID",
 ] as const;
 
 // Validate environment variables (only in development)
-if (process.env.NODE_ENV === 'development') {
-  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (process.env.NODE_ENV === "development") {
+  const missingVars = requiredEnvVars.filter(
+    (varName) => !process.env[varName],
+  );
 
   if (missingVars.length > 0) {
-    console.warn('⚠️ Missing environment variables:', missingVars.join(', '));
-    console.warn('Please create a .env.local file with the required variables');
+    console.warn("⚠️ Missing environment variables:", missingVars.join(", "));
+    console.warn("Please create a .env.local file with the required variables");
   }
 }
 
@@ -27,31 +29,31 @@ if (process.env.NODE_ENV === 'development') {
 export const firebaseConfig = {
   apiKey:
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    'AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM',
+    "AIzaSyDIOsZ__q73T9_Ta4xdyFN3RYqSeduyvJM",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
-    'owl-ai-1ef31.firebaseapp.com',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'owl-ai-1ef31',
+    "owl-ai-1ef31.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "owl-ai-1ef31",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    'owl-ai-1ef31.firebasestorage.app',
+    "owl-ai-1ef31.firebasestorage.app",
   messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '202604444478',
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "202604444478",
   appId:
     process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
-    '1:202604444478:web:26493d1dbdc5cb92cbca6f',
+    "1:202604444478:web:26493d1dbdc5cb92cbca6f",
   measurementId:
-    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-9902XT617E',
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-9902XT617E",
 };
 
 // App Configuration
 export const appConfig = {
-  name: process.env.NEXT_PUBLIC_APP_NAME || 'Owl AI',
-  version: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  environment: process.env.NODE_ENV || 'development',
-  isDevelopment: process.env.NODE_ENV === 'development',
-  isProduction: process.env.NODE_ENV === 'production',
+  name: process.env.NEXT_PUBLIC_APP_NAME || "Owl AI",
+  version: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
+  url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  environment: process.env.NODE_ENV || "development",
+  isDevelopment: process.env.NODE_ENV === "development",
+  isProduction: process.env.NODE_ENV === "production",
 };
 
 // Development Configuration

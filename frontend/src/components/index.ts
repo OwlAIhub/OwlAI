@@ -4,6 +4,6 @@
  */
 
 // UI Components
-export * from './ui/separator';
+export * from "./ui/separator";
 
 // Note: Other components will be exported individually as needed

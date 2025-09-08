@@ -4,7 +4,8 @@
  */
 
 // API Configuration
-const FLOWISE_API_URL = 'http://34.47.149.141/api/v1/prediction/79dcfd80-c276-4143-b9fd-07bde03d96de';
+const FLOWISE_API_URL =
+  "http://34.47.149.141/api/v1/prediction/79dcfd80-c276-4143-b9fd-07bde03d96de";
 
 // Type definitions
 export interface FlowiseRequest {
@@ -27,7 +28,7 @@ export class FlowiseError extends Error {
 
   constructor(options: { message: string; status?: number; code?: string }) {
     super(options.message);
-    this.name = 'FlowiseError';
+    this.name = "FlowiseError";
     this.status = options.status;
     this.code = options.code;
   }
@@ -41,19 +42,19 @@ export class FlowiseError extends Error {
 export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
   try {
     // Validate input
-    if (!data.question || typeof data.question !== 'string') {
-      throw new Error('Question is required and must be a string');
+    if (!data.question || typeof data.question !== "string") {
+      throw new Error("Question is required and must be a string");
     }
 
     if (data.question.trim().length === 0) {
-      throw new Error('Question cannot be empty');
+      throw new Error("Question cannot be empty");
     }
 
     // Make API request
     const response = await fetch(FLOWISE_API_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -64,7 +65,7 @@ export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
       throw new FlowiseError({
         message: `API request failed: ${response.status} ${response.statusText}`,
         status: response.status,
-        code: 'API_ERROR',
+        code: "API_ERROR",
       });
     }
 
@@ -72,8 +73,8 @@ export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
     const result: FlowiseResponse = await response.json();
 
     // Validate response structure
-    if (!result || typeof result !== 'object') {
-      throw new Error('Invalid response format from API');
+    if (!result || typeof result !== "object") {
+      throw new Error("Invalid response format from API");
     }
 
     // Check for API-level errors
@@ -84,29 +85,30 @@ export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
     return result;
   } catch (error) {
     // Handle different types of errors
-    if (error instanceof TypeError && error.message.includes('fetch')) {
+    if (error instanceof TypeError && error.message.includes("fetch")) {
       throw new FlowiseError({
-        message: 'Network error: Unable to connect to the API',
-        code: 'NETWORK_ERROR',
+        message: "Network error: Unable to connect to the API",
+        code: "NETWORK_ERROR",
       });
     }
 
     if (error instanceof SyntaxError) {
       throw new FlowiseError({
-        message: 'Invalid response format from API',
-        code: 'PARSE_ERROR',
+        message: "Invalid response format from API",
+        code: "PARSE_ERROR",
       });
     }
 
     // Re-throw FlowiseError as-is
-    if (error instanceof Error && 'status' in error) {
+    if (error instanceof Error && "status" in error) {
       throw error;
     }
 
     // Wrap other errors
     throw new FlowiseError({
-      message: error instanceof Error ? error.message : 'Unknown error occurred',
-      code: 'UNKNOWN_ERROR',
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+      code: "UNKNOWN_ERROR",
     });
   }
 }
@@ -119,7 +121,7 @@ export async function query(data: FlowiseRequest): Promise<FlowiseResponse> {
  */
 export async function sendMessage(
   question: string,
-  chatId?: string
+  chatId?: string,
 ): Promise<FlowiseResponse> {
   const requestData: FlowiseRequest = {
     question: question.trim(),
@@ -138,10 +140,10 @@ export async function sendMessage(
  */
 export async function testConnection(): Promise<boolean> {
   try {
-    const response = await query({ question: 'Hello, are you working?' });
+    const response = await query({ question: "Hello, are you working?" });
     return !!response && (!!response.text || !!response.chatMessageId);
   } catch (error) {
-    console.error('API connection test failed:', error);
+    console.error("API connection test failed:", error);
     return false;
   }
 }
@@ -150,17 +152,22 @@ export async function testConnection(): Promise<boolean> {
  * Get API health status
  * @returns Promise<{status: string, message: string}> - Health status
  */
-export async function getApiHealth(): Promise<{ status: string; message: string }> {
+export async function getApiHealth(): Promise<{
+  status: string;
+  message: string;
+}> {
   try {
     const isWorking = await testConnection();
     return {
-      status: isWorking ? 'healthy' : 'unhealthy',
-      message: isWorking ? 'API is responding correctly' : 'API is not responding',
+      status: isWorking ? "healthy" : "unhealthy",
+      message: isWorking
+        ? "API is responding correctly"
+        : "API is not responding",
     };
   } catch (error) {
     return {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      status: "error",
+      message: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }

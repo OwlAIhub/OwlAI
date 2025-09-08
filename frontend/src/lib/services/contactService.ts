@@ -1,13 +1,22 @@
-import { Timestamp, addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp } from 'firebase/firestore';
-import { handleFirebaseError } from '../firebaseCheck';
-import { db } from '../firebaseConfig';
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+} from "firebase/firestore";
+import { handleFirebaseError } from "../firebaseCheck";
+import { db } from "../firebaseConfig";
 
 export interface ContactSubmission {
   name: string;
   email: string;
   message: string;
   timestamp?: Timestamp;
-  status?: 'new' | 'read' | 'replied';
+  status?: "new" | "read" | "replied";
 }
 
 export interface ContactSubmissionWithId extends ContactSubmission {
@@ -15,23 +24,25 @@ export interface ContactSubmissionWithId extends ContactSubmission {
 }
 
 // Collection name for contact submissions
-const CONTACTS_COLLECTION = 'contacts';
+const CONTACTS_COLLECTION = "contacts";
 
 /**
  * Submit a new contact form
  */
-export const submitContactForm = async (contactData: Omit<ContactSubmission, 'timestamp' | 'status'>): Promise<string> => {
+export const submitContactForm = async (
+  contactData: Omit<ContactSubmission, "timestamp" | "status">,
+): Promise<string> => {
   try {
     const docRef = await addDoc(collection(db, CONTACTS_COLLECTION), {
       ...contactData,
       timestamp: serverTimestamp(),
-      status: 'new'
+      status: "new",
     });
 
-    console.log('Contact form submitted with ID: ', docRef.id);
+    console.log("Contact form submitted with ID: ", docRef.id);
     return docRef.id;
   } catch (error) {
-    console.error('Error submitting contact form: ', error);
+    console.error("Error submitting contact form: ", error);
     const errorMessage = handleFirebaseError(error);
     throw new Error(errorMessage);
   }
@@ -40,12 +51,14 @@ export const submitContactForm = async (contactData: Omit<ContactSubmission, 'ti
 /**
  * Get all contact submissions (for admin use)
  */
-export const getContactSubmissions = async (limitCount: number = 50): Promise<ContactSubmissionWithId[]> => {
+export const getContactSubmissions = async (
+  limitCount: number = 50,
+): Promise<ContactSubmissionWithId[]> => {
   try {
     const q = query(
       collection(db, CONTACTS_COLLECTION),
-      orderBy('timestamp', 'desc'),
-      limit(limitCount)
+      orderBy("timestamp", "desc"),
+      limit(limitCount),
     );
 
     const querySnapshot = await getDocs(q);
@@ -54,13 +67,13 @@ export const getContactSubmissions = async (limitCount: number = 50): Promise<Co
     querySnapshot.forEach((doc) => {
       contacts.push({
         id: doc.id,
-        ...doc.data() as ContactSubmission
+        ...(doc.data() as ContactSubmission),
       });
     });
 
     return contacts;
   } catch (error) {
-    console.error('Error getting contact submissions: ', error);
+    console.error("Error getting contact submissions: ", error);
     const errorMessage = handleFirebaseError(error);
     throw new Error(errorMessage);
   }

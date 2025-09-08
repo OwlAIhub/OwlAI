@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 /**
  * Component to fix hydration issues caused by browser extensions
@@ -11,18 +11,18 @@ export function HydrationFix() {
     // Remove browser extension attributes that cause hydration mismatches
     const removeExtensionAttributes = () => {
       const extensionAttrs = [
-        'bis_skin_checked',
-        'data-new-gr-c-s-check-loaded',
-        'data-gr-ext-installed',
-        'data-gramm_editor',
-        'data-gramm',
-        'spellcheck',
-        'data-lexical-editor',
+        "bis_skin_checked",
+        "data-new-gr-c-s-check-loaded",
+        "data-gr-ext-installed",
+        "data-gramm_editor",
+        "data-gramm",
+        "spellcheck",
+        "data-lexical-editor",
       ];
 
-      extensionAttrs.forEach(attr => {
+      extensionAttrs.forEach((attr) => {
         const elements = document.querySelectorAll(`[${attr}]`);
-        elements.forEach(element => {
+        elements.forEach((element) => {
           element.removeAttribute(attr);
         });
       });
@@ -32,22 +32,22 @@ export function HydrationFix() {
     removeExtensionAttributes();
 
     // Set up mutation observer to catch new attributes added by extensions
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        if (mutation.type === 'attributes') {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes") {
           const target = mutation.target as Element;
           if (target.nodeType === Node.ELEMENT_NODE) {
             const extensionAttrs = [
-              'bis_skin_checked',
-              'data-new-gr-c-s-check-loaded',
-              'data-gr-ext-installed',
-              'data-gramm_editor',
-              'data-gramm',
-              'spellcheck',
-              'data-lexical-editor',
+              "bis_skin_checked",
+              "data-new-gr-c-s-check-loaded",
+              "data-gr-ext-installed",
+              "data-gramm_editor",
+              "data-gramm",
+              "spellcheck",
+              "data-lexical-editor",
             ];
 
-            extensionAttrs.forEach(attr => {
+            extensionAttrs.forEach((attr) => {
               if (target.hasAttribute(attr)) {
                 target.removeAttribute(attr);
               }
@@ -62,13 +62,13 @@ export function HydrationFix() {
       attributes: true,
       subtree: true,
       attributeFilter: [
-        'bis_skin_checked',
-        'data-new-gr-c-s-check-loaded',
-        'data-gr-ext-installed',
-        'data-gramm_editor',
-        'data-gramm',
-        'spellcheck',
-        'data-lexical-editor',
+        "bis_skin_checked",
+        "data-new-gr-c-s-check-loaded",
+        "data-gr-ext-installed",
+        "data-gramm_editor",
+        "data-gramm",
+        "spellcheck",
+        "data-lexical-editor",
       ],
     });
 

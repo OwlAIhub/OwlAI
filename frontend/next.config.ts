@@ -1,30 +1,30 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 // Import configuration to validate environment variables
 // Avoid importing app code here to prevent Turbopack from resolving app paths during dev
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   // Firebase Hosting configuration (Static Export)
-  output: 'export',
+  output: "export",
   trailingSlash: true,
   outputFileTracingRoot: __dirname,
 
   // Performance optimizations
   experimental: {
     optimizePackageImports: [
-      'lucide-react',
-      'framer-motion',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-collapsible',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-label',
-      '@radix-ui/react-separator',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-tooltip',
+      "lucide-react",
+      "framer-motion",
+      "@radix-ui/react-accordion",
+      "@radix-ui/react-avatar",
+      "@radix-ui/react-collapsible",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-tooltip",
     ],
     // Enable faster page transitions
     scrollRestoration: true,
@@ -43,10 +43,10 @@ const nextConfig: NextConfig = {
     // Allow external domains for images
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'assets.aceternity.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "assets.aceternity.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },
@@ -55,7 +55,7 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: isProduction
       ? {
-          exclude: ['error', 'warn'],
+          exclude: ["error", "warn"],
         }
       : false,
   },
@@ -64,23 +64,23 @@ const nextConfig: NextConfig = {
   webpack: (config, { dev, isServer }: { dev: boolean; isServer: boolean }) => {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
+            name: "vendors",
+            chunks: "all",
           },
           firebase: {
             test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
-            name: 'firebase',
-            chunks: 'all',
+            name: "firebase",
+            chunks: "all",
             priority: 10,
           },
           ui: {
             test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
-            name: 'ui',
-            chunks: 'all',
+            name: "ui",
+            chunks: "all",
             priority: 9,
           },
         },

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Lenis from 'lenis';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import Lenis from "lenis";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 interface LenisProviderProps {
   children: React.ReactNode;
@@ -13,13 +13,13 @@ export function LenisProvider({ children }: LenisProviderProps) {
 
   useEffect(() => {
     // Only enable smooth scrolling on the main page, not dashboard pages
-    if (!pathname || pathname === '/dashboard') {
+    if (!pathname || pathname === "/dashboard") {
       return;
     }
 
     const lenis = new Lenis({
       duration: 0.8, // Faster duration for better responsiveness
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
 
     function raf(time: number) {
