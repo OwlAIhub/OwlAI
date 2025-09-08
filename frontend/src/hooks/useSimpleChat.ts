@@ -36,15 +36,20 @@ export function useSimpleChat(
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lastUserMessageRef = useRef<string>('');
+  const conversationIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    conversationIdRef.current = conversation?.id ?? null;
+  }, [conversation?.id]);
 
   const loadMessages = useCallback(async () => {
-    if (!conversation?.id) return;
+    const cid = conversationIdRef.current;
+    if (!cid) return;
 
     try {
-      const result = await messageService.getConversationMessages(
-        conversation.id,
-        { limit: 100 }
-      );
+      const result = await messageService.getConversationMessages(cid, {
+        limit: 100,
+      });
       const formattedMessages: ChatMessage[] = result.data.map(
         (msg: DbMessage) => ({
           id: msg.id,
@@ -58,7 +63,7 @@ export function useSimpleChat(
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
-  }, [conversation?.id]);
+  }, []);
 
   // Load messages when conversation changes
   useEffect(() => {
@@ -71,8 +76,8 @@ export function useSimpleChat(
 
   const sendMessage = useCallback(
     async (message: string) => {
-      if (!message.trim() || isLoading || !user?.id || !conversation?.id)
-        return;
+      const cid = conversationIdRef.current;
+      if (!message.trim() || isLoading || !user?.id || !cid) return;
 
       setError(null);
       setIsLoading(true);
@@ -91,7 +96,7 @@ export function useSimpleChat(
       try {
         // Save user message to database
         await messageService.createMessage(
-          conversation.id,
+          cid,
           user.id,
           'user',
           message.trim()
@@ -126,12 +131,7 @@ export function useSimpleChat(
         setMessages(prev => [...prev, botMessage]);
 
         // Save bot message to database
-        await messageService.createMessage(
-          conversation.id,
-          user.id,
-          'bot',
-          response.text
-        );
+        await messageService.createMessage(cid, user.id, 'bot', response.text);
       } catch (error) {
         console.error('Chat error:', error);
 
@@ -149,7 +149,7 @@ export function useSimpleChat(
         setIsLoading(false);
       }
     },
-    [isLoading, user?.id, conversation?.id, messages]
+    [isLoading, user?.id, messages]
   );
 
   const clearMessages = useCallback(() => {

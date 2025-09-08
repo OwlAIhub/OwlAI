@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { MessageSquare, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import * as React from 'react';
 
+import { useAuth } from '@/components/auth/providers/AuthProvider';
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +14,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useChatManager } from '@/hooks/useChatManager';
+import { useRouter } from 'next/navigation';
 import { NavMain } from './nav-main';
 import { NavUser } from './nav-user';
 
@@ -22,28 +25,20 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  navMain: [
-    {
-      title: 'Chat',
-      url: '#',
-      icon: MessageSquare,
-      isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-      ],
-    },
-  ],
+  navMain: [],
   navSecondary: [],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
+  const { startNewChat } = useChatManager();
+  const { user } = useAuth();
+
+  const handleNewChat = async () => {
+    await startNewChat();
+    router.push('/chat');
+  };
+
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
@@ -71,7 +66,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <div className='p-2'>
-          <button className='w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors duration-200'>
+          <button
+            onClick={handleNewChat}
+            className='w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors duration-200'
+          >
             <Plus className='w-4 h-4' />
             New Chat
           </button>
@@ -79,7 +77,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user?.name || user?.phoneNumber || 'User',
+            email: user?.email || '',
+            avatar: user?.avatar || '/avatars/shadcn.jpg',
+          }}
+        />
       </SidebarFooter>
     </Sidebar>
   );

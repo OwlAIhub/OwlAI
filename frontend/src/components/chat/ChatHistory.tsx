@@ -13,6 +13,7 @@ interface ChatHistoryProps {
   onNewChat: () => void;
   currentConversationId?: string;
   className?: string;
+  refreshKey?: number;
 }
 
 export function ChatHistory({
@@ -20,6 +21,7 @@ export function ChatHistory({
   onNewChat,
   currentConversationId,
   className,
+  refreshKey,
 }: ChatHistoryProps) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -39,13 +41,13 @@ export function ChatHistory({
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, refreshKey]);
 
   useEffect(() => {
     if (user?.id) {
       loadConversations();
     }
-  }, [user?.id, loadConversations]);
+  }, [user?.id, loadConversations, refreshKey]);
 
   const handleArchiveConversation = async (conversationId: string) => {
     try {
@@ -59,11 +61,7 @@ export function ChatHistory({
   if (isLoading) {
     return (
       <div className={cn('p-4', className)}>
-        <div className='animate-pulse space-y-3'>
-          {[1, 2, 3].map(i => (
-            <div key={i} className='h-12 bg-gray-200 rounded-lg'></div>
-          ))}
-        </div>
+        <p className='text-sm text-gray-500'>Loading conversations…</p>
       </div>
     );
   }
