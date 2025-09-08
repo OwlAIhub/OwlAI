@@ -23,6 +23,27 @@ service cloud.firestore {
              data.timestamp == request.time;
     }
     
+    // User profiles - allow users to manage their own profile
+    match /users/{userId} {
+      // Users can read, create, and update their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Validate user profile data structure
+      allow create, update: if request.auth != null && 
+                              request.auth.uid == userId &&
+                              isValidUserProfile();
+    }
+    
+    // Helper function to validate user profile data
+    function isValidUserProfile() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'phoneNumber', 'createdAt', 'updatedAt', 'lastLoginAt', 'isActive', 'metadata']) &&
+             data.uid is string && data.uid == request.auth.uid &&
+             data.phoneNumber is string &&
+             data.isActive is bool &&
+             data.metadata is map &&
+             data.metadata.signUpMethod == 'phone';
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

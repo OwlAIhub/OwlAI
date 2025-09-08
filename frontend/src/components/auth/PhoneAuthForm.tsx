@@ -33,41 +33,67 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    // Initialize reCAPTCHA verifier
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      // Wait for DOM to be ready
-      const initRecaptcha = () => {
+    // Initialize reCAPTCHA verifier with improved timing
+    const initRecaptcha = async () => {
+      if (typeof window === 'undefined') return;
+      
+      // Clear any existing verifier first
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+          delete window.recaptchaVerifier;
+        } catch (error) {
+          console.warn('Error clearing existing verifier:', error);
+        }
+      }
+
+      // Wait for container to be available
+      let attempts = 0;
+      const maxAttempts = 20;
+      
+      while (attempts < maxAttempts) {
         const container = document.getElementById('recaptcha-container');
         if (container) {
           try {
+            console.log('Initializing reCAPTCHA verifier...');
             const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
               size: 'invisible',
               callback: () => {
-                // reCAPTCHA solved
+                console.log('reCAPTCHA solved successfully');
               },
               'expired-callback': () => {
+                console.warn('reCAPTCHA expired');
                 setError('reCAPTCHA expired. Please try again.');
               }
             });
             
+            // Render the verifier to ensure it's ready
+            await verifier.render();
+            
             setRecaptchaVerifier(verifier);
             window.recaptchaVerifier = verifier;
+            console.log('reCAPTCHA verifier initialized successfully');
+            return;
           } catch (error) {
-            console.warn('Failed to initialize reCAPTCHA:', error);
+            console.error('Failed to initialize reCAPTCHA:', error);
+            break;
           }
         }
-      };
-
-      // Try to initialize immediately, or wait for DOM
-      if (document.readyState === 'complete') {
-        initRecaptcha();
-      } else {
-        window.addEventListener('load', initRecaptcha);
-        return () => window.removeEventListener('load', initRecaptcha);
+        
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-    }
+      
+      if (attempts >= maxAttempts) {
+        console.error('Failed to find recaptcha-container after', maxAttempts, 'attempts');
+      }
+    };
+
+    // Initialize with a small delay to ensure DOM is ready
+    const timer = setTimeout(initRecaptcha, 100);
 
     return () => {
+      clearTimeout(timer);
       // Cleanup on unmount
       if (window.recaptchaVerifier) {
         try {
@@ -148,8 +174,8 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
 
     try {
       await verifyOTP(confirmationResult, otp);
-      // Redirect to chat page after successful authentication
-      router.push('/chat');
+      // Redirect to onboarding page after successful authentication
+      router.push('/onboarding');
     } catch (err) {
       console.error('OTP verification error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Invalid OTP. Please try again.';
@@ -246,6 +272,9 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         >
           We&apos;ll send you a verification code to confirm your number
         </motion.p>
+        
+        {/* reCAPTCHA container */}
+        <div id="recaptcha-container"></div>
       </form>
     );
   }
