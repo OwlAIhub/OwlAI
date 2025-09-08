@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   // Firebase Hosting configuration (Static Export)
   output: 'export',
   trailingSlash: true,
-  distDir: 'out',
   outputFileTracingRoot: __dirname,
 
   // Performance optimizations
