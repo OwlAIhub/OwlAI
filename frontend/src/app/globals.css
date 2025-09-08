@@ -145,8 +145,7 @@ html {
   [data-gramm_editor],
   [data-gramm],
   [data-lexical-editor] {
-    /* These attributes are added by browser extensions and cause hydration mismatches */
-    /* They don't affect visual appearance, so we can safely ignore them */
+    content: ""; /* avoid empty ruleset warning while remaining no-op visually */
   }
 
   html {

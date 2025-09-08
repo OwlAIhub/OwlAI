@@ -194,7 +194,7 @@ export function useSimpleChat(
       lastUserMessageRef.current = message.trim();
 
       try {
-        const start = performance.now();
+        // const start = performance.now(); // reserved for latency metrics
         // Save user message to database
         await messageService.createMessage(
           cid,
@@ -268,7 +268,7 @@ export function useSimpleChat(
               );
               setIsLoading(false);
             },
-            onError: _err => {
+            onError: () => {
               const errorMessage: ChatMessage = {
                 id: (Date.now() + 2).toString(),
                 type: 'bot',

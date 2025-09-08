@@ -10,6 +10,7 @@ import type {
   QueryResult,
 } from '@/lib/types/database';
 import {
+  FieldValue,
   QueryConstraint,
   Unsubscribe,
   addDoc,
@@ -23,11 +24,29 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   startAfter,
   updateDoc,
 } from 'firebase/firestore';
 
 export class DatabaseService {
+  private removeUndefinedDeep<T>(obj: T): T {
+    if (obj === null || obj === undefined) return obj as T;
+    if (Array.isArray(obj)) {
+      return obj.map(v => this.removeUndefinedDeep(v)) as unknown as T;
+    }
+    if (typeof obj === 'object') {
+      const result: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(
+        obj as Record<string, unknown>
+      )) {
+        if (value === undefined) continue;
+        result[key] = this.removeUndefinedDeep(value as unknown);
+      }
+      return result as unknown as T;
+    }
+    return obj as T;
+  }
   protected handleError(error: unknown, operation: string): DatabaseError {
     console.error(`Database ${operation} error:`, error);
     const err = (error as { code?: string; message?: string }) || {};
@@ -48,11 +67,18 @@ export class DatabaseService {
     while (attempt < maxAttempts) {
       attempt++;
       try {
-        const docRef = await addDoc(collection(db, collectionName), {
-          ...data,
+        const payload = this.removeUndefinedDeep({
+          ...(data as Record<string, unknown>),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+        const docRef = await addDoc(
+          collection(db, collectionName),
+          payload as unknown as Record<
+            string,
+            FieldValue | Partial<unknown> | undefined
+          >
+        );
 
         const docSnap = await getDoc(docRef);
         if (!docSnap.exists()) {
@@ -73,6 +99,41 @@ export class DatabaseService {
     throw this.handleError(lastError, 'create');
   }
 
+  async createWithId<T extends Record<string, unknown>>(
+    collectionName: CollectionName,
+    id: string,
+    data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<{ id: string; data: T }> {
+    try {
+      const docRef = doc(db, collectionName, id);
+      const setPayload = this.removeUndefinedDeep({
+        ...(data as Record<string, unknown>),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      } as { [key: string]: unknown });
+      await setDoc(
+        docRef,
+        setPayload as unknown as Record<
+          string,
+          FieldValue | Partial<unknown> | undefined
+        >,
+        { merge: false }
+      );
+
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        throw new Error('Document was not created');
+      }
+
+      return {
+        id,
+        data: { id, ...docSnap.data() } as unknown as T,
+      };
+    } catch (error) {
+      throw this.handleError(error, 'createWithId');
+    }
+  }
+
   async update<T extends Record<string, unknown>>(
     collectionName: CollectionName,
     id: string,
@@ -85,10 +146,17 @@ export class DatabaseService {
       attempt++;
       try {
         const docRef = doc(db, collectionName, id);
-        await updateDoc(docRef, {
-          ...data,
+        const updatePayload = this.removeUndefinedDeep({
+          ...(data as Record<string, unknown>),
           updatedAt: serverTimestamp(),
         });
+        await updateDoc(
+          docRef,
+          updatePayload as unknown as Record<
+            string,
+            FieldValue | Partial<unknown> | undefined
+          >
+        );
 
         const docSnap = await getDoc(docRef);
         if (!docSnap.exists()) {

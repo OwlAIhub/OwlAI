@@ -13,17 +13,22 @@ export class ConversationDatabaseService extends DatabaseService {
     subject?: string,
     examType?: string
   ): Promise<Conversation> {
-    const result = await this.create<Record<string, unknown>>('conversations', {
+    const payload: Record<string, unknown> = {
       userId,
       title,
-      subject,
-      examType,
       messageCount: 0,
       lastMessageAt: serverTimestamp() as Timestamp,
       isArchived: false,
       isFavorite: false,
       tags: [],
-    });
+    };
+    if (subject !== undefined) payload.subject = subject;
+    if (examType !== undefined) payload.examType = examType;
+
+    const result = await this.create<Record<string, unknown>>(
+      'conversations',
+      payload
+    );
 
     const created = await this.getById<Conversation>(
       'conversations',

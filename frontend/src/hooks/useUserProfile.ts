@@ -49,7 +49,7 @@ export function useUserProfile(): UseUserProfileReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, user?.name, user?.phoneNumber]);
 
   useEffect(() => {
     if (user?.id) {

@@ -48,8 +48,8 @@ export async function createUserProfile(
         language: 'English', // Default
       },
       marketing: {
-        source: undefined,
-        attribution: undefined,
+        source: 'Other',
+        attribution: 'other',
       },
       avatar: {
         ...DEFAULT_AVATAR,

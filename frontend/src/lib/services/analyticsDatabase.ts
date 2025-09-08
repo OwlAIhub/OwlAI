@@ -86,10 +86,7 @@ export class AnalyticsDatabaseService extends DatabaseService {
     return this.getById<UserAnalytics>('analytics', userId);
   }
 
-  async logMessageEvent(
-    userId: string,
-    data: { latencyMs: number; ok: boolean }
-  ): Promise<void> {
+  async logMessageEvent(userId: string): Promise<void> {
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');

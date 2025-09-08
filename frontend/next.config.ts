@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 // Import configuration to validate environment variables
-import './src/lib/config';
+// Avoid importing app code here to prevent Turbopack from resolving app paths during dev
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = process.env.NODE_ENV === 'development';

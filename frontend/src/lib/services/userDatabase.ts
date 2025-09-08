@@ -13,8 +13,14 @@ export class UserDatabaseService extends DatabaseService {
       'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt'
     >
   ): Promise<UserProfile> {
-    const result = await this.create<Record<string, unknown>>('users', {
-      ...userData,
+    // Ensure document is created at users/{uid} to satisfy security rules
+    const id = (userData as unknown as { id?: string }).id;
+    if (!id) {
+      throw new Error('User ID is required to create profile');
+    }
+
+    await this.createWithId<Record<string, unknown>>('users', id, {
+      ...(userData as unknown as Record<string, unknown>),
       studyStats: {
         totalStudyTime: 0,
         totalQuestions: 0,
@@ -27,7 +33,7 @@ export class UserDatabaseService extends DatabaseService {
       isActive: true,
     });
 
-    const created = await this.getById<UserProfile>('users', result.id);
+    const created = await this.getById<UserProfile>('users', id);
     if (!created) {
       throw new Error('Failed to read created user profile');
     }
