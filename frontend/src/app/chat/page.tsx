@@ -2,12 +2,19 @@
 
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { MessageCircle, LogOut, User, Phone } from 'lucide-react';
+import { MessageCircle, User, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { ChatSidebar } from '@/components/chat/ChatSidebar';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
 
 export default function ChatPage() {
-  const { user, userProfile, loading, signOut } = useAuth();
+  const { user, userProfile, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,14 +23,7 @@ export default function ChatPage() {
     }
   }, [user, loading, router]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.push('/');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
+
 
   if (loading) {
     return (
@@ -38,39 +38,45 @@ export default function ChatPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200'>
-      {/* Background Pattern */}
-      <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]' />
-      
-      {/* Decorative Blurs */}
-      <div className='absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl' />
-      <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
-      
-      <div className='relative z-10 container mx-auto px-4 py-8'>
+    <SidebarProvider>
+      <ChatSidebar />
+      <SidebarInset>
         {/* Header */}
+        <header className='sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4'>
+          <SidebarTrigger className='-ml-1' />
+          <Separator orientation='vertical' className='mr-2 h-4' />
+          <div className='flex items-center gap-2'>
+            <MessageCircle className='h-5 w-5 text-primary' />
+            <h1 className='text-lg font-semibold'>AI Chat Assistant</h1>
+          </div>
+        </header>
+        
+        {/* Main Content */}
+        <div className='flex-1 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 relative'>
+          {/* Background Pattern */}
+          <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]' />
+          
+          {/* Decorative Blurs */}
+          <div className='absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl' />
+          <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
+          
+          <div className='relative z-10 p-4 h-full'>
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className='flex items-center justify-between mb-8'
+          className='mb-8'
         >
           <div className='flex items-center gap-4'>
             <div className='p-3 bg-primary/10 rounded-full'>
               <MessageCircle className='w-6 h-6 text-primary' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-foreground'>Chat Dashboard</h1>
-              <p className='text-muted-foreground'>Welcome to your AI-powered learning assistant</p>
+              <h2 className='text-2xl font-bold text-foreground'>Welcome to OwlAI</h2>
+              <p className='text-muted-foreground'>Your personalized AI learning assistant</p>
             </div>
           </div>
-          
-          <button
-            onClick={handleSignOut}
-            className='flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg hover:bg-white/50'
-          >
-            <LogOut className='w-4 h-4' />
-            Sign Out
-          </button>
         </motion.div>
 
         {/* User Info Card */}
@@ -183,7 +189,9 @@ export default function ChatPage() {
             <span className='text-sm font-medium'>Authentication Successful!</span>
           </div>
         </motion.div>
-      </div>
-    </div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
