@@ -1,6 +1,7 @@
 // Firebase configuration with error handling for API permissions
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { initializeFirebaseWithErrorHandling } from './firebaseCheck';
 
@@ -39,6 +40,9 @@ try {
 // Initialize Firestore
 const db = getFirestore(app);
 
+// Initialize Firebase Auth
+const auth = getAuth(app);
+
 // Initialize Analytics with proper error handling
 let analytics = null;
 if (typeof window !== 'undefined') {
@@ -55,5 +59,5 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export { db, analytics };
+export { db, auth, analytics };
 export default app;

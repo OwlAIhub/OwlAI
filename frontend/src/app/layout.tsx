@@ -2,6 +2,7 @@ import { EnvironmentProvider } from '@/components/providers/EnvironmentProvider'
 import { HydrationFix } from '@/components/providers/HydrationFix';
 import { LenisProvider } from '@/components/providers/LenisProvider';
 import { PageTransition } from '@/components/providers/PageTransition';
+import { AuthProvider } from '@/lib/contexts/AuthContext';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
@@ -123,9 +124,11 @@ export default function RootLayout({
       >
         <HydrationFix />
         <EnvironmentProvider>
-          <LenisProvider>
-            <PageTransition>{children}</PageTransition>
-          </LenisProvider>
+          <AuthProvider>
+            <LenisProvider>
+              <PageTransition>{children}</PageTransition>
+            </LenisProvider>
+          </AuthProvider>
         </EnvironmentProvider>
         <Toaster />
         {/* Performance monitoring */}

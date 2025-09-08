@@ -3,45 +3,127 @@
 import { Button } from '@/components/ui/buttons/button';
 import { Input } from '@/components/ui/inputs/input';
 import { Label } from '@/components/ui/inputs/label';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { auth } from '@/lib/firebaseConfig';
 import { motion } from 'framer-motion';
+import { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
 import { Phone, ArrowRight, Check, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+// Extend Window interface for reCAPTCHA
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+  }
+}
 
 interface PhoneAuthFormProps {
   mode: 'login' | 'signup';
 }
 
 export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
+  const { signInWithPhone, verifyOTP, setRecaptchaVerifier } = useAuth();
+  const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+
+  useEffect(() => {
+    // Initialize reCAPTCHA verifier
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+      // Wait for DOM to be ready
+      const initRecaptcha = () => {
+        const container = document.getElementById('recaptcha-container');
+        if (container) {
+          try {
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+              size: 'invisible',
+              callback: () => {
+                // reCAPTCHA solved
+              },
+              'expired-callback': () => {
+                setError('reCAPTCHA expired. Please try again.');
+              }
+            });
+            
+            setRecaptchaVerifier(verifier);
+            window.recaptchaVerifier = verifier;
+          } catch (error) {
+            console.warn('Failed to initialize reCAPTCHA:', error);
+          }
+        }
+      };
+
+      // Try to initialize immediately, or wait for DOM
+      if (document.readyState === 'complete') {
+        initRecaptcha();
+      } else {
+        window.addEventListener('load', initRecaptcha);
+        return () => window.removeEventListener('load', initRecaptcha);
+      }
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (error) {
+          console.warn('Failed to clear reCAPTCHA:', error);
+        }
+        delete window.recaptchaVerifier;
+      }
+    };
+  }, [setRecaptchaVerifier]);
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
-    
+
     if (!phoneNumber.trim()) {
       setError('Please enter your phone number');
+      setLoading(false);
       return;
     }
-    
+
     // Basic phone validation
     const phoneRegex = /^[+]?[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
       setError('Please enter a valid phone number');
+      setLoading(false);
       return;
     }
-    
-    setLoading(true);
-    
+
+    // Wait for reCAPTCHA to be ready
+    let retries = 0;
+    const maxRetries = 10;
+    while (!window.recaptchaVerifier && retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      retries++;
+    }
+
+    if (!window.recaptchaVerifier) {
+      setError('Security verification is loading. Please try again in a moment.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Simulate API call for sending OTP
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Format phone number to include country code if not present
+      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
+      
+      const result = await signInWithPhone(formattedPhone);
+      setConfirmationResult(result);
       setStep('otp');
     } catch (err) {
-      setError('Failed to send OTP. Please try again.');
+      console.error('Phone auth error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send OTP. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -49,22 +131,29 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
-    
+
     if (!otp.trim() || otp.length !== 6) {
       setError('Please enter the 6-digit OTP');
+      setLoading(false);
       return;
     }
-    
-    setLoading(true);
-    
+
+    if (!confirmationResult) {
+      setError('Please request a new OTP');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Simulate OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      // Redirect to dashboard or home
-      window.location.href = '/';
+      await verifyOTP(confirmationResult, otp);
+      // Redirect to chat page after successful authentication
+      router.push('/chat');
     } catch (err) {
-      setError('Invalid OTP. Please try again.');
+      console.error('OTP verification error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Invalid OTP. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -73,11 +162,11 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const handleResendOtp = async () => {
     setError(null);
     setLoading(true);
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       // Show success message or handle resend logic
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to resend OTP');
     } finally {
       setLoading(false);
@@ -260,6 +349,9 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
           Didn&apos;t receive code? Resend
         </button>
       </motion.div>
+      
+      {/* reCAPTCHA container */}
+      <div id="recaptcha-container"></div>
     </form>
   );
 }

@@ -14,12 +14,12 @@ export function checkFirebaseConfig(): boolean {
   ];
 
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     console.error('Missing Firebase environment variables:', missingVars);
     return false;
   }
-  
+
   return true;
 }
 
@@ -28,22 +28,22 @@ export function checkFirebaseConfig(): boolean {
  */
 export function handleFirebaseError(error: unknown): string {
   const errorObj = error as { code?: string; message?: string };
-  
+
   if (errorObj?.code === 'installations/request-failed') {
     console.warn('Firebase Installations API blocked - this is expected in development');
     return 'Firebase service temporarily unavailable. Please try again later.';
   }
-  
+
   if (errorObj?.code === 'permission-denied') {
     console.warn('Firebase permission denied - check Firestore rules');
     return 'Permission denied. Please check your access rights.';
   }
-  
+
   if (errorObj?.message?.includes('PERMISSION_DENIED')) {
     console.warn('Firebase API permission denied:', errorObj.message);
     return 'Service temporarily unavailable. Please try again later.';
   }
-  
+
   return errorObj?.message || 'An unexpected error occurred';
 }
 
@@ -54,13 +54,13 @@ export function initializeFirebaseWithErrorHandling() {
   if (!checkFirebaseConfig()) {
     throw new Error('Firebase configuration is incomplete');
   }
-  
+
   // Suppress Firebase Installations API errors in development
   if (process.env.NODE_ENV === 'development') {
     const originalError = console.error;
     console.error = (...args) => {
       const message = args.join(' ');
-      if (message.includes('firebaseinstallations.googleapis.com') || 
+      if (message.includes('firebaseinstallations.googleapis.com') ||
           message.includes('installations/request-failed')) {
         // Suppress these specific errors in development
         return;

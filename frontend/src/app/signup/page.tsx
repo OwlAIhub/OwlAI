@@ -125,22 +125,7 @@ export default function SignupPage() {
             </motion.div>
           </motion.div>
 
-          {/* Features Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
-            className='mt-8 grid grid-cols-2 gap-4 text-center'
-          >
-            <div className='p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20'>
-              <div className='text-2xl font-bold text-primary mb-1'>24/7</div>
-              <div className='text-xs text-muted-foreground'>AI Support</div>
-            </div>
-            <div className='p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20'>
-              <div className='text-2xl font-bold text-primary mb-1'>10+</div>
-              <div className='text-xs text-muted-foreground'>Exam Types</div>
-            </div>
-          </motion.div>
+
         </motion.div>
       </ResponsiveContainer>
     </div>
