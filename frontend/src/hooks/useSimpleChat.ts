@@ -258,7 +258,7 @@ export function useSimpleChat(
                 'bot',
                 finalText
               );
-              const latencyMs = performance.now() - start;
+              // const latencyMs = performance.now() - start;
               await analyticsService.updateDailyStats(
                 user.id,
                 new Date().toISOString().slice(0, 10),

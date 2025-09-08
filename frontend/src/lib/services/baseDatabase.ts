@@ -1,6 +1,5 @@
 /**
  * Base Database Service - Core CRUD operations
- * cspell:words firestore
  */
 
 import { db } from '@/lib/firebase';

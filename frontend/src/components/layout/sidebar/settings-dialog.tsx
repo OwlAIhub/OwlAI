@@ -83,7 +83,7 @@ export function SettingsDialog({
       }
     };
     load();
-  }, [user?.id]);
+  }, [user?.id, isLang, isExam]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

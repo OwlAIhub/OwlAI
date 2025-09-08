@@ -27,7 +27,7 @@ interface UserProfilePageProps {
 }
 
 export function UserProfilePage({ className }: UserProfilePageProps) {
-  const [user, setUser] = useState(getAuthUser());
+  const [user] = useState(getAuthUser());
   const [userProfile, setUserProfile] = useState<UserDocument | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
