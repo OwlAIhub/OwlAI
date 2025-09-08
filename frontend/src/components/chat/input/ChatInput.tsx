@@ -12,6 +12,7 @@ interface ChatInputProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  cooldownMs?: number;
 }
 
 export function ChatInput({
@@ -20,6 +21,7 @@ export function ChatInput({
   placeholder = 'Ask me anything about your studies...',
   disabled = false,
   className,
+  cooldownMs = 0,
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -48,6 +50,25 @@ export function ChatInput({
     }
   };
 
+  // Keep input visible when keyboard opens on iOS/Android
+  const scrollIntoView = () => {
+    try {
+      textareaRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    } catch {}
+  };
+
+  useEffect(() => {
+    const onResize = () => {
+      // Mobile keyboard resize; attempt to keep input visible
+      scrollIntoView();
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <div className={cn('w-full max-w-4xl mx-auto px-4', className)}>
       <motion.form
@@ -70,7 +91,10 @@ export function ChatInput({
             value={message}
             onChange={e => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
+            onFocus={() => {
+              setIsFocused(true);
+              scrollIntoView();
+            }}
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             disabled={disabled || isLoading}
@@ -96,10 +120,13 @@ export function ChatInput({
         >
           <Button
             type='submit'
-            disabled={!message.trim() || isLoading || disabled}
+            disabled={
+              !message.trim() || isLoading || disabled || cooldownMs > 0
+            }
             size='icon'
             className={cn(
-              'h-8 w-8 rounded-full transition-all duration-200',
+              'rounded-full transition-all duration-200',
+              'h-10 w-10 md:h-8 md:w-8',
               'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white',
               'disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed',
               'shadow-md hover:shadow-lg border border-teal-700/20',
@@ -113,7 +140,7 @@ export function ChatInput({
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               >
-                <Loader2 className='h-4 w-4 text-white' />
+                <Loader2 className='h-5 w-5 md:h-4 md:w-4 text-white' />
               </motion.div>
             ) : (
               <motion.div
@@ -121,7 +148,14 @@ export function ChatInput({
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
-                <Send className='h-4 w-4 text-white' />
+                <div className='relative'>
+                  <Send className='h-5 w-5 md:h-4 md:w-4 text-white' />
+                  {cooldownMs > 0 && (
+                    <span className='absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-600'>
+                      {Math.ceil(cooldownMs / 1000)}s
+                    </span>
+                  )}
+                </div>
               </motion.div>
             )}
           </Button>

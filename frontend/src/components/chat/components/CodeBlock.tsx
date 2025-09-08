@@ -8,19 +8,6 @@ import { Check, Copy } from 'lucide-react';
 import { useState } from 'react';
 
 // ChatGPT exact minimal color scheme - smooth and clean
-const colors = {
-  background: '#ffffff',
-  text: '#374151',
-  textSecondary: '#6b7280',
-  textMuted: '#9ca3af',
-  accent: '#10a37f',
-  codeBackground: '#f8f9fa',
-  codeBorder: '#e5e7eb',
-  border: '#e5e7eb',
-  hover: '#f9fafb',
-  success: '#10a37f',
-  copyButton: '#f3f4f6',
-};
 
 interface CodeBlockProps {
   content: string;

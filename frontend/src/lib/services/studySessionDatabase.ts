@@ -13,7 +13,7 @@ export class StudySessionDatabaseService extends DatabaseService {
     subject?: string,
     topic?: string
   ): Promise<StudySession> {
-    const result = await this.create<StudySession>('studySessions', {
+    const result = await this.create<Record<string, unknown>>('studySessions', {
       userId,
       type,
       subject,
@@ -27,7 +27,12 @@ export class StudySessionDatabaseService extends DatabaseService {
       conversationsUsed: [],
     });
 
-    return result.data;
+    const created = await this.getById<StudySession>(
+      'studySessions',
+      result.id
+    );
+    if (!created) throw new Error('Failed to read created study session');
+    return created;
   }
 
   async endStudySession(
@@ -54,15 +59,19 @@ export class StudySessionDatabaseService extends DatabaseService {
         ? (performance.correctAnswers / performance.questionsAnswered) * 100
         : 0;
 
-    return this.update<StudySession>('studySessions', sessionId, {
-      endTime,
-      duration,
-      questionsAnswered: performance.questionsAnswered,
-      correctAnswers: performance.correctAnswers,
-      accuracy,
-      materialsUsed: performance.materialsUsed || [],
-      conversationsUsed: performance.conversationsUsed || [],
-    });
+    return (await this.update<Record<string, unknown>>(
+      'studySessions',
+      sessionId,
+      {
+        endTime,
+        duration,
+        questionsAnswered: performance.questionsAnswered,
+        correctAnswers: performance.correctAnswers,
+        accuracy,
+        materialsUsed: performance.materialsUsed || [],
+        conversationsUsed: performance.conversationsUsed || [],
+      }
+    )) as unknown as StudySession;
   }
 
   async getUserStudySessions(
@@ -73,9 +82,10 @@ export class StudySessionDatabaseService extends DatabaseService {
       'studySessions',
       [where('userId', '==', userId)],
       {
-        ...options,
         orderBy: 'startTime',
         orderDirection: 'desc',
+        limit: options.limit,
+        startAfter: options.startAfter,
       }
     );
   }

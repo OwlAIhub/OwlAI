@@ -13,7 +13,7 @@ export class UserDatabaseService extends DatabaseService {
       'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt'
     >
   ): Promise<UserProfile> {
-    const result = await this.create<UserProfile>('users', {
+    const result = await this.create<Record<string, unknown>>('users', {
       ...userData,
       studyStats: {
         totalStudyTime: 0,
@@ -27,14 +27,22 @@ export class UserDatabaseService extends DatabaseService {
       isActive: true,
     });
 
-    return result.data;
+    const created = await this.getById<UserProfile>('users', result.id);
+    if (!created) {
+      throw new Error('Failed to read created user profile');
+    }
+    return created;
   }
 
   async updateUserProfile(
     uid: string,
     updates: Partial<UserProfile>
   ): Promise<UserProfile> {
-    return this.update<UserProfile>('users', uid, updates);
+    return this.update<Record<string, unknown>>(
+      'users',
+      uid,
+      updates as unknown as Record<string, unknown>
+    ) as unknown as UserProfile;
   }
 
   async getUserProfile(uid: string): Promise<UserProfile | null> {

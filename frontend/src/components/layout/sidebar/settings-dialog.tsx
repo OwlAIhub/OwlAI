@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@/components/auth/providers/AuthProvider';
+import { userService } from '@/lib/services/userService';
 import { MessageSquare } from 'lucide-react';
 import * as React from 'react';
 
@@ -48,6 +50,40 @@ export function SettingsDialog({
 
   const isOpen = open !== undefined ? open : internalOpen;
   const setIsOpen = onOpenChange || setInternalOpen;
+
+  const { user } = useAuth();
+  type Lang = 'en' | 'hi' | 'regional';
+  type Exam = 'ugc-net' | 'csir-net' | 'ssc' | 'ctet' | 'other';
+  const isLang = (v: unknown): v is Lang =>
+    typeof v === 'string' && ['en', 'hi', 'regional'].includes(v);
+  const isExam = (v: unknown): v is Exam =>
+    typeof v === 'string' &&
+    ['ugc-net', 'csir-net', 'ssc', 'ctet', 'other'].includes(v);
+  const [, setDisplayName] = React.useState('');
+  const [, setPhotoURL] = React.useState('');
+  const [, setLanguage] = React.useState<Lang>('en');
+  const [, setExamType] = React.useState<Exam>('ugc-net');
+
+  React.useEffect(() => {
+    // Load current profile if available
+    const load = async () => {
+      if (!user?.id) return;
+      try {
+        const profile = await userService.getUserProfile(user.id);
+        if (profile) {
+          setDisplayName(profile.displayName || '');
+          setPhotoURL(profile.photoURL || '');
+          if (isLang(profile.preferences?.language))
+            setLanguage(profile.preferences.language);
+          if (isExam(profile.preferences?.examType))
+            setExamType(profile.preferences.examType);
+        }
+      } catch {
+        // noop
+      }
+    };
+    load();
+  }, [user?.id]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

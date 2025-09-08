@@ -4,6 +4,7 @@
 
 import { useAuth } from '@/components/auth/providers/AuthProvider';
 import { conversationService } from '@/lib/services/database';
+import { rateLimiter } from '@/lib/services/userService';
 import type { Conversation } from '@/lib/types/database';
 import { useCallback, useState } from 'react';
 
@@ -24,6 +25,14 @@ export function useChatManager(): UseChatManagerReturn {
       if (!user?.id) return;
 
       try {
+        const canCreate = await rateLimiter.canCreateConversation(() =>
+          conversationService
+            .getUserConversations(user.id, { limit: 1 })
+            .then(r => r.total ?? r.data.length)
+        );
+        if (!canCreate) {
+          throw new Error('Session limit reached');
+        }
         const conversationTitle =
           title || `Chat ${new Date().toLocaleDateString()}`;
         const conversation = await conversationService.createConversation(

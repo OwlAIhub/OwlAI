@@ -60,6 +60,7 @@ export interface Conversation {
   messageCount: number;
   totalTokens?: number;
   lastMessageAt: Timestamp;
+  lastOpenedAt?: Timestamp; // last time user opened this conversation
   createdAt: Timestamp;
   updatedAt: Timestamp;
 
@@ -225,7 +226,7 @@ export interface UserAnalytics {
 export interface SystemConfig {
   id: string;
   key: string;
-  value: any;
+  value: unknown;
   description?: string;
   updatedAt: Timestamp;
   updatedBy: string;
@@ -247,12 +248,12 @@ export type CollectionName =
 export interface DatabaseError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface PaginationOptions {
   limit: number;
-  startAfter?: any;
+  startAfter?: unknown;
   orderBy?: string;
   orderDirection?: 'asc' | 'desc';
 }
@@ -260,6 +261,6 @@ export interface PaginationOptions {
 export interface QueryResult<T> {
   data: T[];
   hasMore: boolean;
-  lastDoc?: any;
+  lastDoc?: unknown;
   total?: number;
 }

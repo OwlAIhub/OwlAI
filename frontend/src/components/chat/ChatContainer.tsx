@@ -22,10 +22,20 @@ interface ChatContainerProps {
 }
 
 export function ChatContainer({ className }: ChatContainerProps) {
-  const { currentConversation, startNewChat, switchToConversation } =
-    useChatManager();
-  const { messages, isLoading, sendMessage, retryLastMessage } =
-    useSimpleChat(currentConversation);
+  const { currentConversation, startNewChat } = useChatManager();
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    retryLastMessage,
+    updateMessage,
+    addFeedback,
+    hasMore,
+    loadMore,
+    deleteMessage,
+    restoreMessage,
+    cooldownMs,
+  } = useSimpleChat(currentConversation);
   // Removed embedded ChatHistory; we rely on the app's main sidebar
 
   const handleSendMessage = async (message: string) => {
@@ -95,15 +105,22 @@ export function ChatContainer({ className }: ChatContainerProps) {
               messages={messages}
               isLoading={isLoading}
               onRetry={retryLastMessage}
+              onEdit={updateMessage}
+              onFeedback={addFeedback}
+              onLoadMore={loadMore}
+              hasMore={hasMore}
+              onDelete={deleteMessage}
+              onRestore={restoreMessage}
             />
           </div>
 
           {/* Fixed Input Area - Always at bottom */}
-          <div className='flex-shrink-0 pb-6 pt-4 bg-white border-t border-gray-100'>
+          <div className='flex-shrink-0 pb-6 pt-4 bg-white border-t border-gray-100 safe-bottom'>
             <ChatInput
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
               placeholder='Message OwlAI...'
+              cooldownMs={cooldownMs}
             />
           </div>
         </>

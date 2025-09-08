@@ -21,7 +21,7 @@ export class AnalyticsDatabaseService extends DatabaseService {
 
     if (!analytics) {
       // Create new analytics record
-      await this.create<UserAnalytics>('analytics', {
+      await this.create<Record<string, unknown>>('analytics', {
         userId,
         dailyStats: [
           {
@@ -84,6 +84,21 @@ export class AnalyticsDatabaseService extends DatabaseService {
 
   async getUserAnalytics(userId: string): Promise<UserAnalytics | null> {
     return this.getById<UserAnalytics>('analytics', userId);
+  }
+
+  async logMessageEvent(
+    userId: string,
+    data: { latencyMs: number; ok: boolean }
+  ): Promise<void> {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const date = `${yyyy}-${mm}-${dd}`;
+    await this.updateDailyStats(userId, date, {
+      questionsAnswered: 0,
+    });
+    // We piggyback: store lastUpdated; detailed latency distribution could be added later
   }
 }
 

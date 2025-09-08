@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
 
 /* Performance optimizations */
 * {
@@ -254,6 +253,14 @@ html {
     @apply focus:outline-none focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2;
   }
 
+  /* Safe area utilities for mobile */
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
   /* Infinite scroll animation */
   @keyframes scroll {
     to {
@@ -308,6 +315,8 @@ html {
 @layer components {
   /* Import highlight.js theme */
   @import 'highlight.js/styles/github.css';
+  /* KaTeX CSS for math rendering */
+  @import 'katex/dist/katex.min.css';
 
   /* Dark mode syntax highlighting */
   .dark {

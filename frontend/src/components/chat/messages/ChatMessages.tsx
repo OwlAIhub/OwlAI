@@ -1,9 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 'use client';
+// cspell:words KaTeX katex overscan
 
 import { cn } from '@/lib/utils';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Copy, RotateCcw, ThumbsDown, ThumbsUp, User } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
+import rehypeSanitize from 'rehype-sanitize';
+import remarkGfm from 'remark-gfm';
 import { Button } from '../../ui/buttons/button';
 
 interface Message {
@@ -19,6 +27,12 @@ interface ChatMessagesProps {
   isLoading?: boolean;
   className?: string;
   onRetry?: () => void;
+  onEdit?: (messageId: string, content: string) => Promise<void>;
+  onFeedback?: (messageId: string, rating: 1 | 2 | 3 | 4 | 5) => Promise<void>;
+  onLoadMore?: () => Promise<void>;
+  hasMore?: boolean;
+  onDelete?: (messageId: string) => Promise<void>;
+  onRestore?: (messageId: string) => Promise<void>;
 }
 
 export function ChatMessages({
@@ -26,10 +40,34 @@ export function ChatMessages({
   isLoading = false,
   className,
   onRetry,
+  onLoadMore,
+  hasMore = false,
+  onEdit,
+  onFeedback,
+  onDelete,
+  onRestore,
 }: ChatMessagesProps) {
-  if (messages.length === 0 && !isLoading) {
-    return null; // Welcome message is now handled in ChatContainer
-  }
+  const parentRef = useRef<HTMLDivElement>(null);
+  const [autoScroll, setAutoScroll] = useState(true);
+
+  const rowVirtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 96,
+    overscan: 8,
+  });
+
+  // Auto-scroll when near bottom and new tokens/messages arrive
+  useEffect(() => {
+    if (!autoScroll) return;
+    const el = parentRef.current;
+    if (!el) return;
+    const atBottom =
+      Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 64;
+    if (atBottom) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages, isLoading, autoScroll]);
 
   return (
     <div
@@ -38,17 +76,66 @@ export function ChatMessages({
         className
       )}
     >
-      <div className='max-w-4xl mx-auto space-y-6'>
-        <AnimatePresence>
-          {messages.map((message, index) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              index={index}
-              onRetry={onRetry}
-            />
-          ))}
-        </AnimatePresence>
+      <div
+        className='max-w-4xl mx-auto relative min-h-full'
+        ref={parentRef}
+        onScroll={() => {
+          const el = parentRef.current;
+          if (!el) return;
+          const atBottom =
+            Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 64;
+          setAutoScroll(atBottom);
+        }}
+      >
+        <div
+          style={{
+            height: rowVirtualizer.getTotalSize(),
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translateY(${rowVirtualizer.getVirtualItems()[0]?.start ?? 0}px)`,
+            }}
+            className='space-y-6'
+          >
+            {/* Load more button (pagination) */}
+            {hasMore && (
+              <div className='flex justify-center'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={onLoadMore}
+                  className='text-xs'
+                >
+                  Load earlier messages
+                </Button>
+              </div>
+            )}
+            <AnimatePresence>
+              {rowVirtualizer.getVirtualItems().map(v => {
+                const message = messages[v.index];
+                return (
+                  <div key={message.id} style={{ height: v.size }}>
+                    <MessageBubble
+                      message={message}
+                      index={v.index}
+                      onRetry={onRetry}
+                      onEdit={onEdit}
+                      onFeedback={onFeedback}
+                      onDelete={onDelete}
+                      onRestore={onRestore}
+                    />
+                  </div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
 
         {/* Beautiful Loading Indicator */}
         {isLoading && (
@@ -133,13 +220,25 @@ function MessageBubble({
   message,
   index,
   onRetry,
+  onEdit,
+  onFeedback,
+  onDelete,
+  onRestore,
 }: {
   message: Message;
   index: number;
   onRetry?: () => void;
+  onEdit?: (messageId: string, content: string) => Promise<void>;
+  onFeedback?: (messageId: string, rating: 1 | 2 | 3 | 4 | 5) => Promise<void>;
+  onDelete?: (messageId: string) => Promise<void>;
+  onRestore?: (messageId: string) => Promise<void>;
 }) {
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(message.content);
+  const [undoVisible, setUndoVisible] = useState(false);
+  const undoTimerRef = useRef<number | null>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content);
@@ -194,16 +293,57 @@ function MessageBubble({
               : 'text-gray-900' // No background, no borders - minimal like ChatGPT
         )}
       >
-        {/* Message Text */}
+        {/* Message Text (supports edit) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: index * 0.05 + 0.3, duration: 0.5 }}
           className={message.type === 'bot' ? 'pr-12' : ''}
         >
-          <p className='text-sm leading-relaxed whitespace-pre-wrap'>
-            {message.content}
-          </p>
+          {isEditing ? (
+            <div className='space-y-2'>
+              <textarea
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                className='w-full text-sm rounded-md border border-gray-200 px-2 py-2 focus:ring-2 focus:ring-teal-600 focus:outline-none'
+                rows={3}
+              />
+              <div className='flex gap-2'>
+                <Button
+                  size='sm'
+                  onClick={async () => {
+                    if (onEdit) await onEdit(String(message.id), editValue);
+                    setIsEditing(false);
+                  }}
+                >
+                  Save
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditValue(message.content);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className='text-sm leading-relaxed markdown-content'>
+              {message.type === 'bot' ? (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeSanitize, rehypeHighlight, rehypeKatex]}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              ) : (
+                <p className='whitespace-pre-wrap'>{message.content}</p>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Error Actions */}
@@ -226,8 +366,8 @@ function MessageBubble({
           </motion.div>
         )}
 
-        {/* Message Actions (for bot messages) - Minimal like ChatGPT */}
-        {message.type === 'bot' && !message.error && (
+        {/* Message Actions - Minimal like ChatGPT */}
+        {!message.error && (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: showActions ? 1 : 0, y: showActions ? 0 : 5 }}
@@ -253,11 +393,46 @@ function MessageBubble({
                 <Copy className='w-3 h-3 text-gray-500' />
               )}
             </button>
+            {message.type === 'user' && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'
+              >
+                ✎
+              </button>
+            )}
             <button className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'>
-              <ThumbsUp className='w-3 h-3 text-gray-500' />
+              <ThumbsUp
+                className='w-3 h-3 text-gray-500'
+                onClick={() => onFeedback && onFeedback(String(message.id), 5)}
+              />
             </button>
             <button className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors'>
-              <ThumbsDown className='w-3 h-3 text-gray-500' />
+              <ThumbsDown
+                className='w-3 h-3 text-gray-500'
+                onClick={() => onFeedback && onFeedback(String(message.id), 1)}
+              />
+            </button>
+            {/* Delete with Undo */}
+            <button
+              className='h-6 w-6 p-0 hover:bg-gray-100 rounded transition-colors text-red-600'
+              onClick={async () => {
+                if (!onDelete) return;
+                await onDelete(String(message.id));
+                // reveal inline undo for 5s using local state
+                setShowActions(false);
+                setIsEditing(false);
+                undoTimerRef.current && clearTimeout(undoTimerRef.current);
+                setUndoVisible(true);
+                undoTimerRef.current = window.setTimeout(() => {
+                  setUndoVisible(false);
+                  undoTimerRef.current = null;
+                }, 5000);
+              }}
+              aria-label='Delete message'
+              title='Delete'
+            >
+              ×
             </button>
           </motion.div>
         )}
@@ -276,6 +451,25 @@ function MessageBubble({
             hour: '2-digit',
             minute: '2-digit',
           })}
+          {/* Inline Undo */}
+          {undoVisible && (
+            <span className='ml-2 text-gray-600'>
+              Deleted •
+              <button
+                className='ml-1 underline text-teal-700'
+                onClick={async () => {
+                  if (undoTimerRef.current) {
+                    clearTimeout(undoTimerRef.current);
+                    undoTimerRef.current = null;
+                  }
+                  setUndoVisible(false);
+                  if (onRestore) await onRestore(String(message.id));
+                }}
+              >
+                Undo
+              </button>
+            </span>
+          )}
         </motion.p>
       </motion.div>
 
