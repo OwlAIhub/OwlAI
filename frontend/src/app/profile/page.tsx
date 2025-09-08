@@ -128,7 +128,7 @@ export default function ProfilePage() {
       <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
       
       <div className='relative z-10 h-full flex flex-col'>
-        <div className='container mx-auto px-4 py-8 max-w-4xl flex-1 overflow-y-auto'>
+        <div className='container mx-auto px-4 py-4 max-w-4xl flex-1 overflow-hidden'>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -156,7 +156,7 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        <div className='grid gap-6 md:grid-cols-3'>
+        <div className='grid gap-4 md:grid-cols-3 h-full'>
           {/* Profile Overview */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -223,7 +223,7 @@ export default function ProfilePage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className='md:col-span-2 space-y-6'
+            className='md:col-span-2 space-y-3 overflow-hidden'
           >
             {/* Personal Information */}
             <Card className='bg-white/80 backdrop-blur-sm border-border/40'>
