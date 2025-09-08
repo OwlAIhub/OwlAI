@@ -92,12 +92,13 @@ const detectContentTypeOptimized = (() => {
       type = 'list';
     } else if (line.startsWith('>')) {
       type = 'blockquote';
-    } else if (line.includes('|') && line.includes('\n')) {
+    } else if (line.includes('|')) {
       type = 'table';
     } else if (
       line.includes('Key Points:') ||
       line.includes('Functions of') ||
-      line.includes('Steps in')
+      line.includes('Steps in') ||
+      line.includes('Key Features/Characteristics')
     ) {
       type = 'keypoints';
     } else if (line.includes('Question:') || /^[A-D]\)/.test(line)) {
@@ -120,6 +121,7 @@ const parseContentOptimized = (content: string) => {
 
   let currentBlock = '';
   let currentType = 'paragraph';
+  let inTable = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -133,12 +135,34 @@ const parseContentOptimized = (content: string) => {
 
     const type = detectContentTypeOptimized(line);
 
-    if (type !== currentType && currentBlock.trim()) {
-      blocks.push({ type: currentType, content: currentBlock.trim() });
-      currentBlock = line;
-      currentType = type;
+    // Special handling for tables - keep table lines together
+    if (type === 'table') {
+      if (!inTable) {
+        // Start of a new table
+        if (currentBlock.trim()) {
+          blocks.push({ type: currentType, content: currentBlock.trim() });
+        }
+        currentBlock = line;
+        currentType = 'table';
+        inTable = true;
+      } else {
+        // Continue building the table
+        currentBlock += '\n' + line;
+      }
     } else {
-      currentBlock += (currentBlock ? '\n' : '') + line;
+      // End of table or other content
+      if (inTable && type !== 'table') {
+        blocks.push({ type: currentType, content: currentBlock.trim() });
+        currentBlock = line;
+        currentType = type;
+        inTable = false;
+      } else if (type !== currentType && currentBlock.trim()) {
+        blocks.push({ type: currentType, content: currentBlock.trim() });
+        currentBlock = line;
+        currentType = type;
+      } else {
+        currentBlock += (currentBlock ? '\n' : '') + line;
+      }
     }
   }
 

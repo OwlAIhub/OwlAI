@@ -244,11 +244,67 @@ export const TableComponent = ({ content }: { content: string }) => {
 
   if (tableLines.length < 2) return null;
 
+  // Find the separator line (contains dashes)
+  const separatorIndex = tableLines.findIndex(
+    line => line.includes('|') && line.includes('-') && !line.includes(' ')
+  );
+
+  // If we have a separator, use it to split headers and rows
+  if (separatorIndex > 0) {
+    const headers = tableLines[0]
+      .split('|')
+      .map(cell => cell.trim())
+      .filter(cell => cell);
+    const rows = tableLines.slice(separatorIndex + 1).map(line =>
+      line
+        .split('|')
+        .map(cell => cell.trim())
+        .filter(cell => cell)
+    );
+
+    return (
+      <div className='my-3 overflow-x-auto'>
+        <table className='min-w-full border border-gray-200 rounded-lg overflow-hidden'>
+          <thead className='bg-gray-50'>
+            <tr>
+              {headers.map((header, index) => (
+                <th
+                  key={index}
+                  className='px-3 py-2 text-left text-sm font-semibold text-gray-900 border-b border-gray-200'
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr
+                key={index}
+                className='border-b border-gray-200 last:border-b-0'
+              >
+                {row.map((cell, cellIndex) => (
+                  <td
+                    key={cellIndex}
+                    className='px-3 py-2 text-sm text-gray-700'
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // Fallback: treat all lines as data rows
   const headers = tableLines[0]
     .split('|')
     .map(cell => cell.trim())
     .filter(cell => cell);
-  const rows = tableLines.slice(2).map(line =>
+  const rows = tableLines.slice(1).map(line =>
     line
       .split('|')
       .map(cell => cell.trim())
@@ -256,14 +312,14 @@ export const TableComponent = ({ content }: { content: string }) => {
   );
 
   return (
-    <div className='my-4 overflow-x-auto'>
+    <div className='my-3 overflow-x-auto'>
       <table className='min-w-full border border-gray-200 rounded-lg overflow-hidden'>
         <thead className='bg-gray-50'>
           <tr>
             {headers.map((header, index) => (
               <th
                 key={index}
-                className='px-4 py-3 text-left text-sm font-semibold text-gray-900 border-b border-gray-200'
+                className='px-3 py-2 text-left text-sm font-semibold text-gray-900 border-b border-gray-200'
               >
                 {header}
               </th>
@@ -277,7 +333,7 @@ export const TableComponent = ({ content }: { content: string }) => {
               className='border-b border-gray-200 last:border-b-0'
             >
               {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className='px-4 py-3 text-sm text-gray-700'>
+                <td key={cellIndex} className='px-3 py-2 text-sm text-gray-700'>
                   {cell}
                 </td>
               ))}
