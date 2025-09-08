@@ -11,27 +11,45 @@ import {
   signOut as firebaseSignOut
 } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { createUserProfile, getUserProfile, UserProfile } from '../services/userService';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   signInWithPhone: (phoneNumber: string) => Promise<ConfirmationResult>;
   verifyOTP: (confirmationResult: ConfirmationResult, otp: string) => Promise<void>;
   signOut: () => Promise<void>;
   recaptchaVerifier: RecaptchaVerifier | null;
   setRecaptchaVerifier: (verifier: RecaptchaVerifier | null) => void;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      
+      if (user) {
+        try {
+          // Create or update user profile in Firestore
+          const profile = await createUserProfile(user);
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('Error managing user profile:', error);
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      
       setLoading(false);
     });
 
@@ -70,14 +88,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUserProfile = async (): Promise<void> => {
+    if (user) {
+      try {
+        const profile = await getUserProfile(user.uid);
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Error refreshing user profile:', error);
+      }
+    }
+  };
+
   const value: AuthContextType = {
     user,
+    userProfile,
     loading,
     signInWithPhone,
     verifyOTP,
     signOut,
     recaptchaVerifier,
-    setRecaptchaVerifier
+    setRecaptchaVerifier,
+    refreshUserProfile
   };
 
   return (

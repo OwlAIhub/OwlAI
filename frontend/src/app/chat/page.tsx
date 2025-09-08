@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function ChatPage() {
-  const { user, loading, signOut } = useAuth();
+  const { user, userProfile, loading, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -88,10 +88,21 @@ export default function ChatPage() {
               <h2 className='text-lg font-semibold text-foreground'>User Profile</h2>
               <div className='flex items-center gap-2 text-muted-foreground mt-1'>
                 <Phone className='w-4 h-4' />
-                <span>{user.phoneNumber || 'Phone number verified'}</span>
+                <span>{userProfile?.phoneNumber || user.phoneNumber || 'Phone number verified'}</span>
               </div>
+              {userProfile?.displayName && (
+                <p className='text-sm text-foreground mt-1'>
+                  Name: {userProfile.displayName}
+                </p>
+              )}
               <p className='text-sm text-muted-foreground mt-1'>
                 User ID: {user.uid}
+              </p>
+              <p className='text-sm text-muted-foreground'>
+                Member since: {userProfile?.createdAt ? new Date(userProfile.createdAt.seconds * 1000).toLocaleDateString() : 'Recently'}
+              </p>
+              <p className='text-sm text-muted-foreground'>
+                Status: {userProfile?.isActive ? '🟢 Active' : '🔴 Inactive'}
               </p>
             </div>
           </div>
