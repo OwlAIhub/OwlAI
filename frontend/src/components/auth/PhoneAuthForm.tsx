@@ -10,6 +10,7 @@ import { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
 import { Phone, ArrowRight, Check, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { hasCompletedOnboarding } from '@/lib/services/onboardingService';
 
 // Extend Window interface for reCAPTCHA
 declare global {
@@ -174,8 +175,30 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
 
     try {
       await verifyOTP(confirmationResult, otp);
-      // Redirect to onboarding page after successful authentication
-      router.push('/onboarding');
+      
+      // Wait a moment for auth state to update, then check onboarding status
+      setTimeout(async () => {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          try {
+            const completed = await hasCompletedOnboarding(currentUser.uid);
+            if (completed) {
+              // User has completed onboarding, go to chat
+              router.push('/chat');
+            } else {
+              // User needs to complete onboarding
+              router.push('/onboarding');
+            }
+          } catch (error) {
+            console.error('Error checking onboarding status:', error);
+            // Fallback to onboarding on error
+            router.push('/onboarding');
+          }
+        } else {
+          // Fallback to onboarding if no user
+          router.push('/onboarding');
+        }
+      }, 500);
     } catch (err) {
       console.error('OTP verification error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Invalid OTP. Please try again.';
