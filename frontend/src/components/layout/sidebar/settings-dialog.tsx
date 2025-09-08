@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Globe,
-  Keyboard,
-  MessageSquare,
-  Palette,
-  Settings,
-  Shield,
-  User,
-  Volume2,
-} from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import * as React from 'react';
 
 import {
@@ -39,16 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const data = {
-  nav: [
-    { name: 'Chat Settings', icon: MessageSquare },
-    { name: 'Profile', icon: User },
-    { name: 'Appearance', icon: Palette },
-    { name: 'Language', icon: Globe },
-    { name: 'Privacy', icon: Shield },
-    { name: 'Audio', icon: Volume2 },
-    { name: 'Accessibility', icon: Keyboard },
-    { name: 'Advanced', icon: Settings },
-  ],
+  nav: [{ name: 'Chat Settings', icon: MessageSquare }],
 };
 
 interface SettingsDialogProps {
