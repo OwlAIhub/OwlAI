@@ -11,7 +11,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
+import { Menu } from 'lucide-react';
 
 export default function ChatPage() {
   const { user, userProfile, loading } = useAuth();
@@ -41,18 +41,15 @@ export default function ChatPage() {
     <SidebarProvider>
       <ChatSidebar />
       <SidebarInset>
-        {/* Header */}
-        <header className='sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4'>
-          <SidebarTrigger className='-ml-1' />
-          <Separator orientation='vertical' className='mr-2 h-4' />
-          <div className='flex items-center gap-2'>
-            <MessageCircle className='h-5 w-5 text-primary' />
-            <h1 className='text-lg font-semibold'>AI Chat Assistant</h1>
-          </div>
-        </header>
-        
         {/* Main Content */}
         <div className='flex-1 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 relative'>
+          {/* Floating Sidebar Toggle */}
+          <div className='absolute top-4 left-4 z-20'>
+            <SidebarTrigger className='h-10 w-10 p-0 bg-white/95 backdrop-blur-sm border border-border/40 shadow-lg hover:bg-white/98 hover:shadow-xl hover:border-border/60 transition-all duration-200 rounded-md flex items-center justify-center'>
+              <Menu className='h-4 w-4' />
+            </SidebarTrigger>
+          </div>
+          
           {/* Background Pattern */}
           <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]' />
           
@@ -60,7 +57,7 @@ export default function ChatPage() {
           <div className='absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl' />
           <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
           
-          <div className='relative z-10 p-4 h-full'>
+          <div className='relative z-10 p-4 h-full pt-20'>
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
