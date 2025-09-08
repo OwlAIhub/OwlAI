@@ -4,18 +4,18 @@ import { PhoneAuthForm } from '@/components/auth/PhoneAuthForm';
 import { motion } from 'framer-motion';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 import Link from 'next/link';
-import { ResponsiveContainer, ResponsiveImage } from '@/components/ui/responsive-container';
+import { ResponsiveContainer } from '@/components/ui/responsive-container';
 
 export default function SignupPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center p-4'>
       {/* Background Pattern */}
       <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]' />
-      
+
       {/* Decorative Blurs */}
       <div className='absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl' />
       <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
-      
+
       <ResponsiveContainer maxWidth='md' className='relative z-10'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -58,7 +58,7 @@ export default function SignupPage() {
                   <UserPlus className='w-6 h-6 text-primary' />
                 </div>
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,7 @@ export default function SignupPage() {
               >
                 Create Account
               </motion.h1>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
