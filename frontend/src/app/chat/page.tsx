@@ -18,11 +18,25 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Home, MessageSquare } from 'lucide-react';
+import { useEffect } from 'react';
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 export default function ChatPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const {
+    userProfile,
+    isLoading: profileLoading,
+    initializeUser,
+  } = useUserProfile();
 
-  if (isLoading) {
+  // Initialize user profile when user is authenticated
+  useEffect(() => {
+    if (user && !userProfile && !profileLoading) {
+      initializeUser();
+    }
+  }, [user, userProfile, profileLoading, initializeUser]);
+
+  if (authLoading || profileLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600'></div>
