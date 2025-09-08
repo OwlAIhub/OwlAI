@@ -47,7 +47,16 @@ export default function ProfilePage() {
 
     const loadProfileData = async () => {
       try {
-        const onboarding = await getOnboardingProfile(user.uid);
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        );
+        
+        const onboarding = await Promise.race([
+          getOnboardingProfile(user.uid),
+          timeoutPromise
+        ]) as OnboardingProfile | null;
+        
         setOnboardingProfile(onboarding);
         
         // Initialize form data
@@ -57,6 +66,8 @@ export default function ProfilePage() {
         });
       } catch (error) {
         console.error('Error loading profile data:', error);
+        // Continue without onboarding data if it fails
+        setOnboardingProfile(null);
       } finally {
         setLoading(false);
       }
@@ -108,7 +119,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200'>
+    <div className='h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-hidden'>
       {/* Background Pattern */}
       <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]' />
       
@@ -116,7 +127,8 @@ export default function ProfilePage() {
       <div className='absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl' />
       <div className='absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl' />
       
-      <div className='relative z-10 container mx-auto px-4 py-8 max-w-4xl'>
+      <div className='relative z-10 h-full flex flex-col'>
+        <div className='container mx-auto px-4 py-8 max-w-4xl flex-1 overflow-y-auto'>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -386,6 +398,7 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </motion.div>
+        </div>
         </div>
       </div>
     </div>
