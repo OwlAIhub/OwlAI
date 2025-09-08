@@ -4,7 +4,6 @@ import type { NextConfig } from 'next';
 // Avoid importing app code here to prevent Turbopack from resolving app paths during dev
 
 const isProduction = process.env.NODE_ENV === 'production';
-const isDevelopment = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
   // Firebase Hosting configuration (Static Export)
@@ -90,61 +89,9 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Security headers
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value:
-              'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-      {
-        source: '/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ];
-  },
-
-  // Redirects for production
-  async redirects() {
-    return [
-      {
-        source: '/dashboard',
-        destination: '/chat',
-        permanent: true,
-      },
-    ];
-  },
+  // Note: headers() and redirects() are not supported with output: 'export'
+  // Security headers and redirects should be configured in Firebase Hosting (firebase.json)
+  // or your hosting provider's configuration
 };
 
 export default nextConfig;
