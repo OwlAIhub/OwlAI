@@ -91,7 +91,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.15 }}
           className='space-y-2'
         >
           <Label htmlFor='phone' className='text-sm font-medium text-foreground'>
@@ -127,7 +127,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          transition={{ duration: 0.15, delay: 0.05 }}
         >
           <Button
             type='submit'
@@ -152,7 +152,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+          transition={{ duration: 0.15, delay: 0.1 }}
           className='text-xs text-muted-foreground text-center'
         >
           We&apos;ll send you a verification code to confirm your number
@@ -189,7 +189,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        transition={{ duration: 0.15, delay: 0.05 }}
         className='space-y-2'
       >
         <Label htmlFor='otp' className='text-sm font-medium text-foreground'>
@@ -223,7 +223,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
+        transition={{ duration: 0.15, delay: 0.1 }}
       >
         <Button
           type='submit'
@@ -248,7 +248,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        transition={{ duration: 0.15, delay: 0.15 }}
         className='text-center'
       >
         <button

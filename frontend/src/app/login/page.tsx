@@ -20,14 +20,14 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.2 }}
           className='w-full max-w-md mx-auto'
         >
           {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+            transition={{ duration: 0.15, delay: 0.05 }}
             className='mb-6'
           >
             <Link
@@ -43,7 +43,7 @@ export default function LoginPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
             className='bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8'
           >
             {/* Header */}
@@ -51,7 +51,7 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 }}
+                transition={{ duration: 0.15, delay: 0.15 }}
                 className='flex items-center justify-center mb-4'
               >
                 <ResponsiveImage
@@ -65,7 +65,7 @@ export default function LoginPage() {
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
+                transition={{ duration: 0.15, delay: 0.2 }}
                 className='text-2xl font-bold text-foreground mb-2'
               >
                 Welcome Back
@@ -74,7 +74,7 @@ export default function LoginPage() {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.5 }}
+                transition={{ duration: 0.15, delay: 0.25 }}
                 className='text-muted-foreground'
               >
                 Sign in to continue your learning journey
@@ -85,7 +85,7 @@ export default function LoginPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              transition={{ duration: 0.2, delay: 0.3 }}
             >
               <PhoneAuthForm mode='login' />
             </motion.div>
@@ -94,7 +94,7 @@ export default function LoginPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.8 }}
+              transition={{ duration: 0.15, delay: 0.35 }}
               className='mt-8 text-center'
             >
               <p className='text-sm text-muted-foreground'>
