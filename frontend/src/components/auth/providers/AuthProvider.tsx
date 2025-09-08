@@ -1,6 +1,6 @@
 'use client';
 
-import { getAuthUser, setAuthUser, User } from '@/lib/auth';
+import { clearAuthUser, getAuthUser, setAuthUser, User } from '@/lib/auth';
 import { auth } from '@/lib/firebase';
 import {
   User as FirebaseUser,
@@ -78,26 +78,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setFirebaseUser(firebaseUser);
 
           if (firebaseUser) {
-            // Firebase user exists
+            // Firebase user exists - always use Firebase UID as the primary ID
             const localUser = getAuthUser();
 
-            if (localUser?.isAuthenticated) {
-              // Local user data exists
-              setUser(localUser);
-            } else {
-              // Create basic user from Firebase user
-              const basicUser = {
-                id: firebaseUser.uid,
-                phoneNumber: firebaseUser.phoneNumber || '',
-                isAuthenticated: true,
-                createdAt: new Date(),
-                lastLoginAt: new Date(),
-              };
-              setAuthUser(basicUser);
-              setUser(basicUser);
-            }
+            // Create or update user with Firebase UID
+            const authenticatedUser = {
+              id: firebaseUser.uid, // Always use Firebase UID
+              phoneNumber: firebaseUser.phoneNumber || '',
+              name: firebaseUser.displayName || localUser?.name,
+              email: firebaseUser.email || localUser?.email,
+              isAuthenticated: true,
+              createdAt: localUser?.createdAt || new Date(),
+              lastLoginAt: new Date(),
+              onboardingCompleted: localUser?.onboardingCompleted || false,
+            };
+            
+            setAuthUser(authenticatedUser);
+            setUser(authenticatedUser);
           } else {
-            // No Firebase user
+            // No Firebase user - clear local auth
+            clearAuthUser();
             setUser(null);
           }
         } catch (error) {

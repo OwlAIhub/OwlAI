@@ -4,7 +4,7 @@ import { useAuth } from '@/components/auth/providers/AuthProvider';
 import { auth } from '@/lib/firebase';
 import { userService } from '@/lib/services/userService';
 import { signOut } from 'firebase/auth';
-import { MessageSquare } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import * as React from 'react';
 
 import {
@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const data = {
-  nav: [{ name: 'Chat Settings', icon: MessageSquare }],
+  nav: [{ name: 'Settings', icon: Settings }],
 };
 
 interface SettingsDialogProps {

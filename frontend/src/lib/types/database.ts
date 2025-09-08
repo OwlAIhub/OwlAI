@@ -45,69 +45,7 @@ export interface UserProfile {
   isActive: boolean;
 }
 
-// ============================================================================
-// CONVERSATIONS COLLECTION
-// ============================================================================
-
-export interface Conversation {
-  id: string;
-  userId: string;
-  title: string;
-  subject?: string;
-  examType?: string;
-
-  // Conversation Metadata
-  messageCount: number;
-  totalTokens?: number;
-  lastMessageAt: Timestamp;
-  lastOpenedAt?: Timestamp; // last time user opened this conversation
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-
-  // Status
-  isArchived: boolean;
-  isFavorite: boolean;
-  tags: string[];
-}
-
-// ============================================================================
-// MESSAGES COLLECTION
-// ============================================================================
-
-export interface ChatMessage {
-  id: string;
-  conversationId: string;
-  userId: string;
-
-  // Message Content
-  type: 'user' | 'bot';
-  content: string;
-  originalContent?: string; // For edited messages
-
-  // AI Response Metadata
-  aiMetadata?: {
-    model: string;
-    tokens: number;
-    responseTime: number;
-    confidence?: number;
-    sources?: string[];
-  };
-
-  // User Interaction
-  userFeedback?: {
-    rating: 1 | 2 | 3 | 4 | 5;
-    feedback?: string;
-    reported?: boolean;
-  };
-
-  // Timestamps
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-
-  // Status
-  isEdited: boolean;
-  isDeleted: boolean;
-}
+// Chat-related collections removed
 
 // ============================================================================
 // STUDY MATERIALS COLLECTION
@@ -238,8 +176,6 @@ export interface SystemConfig {
 
 export type CollectionName =
   | 'users'
-  | 'conversations'
-  | 'messages'
   | 'studyMaterials'
   | 'studySessions'
   | 'analytics'

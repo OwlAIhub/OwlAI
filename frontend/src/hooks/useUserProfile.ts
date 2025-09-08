@@ -22,11 +22,20 @@ export function useUserProfile(): UseUserProfileReturn {
   const [error, setError] = useState<string | null>(null);
 
   const loadUserProfile = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setUserProfile(null);
+      setError(null);
+      return;
+    }
 
     try {
       setIsLoading(true);
       setError(null);
+
+      // Check if user is authenticated with Firebase
+      if (!user.isAuthenticated) {
+        throw new Error('User not authenticated with Firebase');
+      }
 
       let profile = await userService.getUserProfile(user.id);
 
@@ -43,13 +52,28 @@ export function useUserProfile(): UseUserProfileReturn {
       }
 
       setUserProfile(profile);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to load user profile:', error);
-      setError('Failed to load user profile');
+
+      // Provide more specific error messages
+      const errorObj = error as { code?: string; message?: string };
+      if (errorObj?.code === 'permission-denied') {
+        setError(
+          'Permission denied. Please ensure you are properly authenticated.'
+        );
+      } else if (errorObj?.code === 'unauthenticated') {
+        setError('Authentication required. Please sign in again.');
+      } else if (errorObj?.message?.includes('Firebase')) {
+        setError(
+          'Firebase connection error. Please check your internet connection.'
+        );
+      } else {
+        setError(errorObj?.message || 'Failed to load user profile');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, user?.name, user?.phoneNumber]);
+  }, [user?.id, user?.name, user?.phoneNumber, user?.isAuthenticated]);
 
   useEffect(() => {
     if (user?.id) {

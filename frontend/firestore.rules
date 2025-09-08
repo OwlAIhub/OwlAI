@@ -24,27 +24,7 @@ service cloud.firestore {
       allow delete: if false; // prevent hard deletes
     }
 
-    // CONVERSATIONS: owner-only; no hard deletes
-    match /conversations/{conversationId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid &&
-        (request.resource.data.createdAt == request.time || isTimestamp(request.resource.data.createdAt)) &&
-        (request.resource.data.updatedAt == request.time || isTimestamp(request.resource.data.updatedAt)) &&
-        request.resource.data.messageCount is int && request.resource.data.isArchived is bool;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if false; // archive instead
-    }
-
-    // MESSAGES: owner-only; soft-delete only
-    match /messages/{messageId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid &&
-        (request.resource.data.createdAt == request.time || isTimestamp(request.resource.data.createdAt)) &&
-        (request.resource.data.updatedAt == request.time || isTimestamp(request.resource.data.updatedAt)) &&
-        (request.resource.data.isDeleted is bool) && (request.resource.data.type in ['user', 'bot']);
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if false; // enforce soft delete via isDeleted=true
-    }
+    // Chat-related collections removed
 
     // STUDY SESSIONS: owner-only
     match /studySessions/{sessionId} {
