@@ -75,18 +75,16 @@ export function ChatMessages({
         'flex-1 overflow-y-auto px-4 py-6 scrollbar-hide min-h-0',
         className
       )}
+      ref={parentRef}
+      onScroll={() => {
+        const el = parentRef.current;
+        if (!el) return;
+        const atBottom =
+          Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 64;
+        setAutoScroll(atBottom);
+      }}
     >
-      <div
-        className='max-w-4xl mx-auto relative min-h-full'
-        ref={parentRef}
-        onScroll={() => {
-          const el = parentRef.current;
-          if (!el) return;
-          const atBottom =
-            Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 64;
-          setAutoScroll(atBottom);
-        }}
-      >
+      <div className='max-w-4xl mx-auto relative min-h-full'>
         <div
           style={{
             height: rowVirtualizer.getTotalSize(),
@@ -248,14 +246,10 @@ function MessageBubble({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.05,
-        ease: [0.4, 0, 0.2, 1],
-      }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
         'flex gap-3 group',
         message.type === 'user' ? 'justify-end' : 'justify-start'
@@ -281,16 +275,16 @@ function MessageBubble({
 
       {/* Message Content */}
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: index * 0.05 + 0.1, duration: 0.3 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
         className={cn(
           'max-w-[80%] relative group/message',
           message.type === 'user'
             ? 'bg-teal-600 text-white rounded-2xl px-4 py-3'
             : message.error
               ? 'bg-red-50 border border-red-200 text-red-800 rounded-2xl px-4 py-3'
-              : 'text-gray-900' // No background, no borders - minimal like ChatGPT
+              : 'bg-white border border-gray-200 text-gray-900 rounded-2xl px-4 py-3 shadow-sm'
         )}
       >
         {/* Message Text (supports edit) */}
@@ -441,7 +435,7 @@ function MessageBubble({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.05 + 0.5 }}
+          transition={{ duration: 0.2 }}
           className={cn(
             'text-xs mt-2 opacity-70',
             message.type === 'user' ? 'text-teal-100' : 'text-gray-500'

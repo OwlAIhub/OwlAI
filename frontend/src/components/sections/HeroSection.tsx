@@ -327,10 +327,7 @@ export function HeroSection() {
                   onChange={e => setSearchQuery(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !isNavigating) {
-                      // Navigate to contact section with search query
-                      document
-                        .getElementById('contact')
-                        ?.scrollIntoView({ behavior: 'smooth' });
+                      router.push('/chat');
                     }
                   }}
                   placeholder='Ask any UGC NET question...'
@@ -343,10 +340,7 @@ export function HeroSection() {
                   className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-70'
                   onClick={() => {
                     if (!isNavigating) {
-                      // Navigate to contact section with search query
-                      document
-                        .getElementById('contact')
-                        ?.scrollIntoView({ behavior: 'smooth' });
+                      router.push('/chat');
                     }
                   }}
                 >

@@ -1,10 +1,14 @@
 'use client';
 
+import { useAuth } from '@/components/auth/providers/AuthProvider';
 import { useChatManager } from '@/hooks/useChatManager';
 import { useSimpleChat } from '@/hooks/useSimpleChat';
+import { flowiseAPI } from '@/lib/services/flowise-api';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
+import { useRouter } from 'next/navigation';
 // Removed embedded ChatHistory; we rely on the app's main sidebar
+import { useEffect, useState } from 'react';
 import { StarterPrompts } from './StarterPrompts';
 import { ChatInput } from './input/ChatInput';
 import { ChatMessages } from './messages/ChatMessages';
@@ -22,6 +26,7 @@ interface ChatContainerProps {
 }
 
 export function ChatContainer({ className }: ChatContainerProps) {
+  const { user } = useAuth();
   const { currentConversation, startNewChat } = useChatManager();
   const {
     messages,
@@ -36,20 +41,134 @@ export function ChatContainer({ className }: ChatContainerProps) {
     restoreMessage,
     cooldownMs,
   } = useSimpleChat(currentConversation);
+  const router = useRouter();
   // Removed embedded ChatHistory; we rely on the app's main sidebar
 
+  // Guest mode state (local, non-persistent)
+  const [guestMessages, setGuestMessages] = useState<Message[]>([]);
+  const [guestLoading, setGuestLoading] = useState(false);
+  // Queue for first message until conversation exists (fixes disappearing prompts)
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+
+  const handleGuestSend = async (message: string) => {
+    // Enforce 3-prompt limit for guests
+    try {
+      const raw =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('guest_prompt_count')
+          : '0';
+      const count = raw ? parseInt(raw, 10) || 0 : 0;
+      if (count >= 3) {
+        router.push('/signup');
+        return;
+      }
+
+      const safeContent = message.trim();
+      if (!safeContent || guestLoading) return;
+
+      // Increment counter
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('guest_prompt_count', String(count + 1));
+      }
+
+      // Add user message locally
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        type: 'user',
+        content: safeContent,
+        timestamp: new Date(),
+      };
+      setGuestMessages(prev => [...prev, userMsg]);
+
+      setGuestLoading(true);
+
+      const tempId = (Date.now() + 1).toString();
+      let accumulated = '';
+      let started = false;
+
+      await flowiseAPI.queryStream(
+        { question: safeContent, history: [] },
+        {
+          onToken: chunk => {
+            accumulated += chunk;
+            if (!started) {
+              started = true;
+              setGuestMessages(prev => [
+                ...prev,
+                {
+                  id: tempId,
+                  type: 'bot',
+                  content: chunk,
+                  timestamp: new Date(),
+                },
+              ]);
+            } else {
+              setGuestMessages(prev =>
+                prev.map(m =>
+                  m.id === tempId ? { ...m, content: accumulated } : m
+                )
+              );
+            }
+          },
+          onDone: () => {
+            setGuestLoading(false);
+          },
+          onError: () => {
+            setGuestMessages(prev => [
+              ...prev.filter(m => m.id !== tempId),
+              {
+                id: (Date.now() + 2).toString(),
+                type: 'bot',
+                content: 'Sorry, I encountered an error. Please try again.',
+                timestamp: new Date(),
+                error: true,
+              },
+            ]);
+            setGuestLoading(false);
+          },
+        }
+      );
+    } catch {
+      // Fail-safe redirect to signup if storage or stream fails repeatedly
+      router.push('/signup');
+    }
+  };
+
   const handleSendMessage = async (message: string) => {
+    // If not authenticated, use guest mode
+    if (!user?.id) {
+      await handleGuestSend(message);
+      return;
+    }
     if (!currentConversation) {
+      setPendingMessage(message);
       await startNewChat();
+      return;
     }
     await sendMessage(message);
   };
+
+  const isGuest = !user?.id;
+  const displayMessages = isGuest ? guestMessages : messages;
+  const displayLoading = isGuest ? guestLoading : isLoading;
+
+  // When a conversation becomes available and we have a queued message, send it
+  useEffect(() => {
+    const sendPending = async () => {
+      if (user?.id && currentConversation && pendingMessage) {
+        const toSend = pendingMessage;
+        setPendingMessage(null);
+        await sendMessage(toSend);
+      }
+    };
+    void sendPending();
+  }, [user?.id, currentConversation, pendingMessage, sendMessage]);
 
   // Removed handleNewChat and handleSelectConversation
 
   return (
     <div className={cn('h-full bg-white flex flex-col min-h-0', className)}>
-      {messages.length === 0 ? (
+      {displayMessages.length === 0 ? (
         /* ChatGPT-style welcome screen - Scrollable */
         <div className='flex-1 overflow-y-auto'>
           <div className='flex flex-col items-center justify-center min-h-full px-4 py-8'>
@@ -86,7 +205,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
             <div className='w-full max-w-3xl mb-8'>
               <ChatInput
                 onSendMessage={handleSendMessage}
-                isLoading={isLoading}
+                isLoading={displayLoading}
                 placeholder='Message OwlAI...'
                 className='w-full'
               />
@@ -102,8 +221,8 @@ export function ChatContainer({ className }: ChatContainerProps) {
           {/* Messages Area - Scrollable */}
           <div className='flex-1 overflow-y-auto min-h-0'>
             <ChatMessages
-              messages={messages}
-              isLoading={isLoading}
+              messages={displayMessages}
+              isLoading={displayLoading}
               onRetry={retryLastMessage}
               onEdit={updateMessage}
               onFeedback={addFeedback}
@@ -118,7 +237,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
           <div className='flex-shrink-0 pb-6 pt-4 bg-white border-t border-gray-100 safe-bottom'>
             <ChatInput
               onSendMessage={handleSendMessage}
-              isLoading={isLoading}
+              isLoading={displayLoading}
               placeholder='Message OwlAI...'
               cooldownMs={cooldownMs}
             />
