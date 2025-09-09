@@ -8,7 +8,7 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { getAuth, Auth, connectAuthEmulator } from "firebase/auth";
+import { getAuth, Auth, connectAuthEmulator, setPersistence, browserLocalPersistence } from "firebase/auth";
 import {
   getStorage,
   FirebaseStorage,
@@ -63,6 +63,11 @@ if (getApps().length === 0) {
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);
+
+// Configure auth persistence to keep users logged in
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.warn('Failed to set auth persistence:', error);
+});
 
 // Development environment setup
 if (process.env.NODE_ENV === "development") {

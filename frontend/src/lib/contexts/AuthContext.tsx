@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [chatUser, setChatUser] = useState<ClientUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<RecaptchaVerifier | null>(null);
 
@@ -90,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
       setUser(user);
 
       if (user) {
@@ -97,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Create or update user profile in Firestore
           const profile = await createUserProfile(user);
           setUserProfile(profile);
+          console.log('User profile loaded:', profile.displayName);
         } catch (error) {
           console.error("Error managing user profile:", error);
           setUserProfile(null);
@@ -106,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setChatUser(null);
       }
 
+      setAuthInitialized(true);
       setLoading(false);
     });
 

@@ -12,7 +12,10 @@ export default function Home() {
   useEffect(() => {
     // If user is authenticated, redirect to chat
     if (user && !loading) {
+      console.log('User is authenticated, redirecting to chat...');
       router.push("/chat");
+    } else if (!loading && !user) {
+      console.log('User is not authenticated, showing landing page');
     }
   }, [user, loading, router]);
 
