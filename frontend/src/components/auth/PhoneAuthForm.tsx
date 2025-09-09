@@ -34,6 +34,8 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
+  const [lastRequestTime, setLastRequestTime] = useState<number>(0);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
 
   useEffect(() => {
     // Initialize reCAPTCHA verifier with improved timing
@@ -115,12 +117,39 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         delete window.recaptchaVerifier;
       }
     };
-  }, [setRecaptchaVerifier]);
+  }, []); // Remove setRecaptchaVerifier dependency to prevent infinite re-renders
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check cooldown period (30 seconds between requests)
+    const now = Date.now();
+    const cooldownPeriod = 30000; // 30 seconds
+    const timeSinceLastRequest = now - lastRequestTime;
+    
+    if (timeSinceLastRequest < cooldownPeriod) {
+      const remainingTime = Math.ceil((cooldownPeriod - timeSinceLastRequest) / 1000);
+      setError(`Please wait ${remainingTime} seconds before trying again`);
+      setCooldownRemaining(remainingTime);
+      
+      // Start countdown
+      const countdown = setInterval(() => {
+        setCooldownRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(countdown);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      return;
+    }
+    
     setLoading(true);
     setError(null);
+    setCooldownRemaining(0);
+    setLastRequestTime(now);
 
     if (!phoneNumber.trim()) {
       setError("Please enter your phone number");
@@ -290,13 +319,18 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         >
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || cooldownRemaining > 0}
             className="w-full h-12 text-base font-medium"
           >
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Sending OTP...
+              </>
+            ) : cooldownRemaining > 0 ? (
+              <>
+                Wait {cooldownRemaining}s
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
               </>
             ) : (
               <>
