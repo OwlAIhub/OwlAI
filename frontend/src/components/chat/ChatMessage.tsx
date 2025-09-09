@@ -5,14 +5,14 @@ import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-  Check,
-  CheckCheck,
-  Clock,
-  Copy,
-  RotateCcw,
-  ThumbsDown,
-  ThumbsUp,
-  AlertCircle,
+    AlertCircle,
+    Check,
+    CheckCheck,
+    Clock,
+    Copy,
+    RotateCcw,
+    ThumbsDown,
+    ThumbsUp,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -101,7 +101,7 @@ export function ChatMessage({
           {isAI ? (
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20 p-1">
               <Image
-                src="/owl-ai-logo.png"
+                src="/apple-touch-icon.png"
                 alt="OwlAI"
                 width={32}
                 height={32}

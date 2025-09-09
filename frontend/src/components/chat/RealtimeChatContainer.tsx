@@ -5,15 +5,15 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Archive,
-  Check,
-  Edit3,
-  MessageCircle,
-  MoreHorizontal,
-  Pin,
-  Plus,
-  Search,
-  Trash2,
+    Archive,
+    Check,
+    Edit3,
+    MessageCircle,
+    MoreHorizontal,
+    Pin,
+    Plus,
+    Search,
+    Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRealtimeChat } from "../../hooks/useRealtimeChat";
@@ -23,11 +23,11 @@ import { cn } from "../../lib/utils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/buttons/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
@@ -556,7 +556,7 @@ export function RealtimeChatContainer({
           <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto text-center">
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6">
               <img
-                src="/owl-ai-logo.png"
+                src="/apple-touch-icon.png"
                 alt="OwlAI Logo"
                 className="w-full h-full object-contain"
               />

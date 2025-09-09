@@ -3,45 +3,45 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/buttons/button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { chatService } from "@/lib/services/chatService";
 import {
-  OnboardingProfile,
-  getOnboardingProfile,
+    OnboardingProfile,
+    getOnboardingProfile,
 } from "@/lib/services/onboardingService";
 import { ClientChatSession } from "@/lib/types/chat";
 import {
-  ChevronRight,
-  History,
-  LogOut,
-  MessageCircle,
-  MoreHorizontal,
-  Pin,
-  Plus,
-  User,
+    ChevronRight,
+    History,
+    LogOut,
+    MessageCircle,
+    MoreHorizontal,
+    Pin,
+    Plus,
+    User,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -157,7 +157,7 @@ export function ChatSidebar() {
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center">
             <Image
-              src="/owl-ai-logo.png"
+              src="/apple-touch-icon.png"
               alt="OwlAI"
               width={32}
               height={32}

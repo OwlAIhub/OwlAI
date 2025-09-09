@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 export interface TypingIndicatorProps {
@@ -25,7 +25,7 @@ export function TypingIndicator({
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center p-1">
           <Image
-            src="/owl-ai-logo.png"
+            src="/apple-touch-icon.png"
             alt="OwlAI"
             width={32}
             height={32}
