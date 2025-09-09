@@ -54,7 +54,7 @@ export default function ChatPage() {
         <ChatSidebar />
         <SidebarInset className="h-full">
         {/* Main Content */}
-        <div className="flex-1 bg-white relative flex flex-col h-full overflow-hidden" style={{ height: '100vh' }}>
+        <div className="flex-1 bg-white relative flex flex-col h-full">
           {/* Floating Sidebar Toggle */}
           <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
             <SidebarTrigger className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:shadow-md transition-all duration-200 rounded-md flex items-center justify-center">
@@ -66,7 +66,15 @@ export default function ChatPage() {
            <div className='relative z-10 flex-1 flex flex-col w-full h-full max-w-none sm:max-w-4xl sm:mx-auto px-2 sm:px-0'>
              {/* Messages Area - Scrollable */}
              <div 
-               className='flex-1 scrollbar-thin chat-scroll-container px-2 sm:px-4 py-4 sm:py-6 min-h-0' 
+               className='flex-1 scrollbar-thin px-2 sm:px-4 py-4 sm:py-6 min-h-0'
+               style={{
+                 height: 'calc(100vh - 120px)',
+                 overflowY: 'scroll',
+                 overflowX: 'hidden',
+                 WebkitOverflowScrolling: 'touch',
+                 scrollBehavior: 'smooth',
+                 touchAction: 'pan-y'
+               }}
                tabIndex={0}
              >
               {messages.length === 0 ? (
