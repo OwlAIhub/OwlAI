@@ -579,22 +579,26 @@ class ChatService {
   }
 
   // Error Handling
-  private handleError(error: unknown, message: string): ChatError {
+  private handleError(error: unknown, message: string): never {
     console.error(message, error);
 
+    let chatError: ChatError;
+    
     if (error instanceof Error) {
-      return {
+      chatError = {
         code: "FIRESTORE_ERROR",
         message: `${message}: ${error.message}`,
         details: { originalError: error.message },
       };
+    } else {
+      chatError = {
+        code: "UNKNOWN_ERROR",
+        message,
+        details: { error },
+      };
     }
-
-    return {
-      code: "UNKNOWN_ERROR",
-      message,
-      details: { error },
-    };
+    
+    throw chatError;
   }
 }
 
