@@ -69,8 +69,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: "/owl-ai-logo.png",
-    shortcut: "/owl-ai-logo.png",
+    icon: "/apple-touch-icon.png",
+    shortcut: "/apple-touch-icon.png",
     apple: "/apple-touch-icon.png",
   },
   other: {
@@ -92,17 +92,17 @@ export default function RootLayout({
       <head>
         <link
           rel="icon"
-          href="/owl-ai-logo.png"
+          href="/apple-touch-icon.png"
           type="image/png"
           sizes="32x32"
         />
         <link
           rel="icon"
-          href="/owl-ai-logo.png"
+          href="/apple-touch-icon.png"
           type="image/png"
           sizes="16x16"
         />
-        <link rel="shortcut icon" href="/owl-ai-logo.png" type="image/png" />
+        <link rel="shortcut icon" href="/apple-touch-icon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0D9488" />

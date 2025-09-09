@@ -77,7 +77,7 @@ export function Footer() {
               <div className="flex items-center space-x-3">
                 <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white/10 ring-1 ring-white/20">
                   <Image
-                    src="/owl-ai-logo.png"
+                    src="/apple-touch-icon.png"
                     alt="Owl AI"
                     fill
                     sizes="40px"

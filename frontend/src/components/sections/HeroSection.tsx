@@ -79,12 +79,12 @@ export function HeroSection() {
               transition={{ duration: 0.2 }}
             >
               <ResponsiveImage
-                src="/owl-ai-logo.png"
-                alt="Owl AI - Your Personal AI Study Partner"
-                className="w-6 h-6 md:w-8 md:h-8"
-                loading="eager"
-                priority={true}
-              />
+                    src="/apple-touch-icon.png"
+                    alt="Owl AI - Your Personal AI Study Partner"
+                    className="w-6 h-6 md:w-8 md:h-8"
+                    loading="eager"
+                    priority={true}
+                  />
               <span className="hidden sm:inline">Owl AI</span>
             </motion.a>
 
@@ -241,12 +241,12 @@ export function HeroSection() {
               className="mb-6 md:mb-8"
             >
               <ResponsiveImage
-                src="/owl-ai-logo.png"
-                alt="Owl AI - Your Personal AI Study Partner"
-                className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4"
-                loading="eager"
-                priority={true}
-              />
+              src="/apple-touch-icon.png"
+              alt="Owl AI - Your Personal AI Study Partner"
+              className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4"
+              loading="eager"
+              priority={true}
+            />
             </motion.div>
 
             {/* Badge */}

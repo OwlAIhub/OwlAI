@@ -78,7 +78,7 @@ export function ChatMessage({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
       className={cn(
-        "group relative px-6 py-8 transition-all duration-150",
+        "group relative px-3 sm:px-6 py-4 sm:py-8 transition-all duration-150",
         isUser
           ? "bg-transparent"
           : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60"
@@ -87,38 +87,38 @@ export function ChatMessage({
       onMouseLeave={() => setShowActions(false)}
     >
       <div className={cn(
-        "max-w-5xl mx-auto flex gap-6",
+        "max-w-5xl mx-auto flex gap-3 sm:gap-6",
         isUser && "flex-row-reverse"
       )}>
         {/* Avatar */}
         <div className={cn(
           "flex-shrink-0 mt-1",
-          isUser && "ml-4"
+          isUser && "ml-2 sm:ml-4"
         )}>
           {isAI ? (
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17C15.24 5.06 14.32 5 13.4 5C10.2 5 7.13 5.69 4.42 7.01C2.84 7.76 2 9.38 2 11.13V20C2 21.1 2.9 22 4 22H8V19H4V11.13C4 10.76 4.18 10.42 4.5 10.26C6.71 9.2 9.5 8.5 12.4 8.5C13.13 8.5 13.85 8.54 14.56 8.62L12 11.18V22H20C21.1 22 22 21.1 22 20V9H21Z" />
               </svg>
             </div>
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
-              <span className="text-white text-sm font-semibold">You</span>
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
+              <span className="text-white text-xs sm:text-sm font-semibold">You</span>
             </div>
           )}
         </div>
 
         {/* Message Content */}
         <div className={cn(
-          "flex-1 min-w-0 max-w-4xl",
+          "flex-1 min-w-0 max-w-full sm:max-w-4xl",
           isUser && "text-right"
         )}>
           {/* Message Header */}
           <div className={cn(
-            "flex items-center gap-3 mb-3",
+            "flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3",
             isUser && "flex-row-reverse justify-start"
           )}>
-            <span className="text-base font-bold text-gray-900 tracking-tight">
+            <span className="text-sm sm:text-base font-bold text-gray-900 tracking-tight">
               {isAI ? "OwlAI Learning Assistant" : "You"}
             </span>
             <span className="text-xs text-gray-500 font-medium">

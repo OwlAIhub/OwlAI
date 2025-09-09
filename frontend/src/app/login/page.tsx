@@ -58,7 +58,7 @@ export default function LoginPage() {
                 className="flex items-center justify-center mb-4"
               >
                 <ResponsiveImage
-                  src="/owl-ai-logo.png"
+                  src="/apple-touch-icon.png"
                   alt="Owl AI"
                   className="w-12 h-12"
                   loading="eager"

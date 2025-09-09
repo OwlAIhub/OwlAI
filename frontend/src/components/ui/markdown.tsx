@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js';
+import 'katex/dist/katex.min.css';
+import { Check, ChevronDown, ChevronUp, X } from 'lucide-react';
+import mermaid from 'mermaid';
+import React, { useEffect, useState } from 'react';
+import { Bar, Line, Pie } from 'react-chartjs-2';
 import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement, PointElement } from 'chart.js';
-import { Bar, Pie, Line } from 'react-chartjs-2';
-import mermaid from 'mermaid';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
-import 'katex/dist/katex.min.css';
 
 // Register Chart.js components
 ChartJS.register(
@@ -107,7 +108,7 @@ function MCQComponent({ question, options, correctAnswer, explanation }: MCQProp
           </button>
         ))}
       </div>
-      
+
       {!showResult && (
         <Button
           onClick={handleSubmit}
@@ -117,7 +118,7 @@ function MCQComponent({ question, options, correctAnswer, explanation }: MCQProp
           Submit Answer
         </Button>
       )}
-      
+
       {showResult && (
         <div className='mt-4'>
           <div className={cn(
@@ -143,7 +144,7 @@ function MCQComponent({ question, options, correctAnswer, explanation }: MCQProp
               </p>
             )}
           </div>
-          
+
           {explanation && (
             <div>
               <Button
@@ -261,7 +262,7 @@ function parseSpecialBlocks(content: string) {
     const options: string[] = [];
     let correctAnswer = 0;
     let explanation = '';
-    
+
     let i = 1;
     while (i < lines.length && lines[i].match(/^[A-D]\)/)) {
       const option = lines[i].replace(/^[A-D]\)\s*/, '');
@@ -273,11 +274,11 @@ function parseSpecialBlocks(content: string) {
       }
       i++;
     }
-    
+
     if (i < lines.length && lines[i].startsWith('Explanation:')) {
       explanation = lines[i].replace('Explanation:', '').trim();
     }
-    
+
     const componentKey = `mcq-${componentIndex++}`;
     components[componentKey] = (
       <MCQComponent
@@ -288,7 +289,7 @@ function parseSpecialBlocks(content: string) {
         explanation={explanation}
       />
     );
-    
+
     return `__COMPONENT_${componentKey}__`;
   });
 
@@ -334,7 +335,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                const componentKey = text.slice(12, -2);
                return components[componentKey] || <p>{children}</p>;
              }
-             
+
              // Educational content styling with unique fonts and colors
              if (text.startsWith('Definition:')) {
                return (
@@ -345,7 +346,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              if (text.startsWith('Key Points:')) {
                return (
                  <div className='bg-green-50 border-l-4 border-green-500 p-4 my-4 rounded-r-lg'>
@@ -355,17 +356,17 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              if (text.startsWith('Example:')) {
                return (
                  <div className='bg-yellow-50 border-l-4 border-yellow-500 p-4 my-4 rounded-r-lg'>
-                   <p className='text-yellow-900 text-base leading-7 font-mono text-sm'>
+                   <p className='text-yellow-900 text-base leading-7 font-mono'>
                      {children}
                    </p>
                  </div>
                );
              }
-             
+
              if (text.startsWith('Important:') || text.startsWith('Note:')) {
                return (
                  <div className='bg-red-50 border-l-4 border-red-500 p-4 my-4 rounded-r-lg'>
@@ -375,7 +376,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              if (text.startsWith('Summary:') || text.startsWith('Conclusion:')) {
                return (
                  <div className='bg-purple-50 border-l-4 border-purple-500 p-4 my-4 rounded-r-lg'>
@@ -385,7 +386,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              if (text.startsWith('Topic:')) {
                return (
                  <div className='bg-indigo-50 border-l-4 border-indigo-500 p-4 my-4 rounded-r-lg'>
@@ -395,7 +396,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              // Enhanced paragraph with numerical data detection
              if (text.match(/\d+[%]|\d+\.\d+|\d+,\d+|\d+\s*(years?|months?|days?|hours?|minutes?|seconds?)/i)) {
                return (
@@ -406,7 +407,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              // Enhanced paragraph with question detection
              if (text.match(/^(what|how|why|when|where|which|who)\s/i) || text.endsWith('?')) {
                return (
@@ -417,7 +418,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              // Enhanced paragraph with step detection
              if (text.match(/^(step|stage|phase|level)\s*\d+/i) || text.match(/^\d+[.)]/)) {
                return (
@@ -428,10 +429,10 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </div>
                );
              }
-             
+
              return <p className='text-gray-900 text-base leading-7 mb-5 last:mb-0'>{children}</p>;
            },
-          
+
           // Headers with educational styling
            h1: ({ children }) => (
              <div className='bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-lg my-6 shadow-lg'>
@@ -461,7 +462,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                </h4>
              </div>
            ),
-          
+
           // Lists with educational styling
            ul: ({ children }) => (
              <div className='bg-gray-50 p-4 rounded-lg my-4 border-l-4 border-blue-400'>
@@ -483,14 +484,14 @@ export function Markdown({ content, className }: MarkdownProps) {
                <span className='flex-1'>{children}</span>
              </li>
            ),
-          
+
           // Enhanced Code blocks
            code: (props) => {
              const { children, className } = props;
              const match = /language-(\w+)/.exec(className || '');
              const language = match ? match[1] : '';
              const isInline = !match;
-             
+
              if (isInline) {
                return (
                  <code className='bg-gradient-to-r from-purple-100 to-pink-100 text-purple-900 px-3 py-1 rounded-md text-sm font-mono border border-purple-200 shadow-sm'>
@@ -498,7 +499,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </code>
                );
              }
-             
+
              return (
                <div className='my-6 border-2 border-gray-300 rounded-xl shadow-lg overflow-hidden'>
                  <div className='bg-gradient-to-r from-gray-800 to-gray-900 text-white p-3 flex items-center justify-between'>
@@ -517,7 +518,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                </div>
              );
            },
-          
+
           // Enhanced Tables for educational data
            table: ({ children }) => (
              <div className='overflow-x-auto my-6 border-2 border-indigo-200 rounded-xl shadow-lg bg-white'>
@@ -540,18 +541,18 @@ export function Markdown({ content, className }: MarkdownProps) {
            td: ({ children }) => {
              const text = children?.toString() || '';
              const hasNumbers = text.match(/\d+[%]|\d+\.\d+|\d+,\d+/);
-             
+
              return (
                <td className={`px-6 py-4 text-sm border-b border-indigo-100 ${
-                 hasNumbers 
-                   ? 'text-indigo-900 font-semibold bg-indigo-25' 
+                 hasNumbers
+                   ? 'text-indigo-900 font-semibold bg-indigo-25'
                    : 'text-gray-900'
                }`}>
                  {hasNumbers ? `📊 ${children}` : children}
                </td>
              );
            },
-          
+
           // Blockquotes with educational styling
            blockquote: ({ children }) => (
              <div className='relative bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 p-6 my-6 rounded-r-lg shadow-md'>
@@ -562,7 +563,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                <div className='absolute bottom-2 right-2 text-amber-500 text-3xl font-serif transform rotate-180'>&rdquo;</div>
              </div>
            ),
-          
+
           // Links
           a: ({ children, href }) => (
             <a
@@ -574,13 +575,13 @@ export function Markdown({ content, className }: MarkdownProps) {
               {children}
             </a>
           ),
-          
+
           // Strong and emphasis
            strong: ({ children }) => {
              const text = children?.toString() || '';
              const educationalKeywords = ['Topic:', 'Definition:', 'Detailed Explanation:', 'Key Points:', 'Summary:', 'Conclusion:', 'Example:', 'Note:', 'Important:', 'Remember:', 'Tip:'];
              const isEducationalKeyword = educationalKeywords.some(keyword => text.includes(keyword));
-             
+
              if (isEducationalKeyword) {
                return (
                  <strong className='font-bold text-primary'>
@@ -588,7 +589,7 @@ export function Markdown({ content, className }: MarkdownProps) {
                  </strong>
                );
              }
-             
+
              return <strong className='font-bold text-gray-900'>{children}</strong>;
            },
            em: ({ children }) => (

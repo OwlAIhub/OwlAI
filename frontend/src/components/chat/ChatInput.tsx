@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Send, Mic, Square, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CompactTypingIndicator } from "./TypingIndicator";
 
 export interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -56,32 +55,18 @@ export function ChatInput({
   const isOverLimit = message.length > maxLength;
 
   return (
-    <div className={cn("border-t border-gray-100 bg-white", className)}>
-      {/* Loading Indicator */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="px-4 py-2 border-b border-gray-100"
-          >
-            <CompactTypingIndicator />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+    <div className={cn("border-t border-gray-100 bg-white safe-bottom", className)}>
       {/* Input Area */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <form onSubmit={handleSubmit} className="relative">
           <div
             className={cn(
-              "relative flex items-end gap-3 p-3 border rounded-2xl transition-all duration-200",
+              "relative flex items-end gap-2 sm:gap-3 p-2 sm:p-3 border rounded-xl sm:rounded-2xl transition-all duration-200",
               isFocused
                 ? "border-primary shadow-sm ring-1 ring-primary/20"
                 : "border-gray-200 hover:border-gray-300",
               disabled && "opacity-50 cursor-not-allowed",
-              isOverLimit && "border-red-300 ring-1 ring-red-200",
+              isOverLimit && "border-red-300 ring-red-200",
             )}
           >
             {/* Attachment Button */}
@@ -89,10 +74,10 @@ export function ChatInput({
               type="button"
               variant="ghost"
               size="sm"
-              className="flex-shrink-0 h-8 w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="flex-shrink-0 h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               disabled={disabled}
             >
-              <Paperclip className="w-4 h-4" />
+              <Paperclip className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
 
             {/* Text Input */}
@@ -142,10 +127,10 @@ export function ChatInput({
               type="button"
               variant="ghost"
               size="sm"
-              className="flex-shrink-0 h-8 w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="flex-shrink-0 h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               disabled={disabled}
             >
-              <Mic className="w-4 h-4" />
+              <Mic className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
 
             {/* Send Button */}
@@ -161,16 +146,16 @@ export function ChatInput({
                 size="sm"
                 disabled={!canSend || isOverLimit}
                 className={cn(
-                  "flex-shrink-0 h-8 w-8 p-0 transition-all duration-200",
+                  "flex-shrink-0 h-7 w-7 sm:h-8 sm:w-8 p-0 transition-all duration-200",
                   canSend
                     ? "bg-primary hover:bg-primary/90 text-white shadow-sm"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed",
+                    : "bg-gray-100 cursor-not-allowed",
                 )}
               >
                 {loading ? (
-                  <Square className="w-4 h-4" />
+                  <Square className="w-3 h-3 sm:w-4 sm:h-4" />
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 )}
               </Button>
             </motion.div>
