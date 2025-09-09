@@ -6,10 +6,13 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Check,
+  CheckCheck,
+  Clock,
   Copy,
   RotateCcw,
   ThumbsDown,
   ThumbsUp,
+  AlertCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -18,7 +21,7 @@ export interface ChatMessageProps {
   content: string;
   sender: "user" | "ai";
   timestamp: Date;
-  status?: "sending" | "sent" | "error";
+  status?: "sending" | "sent" | "delivered" | "read" | "error";
   onCopy?: (content: string) => void;
   onRegenerate?: (messageId: string) => void;
   onFeedback?: (messageId: string, type: "like" | "dislike") => void;
@@ -126,23 +129,35 @@ export function ChatMessage({
             <span className="text-xs text-gray-500 font-medium">
               {formatTime(timestamp)}
             </span>
+            {/* Enhanced Status Indicators */}
             {status === "sending" && (
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}} />
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}} />
-                </div>
-                <span className="font-medium">Thinking...</span>
+                <Clock className="w-3 h-3 animate-pulse" />
+                <span>Sending...</span>
+              </div>
+            )}
+            {status === "sent" && (
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Check className="w-3 h-3" />
+                <span>Sent</span>
+              </div>
+            )}
+            {status === "delivered" && (
+              <div className="flex items-center gap-1 text-xs text-blue-600">
+                <CheckCheck className="w-3 h-3" />
+                <span>Delivered</span>
+              </div>
+            )}
+            {status === "read" && (
+              <div className="flex items-center gap-1 text-xs text-green-600">
+                <CheckCheck className="w-3 h-3 text-green-600" />
+                <span>Read</span>
               </div>
             )}
             {status === "error" && (
-              <span className="text-xs text-red-600 font-semibold bg-red-50 px-2 py-1 rounded-full">Failed to send</span>
-            )}
-            {status === "sent" && isUser && (
-              <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                <Check className="w-3 h-3" />
-                <span>Delivered</span>
+              <div className="flex items-center gap-1 text-xs text-red-500">
+                <AlertCircle className="w-3 h-3" />
+                <span>Failed to send</span>
               </div>
             )}
           </div>

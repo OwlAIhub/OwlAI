@@ -10,16 +10,19 @@ import {
   ConfirmationResult,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth } from "../firebase/config";
 import {
   createUserProfile,
   getUserProfile,
   UserProfile,
 } from "../services/userService";
+import { chatService } from "../services/chatService";
+import { ClientUser } from "../types/chat";
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  chatUser: ClientUser | null;
   loading: boolean;
   signInWithPhone: (phoneNumber: string) => Promise<ConfirmationResult>;
   verifyOTP: (
@@ -30,6 +33,7 @@ interface AuthContextType {
   recaptchaVerifier: RecaptchaVerifier | null;
   setRecaptchaVerifier: (verifier: RecaptchaVerifier | null) => void;
   refreshUserProfile: () => Promise<void>;
+  initializeChatUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,9 +41,46 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [chatUser, setChatUser] = useState<ClientUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<RecaptchaVerifier | null>(null);
+
+  // Initialize chat user in Firestore
+  const initializeChatUser = async (): Promise<void> => {
+    if (!user || !userProfile) return;
+
+    try {
+      // Check if chat user already exists
+      let existingChatUser = await chatService.getUser(user.uid);
+      
+      if (!existingChatUser) {
+        // Create new chat user from auth user and profile
+         await chatService.createUser(user.uid, {
+           id: user.uid,
+           email: user.email || userProfile.email || '',
+           displayName: user.displayName || userProfile.displayName || 'User',
+           photoURL: user.photoURL || userProfile.photoURL,
+           preferences: {
+             theme: 'light',
+             notifications: true,
+             autoSave: true,
+           },
+           subscription: {
+             plan: 'free',
+             features: ['basic_chat', 'limited_sessions'],
+           },
+         });
+        
+        // Fetch the newly created user
+        existingChatUser = await chatService.getUser(user.uid);
+      }
+      
+      setChatUser(existingChatUser);
+    } catch (error) {
+      console.error('Error initializing chat user:', error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -56,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         setUserProfile(null);
+        setChatUser(null);
       }
 
       setLoading(false);
@@ -63,6 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, []);
+
+  // Initialize chat user when user and profile are ready
+  useEffect(() => {
+    if (user && userProfile && !chatUser) {
+      initializeChatUser();
+    }
+  }, [user, userProfile, chatUser]);
 
   const signInWithPhone = async (
     phoneNumber: string,
@@ -98,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async (): Promise<void> => {
     try {
+      setChatUser(null);
       await firebaseSignOut(auth);
     } catch (error) {
       console.error("Error signing out:", error);
@@ -119,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextType = {
     user,
     userProfile,
+    chatUser,
     loading,
     signInWithPhone,
     verifyOTP,
@@ -126,6 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     recaptchaVerifier,
     setRecaptchaVerifier,
     refreshUserProfile,
+    initializeChatUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
