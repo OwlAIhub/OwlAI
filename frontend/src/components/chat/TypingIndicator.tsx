@@ -22,14 +22,12 @@ export function TypingIndicator({
     >
       {/* AI Avatar */}
       <div className="flex-shrink-0">
-        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-          <svg
-            className="w-5 h-5 text-white"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17C15.24 5.06 14.32 5 13.4 5C10.2 5 7.13 5.69 4.42 7.01C2.84 7.76 2 9.38 2 11.13V20C2 21.1 2.9 22 4 22H8V19H4V11.13C4 10.76 4.18 10.42 4.5 10.26C6.71 9.2 9.5 8.5 12.4 8.5C13.13 8.5 13.85 8.54 14.56 8.62L12 11.18V22H20C21.1 22 22 21.1 22 20V9H21Z" />
-          </svg>
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center p-1">
+          <img
+            src="/owl-ai-logo.png"
+            alt="OwlAI"
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 
