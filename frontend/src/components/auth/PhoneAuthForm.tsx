@@ -165,6 +165,16 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       return;
     }
 
+    // Check for test phone numbers (for development)
+    const testPhoneNumbers = ["+1234567890", "+9876543210"];
+    const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`;
+    
+    if (testPhoneNumbers.includes(formattedPhone)) {
+      setError("Test phone numbers are not supported in production. Please use a real phone number.");
+      setLoading(false);
+      return;
+    }
+
     // Wait for reCAPTCHA to be ready
     let retries = 0;
     const maxRetries = 10;
