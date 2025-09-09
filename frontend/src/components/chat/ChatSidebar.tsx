@@ -27,11 +27,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { chatService } from "@/lib/services/chatService";
 import {
   OnboardingProfile,
   getOnboardingProfile,
 } from "@/lib/services/onboardingService";
-import { chatService } from "@/lib/services/chatService";
 import { ClientChatSession } from "@/lib/types/chat";
 import {
   ChevronRight,
@@ -44,9 +44,8 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 // Helper function to format timestamp
 const formatTimestamp = (date: Date): string => {
@@ -93,7 +92,7 @@ export function ChatSidebar() {
     loadOnboardingProfile();
   }, [user?.uid]);
 
-  // Load chat sessions (simplified)
+  // Load chat sessions with proper error handling
   useEffect(() => {
     if (!user?.uid) {
       setChatSessions([]);
@@ -104,18 +103,21 @@ export function ChatSidebar() {
     const loadSessions = async () => {
       try {
         setLoading(true);
+        console.log('Loading sessions for user:', user.uid);
         const response = await chatService.getChatSessions(user.uid);
-        setChatSessions(response.data);
+        console.log('Sessions loaded:', response.data);
+        setChatSessions(response.data || []);
       } catch (error) {
         console.error('Error loading sessions:', error);
         setChatSessions([]);
+        // Don't throw the error, just log it and continue
       } finally {
         setLoading(false);
       }
     };
 
     loadSessions();
-  }, [user?.uid]);
+  }, [user?.uid]); // Only depend on user.uid to avoid infinite loops
 
   const handleSignOut = async () => {
     try {
@@ -208,7 +210,7 @@ export function ChatSidebar() {
                       No chat sessions yet
                     </div>
                   ) : (
-                    chatSessions.map((session) => (
+                    chatSessions && chatSessions.length > 0 ? chatSessions.map((session) => (
                       <SidebarMenuItem key={session.id}>
                         <SidebarMenuButton
                           className={`h-auto p-2 ${
@@ -236,7 +238,11 @@ export function ChatSidebar() {
                           </div>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                    ))
+                    )) : (
+                      <div className="text-center p-4 text-muted-foreground text-sm">
+                        Loading sessions...
+                      </div>
+                    )
                   )}
                 </SidebarMenu>
               </SidebarGroupContent>
