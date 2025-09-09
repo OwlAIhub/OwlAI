@@ -66,13 +66,20 @@ export default function ChatPage() {
            <div className='relative z-10 flex-1 flex flex-col w-full h-full max-w-none sm:max-w-4xl sm:mx-auto px-2 sm:px-0'>
              {/* Messages Area - Scrollable */}
              <div 
-               className='flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-4 py-4 sm:py-6 min-h-0'
+               id="messages-container"
+               className='flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-4 py-4 sm:py-6 min-h-0 relative'
                style={{
                  height: 'calc(100vh - 120px)',
                  scrollbarWidth: 'thin',
-                 scrollbarColor: 'rgba(156, 163, 175, 0.4) transparent'
+                 scrollbarColor: 'rgba(156, 163, 175, 0.4) transparent',
+                 paddingRight: '16px',
+                 WebkitOverflowScrolling: 'touch',
+                 scrollBehavior: 'smooth',
+                 touchAction: 'auto',
+                 overscrollBehavior: 'auto'
                }}
-               tabIndex={0}
+               onWheel={(e) => e.stopPropagation()}
+               onTouchMove={(e) => e.stopPropagation()}
              >
               {messages.length === 0 ? (
                 /* Welcome Content */

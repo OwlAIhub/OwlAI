@@ -236,14 +236,17 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     const scrollToBottom = () => {
-      const chatContainer = document.getElementById("chat-messages-container");
+      const chatContainer = document.getElementById("messages-container");
       if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     };
 
     // Scroll after a short delay to ensure DOM is updated
-    const timeoutId = setTimeout(scrollToBottom, 100);
+    const timeoutId = setTimeout(scrollToBottom, 150);
     return () => clearTimeout(timeoutId);
   }, [messages]);
 
