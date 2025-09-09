@@ -89,12 +89,12 @@ export function ChatContainer({
               transition={{ duration: 0.5 }}
               className="text-center mb-8 max-w-2xl"
             >
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 p-2">
+              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Image
                   src="/apple-touch-icon.png"
                   alt="OwlAI"
-                  width={48}
-                  height={48}
+                  width={64}
+                  height={64}
                   className="w-full h-full object-contain"
                   unoptimized
                 />
