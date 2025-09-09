@@ -148,10 +148,11 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                   onMessageReceived?.(aiMessage);
                 } else {
                   // Update existing message with new chunk
-                  updateMessage(aiMessage.id, {
-                    content: aiMessage.content + chunk,
+                  const currentMessage = aiMessage as ChatMessage;
+                  updateMessage(currentMessage.id, {
+                    content: currentMessage.content + chunk,
                     metadata: {
-                      ...aiMessage.metadata,
+                      ...currentMessage.metadata,
                       processingTime: Date.now() - startTime,
                     },
                   });
@@ -166,10 +167,11 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
             // Final update with complete response
             if (aiMessage && streamResponse.text) {
-              updateMessage(aiMessage.id, {
+              const currentMessage = aiMessage as ChatMessage;
+              updateMessage(currentMessage.id, {
                 content: streamResponse.text,
                 metadata: {
-                  ...(aiMessage.metadata || {}),
+                  ...(currentMessage.metadata || {}),
                   processingTime: Date.now() - startTime,
                 },
               });
