@@ -217,17 +217,7 @@ export function ChatContainer({
                 {messages.length} message{messages.length !== 1 ? "s" : ""}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearMessages}
-                className="text-gray-500 hover:text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Clear
-              </Button>
-            </div>
+
           </div>
         </div>
       )}
