@@ -1,17 +1,17 @@
 "use client";
 
-import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatContainer } from "@/components/chat/ChatContainer";
+import { ChatSidebar } from "@/components/chat/ChatSidebar";
+import { PerformanceMonitor } from "@/components/chat/PerformanceMonitor";
 import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { Menu } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
 function ChatContent() {
   const { user, loading, authError } = useAuth();
@@ -36,14 +36,14 @@ function ChatContent() {
           <p className="text-red-600 text-sm mb-4">{authError}</p>
           <p className="text-gray-600 text-xs">Please check your Firebase configuration and try again.</p>
           <div className="mt-4 space-x-2">
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Retry
             </button>
-            <button 
-              onClick={() => router.push('/')} 
+            <button
+              onClick={() => router.push('/')}
               className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
             >
               Go Home
@@ -79,7 +79,7 @@ function ChatContent() {
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <ChatSidebar />
-        
+
         {/* Main Chat Area */}
         <SidebarInset className="flex-1">
           <div className="flex h-full flex-col">
@@ -95,12 +95,12 @@ function ChatContent() {
 
             {/* Chat Container */}
             <div className="flex-1 min-h-0">
-              <ChatContainer 
+              <ChatContainer
                 className="h-full"
                 welcomeMessage="Hello! I'm your AI learning assistant. How can I help you study today?"
                 starterPrompts={[
                   "Research methodology for UGC NET",
-                  "UGC NET Paper 1 strategies", 
+                  "UGC NET Paper 1 strategies",
                   "30-day study plan for Economics",
                   "Teaching aptitude section tips"
                 ]}
@@ -109,6 +109,9 @@ function ChatContent() {
           </div>
         </SidebarInset>
       </div>
+
+      {/* Performance Monitor */}
+      <PerformanceMonitor />
     </SidebarProvider>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  sendMessage,
-  FlowiseResponse,
-  FlowiseError,
-} from "../lib/services/flowiseService";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/contexts/AuthContext";
+import {
+    FlowiseError,
+    sendMessage,
+    sendMessageStream
+} from "../lib/services/flowiseService";
 
 export interface ChatMessage {
   id: string;
@@ -27,6 +27,8 @@ export interface UseChatOptions {
   onMessageSent?: (message: ChatMessage) => void;
   onMessageReceived?: (message: ChatMessage) => void;
   maxRetries?: number;
+  useStreaming?: boolean;
+  useCache?: boolean;
 }
 
 export interface UseChatReturn {
@@ -46,7 +48,9 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     onError,
     onMessageSent,
     onMessageReceived,
-    maxRetries = 3,
+    maxRetries = 2, // Reduced from 3 for faster failure recovery
+    useStreaming = true, // Enable streaming by default for better UX
+    useCache = true, // Enable caching by default
   } = options;
 
   useAuth();
@@ -91,7 +95,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
   }, []);
 
-  // Send message to Flowise API
+  // Send message to Flowise API with streaming support
   const handleSendMessage = useCallback(
     async (content: string): Promise<void> => {
       if (!content.trim() || isLoading) return;
@@ -117,35 +121,108 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         // Show typing indicator
         setIsTyping(true);
 
-        // Send to Flowise API
         const startTime = Date.now();
-        const response: FlowiseResponse = await sendMessage(
-          content,
-          chatId || undefined,
-        );
-        const processingTime = Date.now() - startTime;
+        let aiMessage: ChatMessage | null = null;
 
-        // Update chat ID if provided
-        if (response.chatId && response.chatId !== chatId) {
-          setChatId(response.chatId);
+        if (useStreaming) {
+          // Use streaming for real-time response
+          try {
+            const streamResponse = await sendMessageStream(
+              content,
+              chatId || undefined,
+              (chunk: string) => {
+                // Update AI message with streaming content
+                if (!aiMessage) {
+                  aiMessage = addMessage({
+                    content: chunk,
+                    sender: "ai",
+                    timestamp: new Date(),
+                    status: "sent",
+                    metadata: {
+                      chatId: streamResponse.chatId,
+                      processingTime: Date.now() - startTime,
+                    },
+                  });
+                  onMessageReceived?.(aiMessage);
+                } else {
+                  // Update existing message with new chunk
+                  updateMessage(aiMessage.id, {
+                    content: aiMessage.content + chunk,
+                    metadata: {
+                      ...aiMessage.metadata,
+                      processingTime: Date.now() - startTime,
+                    },
+                  });
+                }
+              }
+            );
+
+            // Update chat ID if provided
+            if (streamResponse.chatId && streamResponse.chatId !== chatId) {
+              setChatId(streamResponse.chatId);
+            }
+
+            // Final update with complete response
+            if (aiMessage && streamResponse.text) {
+              updateMessage(aiMessage.id, {
+                content: streamResponse.text,
+                metadata: {
+                  ...aiMessage.metadata,
+                  processingTime: Date.now() - startTime,
+                },
+              });
+            }
+          } catch (streamError) {
+            console.warn("Streaming failed, falling back to regular request:", streamError);
+            // Fallback to regular request
+            const response = await sendMessage(content, chatId || undefined, useCache);
+            const processingTime = Date.now() - startTime;
+
+            if (response.chatId && response.chatId !== chatId) {
+              setChatId(response.chatId);
+            }
+
+            if (response.text) {
+              aiMessage = addMessage({
+                content: response.text,
+                sender: "ai",
+                timestamp: new Date(),
+                status: "sent",
+                metadata: {
+                  chatId: response.chatId,
+                  sourceDocuments: response.sourceDocuments,
+                  processingTime,
+                },
+              });
+              onMessageReceived?.(aiMessage);
+            }
+          }
+        } else {
+          // Use regular request
+          const response = await sendMessage(content, chatId || undefined, useCache);
+          const processingTime = Date.now() - startTime;
+
+          if (response.chatId && response.chatId !== chatId) {
+            setChatId(response.chatId);
+          }
+
+          if (response.text) {
+            aiMessage = addMessage({
+              content: response.text,
+              sender: "ai",
+              timestamp: new Date(),
+              status: "sent",
+              metadata: {
+                chatId: response.chatId,
+                sourceDocuments: response.sourceDocuments,
+                processingTime,
+              },
+            });
+            onMessageReceived?.(aiMessage);
+          }
         }
 
-        // Add AI response
-        if (response.text) {
-          const aiMessage = addMessage({
-            content: response.text,
-            sender: "ai",
-            timestamp: new Date(),
-            status: "sent",
-            metadata: {
-              chatId: response.chatId,
-              sourceDocuments: response.sourceDocuments,
-              processingTime,
-            },
-          });
-
-          onMessageReceived?.(aiMessage);
-        } else {
+        if (!aiMessage || !aiMessage.content) {
           throw new Error("No response text received from AI");
         }
 
@@ -167,12 +244,13 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         setError(errorMessage);
         onError?.(err as FlowiseError);
 
-        // Auto-retry logic
+        // Auto-retry logic with faster backoff
         if (retryCountRef.current < maxRetries) {
           retryCountRef.current++;
+          const delay = Math.min(500 * retryCountRef.current, 2000); // Faster retry: 500ms, 1s, 2s max
           setTimeout(() => {
             handleSendMessage(content);
-          }, 1000 * retryCountRef.current); // Exponential backoff
+          }, delay);
         }
       } finally {
         setIsLoading(false);
@@ -188,6 +266,8 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       onMessageReceived,
       onError,
       maxRetries,
+      useStreaming,
+      useCache,
     ],
   );
 
