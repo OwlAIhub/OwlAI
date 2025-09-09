@@ -41,52 +41,50 @@ export function TypingIndicator({
           <span className="text-xs text-gray-500">now</span>
         </div>
 
-        {/* Typing Bubble */}
-        <div className="relative max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-gray-200 shadow-sm">
-          <div className="flex items-center gap-2">
-            {/* Typing Animation */}
-            <div className="flex items-center gap-1">
-              <motion.div
-                className="w-2 h-2 bg-gray-400 rounded-full"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 1, 0.5],
-                }}
-                transition={{
-                  duration: 1.2,
-                  repeat: Infinity,
-                  delay: 0,
-                }}
-              />
-              <motion.div
-                className="w-2 h-2 bg-gray-400 rounded-full"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 1, 0.5],
-                }}
-                transition={{
-                  duration: 1.2,
-                  repeat: Infinity,
-                  delay: 0.2,
-                }}
-              />
-              <motion.div
-                className="w-2 h-2 bg-gray-400 rounded-full"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 1, 0.5],
-                }}
-                transition={{
-                  duration: 1.2,
-                  repeat: Infinity,
-                  delay: 0.4,
-                }}
-              />
-            </div>
-
-            {/* Typing Message */}
-            <span className="text-sm text-gray-500 ml-2">{message}</span>
+        {/* Clean Typing Indicator */}
+        <div className="flex items-center gap-2">
+          {/* Typing Animation */}
+          <div className="flex items-center gap-1">
+            <motion.div
+              className="w-2 h-2 bg-primary rounded-full"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: 0,
+              }}
+            />
+            <motion.div
+              className="w-2 h-2 bg-primary rounded-full"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: 0.2,
+              }}
+            />
+            <motion.div
+              className="w-2 h-2 bg-primary rounded-full"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: 0.4,
+              }}
+            />
           </div>
+
+          {/* Typing Message */}
+          <span className="text-sm text-gray-600 font-medium">{message}</span>
         </div>
       </div>
     </motion.div>
@@ -97,11 +95,11 @@ export function TypingIndicator({
 export function CompactTypingIndicator({ className }: { className?: string }) {
   return (
     <div
-      className={cn("flex items-center gap-2 text-sm text-gray-500", className)}
+      className={cn("flex items-center gap-2 text-sm text-gray-600", className)}
     >
       <div className="flex items-center gap-1">
         <motion.div
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+          className="w-1.5 h-1.5 bg-primary rounded-full"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.4, 1, 0.4],
@@ -113,7 +111,7 @@ export function CompactTypingIndicator({ className }: { className?: string }) {
           }}
         />
         <motion.div
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+          className="w-1.5 h-1.5 bg-primary rounded-full"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.4, 1, 0.4],
@@ -125,7 +123,7 @@ export function CompactTypingIndicator({ className }: { className?: string }) {
           }}
         />
         <motion.div
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+          className="w-1.5 h-1.5 bg-primary rounded-full"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.4, 1, 0.4],
@@ -137,7 +135,6 @@ export function CompactTypingIndicator({ className }: { className?: string }) {
           }}
         />
       </div>
-      <span>OwlAI is thinking...</span>
     </div>
   );
 }

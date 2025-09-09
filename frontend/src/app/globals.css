@@ -334,6 +334,17 @@ html {
      overscroll-behavior: contain;
      scroll-behavior: smooth;
    }
+   
+   /* Enhanced scrolling for chat containers */
+   .chat-scroll-container {
+     overflow-y: auto;
+     overflow-x: hidden;
+     -webkit-overflow-scrolling: touch;
+     overscroll-behavior-y: contain;
+     scroll-behavior: smooth;
+     touch-action: pan-y;
+     will-change: scroll-position;
+   }
   
   /* Smooth scrolling behavior */
   .scroll-smooth {

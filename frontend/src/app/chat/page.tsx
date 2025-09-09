@@ -54,7 +54,7 @@ export default function ChatPage() {
         <ChatSidebar />
         <SidebarInset className="h-full">
         {/* Main Content */}
-        <div className="flex-1 bg-white relative flex flex-col h-full overflow-hidden">
+        <div className="flex-1 bg-white relative flex flex-col h-full overflow-hidden" style={{ height: '100vh' }}>
           {/* Floating Sidebar Toggle */}
           <div className="absolute top-4 left-4 z-20">
             <SidebarTrigger className="h-10 w-10 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:shadow-md transition-all duration-200 rounded-md flex items-center justify-center">
@@ -65,7 +65,10 @@ export default function ChatPage() {
           {/* Chat Interface */}
            <div className='relative z-10 flex-1 flex flex-col max-w-4xl mx-auto w-full h-full'>
              {/* Messages Area - Scrollable */}
-             <div className='flex-1 scrollbar-thin px-4 py-6 min-h-0' tabIndex={0}>
+             <div 
+               className='flex-1 scrollbar-thin chat-scroll-container px-4 py-6 min-h-0' 
+               tabIndex={0}
+             >
               {messages.length === 0 ? (
                 /* Welcome Content */
                 <div className="flex flex-col items-center justify-center h-full max-w-3xl mx-auto">
