@@ -10,10 +10,10 @@ import {
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function ChatPage() {
+function ChatContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,7 +38,7 @@ export default function ChatPage() {
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <ChatSidebar />
-
+        
         {/* Main Chat Area */}
         <SidebarInset className="flex-1">
           <div className="flex h-full flex-col">
@@ -54,7 +54,7 @@ export default function ChatPage() {
 
             {/* Real-time Chat Container */}
             <div className="flex-1 min-h-0">
-              <RealtimeChatContainer
+              <RealtimeChatContainer 
                 sessionId={sessionId || undefined}
                 className="h-full"
               />
@@ -63,5 +63,17 @@ export default function ChatPage() {
         </SidebarInset>
       </div>
     </SidebarProvider>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
   );
 }
