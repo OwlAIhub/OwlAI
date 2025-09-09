@@ -1,15 +1,16 @@
 "use client";
 
-import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { ChatMessage } from "@/components/chat/ChatMessage";
+import { ChatSidebar } from "@/components/chat/ChatSidebar";
+import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/lib/contexts/AuthContext";
 import { useChat } from "@/hooks/useChat";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -48,11 +49,12 @@ export default function ChatPage() {
   }
 
   return (
-    <SidebarProvider>
-      <ChatSidebar />
-      <SidebarInset>
+    <div className="h-screen w-full bg-white overflow-hidden">
+      <SidebarProvider className="h-full">
+        <ChatSidebar />
+        <SidebarInset className="h-full">
         {/* Main Content */}
-        <div className="flex-1 bg-white relative flex flex-col">
+        <div className="flex-1 bg-white relative flex flex-col h-full overflow-hidden">
           {/* Floating Sidebar Toggle */}
           <div className="absolute top-4 left-4 z-20">
             <SidebarTrigger className="h-10 w-10 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:shadow-md transition-all duration-200 rounded-md flex items-center justify-center">
@@ -60,10 +62,10 @@ export default function ChatPage() {
             </SidebarTrigger>
           </div>
 
-          {/* ChatGPT-Style Interface */}
-          <div className="relative z-10 flex-1 flex flex-col max-w-4xl mx-auto w-full">
-            {/* Messages Area - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-4 py-6">
+          {/* Chat Interface */}
+           <div className='relative z-10 flex-1 flex flex-col max-w-4xl mx-auto w-full h-full'>
+             {/* Messages Area - Scrollable */}
+             <div className='flex-1 scrollbar-thin px-4 py-6 min-h-0' tabIndex={0}>
               {messages.length === 0 ? (
                 /* Welcome Content */
                 <div className="flex flex-col items-center justify-center h-full max-w-3xl mx-auto">
@@ -177,37 +179,7 @@ export default function ChatPage() {
 
                   {/* Typing Indicator */}
                   {isTyping && (
-                    <div className="flex gap-3 px-4">
-                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                        <svg
-                          className="w-5 h-5 text-white"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17C15.24 5.06 14.32 5 13.4 5C10.2 5 7.13 5.69 4.42 7.01C2.84 7.76 2 9.38 2 11.13V20C2 21.1 2.9 22 4 22H8V19H4V11.13C4 10.76 4.18 10.42 4.5 10.26C6.71 9.2 9.5 8.5 12.4 8.5C13.13 8.5 13.85 8.54 14.56 8.62L12 11.18V22H20C21.1 22 22 21.1 22 20V9H21Z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" />
-                              <div
-                                className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
-                                style={{ animationDelay: "0.2s" }}
-                              />
-                              <div
-                                className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
-                                style={{ animationDelay: "0.4s" }}
-                              />
-                            </div>
-                            <span className="text-sm text-gray-500 ml-2">
-                              OwlAI is thinking...
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <TypingIndicator />
                   )}
                 </div>
               )}
@@ -232,5 +204,6 @@ export default function ChatPage() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </div>
   );
 }

@@ -300,14 +300,44 @@ html {
     animation: collapsible-up 200ms ease-out;
   }
 
-  /* Hide scrollbars while maintaining scroll functionality */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+  /* Visible thin scrollbar for better UX */
+   .scrollbar-thin {
+     overflow-y: auto;
+     overflow-x: hidden;
+     -webkit-overflow-scrolling: touch;
+     overscroll-behavior-y: contain;
+     scroll-behavior: smooth;
+     scrollbar-width: thin;
+     scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+   }
+   
+   .scrollbar-thin::-webkit-scrollbar {
+     width: 6px;
+   }
+   
+   .scrollbar-thin::-webkit-scrollbar-track {
+     background: transparent;
+   }
+   
+   .scrollbar-thin::-webkit-scrollbar-thumb {
+     background: rgba(156, 163, 175, 0.4);
+     border-radius: 3px;
+   }
+   
+   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+     background: rgba(156, 163, 175, 0.6);
+   }
+   
+   /* Ensure proper touch scrolling on mobile and desktop */
+   .overflow-y-auto {
+     -webkit-overflow-scrolling: touch;
+     overscroll-behavior: contain;
+     scroll-behavior: smooth;
+   }
+  
+  /* Smooth scrolling behavior */
+  .scroll-smooth {
+    scroll-behavior: smooth;
   }
 }
 

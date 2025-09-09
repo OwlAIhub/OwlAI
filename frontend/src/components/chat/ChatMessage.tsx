@@ -1,23 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Markdown } from "@/components/ui/markdown";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import {
+  Check,
   Copy,
   RotateCcw,
-  ThumbsUp,
   ThumbsDown,
-  MoreHorizontal,
+  ThumbsUp,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 export interface ChatMessageProps {
   id: string;
@@ -80,177 +74,205 @@ export function ChatMessage({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
       className={cn(
-        "group flex gap-3 px-4 py-6 hover:bg-gray-50/50 transition-colors",
-        isUser && "flex-row-reverse",
+        "group relative px-6 py-8 transition-all duration-150",
+        isUser
+          ? "bg-transparent"
+          : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60"
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      {/* Avatar */}
-      <div className="flex-shrink-0">
-        {isAI ? (
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-white"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17C15.24 5.06 14.32 5 13.4 5C10.2 5 7.13 5.69 4.42 7.01C2.84 7.76 2 9.38 2 11.13V20C2 21.1 2.9 22 4 22H8V19H4V11.13C4 10.76 4.18 10.42 4.5 10.26C6.71 9.2 9.5 8.5 12.4 8.5C13.13 8.5 13.85 8.54 14.56 8.62L12 11.18V22H20C21.1 22 22 21.1 22 20V9H21Z" />
-            </svg>
-          </div>
-        ) : (
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-gray-300 text-gray-700 text-sm font-medium">
-              You
-            </AvatarFallback>
-          </Avatar>
-        )}
-      </div>
-
-      {/* Message Content */}
-      <div
-        className={cn("flex-1 min-w-0", isUser && "flex flex-col items-end")}
-      >
-        {/* Message Header */}
-        <div
-          className={cn(
-            "flex items-center gap-2 mb-1",
-            isUser && "flex-row-reverse",
-          )}
-        >
-          <span className="text-sm font-medium text-gray-900">
-            {isAI ? "OwlAI" : "You"}
-          </span>
-          <span className="text-xs text-gray-500">{formatTime(timestamp)}</span>
-          {status === "sending" && (
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" />
-              Sending...
+      <div className={cn(
+        "max-w-5xl mx-auto flex gap-6",
+        isUser && "flex-row-reverse"
+      )}>
+        {/* Avatar */}
+        <div className={cn(
+          "flex-shrink-0 mt-1",
+          isUser && "ml-4"
+        )}>
+          {isAI ? (
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L13.5 2.5L16.17 5.17C15.24 5.06 14.32 5 13.4 5C10.2 5 7.13 5.69 4.42 7.01C2.84 7.76 2 9.38 2 11.13V20C2 21.1 2.9 22 4 22H8V19H4V11.13C4 10.76 4.18 10.42 4.5 10.26C6.71 9.2 9.5 8.5 12.4 8.5C13.13 8.5 13.85 8.54 14.56 8.62L12 11.18V22H20C21.1 22 22 21.1 22 20V9H21Z" />
+              </svg>
+            </div>
+          ) : (
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
+              <span className="text-white text-sm font-semibold">You</span>
             </div>
           )}
-          {status === "error" && (
-            <span className="text-xs text-red-500">Failed to send</span>
-          )}
         </div>
 
-        {/* Message Bubble */}
-        <div
-          className={cn(
-            "relative max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
-            isUser
-              ? "bg-primary text-white ml-auto"
-              : "bg-white border border-gray-200 shadow-sm",
-            status === "error" && "bg-red-50 border-red-200 text-red-800",
-          )}
-        >
-          {/* Message Text */}
-          <div className="whitespace-pre-wrap break-words">{content}</div>
-
-          {/* Status Indicator for User Messages */}
-          {isUser && status === "sending" && (
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gray-300 rounded-full animate-pulse" />
-          )}
-          {isUser && status === "sent" && (
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
-          )}
-        </div>
-
-        {/* Message Actions */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{
-            opacity: showActions ? 1 : 0,
-            scale: showActions ? 1 : 0.95,
-          }}
-          transition={{ duration: 0.15 }}
-          className={cn(
-            "flex items-center gap-1 mt-2",
-            isUser ? "justify-end" : "justify-start",
-          )}
-        >
-          {/* Copy Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-            className="h-7 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-          >
-            <Copy className="w-3 h-3" />
-            {copied && <span className="ml-1 text-xs">Copied!</span>}
-          </Button>
-
-          {/* AI Message Actions */}
-          {isAI && (
-            <>
-              {/* Regenerate Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRegenerate}
-                className="h-7 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              >
-                <RotateCcw className="w-3 h-3" />
-              </Button>
-
-              {/* Feedback Buttons */}
-              <div className="flex items-center gap-1 ml-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleFeedback("like")}
-                  className={cn(
-                    "h-7 px-2 hover:bg-gray-100",
-                    feedback === "like"
-                      ? "text-green-600 bg-green-50"
-                      : "text-gray-500 hover:text-gray-700",
-                  )}
-                >
-                  <ThumbsUp className="w-3 h-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleFeedback("dislike")}
-                  className={cn(
-                    "h-7 px-2 hover:bg-gray-100",
-                    feedback === "dislike"
-                      ? "text-red-600 bg-red-50"
-                      : "text-gray-500 hover:text-gray-700",
-                  )}
-                >
-                  <ThumbsDown className="w-3 h-3" />
-                </Button>
+        {/* Message Content */}
+        <div className={cn(
+          "flex-1 min-w-0 max-w-4xl",
+          isUser && "text-right"
+        )}>
+          {/* Message Header */}
+          <div className={cn(
+            "flex items-center gap-3 mb-3",
+            isUser && "flex-row-reverse justify-start"
+          )}>
+            <span className="text-base font-bold text-gray-900 tracking-tight">
+              {isAI ? "OwlAI Learning Assistant" : "You"}
+            </span>
+            <span className="text-xs text-gray-500 font-medium">
+              {formatTime(timestamp)}
+            </span>
+            {status === "sending" && (
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.2s'}} />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{animationDelay: '0.4s'}} />
+                </div>
+                <span className="font-medium">Thinking...</span>
               </div>
+            )}
+            {status === "error" && (
+              <span className="text-xs text-red-600 font-semibold bg-red-50 px-2 py-1 rounded-full">Failed to send</span>
+            )}
+            {status === "sent" && isUser && (
+              <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                <Check className="w-3 h-3" />
+                <span>Delivered</span>
+              </div>
+            )}
+          </div>
 
-              {/* More Actions */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+          {/* Message Body */}
+          <div className={cn(
+            "text-gray-900 leading-relaxed",
+            isUser ? "text-right" : "text-left"
+          )}>
+            {isUser ? (
+              <div className="inline-block max-w-2xl bg-primary text-white px-6 py-4 rounded-2xl rounded-tr-md shadow-sm">
+                <div className="text-base font-medium leading-relaxed whitespace-pre-wrap break-words">
+                  {content}
+                </div>
+              </div>
+            ) : (
+              <div className="prose prose-lg max-w-none">
+                <Markdown content={content} className="text-base leading-7" />
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions for AI Messages */}
+          {isAI && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
+                onClick={() => console.log('Tell me more')}
+              >
+                Tell me more
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
+                onClick={() => console.log('Give example')}
+              >
+                Give an example
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
+                onClick={() => console.log('Quiz me')}
+              >
+                Quiz me on this
+              </Button>
+            </div>
+          )}
+
+          {/* Message Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: showActions ? 1 : 0, y: showActions ? 0 : 4 }}
+            transition={{ duration: 0.15 }}
+            className={cn(
+              "flex items-center gap-2 mt-4",
+              isUser ? "justify-end" : "justify-start"
+            )}
+          >
+            {/* Copy Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCopy}
+              className={cn(
+                "h-9 px-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-150 rounded-lg",
+                copied && "text-green-600 bg-green-50"
+              )}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Copy</span>
+                </>
+              )}
+            </Button>
+
+            {/* AI Message Actions */}
+            {isAI && (
+              <>
+                {/* Regenerate Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRegenerate}
+                  className="h-9 px-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-150 rounded-lg"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Regenerate</span>
+                </Button>
+
+                {/* Feedback Buttons */}
+                <div className="flex items-center gap-1 ml-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    onClick={() => handleFeedback("like")}
+                    className={cn(
+                      "h-9 px-3 transition-all duration-150 rounded-lg",
+                      feedback === "like"
+                        ? "text-green-600 bg-green-50 hover:bg-green-100"
+                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                    )}
                   >
-                    <MoreHorizontal className="w-3 h-3" />
+                    <ThumbsUp className="w-4 h-4" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-40">
-                  <DropdownMenuItem onClick={() => handleCopy()}>
-                    <Copy className="w-3 h-3 mr-2" />
-                    Copy message
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRegenerate()}>
-                    <RotateCcw className="w-3 h-3 mr-2" />
-                    Regenerate
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          )}
-        </motion.div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFeedback("dislike")}
+                    className={cn(
+                      "h-9 px-3 transition-all duration-150 rounded-lg",
+                      feedback === "dislike"
+                        ? "text-red-600 bg-red-50 hover:bg-red-100"
+                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                    )}
+                  >
+                    <ThumbsDown className="w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
