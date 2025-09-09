@@ -17,7 +17,9 @@ export function checkFirebaseConfig(): boolean {
     (varName) => !process.env[varName],
   );
 
-  if (missingVars.length > 0) {
+  // Only log missing environment variables in development
+  // In production, we use hardcoded fallback values
+  if (missingVars.length > 0 && process.env.NODE_ENV === "development") {
     console.error("Missing Firebase environment variables:", missingVars);
     return false;
   }
