@@ -151,55 +151,59 @@ export function ChatContainer({
           </div>
         ) : (
           /* Messages List */
-          <div className="py-4">
-            <AnimatePresence>
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  id={message.id}
-                  content={message.content}
-                  sender={message.sender}
-                  timestamp={message.timestamp}
-                  status={message.status}
-                  onCopy={handleCopyMessage}
-                  onRegenerate={regenerateMessage}
-                  onFeedback={handleFeedback}
-                />
-              ))}
-            </AnimatePresence>
+          <div className="py-6 px-4">
+            <div className="max-w-4xl mx-auto">
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <ChatMessage
+                    key={message.id}
+                    id={message.id}
+                    content={message.content}
+                    sender={message.sender}
+                    timestamp={message.timestamp}
+                    status={message.status}
+                    onCopy={handleCopyMessage}
+                    onRegenerate={regenerateMessage}
+                    onFeedback={handleFeedback}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
 
             {/* Typing Indicator */}
-            <AnimatePresence>{isTyping && <TypingIndicator />}</AnimatePresence>
+            <div className="max-w-4xl mx-auto px-4">
+              <AnimatePresence>{isTyping && <TypingIndicator />}</AnimatePresence>
 
-            {/* Error Message */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="mx-4 my-2 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
-                >
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-red-800 font-medium">Error</p>
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={retryLastMessage}
-                    className="text-red-700 border-red-300 hover:bg-red-100"
+              {/* Error Message */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="my-2 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
                   >
-                    <RefreshCw className="w-4 h-4 mr-1" />
-                    Retry
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-red-800 font-medium">Error</p>
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={retryLastMessage}
+                      className="text-red-700 border-red-300 hover:bg-red-100"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                      Retry
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         )}
       </div>

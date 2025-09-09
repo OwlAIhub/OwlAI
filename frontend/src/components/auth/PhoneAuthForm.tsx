@@ -117,7 +117,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         delete window.recaptchaVerifier;
       }
     };
-  }, []); // Remove setRecaptchaVerifier dependency to prevent infinite re-renders
+  }, [setRecaptchaVerifier]); // Keep setRecaptchaVerifier dependency but make it stable
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

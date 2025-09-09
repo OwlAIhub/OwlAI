@@ -52,8 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [recaptchaVerifier, setRecaptchaVerifier] =
+  const [recaptchaVerifier, setRecaptchaVerifierState] =
     useState<RecaptchaVerifier | null>(null);
+
+  // Stable setRecaptchaVerifier function to prevent infinite re-renders
+  const setRecaptchaVerifier = useCallback((verifier: RecaptchaVerifier | null) => {
+    setRecaptchaVerifierState(verifier);
+  }, []);
 
   // Initialize chat user in Firestore
   const initializeChatUser = useCallback(async (): Promise<void> => {

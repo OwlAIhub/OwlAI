@@ -82,7 +82,7 @@ export function ChatMessage({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
       className={cn(
-        "group relative px-3 sm:px-6 py-4 sm:py-8 transition-all duration-150",
+        "group relative px-6 py-4 transition-all duration-150",
         isUser
           ? "bg-transparent"
           : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60",
@@ -92,26 +92,26 @@ export function ChatMessage({
     >
       <div
         className={cn(
-          "max-w-5xl mx-auto flex gap-3 sm:gap-6",
+          "max-w-4xl mx-auto flex gap-4",
           isUser && "flex-row-reverse",
         )}
       >
         {/* Avatar */}
-        <div className={cn("flex-shrink-0 mt-1", isUser && "ml-2 sm:ml-4")}>
+        <div className={cn("flex-shrink-0 mt-1", isUser && "ml-2")}>
           {isAI ? (
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20 p-1">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20 p-1">
               <Image
                 src="/owl-ai-logo.png"
                 alt="OwlAI"
-                width={36}
-                height={36}
+                width={32}
+                height={32}
                 className="w-full h-full object-contain"
                 unoptimized
               />
             </div>
           ) : (
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
-              <span className="text-white text-xs sm:text-sm font-semibold">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
+              <span className="text-white text-xs font-semibold">
                 You
               </span>
             </div>
@@ -121,18 +121,18 @@ export function ChatMessage({
         {/* Message Content */}
         <div
           className={cn(
-            "flex-1 min-w-0 max-w-full sm:max-w-4xl",
+            "flex-1 min-w-0",
             isUser && "text-right",
           )}
         >
           {/* Message Header */}
           <div
             className={cn(
-              "flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3",
+              "flex items-center gap-2 mb-2",
               isUser && "flex-row-reverse justify-start",
             )}
           >
-            <span className="text-sm sm:text-base font-bold text-gray-900 tracking-tight">
+            <span className="text-sm font-bold text-gray-900 tracking-tight">
               {isAI ? "OwlAI Learning Assistant" : "You"}
             </span>
             <span className="text-xs text-gray-500 font-medium">

@@ -5,7 +5,7 @@
 
 // API Configuration
 const FLOWISE_API_URL =
-  "https://34.47.149.141/api/v1/prediction/79dcfd80-c276-4143-b9fd-07bde03d96de";
+  "http://34.47.149.141/api/v1/prediction/79dcfd80-c276-4143-b9fd-07bde03d96de";
 
 // Type definitions
 export interface FlowiseRequest {
