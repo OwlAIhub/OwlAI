@@ -240,7 +240,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       if (chatContainer) {
         chatContainer.scrollTo({
           top: chatContainer.scrollHeight,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     };

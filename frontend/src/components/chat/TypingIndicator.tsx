@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export interface TypingIndicatorProps {
   className?: string;
@@ -23,10 +24,13 @@ export function TypingIndicator({
       {/* AI Avatar */}
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center p-1">
-          <img
+          <Image
             src="/owl-ai-logo.png"
             alt="OwlAI"
+            width={32}
+            height={32}
             className="w-full h-full object-contain"
+            unoptimized
           />
         </div>
       </div>

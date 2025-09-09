@@ -31,6 +31,8 @@ import {
   OnboardingProfile,
   getOnboardingProfile,
 } from "@/lib/services/onboardingService";
+import { chatService } from "@/lib/services/chatService";
+import { ClientChatSession } from "@/lib/types/chat";
 import {
   ChevronRight,
   History,
@@ -41,45 +43,37 @@ import {
   Plus,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-// Mock data for chat sessions
-const chatSessions = [
-  {
-    id: "1",
-    title: "UGC NET Computer Science Prep",
-    timestamp: "2 hours ago",
-    isPinned: true,
-    category: "study",
-  },
-  {
-    id: "2",
-    title: "Data Structures & Algorithms",
-    timestamp: "1 day ago",
-    isPinned: false,
-    category: "study",
-  },
-  {
-    id: "3",
-    title: "Previous Year Questions",
-    timestamp: "3 days ago",
-    isPinned: false,
-    category: "practice",
-  },
-  {
-    id: "4",
-    title: "Mock Test Discussion",
-    timestamp: "1 week ago",
-    isPinned: false,
-    category: "practice",
-  },
-];
+// Helper function to format timestamp
+const formatTimestamp = (date: Date): string => {
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInMinutes < 60) {
+    return diffInMinutes <= 1 ? "Just now" : `${diffInMinutes} minutes ago`;
+  } else if (diffInHours < 24) {
+    return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+  } else if (diffInDays < 7) {
+    return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
+  } else {
+    return date.toLocaleDateString();
+  }
+};
 
 export function ChatSidebar() {
   const { user, userProfile, signOut } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+  const [chatSessions, setChatSessions] = useState<ClientChatSession[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [onboardingProfile, setOnboardingProfile] =
     useState<OnboardingProfile | null>(null);
@@ -99,6 +93,30 @@ export function ChatSidebar() {
     loadOnboardingProfile();
   }, [user?.uid]);
 
+  // Load and subscribe to chat sessions
+  useEffect(() => {
+    if (!user?.uid) {
+      setChatSessions([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    // Subscribe to real-time chat sessions
+    const unsubscribe = chatService.subscribeToSessions(
+      user.uid,
+      (sessions) => {
+        setChatSessions(sessions);
+        setLoading(false);
+      },
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.uid]);
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -108,10 +126,27 @@ export function ChatSidebar() {
     }
   };
 
-  const handleNewChat = () => {
-    // TODO: Create new chat session
-    console.log("Creating new chat...");
+  const handleNewChat = async () => {
+    if (!user?.uid) return;
+
+    try {
+      const sessionId = await chatService.createChatSession(user.uid, {
+        title: "New Chat",
+        category: "general",
+      });
+
+      // Navigate to the new chat session
+      router.push(`/chat?session=${sessionId}`);
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
   };
+
+  const handleSessionClick = (sessionId: string) => {
+    router.push(`/chat?session=${sessionId}`);
+  };
+
+  const currentSessionId = searchParams.get("session");
 
   return (
     <Sidebar className="border-r border-border/40 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
@@ -119,10 +154,13 @@ export function ChatSidebar() {
       <SidebarHeader className="border-b border-border/40 p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center">
-            <img
+            <Image
               src="/owl-ai-logo.png"
               alt="OwlAI"
+              width={32}
+              height={32}
               className="w-full h-full object-contain"
+              unoptimized
             />
           </div>
           <div className="flex flex-col">
@@ -161,28 +199,45 @@ export function ChatSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {chatSessions.map((session) => (
-                    <SidebarMenuItem key={session.id}>
-                      <SidebarMenuButton className="h-auto p-2">
-                        <div className="flex items-start gap-2 min-w-0 flex-1">
-                          <MessageCircle className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {session.title}
+                  {loading ? (
+                    <div className="flex items-center justify-center p-4">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    </div>
+                  ) : chatSessions.length === 0 ? (
+                    <div className="text-center p-4 text-muted-foreground text-sm">
+                      No chat sessions yet
+                    </div>
+                  ) : (
+                    chatSessions.map((session) => (
+                      <SidebarMenuItem key={session.id}>
+                        <SidebarMenuButton
+                          className={`h-auto p-2 ${
+                            currentSessionId === session.id
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-muted/50"
+                          }`}
+                          onClick={() => handleSessionClick(session.id)}
+                        >
+                          <div className="flex items-start gap-2 min-w-0 flex-1">
+                            <MessageCircle className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1">
+                                <p className="text-sm font-medium text-foreground truncate">
+                                  {session.title}
+                                </p>
+                                {session.isPinned && (
+                                  <Pin className="h-3 w-3 text-primary flex-shrink-0" />
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                {formatTimestamp(session.lastMessage.timestamp)}
                               </p>
-                              {session.isPinned && (
-                                <Pin className="h-3 w-3 text-primary flex-shrink-0" />
-                              )}
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                              {session.timestamp}
-                            </p>
                           </div>
-                        </div>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>

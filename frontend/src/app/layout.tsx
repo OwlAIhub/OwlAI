@@ -1,7 +1,9 @@
 import { EnvironmentProvider } from "@/components/providers/EnvironmentProvider";
+import ErrorBoundary from "@/components/providers/ErrorBoundary";
 import { HydrationFix } from "@/components/providers/HydrationFix";
 import { LenisProvider } from "@/components/providers/LenisProvider";
 import { PageTransition } from "@/components/providers/PageTransition";
+import { PerformanceMonitor } from "@/components/providers/PerformanceMonitor";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -102,7 +104,11 @@ export default function RootLayout({
           type="image/png"
           sizes="16x16"
         />
-        <link rel="shortcut icon" href="/apple-touch-icon.png" type="image/png" />
+        <link
+          rel="shortcut icon"
+          href="/apple-touch-icon.png"
+          type="image/png"
+        />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0D9488" />
@@ -123,13 +129,16 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <HydrationFix />
-        <EnvironmentProvider>
-          <AuthProvider>
-            <LenisProvider>
-              <PageTransition>{children}</PageTransition>
-            </LenisProvider>
-          </AuthProvider>
-        </EnvironmentProvider>
+        <PerformanceMonitor />
+        <ErrorBoundary>
+          <EnvironmentProvider>
+            <AuthProvider>
+              <LenisProvider>
+                <PageTransition>{children}</PageTransition>
+              </LenisProvider>
+            </AuthProvider>
+          </EnvironmentProvider>
+        </ErrorBoundary>
         <Toaster />
         {/* Performance monitoring */}
         <script

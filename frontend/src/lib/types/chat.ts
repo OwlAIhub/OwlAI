@@ -1,6 +1,6 @@
 // Chat-related TypeScript interfaces for Firestore integration
 
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from "firebase/firestore";
 
 // User Profile Interface
 export interface User {
@@ -18,12 +18,12 @@ export interface User {
     source: string;
   };
   preferences: {
-    theme: 'light' | 'dark';
+    theme: "light" | "dark";
     notifications: boolean;
     autoSave: boolean;
   };
   subscription: {
-    plan: 'free' | 'premium';
+    plan: "free" | "premium";
     expiresAt?: Timestamp;
     features: string[];
   };
@@ -38,21 +38,21 @@ export interface ChatSession {
   userId: string;
   title: string;
   description?: string;
-  category: 'study' | 'practice' | 'general' | 'exam-prep';
+  category: "study" | "practice" | "general" | "exam-prep";
   subject?: string;
   isPinned: boolean;
   isArchived: boolean;
   messageCount: number;
   lastMessage: {
     content: string;
-    sender: 'user' | 'ai';
+    sender: "user" | "ai";
     timestamp: Timestamp;
   };
   metadata: {
     flowiseSessionId?: string;
     examContext?: string;
     studyTopic?: string;
-    difficulty?: 'beginner' | 'intermediate' | 'advanced';
+    difficulty?: "beginner" | "intermediate" | "advanced";
   };
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -64,10 +64,10 @@ export interface Message {
   sessionId: string;
   userId: string;
   content: string;
-  sender: 'user' | 'ai';
-  type: 'text' | 'image' | 'file' | 'system';
-  status: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
-  
+  sender: "user" | "ai";
+  type: "text" | "image" | "file" | "system";
+  status: "sending" | "sent" | "delivered" | "read" | "error";
+
   // AI-specific fields
   aiMetadata?: {
     flowiseMessageId?: string;
@@ -84,19 +84,19 @@ export interface Message {
       relevance: number;
     }>;
   };
-  
+
   // User interaction tracking
   interactions?: {
     copied: boolean;
     regenerated: boolean;
-    feedback?: 'like' | 'dislike';
+    feedback?: "like" | "dislike";
     feedbackReason?: string;
   };
-  
+
   // Message threading
   parentMessageId?: string;
   threadId?: string;
-  
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -105,7 +105,7 @@ export interface Message {
 export interface UserActivity {
   id: string;
   userId: string;
-  type: 'session_created' | 'message_sent' | 'ai_response' | 'feedback_given';
+  type: "session_created" | "message_sent" | "ai_response" | "feedback_given";
   sessionId?: string;
   messageId?: string;
   metadata: Record<string, unknown>;
@@ -113,27 +113,33 @@ export interface UserActivity {
 }
 
 // Client-side interfaces (without Firestore Timestamp)
-export interface ClientChatSession extends Omit<ChatSession, 'createdAt' | 'updatedAt' | 'lastMessage'> {
+export interface ClientChatSession
+  extends Omit<ChatSession, "createdAt" | "updatedAt" | "lastMessage"> {
   createdAt: Date;
   updatedAt: Date;
   lastMessage: {
     content: string;
-    sender: 'user' | 'ai';
+    sender: "user" | "ai";
     timestamp: Date;
   };
 }
 
-export interface ClientMessage extends Omit<Message, 'createdAt' | 'updatedAt'> {
+export interface ClientMessage
+  extends Omit<Message, "createdAt" | "updatedAt"> {
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface ClientUser extends Omit<User, 'createdAt' | 'updatedAt' | 'lastActiveAt' | 'subscription'> {
+export interface ClientUser
+  extends Omit<
+    User,
+    "createdAt" | "updatedAt" | "lastActiveAt" | "subscription"
+  > {
   createdAt: Date;
   updatedAt: Date;
   lastActiveAt: Date;
   subscription: {
-    plan: 'free' | 'premium';
+    plan: "free" | "premium";
     expiresAt?: Date;
     features: string[];
   };
@@ -142,7 +148,7 @@ export interface ClientUser extends Omit<User, 'createdAt' | 'updatedAt' | 'last
 // API Response interfaces
 export interface CreateSessionRequest {
   title?: string;
-  category?: ChatSession['category'];
+  category?: ChatSession["category"];
   subject?: string;
   examContext?: string;
   studyTopic?: string;
@@ -151,14 +157,14 @@ export interface CreateSessionRequest {
 export interface SendMessageRequest {
   sessionId: string;
   content: string;
-  type?: Message['type'];
+  type?: Message["type"];
 }
 
 export interface UpdateSessionRequest {
   title?: string;
   isPinned?: boolean;
   isArchived?: boolean;
-  category?: ChatSession['category'];
+  category?: ChatSession["category"];
   subject?: string;
 }
 
@@ -167,7 +173,7 @@ export interface PaginationOptions {
   limit?: number;
   startAfter?: unknown;
   orderBy?: string;
-  orderDirection?: 'asc' | 'desc';
+  orderDirection?: "asc" | "desc";
 }
 
 export interface PaginatedResponse<T> {
@@ -190,8 +196,8 @@ export interface ChatError {
 }
 
 // Utility types
-export type MessageSender = Message['sender'];
-export type MessageStatus = Message['status'];
-export type MessageType = Message['type'];
-export type SessionCategory = ChatSession['category'];
-export type UserPlan = User['subscription']['plan'];
+export type MessageSender = Message["sender"];
+export type MessageStatus = Message["status"];
+export type MessageType = Message["type"];
+export type SessionCategory = ChatSession["category"];
+export type UserPlan = User["subscription"]["plan"];

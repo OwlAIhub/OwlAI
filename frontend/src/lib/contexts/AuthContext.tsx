@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import type { ReactNode } from "react";
 import {
   User,
@@ -47,40 +53,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useState<RecaptchaVerifier | null>(null);
 
   // Initialize chat user in Firestore
-  const initializeChatUser = async (): Promise<void> => {
+  const initializeChatUser = useCallback(async (): Promise<void> => {
     if (!user || !userProfile) return;
 
     try {
       // Check if chat user already exists
       let existingChatUser = await chatService.getUser(user.uid);
-      
+
       if (!existingChatUser) {
         // Create new chat user from auth user and profile
-         await chatService.createUser(user.uid, {
-           id: user.uid,
-           email: user.email || userProfile.email || '',
-           displayName: user.displayName || userProfile.displayName || 'User',
-           photoURL: user.photoURL || userProfile.photoURL,
-           preferences: {
-             theme: 'light',
-             notifications: true,
-             autoSave: true,
-           },
-           subscription: {
-             plan: 'free',
-             features: ['basic_chat', 'limited_sessions'],
-           },
-         });
-        
+        await chatService.createUser(user.uid, {
+          id: user.uid,
+          email: user.email || userProfile.email || "",
+          displayName: user.displayName || userProfile.displayName || "User",
+          photoURL: user.photoURL || userProfile.photoURL,
+          preferences: {
+            theme: "light",
+            notifications: true,
+            autoSave: true,
+          },
+          subscription: {
+            plan: "free",
+            features: ["basic_chat", "limited_sessions"],
+          },
+        });
+
         // Fetch the newly created user
         existingChatUser = await chatService.getUser(user.uid);
       }
-      
+
       setChatUser(existingChatUser);
     } catch (error) {
-      console.error('Error initializing chat user:', error);
+      console.error("Error initializing chat user:", error);
     }
-  };
+  }, [user, userProfile]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -111,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user && userProfile && !chatUser) {
       initializeChatUser();
     }
-  }, [user, userProfile, chatUser]);
+  }, [user, userProfile, chatUser, initializeChatUser]);
 
   const signInWithPhone = async (
     phoneNumber: string,

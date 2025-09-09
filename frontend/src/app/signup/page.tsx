@@ -1,12 +1,38 @@
 "use client";
 
 import { PhoneAuthForm } from "@/components/auth/PhoneAuthForm";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ResponsiveContainer } from "@/components/ui/responsive-container";
 
 export default function SignupPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If user is already authenticated, redirect to chat
+    if (user && !loading) {
+      router.push("/chat");
+    }
+  }, [user, loading, router]);
+
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Don't render signup form if user is authenticated
+  if (user) {
+    return null;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center p-4">
       {/* Background Pattern */}

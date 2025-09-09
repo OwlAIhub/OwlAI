@@ -196,7 +196,7 @@ html {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .table-responsive table {
     min-width: 600px;
   }
@@ -388,7 +388,7 @@ html {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Responsive grid utilities */
   .grid-responsive {
     display: grid;
@@ -448,86 +448,86 @@ html {
   }
 
   /* Visible thin scrollbar for better UX */
-   .scrollbar-thin {
-     overflow-y: auto;
-     overflow-x: hidden;
-     -webkit-overflow-scrolling: touch;
-     overscroll-behavior-y: contain;
-     scroll-behavior: smooth;
-     scrollbar-width: thin;
-     scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
-   }
-   
-   .scrollbar-thin::-webkit-scrollbar {
-     width: 6px;
-   }
-   
-   .scrollbar-thin::-webkit-scrollbar-track {
-     background: transparent;
-   }
-   
-   .scrollbar-thin::-webkit-scrollbar-thumb {
-     background: rgba(156, 163, 175, 0.4);
-     border-radius: 3px;
-   }
-   
-   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-     background: rgba(156, 163, 175, 0.6);
-   }
-   
-   /* Ensure proper touch scrolling on mobile and desktop */
-   .overflow-y-auto {
-     -webkit-overflow-scrolling: touch;
-     overscroll-behavior-y: auto;
-     scroll-behavior: smooth;
-     touch-action: auto;
-   }
-   
-   /* Enhanced scrolling for chat containers */
-   .chat-scroll-container {
-     overflow-y: auto;
-     overflow-x: hidden;
-     -webkit-overflow-scrolling: touch;
-     overscroll-behavior-y: contain;
-     scroll-behavior: smooth;
-     touch-action: pan-y;
-     will-change: scroll-position;
-   }
+  .scrollbar-thin {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+  }
 
-   /* Fix scrollbar positioning and ensure proper functionality */
-    .overflow-y-auto {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
-      direction: ltr;
-    }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
 
-    .overflow-y-auto::-webkit-scrollbar {
-      width: 12px;
-      position: absolute;
-      right: 0;
-    }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-    .overflow-y-auto::-webkit-scrollbar-track {
-      background: transparent;
-      border-radius: 0;
-    }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4);
+    border-radius: 3px;
+  }
 
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-      background: rgba(156, 163, 175, 0.5);
-      border-radius: 6px;
-      border: 2px solid transparent;
-      background-clip: content-box;
-    }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.6);
+  }
 
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-      background: rgba(156, 163, 175, 0.7);
-      background-clip: content-box;
-    }
+  /* Ensure proper touch scrolling on mobile and desktop */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    scroll-behavior: smooth;
+    touch-action: auto;
+  }
 
-    .overflow-y-auto::-webkit-scrollbar-corner {
-      background: transparent;
-    }
-  
+  /* Enhanced scrolling for chat containers */
+  .chat-scroll-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+    touch-action: pan-y;
+    will-change: scroll-position;
+  }
+
+  /* Fix scrollbar positioning and ensure proper functionality */
+  .overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+    direction: ltr;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 12px;
+    position: absolute;
+    right: 0;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+    background-clip: content-box;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   /* Smooth scrolling behavior */
   .scroll-smooth {
     scroll-behavior: smooth;

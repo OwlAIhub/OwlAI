@@ -14,6 +14,7 @@ import {
   ThumbsUp,
   AlertCircle,
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 export interface ChatMessageProps {
@@ -84,45 +85,53 @@ export function ChatMessage({
         "group relative px-3 sm:px-6 py-4 sm:py-8 transition-all duration-150",
         isUser
           ? "bg-transparent"
-          : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60"
+          : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60",
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className={cn(
-        "max-w-5xl mx-auto flex gap-3 sm:gap-6",
-        isUser && "flex-row-reverse"
-      )}>
+      <div
+        className={cn(
+          "max-w-5xl mx-auto flex gap-3 sm:gap-6",
+          isUser && "flex-row-reverse",
+        )}
+      >
         {/* Avatar */}
-        <div className={cn(
-          "flex-shrink-0 mt-1",
-          isUser && "ml-2 sm:ml-4"
-        )}>
+        <div className={cn("flex-shrink-0 mt-1", isUser && "ml-2 sm:ml-4")}>
           {isAI ? (
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm ring-1 ring-primary/20 p-1">
-              <img
+              <Image
                 src="/owl-ai-logo.png"
                 alt="OwlAI"
+                width={36}
+                height={36}
                 className="w-full h-full object-contain"
+                unoptimized
               />
             </div>
           ) : (
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
-              <span className="text-white text-xs sm:text-sm font-semibold">You</span>
+              <span className="text-white text-xs sm:text-sm font-semibold">
+                You
+              </span>
             </div>
           )}
         </div>
 
         {/* Message Content */}
-        <div className={cn(
-          "flex-1 min-w-0 max-w-full sm:max-w-4xl",
-          isUser && "text-right"
-        )}>
+        <div
+          className={cn(
+            "flex-1 min-w-0 max-w-full sm:max-w-4xl",
+            isUser && "text-right",
+          )}
+        >
           {/* Message Header */}
-          <div className={cn(
-            "flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3",
-            isUser && "flex-row-reverse justify-start"
-          )}>
+          <div
+            className={cn(
+              "flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3",
+              isUser && "flex-row-reverse justify-start",
+            )}
+          >
             <span className="text-sm sm:text-base font-bold text-gray-900 tracking-tight">
               {isAI ? "OwlAI Learning Assistant" : "You"}
             </span>
@@ -163,10 +172,12 @@ export function ChatMessage({
           </div>
 
           {/* Message Body */}
-          <div className={cn(
-            "text-gray-900 leading-relaxed",
-            isUser ? "text-right" : "text-left"
-          )}>
+          <div
+            className={cn(
+              "text-gray-900 leading-relaxed",
+              isUser ? "text-right" : "text-left",
+            )}
+          >
             {isUser ? (
               <div className="inline-block max-w-2xl bg-primary text-white px-6 py-4 rounded-2xl rounded-tr-md shadow-sm">
                 <div className="text-base font-medium leading-relaxed whitespace-pre-wrap break-words">
@@ -187,7 +198,7 @@ export function ChatMessage({
                 variant="outline"
                 size="sm"
                 className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log('Tell me more')}
+                onClick={() => console.log("Tell me more")}
               >
                 Tell me more
               </Button>
@@ -195,7 +206,7 @@ export function ChatMessage({
                 variant="outline"
                 size="sm"
                 className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log('Give example')}
+                onClick={() => console.log("Give example")}
               >
                 Give an example
               </Button>
@@ -203,7 +214,7 @@ export function ChatMessage({
                 variant="outline"
                 size="sm"
                 className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log('Quiz me')}
+                onClick={() => console.log("Quiz me")}
               >
                 Quiz me on this
               </Button>
@@ -217,7 +228,7 @@ export function ChatMessage({
             transition={{ duration: 0.15 }}
             className={cn(
               "flex items-center gap-2 mt-4",
-              isUser ? "justify-end" : "justify-start"
+              isUser ? "justify-end" : "justify-start",
             )}
           >
             {/* Copy Button */}
@@ -227,7 +238,7 @@ export function ChatMessage({
               onClick={handleCopy}
               className={cn(
                 "h-9 px-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-150 rounded-lg",
-                copied && "text-green-600 bg-green-50"
+                copied && "text-green-600 bg-green-50",
               )}
             >
               {copied ? (
@@ -267,7 +278,7 @@ export function ChatMessage({
                       "h-9 px-3 transition-all duration-150 rounded-lg",
                       feedback === "like"
                         ? "text-green-600 bg-green-50 hover:bg-green-100"
-                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100",
                     )}
                   >
                     <ThumbsUp className="w-4 h-4" />
@@ -280,7 +291,7 @@ export function ChatMessage({
                       "h-9 px-3 transition-all duration-150 rounded-lg",
                       feedback === "dislike"
                         ? "text-red-600 bg-red-50 hover:bg-red-100"
-                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100",
                     )}
                   >
                     <ThumbsDown className="w-4 h-4" />

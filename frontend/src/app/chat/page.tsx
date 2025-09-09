@@ -17,7 +17,7 @@ export default function ChatPage() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session');
+  const sessionId = searchParams.get("session");
 
   useEffect(() => {
     if (!user) {
@@ -38,7 +38,7 @@ export default function ChatPage() {
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <ChatSidebar />
-        
+
         {/* Main Chat Area */}
         <SidebarInset className="flex-1">
           <div className="flex h-full flex-col">
@@ -54,7 +54,7 @@ export default function ChatPage() {
 
             {/* Real-time Chat Container */}
             <div className="flex-1 min-h-0">
-              <RealtimeChatContainer 
+              <RealtimeChatContainer
                 sessionId={sessionId || undefined}
                 className="h-full"
               />

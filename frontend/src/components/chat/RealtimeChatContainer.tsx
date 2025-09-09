@@ -3,25 +3,35 @@
 
 "use client";
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { Archive, Check, Edit3, MessageCircle, MoreHorizontal, Pin, Plus, Search, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRealtimeChat } from '../../hooks/useRealtimeChat';
-import { useAuth } from '../../lib/contexts/AuthContext';
-import { chatService } from '../../lib/services/chatService';
-import { cn } from '../../lib/utils';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/buttons/button';
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Archive,
+  Check,
+  Edit3,
+  MessageCircle,
+  MoreHorizontal,
+  Pin,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRealtimeChat } from "../../hooks/useRealtimeChat";
+import { useAuth } from "../../lib/contexts/AuthContext";
+import { chatService } from "../../lib/services/chatService";
+import { cn } from "../../lib/utils";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/buttons/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { ChatInput } from './ChatInput';
-import { ChatMessage } from './ChatMessage';
-import { TypingIndicator } from './TypingIndicator';
+} from "../ui/dropdown-menu";
+import { ChatInput } from "./ChatInput";
+import { ChatMessage } from "./ChatMessage";
+import { TypingIndicator } from "./TypingIndicator";
 
 export interface RealtimeChatContainerProps {
   className?: string;
@@ -35,8 +45,8 @@ export function RealtimeChatContainer({
   const { user, chatUser, initializeChatUser } = useAuth();
   const [showSessionList, setShowSessionList] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [editingTitle, setEditingTitle] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const visibleMessagesRef = useRef<Set<string>>(new Set());
 
@@ -82,7 +92,7 @@ export function RealtimeChatContainer({
         let hasChanges = false;
 
         entries.forEach((entry) => {
-          const messageId = entry.target.getAttribute('data-message-id');
+          const messageId = entry.target.getAttribute("data-message-id");
           if (!messageId) return;
 
           if (entry.isIntersecting) {
@@ -103,26 +113,29 @@ export function RealtimeChatContainer({
 
           // Mark AI messages as read when they become visible
           const aiMessagesToMarkRead = messages
-            .filter(msg =>
-              msg.sender === 'ai' &&
-              msg.status !== 'read' &&
-              newVisibleMessages.has(msg.id)
+            .filter(
+              (msg) =>
+                msg.sender === "ai" &&
+                msg.status !== "read" &&
+                newVisibleMessages.has(msg.id),
             )
-            .map(msg => msg.id);
+            .map((msg) => msg.id);
 
           if (aiMessagesToMarkRead.length > 0 && user && currentSession) {
-            chatService.markMessagesAsRead(
-              user.uid,
-              currentSession.id,
-              aiMessagesToMarkRead
-            ).catch(console.error);
+            chatService
+              .markMessagesAsRead(
+                user.uid,
+                currentSession.id,
+                aiMessagesToMarkRead,
+              )
+              .catch(console.error);
           }
         }
       },
       {
         threshold: 0.5,
-        rootMargin: '0px 0px -50px 0px'
-      }
+        rootMargin: "0px 0px -50px 0px",
+      },
     );
   }, [messages, user, currentSession]);
 
@@ -141,14 +154,14 @@ export function RealtimeChatContainer({
   useEffect(() => {
     if (!observerRef.current) return;
 
-    const messageElements = document.querySelectorAll('[data-message-id]');
-    messageElements.forEach(element => {
+    const messageElements = document.querySelectorAll("[data-message-id]");
+    messageElements.forEach((element) => {
       observerRef.current?.observe(element);
     });
 
     return () => {
       if (observerRef.current) {
-        messageElements.forEach(element => {
+        messageElements.forEach((element) => {
           observerRef.current?.unobserve(element);
         });
       }
@@ -159,12 +172,12 @@ export function RealtimeChatContainer({
   const handleNewSession = async () => {
     try {
       await createSession({
-        title: 'New Chat',
-        category: 'general',
+        title: "New Chat",
+        category: "general",
       });
       setShowSessionList(false);
     } catch (error) {
-      console.error('Failed to create new session:', error);
+      console.error("Failed to create new session:", error);
     }
   };
 
@@ -173,7 +186,7 @@ export function RealtimeChatContainer({
     try {
       await updateSession(sessionId, { isPinned: !isPinned });
     } catch (error) {
-      console.error('Failed to update session:', error);
+      console.error("Failed to update session:", error);
     }
   };
 
@@ -181,19 +194,23 @@ export function RealtimeChatContainer({
     try {
       await updateSession(sessionId, { isArchived: true });
     } catch (error) {
-      console.error('Failed to archive session:', error);
+      console.error("Failed to archive session:", error);
     }
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this chat? This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
     try {
       await deleteSession(sessionId);
     } catch (error) {
-      console.error('Failed to delete session:', error);
+      console.error("Failed to delete session:", error);
     }
   };
 
@@ -209,21 +226,24 @@ export function RealtimeChatContainer({
     try {
       await updateSession(sessionId, { title: editingTitle.trim() });
       setEditingSessionId(null);
-      setEditingTitle('');
+      setEditingTitle("");
     } catch (error) {
-      console.error('Failed to update session title:', error);
+      console.error("Failed to update session title:", error);
     }
   };
 
   const handleCancelEdit = () => {
     setEditingSessionId(null);
-    setEditingTitle('');
+    setEditingTitle("");
   };
 
   // Filter sessions based on search query
-  const filteredSessions = sessions.filter(session =>
-    session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    session.lastMessage.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSessions = sessions.filter(
+    (session) =>
+      session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      session.lastMessage.content
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
   // Handle message sending
@@ -236,7 +256,7 @@ export function RealtimeChatContainer({
     try {
       await sendMessage(content);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
     }
   };
 
@@ -264,7 +284,7 @@ export function RealtimeChatContainer({
   }
 
   return (
-    <div className={cn('flex flex-col h-full bg-white', className)}>
+    <div className={cn("flex flex-col h-full bg-white", className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
@@ -313,10 +333,12 @@ export function RealtimeChatContainer({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
-                  onClick={() => handlePinSession(currentSession.id, currentSession.isPinned)}
+                  onClick={() =>
+                    handlePinSession(currentSession.id, currentSession.isPinned)
+                  }
                 >
                   <Pin className="w-4 h-4 mr-2" />
-                  {currentSession.isPinned ? 'Unpin' : 'Pin'} Chat
+                  {currentSession.isPinned ? "Unpin" : "Pin"} Chat
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleArchiveSession(currentSession.id)}
@@ -369,7 +391,7 @@ export function RealtimeChatContainer({
         {showSessionList && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="border-b border-gray-200 bg-gray-50 lg:hidden"
           >
@@ -403,10 +425,10 @@ export function RealtimeChatContainer({
                   <div
                     key={session.id}
                     className={cn(
-                      'p-3 rounded-lg border transition-colors',
+                      "p-3 rounded-lg border transition-colors",
                       currentSession?.id === session.id
-                        ? 'bg-primary/10 border-primary/20'
-                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                        ? "bg-primary/10 border-primary/20"
+                        : "bg-white border-gray-200 hover:bg-gray-50",
                     )}
                   >
                     <div className="flex items-start justify-between">
@@ -424,9 +446,9 @@ export function RealtimeChatContainer({
                               value={editingTitle}
                               onChange={(e) => setEditingTitle(e.target.value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
+                                if (e.key === "Enter") {
                                   handleSaveTitle(session.id);
-                                } else if (e.key === 'Escape') {
+                                } else if (e.key === "Escape") {
                                   handleCancelEdit();
                                 }
                               }}
@@ -470,22 +492,30 @@ export function RealtimeChatContainer({
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                            >
                               <MoreHorizontal className="w-3 h-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
                             <DropdownMenuItem
-                              onClick={() => handleEditTitle(session.id, session.title)}
+                              onClick={() =>
+                                handleEditTitle(session.id, session.title)
+                              }
                             >
                               <Edit3 className="w-3 h-3 mr-2" />
                               Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handlePinSession(session.id, session.isPinned)}
+                              onClick={() =>
+                                handlePinSession(session.id, session.isPinned)
+                              }
                             >
                               <Pin className="w-3 h-3 mr-2" />
-                              {session.isPinned ? 'Unpin' : 'Pin'}
+                              {session.isPinned ? "Unpin" : "Pin"}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleArchiveSession(session.id)}
@@ -553,7 +583,7 @@ export function RealtimeChatContainer({
                   onClick={loadMoreMessages}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Loading...' : 'Load More Messages'}
+                  {isLoading ? "Loading..." : "Load More Messages"}
                 </Button>
               </div>
             )}
@@ -579,11 +609,11 @@ export function RealtimeChatContainer({
                     }}
                     onRegenerate={(messageId) => {
                       // TODO: Implement message regeneration
-                      console.log('Regenerate message:', messageId);
+                      console.log("Regenerate message:", messageId);
                     }}
                     onFeedback={(messageId, type) => {
                       // TODO: Implement feedback
-                      console.log('Feedback:', messageId, type);
+                      console.log("Feedback:", messageId, type);
                     }}
                   />
                 </motion.div>
@@ -611,8 +641,8 @@ export function RealtimeChatContainer({
           disabled={isSending || isLoading}
           placeholder={
             currentSession
-              ? 'Ask me anything about your studies...'
-              : 'Start a new conversation...'
+              ? "Ask me anything about your studies..."
+              : "Start a new conversation..."
           }
         />
       </div>

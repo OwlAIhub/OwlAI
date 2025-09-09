@@ -55,7 +55,9 @@ export function ChatInput({
   const isOverLimit = message.length > maxLength;
 
   return (
-    <div className={cn("border-t border-gray-100 bg-white safe-bottom", className)}>
+    <div
+      className={cn("border-t border-gray-100 bg-white safe-bottom", className)}
+    >
       {/* Input Area */}
       <div className="p-3 sm:p-4">
         <form onSubmit={handleSubmit} className="relative">

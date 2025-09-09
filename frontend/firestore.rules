@@ -67,6 +67,88 @@ service cloud.firestore {
              data.metadata is map;
     }
     
+    // Chat users - allow users to manage their own chat profile
+    match /chatUsers/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && 
+                              request.auth.uid == userId &&
+                              isValidChatUser();
+    }
+    
+    // Helper function to validate chat user data
+    function isValidChatUser() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['id', 'email', 'displayName', 'preferences', 'subscription', 'createdAt', 'updatedAt', 'lastActiveAt']) &&
+             data.id is string && data.id == request.auth.uid &&
+             data.email is string &&
+             data.displayName is string &&
+             data.preferences is map &&
+             data.subscription is map;
+    }
+    
+    // Chat sessions - users can only access their own sessions
+    match /users/{userId}/chatSessions/{sessionId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && 
+                              request.auth.uid == userId &&
+                              isValidChatSession();
+    }
+    
+    // Helper function to validate chat session data
+    function isValidChatSession() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['id', 'userId', 'title', 'category', 'isPinned', 'isArchived', 'messageCount', 'lastMessage', 'metadata', 'createdAt', 'updatedAt']) &&
+             data.id is string &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.category in ['study', 'practice', 'general', 'exam-prep'] &&
+             data.isPinned is bool &&
+             data.isArchived is bool &&
+             data.messageCount is number &&
+             data.lastMessage is map &&
+             data.metadata is map;
+    }
+    
+    // Chat messages - users can only access messages in their own sessions
+    match /users/{userId}/chatSessions/{sessionId}/messages/{messageId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && 
+                              request.auth.uid == userId &&
+                              isValidMessage();
+    }
+    
+    // Helper function to validate message data
+    function isValidMessage() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['id', 'sessionId', 'userId', 'content', 'sender', 'type', 'status', 'createdAt', 'updatedAt']) &&
+             data.id is string &&
+             data.sessionId is string &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 10000 &&
+             data.sender in ['user', 'ai'] &&
+             data.type in ['text', 'image', 'file', 'system'] &&
+             data.status in ['sending', 'sent', 'delivered', 'read', 'error'];
+    }
+    
+    // User activities - users can only access their own activities
+    match /users/{userId}/activities/{activityId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      isValidActivity();
+    }
+    
+    // Helper function to validate activity data
+    function isValidActivity() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['id', 'userId', 'type', 'metadata', 'timestamp']) &&
+             data.id is string &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.type in ['session_created', 'message_sent', 'ai_response', 'feedback_given'] &&
+             data.metadata is map &&
+             data.timestamp == request.time;
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
