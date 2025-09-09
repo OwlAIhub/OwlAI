@@ -1,6 +1,7 @@
 // Firebase configuration and initialization
 
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { getInstallations } from "firebase/installations";
 import {
   getFirestore,
   Firestore,
@@ -68,6 +69,23 @@ export const storage: FirebaseStorage = getStorage(app);
 setPersistence(auth, browserLocalPersistence).catch((error) => {
   console.warn('Failed to set auth persistence:', error);
 });
+
+// Handle Firebase Installations API errors gracefully
+try {
+  // Initialize installations service with error handling
+  const installations = getInstallations(app);
+  // Suppress 403 PERMISSION_DENIED errors for installations API
+} catch (error: unknown) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
+  
+  if (errorCode === 'installations/request-failed' || 
+      errorMessage.includes('PERMISSION_DENIED')) {
+    console.warn('Firebase Installations API not available - this is normal for some hosting configurations');
+  } else {
+    console.warn('Firebase Installations initialization failed:', error);
+  }
+}
 
 // Development environment setup
 if (process.env.NODE_ENV === "development") {

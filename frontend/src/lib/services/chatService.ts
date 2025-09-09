@@ -40,7 +40,10 @@ import {
 } from "../types/chat";
 
 // Utility function to convert Firestore Timestamp to Date
-const convertTimestamp = (timestamp: Timestamp): Date => {
+const convertTimestamp = (timestamp: Timestamp | null | undefined): Date => {
+  if (!timestamp) {
+    return new Date(); // Return current date as fallback
+  }
   return timestamp.toDate();
 };
 
@@ -51,7 +54,7 @@ const convertChatSession = (session: ChatSession): ClientChatSession => ({
   updatedAt: convertTimestamp(session.updatedAt),
   lastMessage: {
     ...session.lastMessage,
-    timestamp: convertTimestamp(session.lastMessage.timestamp),
+    timestamp: convertTimestamp(session.lastMessage?.timestamp),
   },
 });
 
