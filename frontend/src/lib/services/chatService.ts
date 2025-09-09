@@ -73,7 +73,7 @@ const convertUser = (user: User): ClientUser => ({
   lastActiveAt: convertTimestamp(user.lastActiveAt),
   subscription: {
     ...user.subscription,
-    expiresAt: user.subscription.expiresAt
+    expiresAt: user.subscription?.expiresAt
       ? convertTimestamp(user.subscription.expiresAt)
       : undefined,
   },
