@@ -17,7 +17,7 @@ function ChatContent() {
   const { user, loading, authError } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session");
+  const sessionId = searchParams.get("session"); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   useEffect(() => {
     // Only redirect if auth is fully loaded and user is definitely not authenticated

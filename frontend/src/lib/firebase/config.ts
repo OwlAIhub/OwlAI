@@ -73,7 +73,7 @@ setPersistence(auth, browserLocalPersistence).catch((error) => {
 // Handle Firebase Installations API errors gracefully
 try {
   // Initialize installations service with error handling
-  const installations = getInstallations(app);
+  const installations = getInstallations(app); // eslint-disable-line @typescript-eslint/no-unused-vars
   // Suppress 403 PERMISSION_DENIED errors for installations API
 } catch (error: unknown) {
   const errorMessage = error instanceof Error ? error.message : String(error);

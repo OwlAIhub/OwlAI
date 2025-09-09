@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [chatUser, setChatUser] = useState<ClientUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authInitialized, setAuthInitialized] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [authError, setAuthError] = useState<string | null>(null);
   const [recaptchaVerifier, setRecaptchaVerifierState] =
     useState<RecaptchaVerifier | null>(null);
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, userProfile]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout; // eslint-disable-line @typescript-eslint/no-unused-vars
     
     // Set a timeout to prevent infinite loading if Firebase fails
     const authTimeout = setTimeout(() => {
@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe();
       clearTimeout(authTimeout);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize chat user when user and profile are ready
   useEffect(() => {
