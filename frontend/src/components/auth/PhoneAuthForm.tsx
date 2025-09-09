@@ -200,12 +200,37 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       const result = await signInWithPhone(formattedPhone);
       setConfirmationResult(result);
       setStep("otp");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Phone auth error:", err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to send OTP. Please try again.";
+      
+      // Handle specific Firebase auth errors
+      let errorMessage = "Failed to send OTP. Please try again.";
+      
+      if (err && typeof err === 'object' && 'code' in err) {
+         const firebaseError = err as { code: string; message?: string };
+        switch (firebaseError.code) {
+           case 'auth/too-many-requests':
+             errorMessage = "Too many requests. Please wait a few minutes before trying again.";
+             break;
+           case 'auth/billing-not-enabled':
+             errorMessage = "Phone authentication is not properly configured. Please contact support.";
+             break;
+           case 'auth/invalid-phone-number':
+             errorMessage = "Please enter a valid phone number with country code.";
+             break;
+           case 'auth/quota-exceeded':
+             errorMessage = "SMS quota exceeded. Please try again later.";
+             break;
+           case 'auth/captcha-check-failed':
+             errorMessage = "Security verification failed. Please refresh and try again.";
+             break;
+           default:
+             errorMessage = firebaseError.message || errorMessage;
+         }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
