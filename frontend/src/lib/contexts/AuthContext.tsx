@@ -30,6 +30,7 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   chatUser: ClientUser | null;
   loading: boolean;
+  authError: string | null;
   signInWithPhone: (phoneNumber: string) => Promise<ConfirmationResult>;
   verifyOTP: (
     confirmationResult: ConfirmationResult,
@@ -50,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [chatUser, setChatUser] = useState<ClientUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [recaptchaVerifier, setRecaptchaVerifier] =
     useState<RecaptchaVerifier | null>(null);
 
@@ -90,9 +92,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, userProfile]);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    // Set a timeout to prevent infinite loading if Firebase fails
+    const authTimeout = setTimeout(() => {
+      if (loading) {
+        console.warn('Auth initialization timeout - Firebase may be misconfigured');
+        setAuthError('Authentication service unavailable');
+        setLoading(false);
+        setAuthInitialized(true);
+      }
+    }, 10000); // 10 second timeout
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      clearTimeout(authTimeout);
       console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
       setUser(user);
+      setAuthError(null);
 
       if (user) {
         try {
@@ -103,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error("Error managing user profile:", error);
           setUserProfile(null);
+          setAuthError('Failed to load user profile');
         }
       } else {
         setUserProfile(null);
@@ -111,9 +128,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setAuthInitialized(true);
       setLoading(false);
+    }, (error) => {
+      clearTimeout(authTimeout);
+      console.error('Firebase auth error:', error);
+      setAuthError('Authentication failed: ' + error.message);
+      setLoading(false);
+      setAuthInitialized(true);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      clearTimeout(authTimeout);
+    };
   }, []);
 
   // Initialize chat user when user and profile are ready
@@ -181,6 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userProfile,
     chatUser,
     loading,
+    authError,
     signInWithPhone,
     verifyOTP,
     signOut,

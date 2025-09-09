@@ -13,28 +13,54 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, authError } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // If user is already authenticated, redirect to chat
-    if (user && !loading) {
+    // Only redirect if auth is fully loaded and user is definitely authenticated
+    if (!loading && user) {
+      console.log('User already authenticated, redirecting to chat...');
       router.push("/chat");
     }
   }, [user, loading, router]);
+
+  // Show error if Firebase config failed
+  if (authError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
+          <h2 className="text-red-800 font-semibold mb-2">Authentication Error</h2>
+          <p className="text-red-600 text-sm mb-4">{authError}</p>
+          <p className="text-gray-600 text-xs">Please check your Firebase configuration and try again.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading spinner while checking auth state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="ml-3 text-gray-600">Checking authentication...</p>
       </div>
     );
   }
 
-  // Don't render login form if user is authenticated
+  // Don't render login form if user is authenticated (but show loading instead)
   if (user) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="ml-3 text-gray-600">Redirecting to chat...</p>
+      </div>
+    );
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center p-4">
