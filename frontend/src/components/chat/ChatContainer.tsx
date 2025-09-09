@@ -7,7 +7,7 @@ import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
 import { useChat } from "../../hooks/useChat";
 import { Button } from "../ui/button";
-import { RefreshCw, Trash2, AlertCircle } from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export interface ChatContainerProps {
@@ -32,7 +32,6 @@ export function ChatContainer({
     error,
     sendMessage,
     regenerateMessage,
-    clearMessages,
     retryLastMessage,
     isTyping,
   } = useChat({
