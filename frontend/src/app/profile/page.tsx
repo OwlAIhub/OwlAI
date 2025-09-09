@@ -1,36 +1,36 @@
 "use client";
 
-import { useAuth } from "@/lib/contexts/AuthContext";
-import {
-  getOnboardingProfile,
-  OnboardingProfile,
-} from "@/lib/services/onboardingService";
-import { updateUserProfile } from "@/lib/services/userService";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/buttons/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/inputs/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import {
+    OnboardingProfile,
+    getOnboardingProfile,
+} from "@/lib/services/onboardingService";
+import { updateUserProfile } from "@/lib/services/userService";
 import { motion } from "framer-motion";
 import {
-  User,
-  Phone,
-  BookOpen,
-  Target,
-  Globe,
-  Calendar,
-  Settings,
-  Save,
-  ArrowLeft,
-  Edit3,
+    ArrowLeft,
+    BookOpen,
+    Calendar,
+    Edit3,
+    Globe,
+    Phone,
+    Save,
+    Settings,
+    Target,
+    User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/login");
+      router.push("/auth");
       return;
     }
 

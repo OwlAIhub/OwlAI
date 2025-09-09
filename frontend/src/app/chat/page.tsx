@@ -23,7 +23,7 @@ function ChatContent() {
     // Only redirect if auth is fully loaded and user is definitely not authenticated
     if (!loading && !user) {
       console.log('User not authenticated, redirecting to login...');
-      router.push("/login");
+      router.push("/auth");
     }
   }, [user, loading, router]);
 

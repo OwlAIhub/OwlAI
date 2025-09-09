@@ -3,9 +3,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/buttons/button";
 import {
-  ResponsiveContainer,
-  ResponsiveImage,
-  ResponsiveText,
+    ResponsiveContainer,
+    ResponsiveImage,
+    ResponsiveText,
 } from "@/components/ui/responsive-container";
 import { motion } from "framer-motion";
 import { CheckCircle, Menu, Search, Sparkles, X } from "lucide-react";
@@ -119,13 +119,13 @@ export function HeroSection() {
               >
                 <Button
                   onClick={() => {
-                    router.push("/login");
+                    router.push("/auth");
                   }}
                   disabled={isNavigating}
                   size="sm"
                   className="text-sm bg-white text-black hover:bg-white/90 px-3 py-1.5 md:px-4 md:py-2 disabled:opacity-70 transition-all duration-200 active:scale-95"
                 >
-                  Login
+                  Sign In
                 </Button>
               </motion.div>
               <motion.div
@@ -135,7 +135,7 @@ export function HeroSection() {
               >
                 <Button
                   onClick={() => {
-                    router.push("/signup");
+                    router.push("/auth");
                   }}
                   disabled={isNavigating}
                   size="sm"
@@ -200,10 +200,10 @@ export function HeroSection() {
                     disabled={isNavigating}
                     onClick={() => {
                       setIsMenuOpen(false);
-                      router.push("/login");
+                      router.push("/auth");
                     }}
                   >
-                    Login
+                    Sign In
                   </Button>
                 </motion.div>
                 <motion.div
@@ -217,7 +217,7 @@ export function HeroSection() {
                     disabled={isNavigating}
                     onClick={() => {
                       setIsMenuOpen(false);
-                      router.push("/signup");
+                      router.push("/auth");
                     }}
                   >
                     {isNavigating ? "Loading..." : "Get Started"}

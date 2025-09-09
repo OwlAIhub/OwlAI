@@ -1,29 +1,29 @@
 "use client";
 
-import { useAuth } from "@/lib/contexts/AuthContext";
 import { Button } from "@/components/ui/buttons/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  BookOpen,
-  Target,
-  Globe,
-  Users,
-  AlertTriangle,
-  X,
+    OnboardingData,
+    getValidationError,
+    hasCompletedOnboarding,
+    isExamSupported,
+    isSubjectSupported,
+    saveOnboardingData,
+} from "@/lib/services/onboardingService";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+    AlertTriangle,
+    ArrowLeft,
+    ArrowRight,
+    BookOpen,
+    Check,
+    Globe,
+    Target,
+    Users,
+    X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import {
-  saveOnboardingData,
-  hasCompletedOnboarding,
-  getValidationError,
-  isExamSupported,
-  isSubjectSupported,
-  OnboardingData,
-} from "@/lib/services/onboardingService";
+import { useEffect, useState } from "react";
 
 // OnboardingData interface is imported from onboardingService
 
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/login");
+      router.push("/auth");
       return;
     }
 

@@ -7,14 +7,15 @@ import {
 } from "@/components/ui/responsive-container";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function LoginPage() {
+export default function AuthPage() {
   const { user, loading, authError } = useAuth();
   const router = useRouter();
+  const [mode, setMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     // Only redirect if auth is fully loaded and user is definitely authenticated
@@ -32,28 +33,36 @@ export default function LoginPage() {
           <h2 className="text-red-800 font-semibold mb-2">Authentication Error</h2>
           <p className="text-red-600 text-sm mb-4">{authError}</p>
           <p className="text-gray-600 text-xs">Please check your Firebase configuration and try again.</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Retry
-          </button>
+          <div className="mt-4 space-x-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Show loading spinner while checking auth state
+  // Show loading while auth state is being determined
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <p className="ml-3 text-gray-600">Checking authentication...</p>
+        <p className="ml-3 text-gray-600">Loading authentication...</p>
       </div>
     );
   }
 
-  // Don't render login form if user is authenticated (but show loading instead)
+  // Show loading if user state is still being determined
   if (user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -62,6 +71,11 @@ export default function LoginPage() {
       </div>
     );
   }
+
+  const toggleMode = () => {
+    setMode(mode === "login" ? "signup" : "login");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center p-4">
       {/* Background Pattern */}
@@ -101,6 +115,39 @@ export default function LoginPage() {
             transition={{ duration: 0.2, delay: 0.1 }}
             className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8"
           >
+            {/* Mode Toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15, delay: 0.1 }}
+              className="flex bg-gray-100 rounded-lg p-1 mb-8"
+            >
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  mode === "login"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  mode === "signup"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <UserPlus className="w-4 h-4" />
+                Sign Up
+              </button>
+            </motion.div>
+
             {/* Header */}
             <div className="text-center mb-8">
               <motion.div
@@ -118,48 +165,96 @@ export default function LoginPage() {
               </motion.div>
 
               <motion.h1
+                key={mode}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.15, delay: 0.2 }}
                 className="text-2xl font-bold text-foreground mb-2"
               >
-                Welcome Back
+                {mode === "login" ? "Welcome Back" : "Create Account"}
               </motion.h1>
 
               <motion.p
+                key={`${mode}-desc`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.15, delay: 0.25 }}
                 className="text-muted-foreground"
               >
-                Sign in to continue your learning journey
+                {mode === "login"
+                  ? "Sign in to continue your learning journey"
+                  : "Join thousands of learners and start your AI-powered study journey"}
               </motion.p>
             </div>
 
             {/* Phone Auth Form */}
             <motion.div
+              key={`form-${mode}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: 0.3 }}
             >
-              <PhoneAuthForm mode="login" />
+              <PhoneAuthForm mode={mode} />
             </motion.div>
+
+            {/* Terms (only for signup) */}
+            {mode === "signup" && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.15, delay: 0.35 }}
+                className="mt-6 text-center"
+              >
+                <p className="text-xs text-muted-foreground">
+                  By signing up, you agree to our{" "}
+                  <Link
+                    href="#"
+                    className="text-primary hover:text-primary/80 font-medium"
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="#"
+                    className="text-primary hover:text-primary/80 font-medium"
+                  >
+                    Privacy Policy
+                  </Link>
+                </p>
+              </motion.div>
+            )}
 
             {/* Footer */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.15, delay: 0.35 }}
+              transition={{ duration: 0.15, delay: 0.4 }}
               className="mt-8 text-center"
             >
               <p className="text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-primary hover:text-primary/80 font-medium transition-colors"
-                >
-                  Sign up
-                </Link>
+                {mode === "login" ? (
+                  <>
+                    Don&apos;t have an account?{" "}
+                    <button
+                      type="button"
+                      onClick={toggleMode}
+                      className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{" "}
+                    <button
+                      type="button"
+                      onClick={toggleMode}
+                      className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                      Sign in
+                    </button>
+                  </>
+                )}
               </p>
             </motion.div>
           </motion.div>
