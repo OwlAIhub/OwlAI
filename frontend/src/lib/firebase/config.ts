@@ -31,6 +31,8 @@ const firebaseConfig = {
 // Environment variables are used in development, hardcoded values in production
 let missingEnvVars: string[] = [];
 
+// Only check for missing environment variables in development
+// In production (static export), we use hardcoded fallback values
 if (process.env.NODE_ENV === "development") {
   const requiredEnvVars = [
     "NEXT_PUBLIC_FIREBASE_API_KEY",
@@ -49,6 +51,9 @@ if (process.env.NODE_ENV === "development") {
       missingEnvVars.join(", "),
     );
   }
+} else {
+  // In production, we're using hardcoded values - no need to warn about missing env vars
+  console.log("Firebase initialized with production configuration");
 }
 
 // Initialize Firebase app
