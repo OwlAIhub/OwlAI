@@ -133,6 +133,21 @@ export function ChatContainer({
                 ))}
               </div>
             </motion.div>
+
+            {/* Search/Input Bar - Right below starter prompts */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="w-full max-w-2xl mt-8"
+            >
+              <ChatInput
+                onSendMessage={sendMessage}
+                disabled={isLoading}
+                loading={isLoading}
+                placeholder="Ask me anything about your studies..."
+              />
+            </motion.div>
           </div>
         ) : (
           /* Messages List */
@@ -213,13 +228,15 @@ export function ChatContainer({
         </div>
       )}
 
-      {/* Chat Input */}
-      <ChatInput
-        onSendMessage={sendMessage}
-        disabled={isLoading}
-        loading={isLoading}
-        placeholder="Ask me anything about your studies..."
-      />
+      {/* Chat Input - Only show when there are messages */}
+      {hasMessages && (
+        <ChatInput
+          onSendMessage={sendMessage}
+          disabled={isLoading}
+          loading={isLoading}
+          placeholder="Ask me anything about your studies..."
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
-import { RealtimeChatContainer } from "@/components/chat/RealtimeChatContainer";
+import { ChatContainer } from "@/components/chat/ChatContainer";
 import {
   SidebarInset,
   SidebarProvider,
@@ -52,11 +52,17 @@ function ChatContent() {
               </div>
             </header>
 
-            {/* Real-time Chat Container */}
+            {/* Chat Container */}
             <div className="flex-1 min-h-0">
-              <RealtimeChatContainer 
-                sessionId={sessionId || undefined}
+              <ChatContainer 
                 className="h-full"
+                welcomeMessage="Hello! I'm your AI learning assistant. How can I help you study today?"
+                starterPrompts={[
+                  "Research methodology for UGC NET",
+                  "UGC NET Paper 1 strategies", 
+                  "30-day study plan for Economics",
+                  "Teaching aptitude section tips"
+                ]}
               />
             </div>
           </div>

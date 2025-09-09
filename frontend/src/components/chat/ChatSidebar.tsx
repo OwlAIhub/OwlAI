@@ -93,7 +93,7 @@ export function ChatSidebar() {
     loadOnboardingProfile();
   }, [user?.uid]);
 
-  // Load and subscribe to chat sessions
+  // Load chat sessions (simplified)
   useEffect(() => {
     if (!user?.uid) {
       setChatSessions([]);
@@ -101,20 +101,20 @@ export function ChatSidebar() {
       return;
     }
 
-    setLoading(true);
-
-    // Subscribe to real-time chat sessions
-    const unsubscribe = chatService.subscribeToSessions(
-      user.uid,
-      (sessions) => {
-        setChatSessions(sessions);
+    const loadSessions = async () => {
+      try {
+        setLoading(true);
+        const response = await chatService.getChatSessions(user.uid);
+        setChatSessions(response.data);
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+        setChatSessions([]);
+      } finally {
         setLoading(false);
-      },
-    );
-
-    return () => {
-      unsubscribe();
+      }
     };
+
+    loadSessions();
   }, [user?.uid]);
 
   const handleSignOut = async () => {
