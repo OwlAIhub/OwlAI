@@ -492,6 +492,29 @@ html {
      touch-action: pan-y;
      will-change: scroll-position;
    }
+
+   /* Fix scrollbar positioning and ensure proper functionality */
+   .overflow-y-auto {
+     scrollbar-width: thin;
+     scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+   }
+
+   .overflow-y-auto::-webkit-scrollbar {
+     width: 8px;
+   }
+
+   .overflow-y-auto::-webkit-scrollbar-track {
+     background: transparent;
+   }
+
+   .overflow-y-auto::-webkit-scrollbar-thumb {
+     background: rgba(156, 163, 175, 0.4);
+     border-radius: 4px;
+   }
+
+   .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+     background: rgba(156, 163, 175, 0.6);
+   }
   
   /* Smooth scrolling behavior */
   .scroll-smooth {

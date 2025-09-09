@@ -74,98 +74,103 @@ export const renderers = {
   // Handle styled paragraphs for educational content
   p: ({ children }: { children?: React.ReactNode }) => {
     const text = String(children);
+    
+    // Definition blocks
     if (text.startsWith('Definition:')) {
       return (
-        <div className='border-l-4 border-gray-400 pl-6 py-4 my-6 bg-gray-50'>
-          <p className='text-gray-900 font-medium leading-loose text-base'>{children}</p>
+        <div className='border-l-2 border-gray-600 pl-4 py-2 my-3'>
+          <p className='text-gray-900 font-semibold text-base leading-relaxed'><strong>Definition:</strong> {children}</p>
         </div>
       );
     }
+    
+    // Key Points
     if (text.startsWith('Key Points:')) {
       return (
-        <div className='border-l-3 border-gray-400 pl-4 py-3 my-5 bg-gray-50'>
-          <p className='text-gray-800 font-medium leading-relaxed'>{children}</p>
+        <div className='border-l-2 border-gray-600 pl-4 py-2 my-3'>
+          <p className='text-gray-900 font-medium text-base leading-relaxed'><strong>Key Points:</strong> {children}</p>
         </div>
       );
     }
+    
+    // Theory/Theoretical Framework
     if (text.startsWith('Theory:') || text.startsWith('Theoretical Framework:')) {
       return (
-        <div className='border-l-4 border-gray-600 pl-6 py-4 my-6 bg-blue-50'>
-          <p className='text-gray-900 leading-loose text-base font-normal'>{children}</p>
+        <div className='border-l-2 border-gray-600 pl-4 py-2 my-3'>
+          <p className='text-gray-900 text-base leading-relaxed'><strong>Theory:</strong> {children}</p>
         </div>
       );
     }
+    
+    // Examples
     if (text.startsWith('Example:')) {
       return (
-        <div className='border-l-3 border-gray-400 pl-4 py-2 my-4 bg-gray-50'>
-          <p className='text-gray-800 font-mono text-sm leading-relaxed'>{children}</p>
+        <div className='border-l-2 border-gray-500 pl-4 py-2 my-3'>
+          <p className='text-gray-900 font-mono text-sm leading-relaxed'><strong>Example:</strong> {children}</p>
         </div>
       );
     }
+    
+    // Important Notes
     if (text.startsWith('Important:') || text.startsWith('Note:')) {
       return (
-        <div className='border-l-3 border-gray-500 pl-4 py-3 my-5'>
-          <p className='text-gray-800 font-medium leading-relaxed'>{children}</p>
+        <div className='border-l-2 border-gray-700 pl-4 py-2 my-3'>
+          <p className='text-gray-900 font-semibold text-base leading-relaxed'><strong>Important:</strong> {children}</p>
         </div>
       );
     }
+    
+    // Summary/Conclusion
     if (text.startsWith('Summary:') || text.startsWith('Conclusion:')) {
       return (
-        <div className='border-l-4 border-gray-500 pl-6 py-4 my-6 bg-green-50'>
-          <p className='text-gray-900 font-medium leading-loose text-base'>{children}</p>
+        <div className='border-l-2 border-gray-600 pl-4 py-2 my-3'>
+          <p className='text-gray-900 font-medium text-base leading-relaxed'><strong>Summary:</strong> {children}</p>
         </div>
       );
     }
-    if (text.startsWith('Topic:')) {
-      return (
-        <div className='border-l-3 border-gray-500 pl-6 py-4 my-6 bg-indigo-50'>
-          <p className='text-gray-800 font-medium leading-loose text-base'>{children}</p>
-        </div>
-      );
-    }
-    if (text.startsWith('Detailed Explanation:') || text.startsWith('Comprehensive Analysis:')) {
-      return (
-        <div className='border-l-4 border-blue-500 pl-6 py-5 my-7 bg-blue-50 rounded-r-lg'>
-          <p className='text-gray-900 leading-loose text-base font-normal min-h-[4rem]'>{children}</p>
-        </div>
-      );
-    }
-    if (text.startsWith('In-depth Discussion:') || text.startsWith('Thorough Overview:')) {
-      return (
-        <div className='border-l-4 border-purple-500 pl-6 py-5 my-7 bg-purple-50 rounded-r-lg'>
-          <p className='text-gray-900 leading-loose text-base font-normal min-h-[4rem]'>{children}</p>
-        </div>
-      );
-    }
-    return <p className='mb-6 leading-loose text-gray-900 text-base max-w-none'>{children}</p>;
+    
+    // Default paragraph
+    return <p className='mb-4 leading-relaxed text-gray-900 text-base'>{children}</p>;
   },
 
-  // Styled Headers - optimized for detailed content
+  // Clean Headers for educational content
   h1: ({ children }: { children?: React.ReactNode }) => (
-    <h1 className='text-xl font-medium text-gray-800 mt-8 mb-6 pb-3 border-b border-gray-300'>
+    <h1 className='text-xl font-bold text-gray-900 mt-6 mb-4 pb-2 border-b border-gray-400'>
       {children}
     </h1>
   ),
   h2: ({ children }: { children?: React.ReactNode }) => (
-    <h2 className='text-lg font-medium text-gray-800 mt-7 mb-5 pb-2 border-b border-gray-200'>
+    <h2 className='text-lg font-semibold text-gray-800 mt-5 mb-3 pb-1 border-b border-gray-300'>
       {children}
     </h2>
   ),
   h3: ({ children }: { children?: React.ReactNode }) => (
-    <h3 className='text-base font-medium text-gray-700 mt-6 mb-4'>
+    <h3 className='text-base font-semibold text-gray-700 mt-4 mb-2'>
       {children}
     </h3>
   ),
   h4: ({ children }: { children?: React.ReactNode }) => (
-    <h4 className='text-base font-normal text-gray-700 mt-5 mb-3'>
+    <h4 className='text-base font-medium text-gray-700 mt-3 mb-2'>
       {children}
     </h4>
   ),
 
-  // Styled Lists - subtle to encourage paragraphs over points
-  ul: ({ children }: { children?: React.ReactNode }) => <ul className='list-disc pl-5 my-3 space-y-2 leading-relaxed text-gray-700'>{children}</ul>,
-  ol: ({ children }: { children?: React.ReactNode }) => <ol className='list-decimal pl-5 my-3 space-y-2 leading-relaxed text-gray-700'>{children}</ol>,
-  li: ({ children }: { children?: React.ReactNode }) => <li className='text-gray-700 leading-relaxed py-0.5 text-sm'>{children}</li>,
+  // Clean Lists for educational content
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className='list-disc pl-6 my-4 space-y-1 text-gray-900'>
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className='list-decimal pl-6 my-4 space-y-1 text-gray-900'>
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className='text-gray-900 leading-relaxed text-base py-1'>
+      {children}
+    </li>
+  ),
   
   // Styled Tables
   table: ({ children }: { children?: React.ReactNode }) => (
