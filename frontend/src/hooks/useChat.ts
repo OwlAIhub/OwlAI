@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/contexts/AuthContext";
 import {
-    FlowiseError,
-    sendMessage,
-    sendMessageStream
+  FlowiseError,
+  sendMessage,
+  sendMessageStream
 } from "../lib/services/flowiseService";
 
 export interface ChatMessage {
@@ -127,6 +127,8 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         if (useStreaming) {
           // Use streaming for real-time response
           try {
+            const streamChatId: string | undefined = undefined;
+
             const streamResponse = await sendMessageStream(
               content,
               chatId || undefined,
@@ -139,7 +141,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                     timestamp: new Date(),
                     status: "sent",
                     metadata: {
-                      chatId: streamResponse.chatId,
+                      chatId: streamChatId,
                       processingTime: Date.now() - startTime,
                     },
                   });
@@ -167,7 +169,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
               updateMessage(aiMessage.id, {
                 content: streamResponse.text,
                 metadata: {
-                  ...aiMessage.metadata,
+                  ...(aiMessage.metadata || {}),
                   processingTime: Date.now() - startTime,
                 },
               });

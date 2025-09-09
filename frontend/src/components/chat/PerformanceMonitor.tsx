@@ -157,7 +157,7 @@ export function PerformanceMonitor() {
 
           <div className="pt-2 border-t">
             <div className="text-xs text-gray-500">
-              Status: <span className={getResponseTimeColor(metrics.avgResponseTime)} className="text-white px-1 rounded text-xs">
+              Status: <span className={`${getResponseTimeColor(metrics.avgResponseTime)} text-white px-1 rounded text-xs`}>
                 {getResponseTimeLabel(metrics.avgResponseTime)}
               </span>
             </div>

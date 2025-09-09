@@ -48,7 +48,7 @@ export function MCQComponent({
                     : "border-red-500 bg-red-50 text-red-800"
                   : "border-blue-500 bg-blue-100 text-blue-800"
                 : showResult && index === correctAnswer
-                  ? "border-green-500 bg-green-50 text-green-800"
+                  ? "border-green-500 text-green-800"
                   : "border-gray-300 hover:border-gray-400",
             )}
           >
