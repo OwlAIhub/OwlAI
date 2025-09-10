@@ -4,33 +4,32 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/buttons/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/inputs/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import {
-    OnboardingProfile,
-    getOnboardingProfile,
+  OnboardingProfile,
+  getOnboardingProfile,
 } from "@/lib/services/onboardingService";
 import { updateUserProfile } from "@/lib/services/userService";
-import { motion } from "framer-motion";
 import {
-    ArrowLeft,
-    BookOpen,
-    Calendar,
-    Edit3,
-    Globe,
-    Phone,
-    Save,
-    Settings,
-    Target,
-    User,
+  ArrowLeft,
+  BookOpen,
+  Calendar,
+  Edit3,
+  Globe,
+  Phone,
+  Save,
+  Settings,
+  Target,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -59,7 +58,7 @@ export default function ProfilePage() {
       try {
         // Add timeout to prevent hanging
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout")), 5000),
+          setTimeout(() => reject(new Error("Timeout")), 2000),
         );
 
         const onboarding = (await Promise.race([
@@ -130,22 +129,13 @@ export default function ProfilePage() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:30px_30px]" />
-
-      {/* Decorative Blurs */}
-      <div className="absolute top-1/4 left-1/4 w-32 h-32 md:w-64 md:h-64 bg-primary/3 rounded-full blur-2xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-accent/3 rounded-full blur-2xl" />
+      {/* Simplified Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100" />
 
       <div className="relative z-10 h-full flex flex-col">
         <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 overflow-hidden">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center gap-4 mb-8"
-          >
+          <div className="flex items-center gap-4 mb-8">
             <Button
               variant="outline"
               size="sm"
@@ -168,16 +158,11 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           <div className="grid gap-4 md:grid-cols-3 h-full">
             {/* Profile Overview */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="md:col-span-1"
-            >
+            <div className="md:col-span-1">
               <Card className="bg-white/80 backdrop-blur-sm border-border/40">
                 <CardHeader className="text-center">
                   <div className="flex justify-center mb-4">
@@ -245,15 +230,10 @@ export default function ProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
             {/* Profile Settings */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="md:col-span-2 space-y-3 overflow-hidden"
-            >
+            <div className="md:col-span-2 space-y-3 overflow-hidden">
               {/* Personal Information */}
               <Card className="bg-white/80 backdrop-blur-sm border-border/40">
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -428,24 +408,25 @@ export default function ProfilePage() {
               {/* Account Actions */}
               <Card className="bg-white/80 backdrop-blur-sm border-border/40">
                 <CardHeader>
-                  <CardTitle className="text-destructive">
-                    Danger Zone
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Account
                   </CardTitle>
                   <CardDescription>
-                    Irreversible and destructive actions
+                    Manage your account settings
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     onClick={handleSignOut}
-                    className="w-full"
+                    className="w-full text-gray-600 hover:text-gray-800"
                   >
                     Sign Out
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

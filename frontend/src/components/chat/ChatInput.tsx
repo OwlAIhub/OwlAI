@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Send, Mic, Square, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { Mic, Paperclip, Send, Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -64,14 +64,14 @@ export function ChatInput({
             <motion.div
               animate={{
                 boxShadow: isFocused
-                  ? "0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(59, 130, 246, 0.3)"
+                  ? "0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(20, 184, 166, 0.3)"
                   : "0 4px 20px rgba(0, 0, 0, 0.08)"
               }}
               transition={{ duration: 0.2 }}
               className={cn(
                 "relative flex items-end gap-3 p-4 bg-white rounded-2xl border transition-all duration-200",
                 isFocused
-                  ? "border-blue-200 bg-blue-50/30"
+                  ? "border-teal-200 bg-teal-50/30"
                   : "border-gray-200 hover:border-gray-300",
                 disabled && "opacity-50 cursor-not-allowed",
                 isOverLimit && "border-red-300",
@@ -165,7 +165,7 @@ export function ChatInput({
                     className={cn(
                       "h-9 w-9 p-0 rounded-xl transition-all duration-200",
                       canSend
-                        ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25"
+                        ? "bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/25"
                         : "bg-gray-200 cursor-not-allowed",
                     )}
                   >
@@ -203,7 +203,7 @@ export function ChatInput({
                     type="button"
                     whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
-                    className="text-xs px-3 py-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full border border-gray-200 hover:border-blue-200 transition-all duration-200"
+                    className="text-xs px-3 py-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-full border border-gray-200 hover:border-teal-200 transition-all duration-200"
                     onClick={() => setMessage(action.message)}
                   >
                     {action.label}

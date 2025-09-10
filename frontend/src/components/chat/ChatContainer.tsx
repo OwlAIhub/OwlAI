@@ -1,20 +1,24 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, RefreshCw } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-import { useChat } from "../../hooks/useChat";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
-import { TypingIndicator } from "./TypingIndicator";
 
 export interface ChatContainerProps {
   className?: string;
   welcomeMessage?: string;
   starterPrompts?: string[];
+}
+
+interface SimpleMessage {
+  id: string;
+  content: string;
+  sender: "user" | "ai";
+  timestamp: Date;
+  status: "sent";
 }
 
 export function ChatContainer({
@@ -27,25 +31,8 @@ export function ChatContainer({
     "Teaching aptitude section tips",
   ],
 }: ChatContainerProps) {
-  const {
-    messages,
-    isLoading,
-    error,
-    sendMessage,
-    regenerateMessage,
-    retryLastMessage,
-    isTyping,
-  } = useChat({
-    onError: (error) => {
-      console.error("Chat error:", error);
-    },
-    onMessageSent: (message) => {
-      console.log("Message sent:", message);
-    },
-    onMessageReceived: (message) => {
-      console.log("Message received:", message);
-    },
-  });
+  const [messages, setMessages] = useState<SimpleMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -53,20 +40,47 @@ export function ChatContainer({
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages]);
 
   const handleStarterPromptClick = (prompt: string) => {
     sendMessage(prompt);
   };
 
+  const sendMessage = (content: string) => {
+    if (!content.trim()) return;
+
+    // Add user message
+    const userMessage: SimpleMessage = {
+      id: Date.now().toString(),
+      content: content.trim(),
+      sender: "user",
+      timestamp: new Date(),
+      status: "sent",
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    // Simulate AI response after a delay
+    setTimeout(() => {
+      const aiMessage: SimpleMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm a simple chat interface. Database and AI integration have been removed as requested. This is just a UI demonstration.",
+        sender: "ai",
+        timestamp: new Date(),
+        status: "sent",
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1000);
+  };
+
   const handleCopyMessage = (content: string) => {
-    // Copy functionality is handled in ChatMessage component
-    console.log("Message copied:", content);
+    navigator.clipboard.writeText(content);
   };
 
   const handleFeedback = (messageId: string, type: "like" | "dislike") => {
     console.log("Feedback:", messageId, type);
-    // TODO: Implement feedback storage
   };
 
   const hasMessages = messages.length > 0;
@@ -164,7 +178,7 @@ export function ChatContainer({
                     timestamp={message.timestamp}
                     status={message.status}
                     onCopy={handleCopyMessage}
-                    onRegenerate={regenerateMessage}
+                    onRegenerate={() => {}}
                     onFeedback={handleFeedback}
                   />
                 ))}
@@ -172,39 +186,73 @@ export function ChatContainer({
             </div>
 
             {/* Typing Indicator */}
-            <div className="max-w-4xl mx-auto px-4">
-              <AnimatePresence>{isTyping && <TypingIndicator />}</AnimatePresence>
+            {isLoading && (
+              <div className="max-w-4xl mx-auto px-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center gap-3 py-3"
+                >
+                  {/* AI Avatar */}
+                  <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+                    <Image
+                      src="/apple-touch-icon.png"
+                      alt="OwlAI"
+                      width={20}
+                      height={20}
+                      className="w-4 h-4 object-contain"
+                      unoptimized
+                    />
+                  </div>
 
-              {/* Error Message */}
-              <AnimatePresence>
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="my-2 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
-                  >
-                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm text-red-800 font-medium">Error</p>
-                      <p className="text-sm text-red-700">{error}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={retryLastMessage}
-                      className="text-red-700 border-red-300 hover:bg-red-100"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Retry
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  {/* Typing Animation */}
+                  <div className="flex items-center gap-1">
+                    <motion.div
+                      className="w-1.5 h-1.5 bg-teal-500 rounded-full"
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.4, 1, 0.4],
+                      }}
+                      transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        delay: 0,
+                      }}
+                    />
+                    <motion.div
+                      className="w-1.5 h-1.5 bg-teal-500 rounded-full"
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.4, 1, 0.4],
+                      }}
+                      transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        delay: 0.2,
+                      }}
+                    />
+                    <motion.div
+                      className="w-1.5 h-1.5 bg-teal-500 rounded-full"
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.4, 1, 0.4],
+                      }}
+                      transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        delay: 0.4,
+                      }}
+                    />
+                  </div>
 
-              {/* Scroll anchor */}
-              <div ref={messagesEndRef} />
-            </div>
+                  <span className="text-sm text-gray-600 font-medium">OwlAI is thinking...</span>
+                </motion.div>
+              </div>
+            )}
+
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>

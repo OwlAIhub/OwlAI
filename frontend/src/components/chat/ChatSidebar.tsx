@@ -22,102 +22,25 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+    SidebarMenu
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { chatService } from "@/lib/services/chatService";
-import {
-    OnboardingProfile,
-    getOnboardingProfile,
-} from "@/lib/services/onboardingService";
-import { ClientChatSession } from "@/lib/types/chat";
 import {
     ChevronRight,
     History,
     LogOut,
-    MessageCircle,
     MoreHorizontal,
-    Pin,
     Plus,
-    User,
+    User
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-
-// Helper function to format timestamp
-const formatTimestamp = (date: Date): string => {
-  const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
-
-  if (diffInMinutes < 60) {
-    return diffInMinutes <= 1 ? "Just now" : `${diffInMinutes} minutes ago`;
-  } else if (diffInHours < 24) {
-    return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
-  } else if (diffInDays < 7) {
-    return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
-  } else {
-    return date.toLocaleDateString();
-  }
-};
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function ChatSidebar() {
   const { user, userProfile, signOut } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
-  const [chatSessions, setChatSessions] = useState<ClientChatSession[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [onboardingProfile, setOnboardingProfile] =
-    useState<OnboardingProfile | null>(null);
-
-  useEffect(() => {
-    const loadOnboardingProfile = async () => {
-      if (user?.uid) {
-        try {
-          const profile = await getOnboardingProfile(user.uid);
-          setOnboardingProfile(profile);
-        } catch (error) {
-          console.error("Error loading onboarding profile:", error);
-        }
-      }
-    };
-
-    loadOnboardingProfile();
-  }, [user?.uid]);
-
-  // Load chat sessions with proper error handling
-  useEffect(() => {
-    if (!user?.uid) {
-      setChatSessions([]);
-      setLoading(false);
-      return;
-    }
-
-    const loadSessions = async () => {
-      try {
-        setLoading(true);
-        console.log('Loading sessions for user:', user.uid);
-        const response = await chatService.getChatSessions(user.uid);
-        console.log('Sessions loaded:', response.data);
-        setChatSessions(response.data || []);
-      } catch (error) {
-        console.error('Error loading sessions:', error);
-        setChatSessions([]);
-        // Don't throw the error, just log it and continue
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSessions();
-  }, [user?.uid]); // Only depend on user.uid to avoid infinite loops
 
   const handleSignOut = async () => {
     try {
@@ -128,27 +51,10 @@ export function ChatSidebar() {
     }
   };
 
-  const handleNewChat = async () => {
-    if (!user?.uid) return;
-
-    try {
-      const sessionId = await chatService.createChatSession(user.uid, {
-        title: "New Chat",
-        category: "general",
-      });
-
-      // Navigate to the new chat session
-      router.push(`/chat?session=${sessionId}`);
-    } catch (error) {
-      console.error("Error creating new chat:", error);
-    }
+  const handleNewChat = () => {
+    // Simple navigation without database integration
+    router.push("/chat");
   };
-
-  const handleSessionClick = (sessionId: string) => {
-    router.push(`/chat?session=${sessionId}`);
-  };
-
-  const currentSessionId = searchParams.get("session");
 
   return (
     <Sidebar className="border-r border-border/40 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
@@ -201,49 +107,11 @@ export function ChatSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {loading ? (
-                    <div className="flex items-center justify-center p-4">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    </div>
-                  ) : chatSessions.length === 0 ? (
-                    <div className="text-center p-4 text-muted-foreground text-sm">
-                      No chat sessions yet
-                    </div>
-                  ) : (
-                    chatSessions && chatSessions.length > 0 ? chatSessions.map((session) => (
-                      <SidebarMenuItem key={session.id}>
-                        <SidebarMenuButton
-                          className={`h-auto p-2 ${
-                            currentSessionId === session.id
-                              ? "bg-primary/10 text-primary"
-                              : "hover:bg-muted/50"
-                          }`}
-                          onClick={() => handleSessionClick(session.id)}
-                        >
-                          <div className="flex items-start gap-2 min-w-0 flex-1">
-                            <MessageCircle className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                  {session.title}
-                                </p>
-                                {session.isPinned && (
-                                  <Pin className="h-3 w-3 text-primary flex-shrink-0" />
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                {formatTimestamp(session.lastMessage.timestamp)}
-                              </p>
-                            </div>
-                          </div>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )) : (
-                      <div className="text-center p-4 text-muted-foreground text-sm">
-                        Loading sessions...
-                      </div>
-                    )
-                  )}
+                  <div className="text-center p-4 text-muted-foreground text-sm">
+                    No chat history available
+                    <br />
+                    <span className="text-xs">Database integration removed</span>
+                  </div>
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
@@ -264,7 +132,7 @@ export function ChatSidebar() {
               {userProfile?.phoneNumber || user?.phoneNumber || "User"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {onboardingProfile?.exam || "Student"}
+              Student
             </p>
           </div>
           <DropdownMenu>
