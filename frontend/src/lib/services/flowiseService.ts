@@ -276,7 +276,7 @@ export async function sendMessage(
     if (requestCache.size > config.MAX_CACHE_SIZE) {
       const entries = Array.from(requestCache.entries());
       entries
-        .filter(([_, value]) => !isCacheValid(value.timestamp))
+        .filter(([, value]) => !isCacheValid(value.timestamp))
         .forEach(([key]) => requestCache.delete(key));
     }
   }
@@ -360,7 +360,7 @@ export async function sendMessageStream(
               if (data.chatId) {
                 finalChatId = data.chatId;
               }
-            } catch (e) {
+            } catch {
               // Ignore malformed JSON chunks
             }
           }
