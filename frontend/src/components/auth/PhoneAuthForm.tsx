@@ -1,17 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/inputs/label";
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { auth } from "@/lib/firebaseConfig";
+import { auth, appConfig, getFirebaseErrorMessage } from "@/lib/firebase/config";
 import { hasCompletedOnboarding } from "@/lib/services/onboardingService";
+import { validatePhoneNumber, formatPhoneNumber, isTestPhoneNumber } from "@/lib/utils/phoneValidation";
 import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Loader2, Phone } from "lucide-react";
+import { ArrowRight, Check, Loader2, Phone, AlertCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 // Extend Window interface for reCAPTCHA
 declare global {
@@ -27,16 +27,66 @@ interface PhoneAuthFormProps {
 export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const { signInWithPhone, verifyOTP, setRecaptchaVerifier } = useAuth();
   const router = useRouter();
+  
+  // Form state
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  
+  // Rate limiting state
   const [lastRequestTime, setLastRequestTime] = useState<number>(0);
   const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+  const [attemptCount, setAttemptCount] = useState<number>(0);
+  const [resendLoading, setResendLoading] = useState(false);
+  
+  // Validation state
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isValid: boolean;
+    formatted: string;
+    country?: string;
+    error?: string;
+  }>({ isValid: false, formatted: '', country: undefined, error: undefined });
 
+  // ========================================
+  // PHONE NUMBER VALIDATION
+  // ========================================
+  
+  const validateAndSetPhoneNumber = useCallback((phone: string) => {
+    const validation = validatePhoneNumber(phone);
+    setPhoneValidation({
+      isValid: validation.isValid,
+      formatted: validation.formatted,
+      country: validation.country,
+      error: validation.error,
+    });
+    
+    if (validation.isValid) {
+      setWarning(null);
+      setError(null);
+      
+      // Check for test numbers in production
+      if (appConfig.environment === 'production' && isTestPhoneNumber(validation.formatted)) {
+        setWarning("Test phone numbers are not supported in production. Please use a real phone number.");
+      }
+    } else if (phone.trim() !== '') {
+      setError(validation.error || 'Invalid phone number');
+    } else {
+      setError(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    validateAndSetPhoneNumber(phoneNumber);
+  }, [phoneNumber, validateAndSetPhoneNumber]);
+
+  // ========================================
+  // RECAPTCHA INITIALIZATION
+  // ========================================
+  
   useEffect(() => {
     // Initialize reCAPTCHA verifier with improved timing
     const initRecaptcha = async () => {
@@ -119,122 +169,111 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
     };
   }, [setRecaptchaVerifier]); // Keep setRecaptchaVerifier dependency but make it stable
 
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // ========================================
+  // RATE LIMITING HELPERS
+  // ========================================
+  
+  const startCooldownTimer = useCallback((remainingSeconds: number) => {
+    setCooldownRemaining(remainingSeconds);
     
-    // Check cooldown period (30 seconds between requests)
+    const countdown = setInterval(() => {
+      setCooldownRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(countdown);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return countdown;
+  }, []);
+  
+  const checkRateLimit = useCallback((): { allowed: boolean; remainingTime?: number } => {
     const now = Date.now();
-    const cooldownPeriod = 30000; // 30 seconds
+    const cooldownPeriod = appConfig.security.otpCooldownSeconds * 1000;
     const timeSinceLastRequest = now - lastRequestTime;
     
     if (timeSinceLastRequest < cooldownPeriod) {
       const remainingTime = Math.ceil((cooldownPeriod - timeSinceLastRequest) / 1000);
-      setError(`Please wait ${remainingTime} seconds before trying again`);
-      setCooldownRemaining(remainingTime);
-      
-      // Start countdown
-      const countdown = setInterval(() => {
-        setCooldownRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(countdown);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      
-      return;
+      return { allowed: false, remainingTime };
     }
     
-    setLoading(true);
-    setError(null);
-    setCooldownRemaining(0);
-    setLastRequestTime(now);
-
-    if (!phoneNumber.trim()) {
-      setError("Please enter your phone number");
-      setLoading(false);
-      return;
+    if (attemptCount >= appConfig.security.maxOtpAttempts) {
+      return { allowed: false };
     }
-
-    // Basic phone validation
-    const phoneRegex = /^[+]?[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ""))) {
-      setError("Please enter a valid phone number");
-      setLoading(false);
-      return;
-    }
-
-    // Check for test phone numbers (for development)
-    const testPhoneNumbers = ["+1234567890", "+9876543210"];
-    const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`;
     
-    if (testPhoneNumbers.includes(formattedPhone)) {
-      setError("Test phone numbers are not supported in production. Please use a real phone number.");
-      setLoading(false);
-      return;
-    }
+    return { allowed: true };
+  }, [lastRequestTime, attemptCount]);
 
-    // Wait for reCAPTCHA to be ready
-    let retries = 0;
-    const maxRetries = 10;
-    while (!window.recaptchaVerifier && retries < maxRetries) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      retries++;
-    }
-
-    if (!window.recaptchaVerifier) {
-      setError(
-        "Security verification is loading. Please try again in a moment.",
-      );
-      setLoading(false);
-      return;
-    }
-
+  // ========================================
+  // SEND OTP FUNCTION (SHARED BY INITIAL SEND & RESEND)
+  // ========================================
+  
+  const sendOTP = useCallback(async (isResend = false): Promise<boolean> => {
     try {
-      // Format phone number to include country code if not present
-      const formattedPhone = phoneNumber.startsWith("+")
-        ? phoneNumber
-        : `+91${phoneNumber}`;
-
-      const result = await signInWithPhone(formattedPhone);
-      setConfirmationResult(result);
-      setStep("otp");
-    } catch (err: unknown) {
-      console.error("Phone auth error:", err);
+      setError(null);
+      setWarning(null);
       
-      // Handle specific Firebase auth errors
-      let errorMessage = "Failed to send OTP. Please try again.";
-      
-      if (err && typeof err === 'object' && 'code' in err) {
-         const firebaseError = err as { code: string; message?: string };
-        switch (firebaseError.code) {
-           case 'auth/too-many-requests':
-             errorMessage = "Too many requests. Please wait a few minutes before trying again.";
-             break;
-           case 'auth/billing-not-enabled':
-             errorMessage = "Phone authentication is not properly configured. Please contact support.";
-             break;
-           case 'auth/invalid-phone-number':
-             errorMessage = "Please enter a valid phone number with country code.";
-             break;
-           case 'auth/quota-exceeded':
-             errorMessage = "SMS quota exceeded. Please try again later.";
-             break;
-           case 'auth/captcha-check-failed':
-             errorMessage = "Security verification failed. Please refresh and try again.";
-             break;
-           default:
-             errorMessage = firebaseError.message || errorMessage;
-         }
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
+      // Validate phone number first
+      if (!phoneValidation.isValid) {
+        setError(phoneValidation.error || "Please enter a valid phone number");
+        return false;
       }
       
+      // Check rate limiting
+      const rateCheck = checkRateLimit();
+      if (!rateCheck.allowed) {
+        if (rateCheck.remainingTime) {
+          setError(`Please wait ${rateCheck.remainingTime} seconds before trying again`);
+          startCooldownTimer(rateCheck.remainingTime);
+        } else {
+          setError(`Maximum attempts reached. Please try again later.`);
+        }
+        return false;
+      }
+      
+      // Wait for reCAPTCHA to be ready
+      let retries = 0;
+      const maxRetries = 10;
+      while (!window.recaptchaVerifier && retries < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        retries++;
+      }
+
+      if (!window.recaptchaVerifier) {
+        setError("Security verification is loading. Please try again in a moment.");
+        return false;
+      }
+
+      const result = await signInWithPhone(phoneValidation.formatted);
+      setConfirmationResult(result);
+      
+      // Update state
+      const now = Date.now();
+      setLastRequestTime(now);
+      setAttemptCount(prev => prev + 1);
+      
+      if (!isResend) {
+        setStep("otp");
+      }
+      
+      return true;
+      
+    } catch (err: unknown) {
+      console.error("Phone auth error:", err);
+      const errorMessage = getFirebaseErrorMessage(err);
       setError(errorMessage);
-    } finally {
-      setLoading(false);
+      return false;
     }
+  }, [phoneValidation, checkRateLimit, startCooldownTimer, signInWithPhone]);
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    setLoading(true);
+    await sendOTP(false);
+    setLoading(false);
   };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
@@ -290,17 +329,26 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
     }
   };
 
+  // ========================================
+  // RESEND OTP FUNCTION (ACTUALLY WORKING!)
+  // ========================================
+  
   const handleResendOtp = async () => {
+    setResendLoading(true);
     setError(null);
-    setLoading(true);
-
+    
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Show success message or handle resend logic
-    } catch (_err) {
-      setError("Failed to resend OTP");
+      const success = await sendOTP(true);
+      if (success) {
+        // Show success message temporarily
+        setWarning("New verification code sent successfully!");
+        setTimeout(() => setWarning(null), 3000);
+      }
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      setError("Failed to resend verification code. Please try again.");
     } finally {
-      setLoading(false);
+      setResendLoading(false);
     }
   };
 
@@ -328,20 +376,54 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+91 98765 43210"
-              className="pl-10 h-12 text-base"
+              className={`pl-10 h-12 text-base ${
+                phoneValidation.isValid && phoneNumber ? 'border-green-500 focus:border-green-500' : 
+                error && phoneNumber ? 'border-red-500 focus:border-red-500' : ''
+              }`}
               disabled={loading}
               required
             />
+            {phoneValidation.isValid && phoneNumber && (
+              <Check className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" />
+            )}
+            {error && phoneNumber && (
+              <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
+            )}
           </div>
+          
+          {/* Phone validation feedback */}
+          {phoneValidation.isValid && phoneNumber && (
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xs text-green-600 flex items-center gap-1"
+            >
+              <Check className="w-3 h-3" />
+              Valid {phoneValidation.country} number: {formatPhoneNumber(phoneNumber)}
+            </motion.p>
+          )}
         </motion.div>
+
+        {/* Warning Message */}
+        {warning && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm flex items-start gap-2"
+          >
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            {warning}
+          </motion.div>
+        )}
 
         {/* Error Message */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+            className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm flex items-start gap-2"
           >
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             {error}
           </motion.div>
         )}
@@ -354,7 +436,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         >
           <Button
             type="submit"
-            disabled={loading || cooldownRemaining > 0}
+            disabled={loading || cooldownRemaining > 0 || !phoneValidation.isValid || !phoneNumber}
             className="w-full h-12 text-base font-medium"
           >
             {loading ? (
@@ -413,7 +495,10 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         className="text-center p-4 bg-gray-50 rounded-lg"
       >
         <p className="text-sm text-muted-foreground mb-1">OTP sent to</p>
-        <p className="font-medium text-foreground">{phoneNumber}</p>
+        <p className="font-medium text-foreground">{formatPhoneNumber(phoneNumber)}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Attempt {attemptCount} of {appConfig.security.maxOtpAttempts}
+        </p>
       </motion.div>
 
       {/* OTP Input */}
@@ -441,13 +526,26 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         />
       </motion.div>
 
+      {/* Warning Message */}
+      {warning && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm flex items-start gap-2"
+        >
+          <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          {warning}
+        </motion.div>
+      )}
+
       {/* Error Message */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+          className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm flex items-start gap-2"
         >
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           {error}
         </motion.div>
       )}
@@ -487,10 +585,30 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         <button
           type="button"
           onClick={handleResendOtp}
-          disabled={loading}
-          className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
+          disabled={loading || resendLoading || cooldownRemaining > 0 || attemptCount >= appConfig.security.maxOtpAttempts}
+          className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
         >
-          Didn&apos;t receive code? Resend
+          {resendLoading ? (
+            <>
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Sending...
+            </>
+          ) : cooldownRemaining > 0 ? (
+            <>
+              <RefreshCw className="w-3 h-3" />
+              Resend in {cooldownRemaining}s
+            </>
+          ) : attemptCount >= appConfig.security.maxOtpAttempts ? (
+            <>
+              <AlertCircle className="w-3 h-3" />
+              Max attempts reached
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-3 h-3" />
+              Didn&apos;t receive code? Resend
+            </>
+          )}
         </button>
       </motion.div>
 

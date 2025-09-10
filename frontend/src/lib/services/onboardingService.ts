@@ -7,8 +7,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { db } from "../firebaseConfig";
-import { handleFirebaseError } from "../firebaseCheck";
+import { db, getFirebaseErrorMessage } from "../firebase/config";
 
 export interface OnboardingData {
   exam: "UGC-NET" | "CSIR-NET" | "";
@@ -192,7 +191,7 @@ export const saveOnboardingData = async (
     return onboardingProfile;
   } catch (error) {
     console.error("Error saving onboarding data:", error);
-    const errorMessage = handleFirebaseError(error);
+    const errorMessage = getFirebaseErrorMessage(error);
     throw new Error(`Failed to save onboarding data: ${errorMessage}`);
   }
 };
@@ -218,7 +217,7 @@ export const updateOnboardingData = async (
     await updateDoc(onboardingRef, dataToUpdate);
   } catch (error) {
     console.error("Error updating onboarding data:", error);
-    const errorMessage = handleFirebaseError(error);
+    const errorMessage = getFirebaseErrorMessage(error);
     throw new Error(`Failed to update onboarding data: ${errorMessage}`);
   }
 };

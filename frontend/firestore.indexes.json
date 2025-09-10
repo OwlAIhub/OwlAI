@@ -1,5 +1,72 @@
 {
   "indexes": [
+    // Users collection - for phone auth
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "phoneNumber", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "lastLoginAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION", 
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    
+    // Onboarding collection
+    {
+      "collectionGroup": "onboarding", 
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isComplete", "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "onboarding",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "exam", "order": "ASCENDING" },
+        { "fieldPath": "subject", "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "DESCENDING" }
+      ]
+    },
+    
+    // Chat users
+    {
+      "collectionGroup": "chatUsers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "subscription.plan", "order": "ASCENDING" },
+        { "fieldPath": "lastActiveAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // Contacts collection - simplified
+    {
+      "collectionGroup": "contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "inquiryType", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // Chat sessions
     {
       "collectionGroup": "chatSessions",
       "queryScope": "COLLECTION",
@@ -26,15 +93,8 @@
         { "fieldPath": "updatedAt", "order": "DESCENDING" }
       ]
     },
-    {
-      "collectionGroup": "chatSessions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "isArchived", "order": "ASCENDING" },
-        { "fieldPath": "updatedAt", "order": "DESCENDING" },
-        { "fieldPath": "__name__", "order": "ASCENDING" }
-      ]
-    },
+    
+    // Messages
     {
       "collectionGroup": "messages",
       "queryScope": "COLLECTION",
@@ -51,36 +111,58 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "activities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "userId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "activities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "userId", "order": "ASCENDING" },
-        { "fieldPath": "type", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
     }
   ],
   "fieldOverrides": [
+    // Users
+    {
+      "collectionGroup": "users",
+      "fieldPath": "phoneNumber",
+      "ttl": false,
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "users", 
+      "fieldPath": "displayName",
+      "ttl": false,
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    },
+    
+    // Contacts
+    {
+      "collectionGroup": "contacts",
+      "fieldPath": "name",
+      "ttl": false,
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    },
+    {
+      "collectionGroup": "contacts",
+      "fieldPath": "email",
+      "ttl": false,
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    },
+
+    // Chat sessions
     {
       "collectionGroup": "chatSessions",
       "fieldPath": "title",
       "ttl": false,
       "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     },
+    
+    // Messages
     {
       "collectionGroup": "messages",
       "fieldPath": "content",
       "ttl": false,
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
+    },
+    {
+      "collectionGroup": "messages",
+      "fieldPath": "sender",
+      "ttl": false, 
       "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     }
   ]

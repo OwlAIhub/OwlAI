@@ -1,106 +1,155 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Contact form submissions - allow anyone to create, but not read/update/delete
-    match /contacts/{contactId} {
-      // Allow anyone to submit a contact form
-      allow create: if isValidContactSubmission();
-      // Only authenticated admins can read contact submissions
-      allow read: if false; // Will be updated when auth is implemented
-      // No updates or deletes allowed from client
-      allow update, delete: if false;
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Helper function to validate contact form data
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidPhoneAuth() {
+      return request.auth != null 
+        && request.auth.token.firebase.sign_in_provider == 'phone'
+        && request.auth.token.phone_number != null
+        && request.auth.token.phone_number != "";
+    }
+    
+    function hasValidTimestamps(data) {
+      return data.createdAt is timestamp;
+    }
+    
+    // Contact collection - simple rules
+    match /contacts/{contactId} {
+      // Allow anyone to create contact submissions
+      allow create: if isValidContactSubmission();
+      
+      // Only admins can read/update (set to false for now)
+      allow read, update: if false;
+      
+      // Never allow deletion
+      allow delete: if false;
+    }
+    
+    // Simple contact validation
     function isValidContactSubmission() {
       let data = request.resource.data;
-      return data.keys().hasAll(['name', 'email', 'message', 'timestamp', 'status']) &&
-             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
-             data.email is string && data.email.size() > 0 && data.email.size() <= 255 &&
-             data.message is string && data.message.size() > 0 && data.message.size() <= 2000 &&
-             data.status == 'new' &&
-             data.timestamp == request.time;
+      
+      return data.keys().hasAll([
+        'name', 'email', 'message', 'inquiryType', 'status', 'createdAt'
+      ]) &&
+      
+      // Basic field validation
+      data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+      data.email is string && data.email.size() > 0 && data.email.size() <= 255 &&
+      data.message is string && data.message.size() >= 10 && data.message.size() <= 5000 &&
+      
+      // Optional fields
+      (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
+      (!('subject' in data) || (data.subject is string && data.subject.size() <= 200)) &&
+      (!('company' in data) || (data.company is string && data.company.size() <= 100)) &&
+      
+      // Enum validation
+      data.inquiryType in ['general', 'support', 'partnership', 'feedback', 'feature_request', 'bug_report', 'billing', 'other'] &&
+      data.status == 'new' &&
+      
+      // Timestamp validation
+      data.createdAt == request.time;
     }
     
-    // User profiles - allow users to manage their own profile
+    // User profiles
     match /users/{userId} {
-      // Users can read, create, and update their own profile
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      // Validate user profile data structure
-      allow create, update: if request.auth != null && 
-                              request.auth.uid == userId &&
-                              isValidUserProfile();
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      allow create: if isValidPhoneAuth() 
+        && isOwner(userId) 
+        && isValidUserProfile()
+        && request.resource.data.phoneNumber == request.auth.token.phone_number;
+      
+      allow update: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidUserProfile();
+      
+      allow delete: if false;
     }
     
-    // Helper function to validate user profile data
     function isValidUserProfile() {
       let data = request.resource.data;
       return data.keys().hasAll(['uid', 'phoneNumber', 'createdAt', 'updatedAt', 'lastLoginAt', 'isActive', 'metadata']) &&
-             data.uid is string && data.uid == request.auth.uid &&
+             data.uid is string && 
+             data.uid == request.auth.uid &&
              data.phoneNumber is string &&
              data.isActive is bool &&
-             data.metadata is map &&
-             data.metadata.signUpMethod == 'phone';
+             data.metadata is map;
     }
     
-    // Onboarding data - allow users to manage their own onboarding profile
+    // Onboarding
     match /onboarding/{userId} {
-      // Users can read, create, and update their own onboarding data
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      // Validate onboarding data structure
-      allow create, update: if request.auth != null && 
-                              request.auth.uid == userId &&
-                              isValidOnboardingData();
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      allow create, update: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidOnboardingData();
+      
+      allow delete: if false;
     }
     
-    // Helper function to validate onboarding data
     function isValidOnboardingData() {
       let data = request.resource.data;
       return data.keys().hasAll(['uid', 'exam', 'subject', 'attempt', 'language', 'completedAt', 'createdAt', 'updatedAt', 'isComplete', 'metadata']) &&
-             data.uid is string && data.uid == request.auth.uid &&
-             data.exam is string &&
+             data.uid is string && 
+             data.uid == request.auth.uid &&
+             data.exam in ['UGC-NET', 'CSIR-NET'] &&
              data.subject is string &&
-             data.attempt is string &&
-             data.language is string &&
+             data.attempt in ['1st', '2nd', '3rd+'] &&
+             data.language in ['English', 'Hinglish'] &&
              data.isComplete is bool &&
              data.metadata is map;
     }
     
-    // Chat users - allow users to manage their own chat profile
+    // Chat users
     match /chatUsers/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow create, update: if request.auth != null && 
-                              request.auth.uid == userId &&
-                              isValidChatUser();
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      allow create, update: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidChatUser();
+      
+      allow delete: if false;
     }
     
-    // Helper function to validate chat user data
     function isValidChatUser() {
       let data = request.resource.data;
       return data.keys().hasAll(['id', 'email', 'displayName', 'preferences', 'subscription', 'createdAt', 'updatedAt', 'lastActiveAt']) &&
-             data.id is string && data.id == request.auth.uid &&
+             data.id is string && 
+             data.id == request.auth.uid &&
              data.email is string &&
              data.displayName is string &&
              data.preferences is map &&
              data.subscription is map;
     }
     
-    // Chat sessions - users can only access their own sessions
+    // Chat sessions
     match /users/{userId}/chatSessions/{sessionId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow create, update: if request.auth != null && 
-                              request.auth.uid == userId &&
-                              isValidChatSession();
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      allow create, update: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidChatSession();
+      
+      allow delete: if false;
     }
     
-    // Helper function to validate chat session data
     function isValidChatSession() {
       let data = request.resource.data;
       return data.keys().hasAll(['id', 'userId', 'title', 'category', 'isPinned', 'isArchived', 'messageCount', 'lastMessage', 'metadata', 'createdAt', 'updatedAt']) &&
              data.id is string &&
              data.userId is string && data.userId == request.auth.uid &&
-             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.title is string &&
              data.category in ['study', 'practice', 'general', 'exam-prep'] &&
              data.isPinned is bool &&
              data.isArchived is bool &&
@@ -109,47 +158,35 @@ service cloud.firestore {
              data.metadata is map;
     }
     
-    // Chat messages - users can only access messages in their own sessions
+    // Chat messages
     match /users/{userId}/chatSessions/{sessionId}/messages/{messageId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow create, update: if request.auth != null && 
-                              request.auth.uid == userId &&
-                              isValidMessage();
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      allow create: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidMessage();
+      
+      allow update: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidMessage()
+        && request.resource.data.content == resource.data.content;
+      
+      allow delete: if false;
     }
     
-    // Helper function to validate message data
     function isValidMessage() {
       let data = request.resource.data;
       return data.keys().hasAll(['id', 'sessionId', 'userId', 'content', 'sender', 'type', 'status', 'createdAt', 'updatedAt']) &&
              data.id is string &&
              data.sessionId is string &&
              data.userId is string && data.userId == request.auth.uid &&
-             data.content is string && data.content.size() > 0 && data.content.size() <= 10000 &&
+             data.content is string &&
              data.sender in ['user', 'ai'] &&
              data.type in ['text', 'image', 'file', 'system'] &&
              data.status in ['sending', 'sent', 'delivered', 'read', 'error'];
     }
     
-    // User activities - users can only access their own activities
-    match /users/{userId}/activities/{activityId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && 
-                      request.auth.uid == userId &&
-                      isValidActivity();
-    }
-    
-    // Helper function to validate activity data
-    function isValidActivity() {
-      let data = request.resource.data;
-      return data.keys().hasAll(['id', 'userId', 'type', 'metadata', 'timestamp']) &&
-             data.id is string &&
-             data.userId is string && data.userId == request.auth.uid &&
-             data.type in ['session_created', 'message_sent', 'ai_response', 'feedback_given'] &&
-             data.metadata is map &&
-             data.timestamp == request.time;
-    }
-    
-    // Default deny all other collections
+    // Deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

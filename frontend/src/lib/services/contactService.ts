@@ -1,90 +1,52 @@
+// Simple Contact Service
 import {
-  Timestamp,
   addDoc,
   collection,
-  getDocs,
-  limit,
-  orderBy,
-  query,
   serverTimestamp,
 } from "firebase/firestore";
-import { handleFirebaseError } from "../firebaseCheck";
-import { db } from "../firebaseConfig";
+import { db } from "../firebase/config";
 
-export interface ContactSubmission {
+export interface ContactFormData {
   name: string;
   email: string;
   message: string;
-  timestamp?: Timestamp;
-  status?: "new" | "read" | "replied";
+  phone?: string;
+  subject?: string;
+  company?: string;
+  inquiryType: string;
 }
 
-export interface ContactSubmissionWithId extends ContactSubmission {
-  id: string;
+export interface ContactSubmission extends ContactFormData {
+  id?: string;
+  status: string;
+  createdAt: unknown;
 }
 
-// Collection name for contact submissions
-const CONTACTS_COLLECTION = "contacts";
+class ContactService {
+  private contactsCollection = collection(db, 'contacts');
 
-/**
- * Submit a new contact form
- */
-export const submitContactForm = async (
-  contactData: Omit<ContactSubmission, "timestamp" | "status">,
-): Promise<string> => {
-  try {
-    const docRef = await addDoc(collection(db, CONTACTS_COLLECTION), {
-      ...contactData,
-      timestamp: serverTimestamp(),
-      status: "new",
-    });
+  async submitContact(data: ContactFormData): Promise<string> {
+    try {
+      // Create simple contact submission
+      const contactData: Omit<ContactSubmission, 'id'> = {
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        message: data.message.trim(),
+        phone: data.phone?.trim() || '',
+        subject: data.subject?.trim() || '',
+        company: data.company?.trim() || '',
+        inquiryType: data.inquiryType || 'general',
+        status: 'new',
+        createdAt: serverTimestamp(),
+      };
 
-    console.log("Contact form submitted with ID: ", docRef.id);
-    return docRef.id;
-  } catch (error) {
-    console.error("Error submitting contact form: ", error);
-    const errorMessage = handleFirebaseError(error);
-    throw new Error(errorMessage);
+      const docRef = await addDoc(this.contactsCollection, contactData);
+      return docRef.id;
+    } catch (error) {
+      console.error('Contact submission error:', error);
+      throw new Error('Failed to submit contact form. Please try again.');
+    }
   }
-};
+}
 
-/**
- * Get all contact submissions (for admin use)
- */
-export const getContactSubmissions = async (
-  limitCount: number = 50,
-): Promise<ContactSubmissionWithId[]> => {
-  try {
-    const q = query(
-      collection(db, CONTACTS_COLLECTION),
-      orderBy("timestamp", "desc"),
-      limit(limitCount),
-    );
-
-    const querySnapshot = await getDocs(q);
-    const contacts: ContactSubmissionWithId[] = [];
-
-    querySnapshot.forEach((doc) => {
-      contacts.push({
-        id: doc.id,
-        ...(doc.data() as ContactSubmission),
-      });
-    });
-
-    return contacts;
-  } catch (error) {
-    console.error("Error getting contact submissions: ", error);
-    const errorMessage = handleFirebaseError(error);
-    throw new Error(errorMessage);
-  }
-};
-
-/**
- * Real-time listener for contact submissions (for admin dashboard)
- * TODO: Implement with onSnapshot for real-time updates
- */
-export const subscribeToContactSubmissions = () => {
-  // This would be implemented with onSnapshot for real-time updates
-  // For now, we'll just return the unsubscribe function
-  return () => {};
-};
+export const contactService = new ContactService();

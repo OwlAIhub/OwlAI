@@ -8,8 +8,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { handleFirebaseError } from "../firebaseCheck";
-import { db } from "../firebaseConfig";
+import { db, getFirebaseErrorMessage } from "../firebase/config";
 
 export interface UserProfile {
   uid: string;
@@ -91,7 +90,7 @@ export const createUserProfile = async (
     }
   } catch (error) {
     console.error("Error creating/updating user profile:", error);
-    const errorMessage = handleFirebaseError(error);
+    const errorMessage = getFirebaseErrorMessage(error);
     throw new Error(`Failed to create user profile: ${errorMessage}`);
   }
 };
@@ -117,7 +116,7 @@ export const getUserProfile = async (
     return null;
   } catch (error) {
     console.error("Error getting user profile:", error);
-    const errorMessage = handleFirebaseError(error);
+    const errorMessage = getFirebaseErrorMessage(error);
     throw new Error(`Failed to get user profile: ${errorMessage}`);
   }
 };
@@ -143,7 +142,7 @@ export const updateUserProfile = async (
     await updateDoc(userRef, dataToUpdate);
   } catch (error) {
     console.error("Error updating user profile:", error);
-    const errorMessage = handleFirebaseError(error);
+    const errorMessage = getFirebaseErrorMessage(error);
     throw new Error(`Failed to update user profile: ${errorMessage}`);
   }
 };
