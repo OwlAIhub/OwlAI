@@ -4,9 +4,9 @@ import { ChatContainer } from "@/components/chat/ChatContainer";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { PerformanceMonitor } from "@/components/chat/PerformanceMonitor";
 import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { Menu } from "lucide-react";
@@ -99,10 +99,10 @@ function ChatContent() {
                 className="h-full"
                 welcomeMessage="Hello! I'm your AI learning assistant. How can I help you study today?"
                 starterPrompts={[
-                  "Research methodology for UGC NET",
-                  "UGC NET Paper 1 strategies",
-                  "30-day study plan for Economics",
-                  "Teaching aptitude section tips"
+                  "How to prepare for UGC NET research methodology?",
+                  "What are the best strategies for UGC NET Paper 1?",
+                  "Can you create a 30-day study plan for Economics?",
+                  "What are the key tips for teaching aptitude section?"
                 ]}
               />
             </div>

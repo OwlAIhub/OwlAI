@@ -101,22 +101,22 @@ export function ChatContainer({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-8 max-w-2xl"
+              className="text-center mb-12 max-w-2xl"
             >
-              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 flex items-center justify-center mx-auto mb-6">
                 <Image
                   src="/apple-touch-icon.png"
                   alt="OwlAI"
-                  width={64}
-                  height={64}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-contain"
                   unoptimized
                 />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
                 Welcome to OwlAI
               </h2>
-              <p className="text-gray-600 leading-relaxed">{welcomeMessage}</p>
+              <p className="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">{welcomeMessage}</p>
             </motion.div>
 
             {/* Starter Prompts */}
