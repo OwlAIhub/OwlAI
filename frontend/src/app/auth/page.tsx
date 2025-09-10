@@ -9,13 +9,22 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { ArrowLeft, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AuthPage() {
   const { user, loading, authError } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<"login" | "signup">("login");
+
+  useEffect(() => {
+    // Check URL parameter for mode
+    const urlMode = searchParams.get("mode");
+    if (urlMode === "signup" || urlMode === "login") {
+      setMode(urlMode);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Only redirect if auth is fully loaded and user is definitely authenticated

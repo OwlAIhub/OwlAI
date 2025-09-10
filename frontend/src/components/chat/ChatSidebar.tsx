@@ -3,35 +3,35 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/buttons/button";
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarHeader,
-    SidebarMenu
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import {
-    ChevronRight,
-    History,
-    LogOut,
-    MoreHorizontal,
-    Plus,
-    User
+  ChevronRight,
+  History,
+  LogOut,
+  MoreHorizontal,
+  Plus,
+  User
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -45,7 +45,7 @@ export function ChatSidebar() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push("/");
+      router.push("/auth?mode=signup");
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -149,7 +149,7 @@ export function ChatSidebar() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleSignOut}
-                className="text-destructive focus:text-destructive"
+                className="text-destructive focus:text-destructive hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
