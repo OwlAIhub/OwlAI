@@ -180,6 +180,7 @@ export function ChatContainer({
                     onCopy={handleCopyMessage}
                     onRegenerate={() => {}}
                     onFeedback={handleFeedback}
+                    onSendMessage={sendMessage}
                   />
                 ))}
               </AnimatePresence>

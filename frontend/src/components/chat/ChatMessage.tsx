@@ -5,14 +5,14 @@ import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-    AlertCircle,
-    Check,
-    CheckCheck,
-    Clock,
-    Copy,
-    RotateCcw,
-    ThumbsDown,
-    ThumbsUp,
+  AlertCircle,
+  Check,
+  CheckCheck,
+  Clock,
+  Copy,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -26,6 +26,7 @@ export interface ChatMessageProps {
   onCopy?: (content: string) => void;
   onRegenerate?: (messageId: string) => void;
   onFeedback?: (messageId: string, type: "like" | "dislike") => void;
+  onSendMessage?: (message: string) => void;
 }
 
 export function ChatMessage({
@@ -37,6 +38,7 @@ export function ChatMessage({
   onCopy,
   onRegenerate,
   onFeedback,
+  onSendMessage,
 }: ChatMessageProps) {
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -192,29 +194,29 @@ export function ChatMessage({
           </div>
 
           {/* Quick Actions for AI Messages */}
-          {isAI && (
+          {isAI && onSendMessage && (
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log("Tell me more")}
+                className="h-9 px-4 text-sm font-medium border-teal-200/60 text-teal-700 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-800 transition-all duration-150"
+                onClick={() => onSendMessage("Tell me more about this topic")}
               >
                 Tell me more
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log("Give example")}
+                className="h-9 px-4 text-sm font-medium border-teal-200/60 text-teal-700 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-800 transition-all duration-150"
+                onClick={() => onSendMessage("Can you give me a practical example?")}
               >
                 Give an example
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 text-sm font-medium border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30 transition-all duration-150"
-                onClick={() => console.log("Quiz me")}
+                className="h-9 px-4 text-sm font-medium border-teal-200/60 text-teal-700 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-800 transition-all duration-150"
+                onClick={() => onSendMessage("Quiz me on this topic")}
               >
                 Quiz me on this
               </Button>
