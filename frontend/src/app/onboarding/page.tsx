@@ -3,24 +3,24 @@
 import { Button } from "@/components/ui/buttons/button";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import {
-    OnboardingData,
-    getValidationError,
-    hasCompletedOnboarding,
-    isExamSupported,
-    isSubjectSupported,
-    saveOnboardingData,
+  OnboardingData,
+  getValidationError,
+  hasCompletedOnboarding,
+  isExamSupported,
+  isSubjectSupported,
+  saveOnboardingData,
 } from "@/lib/services/onboardingService";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    AlertTriangle,
-    ArrowLeft,
-    ArrowRight,
-    BookOpen,
-    Check,
-    Globe,
-    Target,
-    Users,
-    X,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Check,
+  Globe,
+  Target,
+  Users,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -89,9 +89,9 @@ export default function OnboardingPage() {
       try {
         const completed = await hasCompletedOnboarding(user.uid);
         if (completed) {
-          // User has already completed onboarding, redirect to chat
-          router.push("/chat");
-          return;
+          // User has already completed onboarding, but allow them to update preferences
+          // Don't redirect - let them edit their preferences
+          console.log("User has completed onboarding, allowing preference updates");
         }
       } catch (error) {
         console.error("Error checking onboarding status:", error);
@@ -135,8 +135,8 @@ export default function OnboardingPage() {
       // Save onboarding data to Firestore
       await saveOnboardingData(user, data, startTime);
 
-      // Redirect to chat after successful save
-      router.push("/chat");
+      // Redirect to profile page after successful save (since user came from profile)
+      router.push("/profile");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       setValidationMessage(

@@ -160,7 +160,7 @@ export function ChatContainer({
                   unoptimized
                 />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent mb-3 tracking-tight">
                 Welcome to OwlAI
               </h2>
               <p className="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">{welcomeMessage}</p>

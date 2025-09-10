@@ -72,7 +72,7 @@ export function ChatSidebar() {
             />
           </div>
           <div className="flex flex-col">
-            <h2 className="text-sm font-semibold text-foreground">OwlAI</h2>
+            <h2 className="text-sm font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent">OwlAI</h2>
             <p className="text-xs text-muted-foreground">
               Your Study Companion
             </p>

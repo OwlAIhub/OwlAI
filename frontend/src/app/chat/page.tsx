@@ -89,7 +89,7 @@ function ChatContent() {
                 <Menu className="h-4 w-4" />
               </SidebarTrigger>
               <div className="flex flex-1 items-center gap-2 px-3">
-                <h1 className="text-lg font-semibold">OwlAI Chat</h1>
+                <h1 className="text-lg font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent">OwlAI Chat</h1>
               </div>
             </header>
 
