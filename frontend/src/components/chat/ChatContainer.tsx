@@ -38,9 +38,21 @@ export function ChatContainer({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest"
+        });
+      }
+    }, 100);
+  };
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const handleStarterPromptClick = (prompt: string) => {
     sendMessage(prompt);
@@ -83,6 +95,36 @@ export function ChatContainer({
     console.log("Feedback:", messageId, type);
   };
 
+  const handleRegenerate = (messageId: string) => {
+    // Find the message to regenerate
+    const messageIndex = messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    const messageToRegenerate = messages[messageIndex];
+
+    // If it's an AI message, regenerate it
+    if (messageToRegenerate.sender === "ai") {
+      // Remove the current AI message
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+
+      // Set loading state
+      setIsLoading(true);
+
+      // Simulate AI response (replace with actual AI call)
+      setTimeout(() => {
+        const newAiMessage: SimpleMessage = {
+          id: `ai-${Date.now()}`,
+          content: "This is a regenerated response. The AI has provided a new answer to your question.",
+          sender: "ai",
+          timestamp: new Date(),
+          status: "sent",
+        };
+        setMessages(prev => [...prev, newAiMessage]);
+        setIsLoading(false);
+      }, 1000);
+    }
+  };
+
   const hasMessages = messages.length > 0;
 
   return (
@@ -91,7 +133,12 @@ export function ChatContainer({
       <div
         ref={messagesContainerRef}
         id="chat-messages-container"
-        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+        className="flex-1 overflow-y-auto min-h-0"
+        style={{
+          height: 'calc(100vh - 200px)',
+          maxHeight: 'calc(100vh - 200px)',
+          overflowY: 'scroll'
+        }}
       >
         {!hasMessages ? (
           /* Welcome Screen */
@@ -166,8 +213,8 @@ export function ChatContainer({
           </div>
         ) : (
           /* Messages List */
-          <div className="py-6 px-4">
-            <div className="max-w-4xl mx-auto">
+          <div className="py-6 px-4 min-h-full">
+            <div className="max-w-4xl mx-auto space-y-4">
               <AnimatePresence>
                 {messages.map((message) => (
                   <ChatMessage
@@ -178,7 +225,7 @@ export function ChatContainer({
                     timestamp={message.timestamp}
                     status={message.status}
                     onCopy={handleCopyMessage}
-                    onRegenerate={() => {}}
+                    onRegenerate={handleRegenerate}
                     onFeedback={handleFeedback}
                     onSendMessage={sendMessage}
                   />
@@ -253,7 +300,7 @@ export function ChatContainer({
             )}
 
             {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-1" />
           </div>
         )}
       </div>

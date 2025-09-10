@@ -43,6 +43,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [navigating, setNavigating] = useState(false);
   const [formData, setFormData] = useState({
     displayName: "",
     email: "",
@@ -105,12 +106,28 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSignOut = async () => {
+  const handleUpdatePreferences = () => {
+    setNavigating(true);
     try {
-      await signOut();
-      router.push("/");
+      router.push("/onboarding");
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error("Navigation error:", error);
+      setNavigating(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        // Here you would implement actual account deletion logic
+        // For now, we'll just sign out and redirect
+        await signOut();
+        router.push("/");
+        alert("Account deletion functionality will be implemented with backend integration.");
+      } catch (error) {
+        console.error("Delete account error:", error);
+        alert("Failed to delete account. Please try again.");
+      }
     }
   };
 
@@ -384,9 +401,18 @@ export default function ProfilePage() {
                       </p>
                       <Button
                         variant="outline"
-                        onClick={() => router.push("/onboarding")}
+                        onClick={handleUpdatePreferences}
+                        disabled={navigating}
+                        className="transition-all duration-200 hover:scale-105"
                       >
-                        Complete Onboarding
+                        {navigating ? (
+                          <>
+                            <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+                            Navigating...
+                          </>
+                        ) : (
+                          "Complete Onboarding"
+                        )}
                       </Button>
                     </div>
                   )}
@@ -397,9 +423,18 @@ export default function ProfilePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push("/onboarding")}
+                      onClick={handleUpdatePreferences}
+                      disabled={navigating}
+                      className="transition-all duration-200 hover:scale-105"
                     >
-                      Update Preferences
+                      {navigating ? (
+                        <>
+                          <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+                          Navigating...
+                        </>
+                      ) : (
+                        "Update Preferences"
+                      )}
                     </Button>
                   </div>
                 </CardContent>
@@ -419,10 +454,10 @@ export default function ProfilePage() {
                 <CardContent>
                   <Button
                     variant="outline"
-                    onClick={handleSignOut}
-                    className="w-full text-gray-600 hover:text-gray-800"
+                    onClick={handleDeleteAccount}
+                    className="w-full text-red-600 hover:text-red-800 hover:bg-red-50 hover:border-red-200"
                   >
-                    Sign Out
+                    Delete Account
                   </Button>
                 </CardContent>
               </Card>
