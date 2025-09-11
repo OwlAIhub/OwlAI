@@ -137,13 +137,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { user } = useAuth();
 
-  // Load user sessions on mount
-  useEffect(() => {
-    if (user) {
-      loadUserSessions();
-    }
-  }, [user]);
-
   const clearError = useCallback(() => {
     dispatch({ type: "SET_ERROR", payload: null });
   }, []);
@@ -166,6 +159,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "SET_LOADING_SESSIONS", payload: false });
     }
   }, [user]);
+
+  // Load user sessions on mount - FIXED: function defined before use
+  useEffect(() => {
+    if (user) {
+      loadUserSessions();
+    }
+  }, [user, loadUserSessions]); // ✅ Fixed: Added loadUserSessions to dependencies
 
   const createNewSession = useCallback(async (): Promise<ChatSession> => {
     if (!user) throw new Error("User not authenticated");
@@ -196,10 +196,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       let session = state.sessions.find(s => s.id === sessionId);
       
       if (!session) {
-        // If session not found locally, refresh sessions list first
-        console.log("Session not found locally, refreshing sessions...");
-        await loadUserSessions();
-        session = state.sessions.find(s => s.id === sessionId);
+        // If session not found locally, try to get fresh sessions from database
+        console.log("Session not found locally, fetching fresh sessions...");
+        const freshSessions = await chatService.getUserSessions(user.uid);
+        dispatch({ type: "SET_SESSIONS", payload: freshSessions });
+        session = freshSessions.find(s => s.id === sessionId);
         
         if (!session) {
           console.error("Session not found even after refresh:", sessionId);
@@ -218,7 +219,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     } finally {
       dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
     }
-  }, [state.sessions, user, loadUserSessions]);
+  }, [state.sessions, user]);
 
   const deleteSession = useCallback(async (sessionId: string) => {
     if (!user) return;
@@ -299,9 +300,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           status: "sent"
         }),
         // Update session title if this is the first message
-        state.messages.length === 0 ? 
+        state.messages.length === 0 && state.currentSession ? 
           chatService.generateSessionTitle([userMessage]).then(title => 
-            updateSessionTitle(state.currentSession.id, title)
+            updateSessionTitle(state.currentSession!.id, title)
           ) : Promise.resolve()
       ]).catch(console.error);
 

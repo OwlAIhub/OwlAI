@@ -19,10 +19,6 @@ service cloud.firestore {
         && request.auth.token.phone_number != "";
     }
     
-    function hasValidTimestamps(data) {
-      return data.createdAt is timestamp;
-    }
-    
     // Contact collection - simple rules
     match /contacts/{contactId} {
       // Allow anyone to create contact submissions
@@ -141,7 +137,7 @@ service cloud.firestore {
         && isOwner(userId)
         && isValidChatSession();
       
-      allow delete: if false;
+      allow delete: if isAuthenticated() && isOwner(userId);
     }
     
     function isValidChatSession() {
@@ -171,7 +167,7 @@ service cloud.firestore {
         && isValidMessage()
         && request.resource.data.content == resource.data.content;
       
-      allow delete: if false;
+      allow delete: if isAuthenticated() && isOwner(userId);
     }
     
     function isValidMessage() {

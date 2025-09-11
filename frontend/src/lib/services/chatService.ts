@@ -14,6 +14,7 @@ import {
   where,
   writeBatch,
   serverTimestamp,
+  increment,
   Timestamp
 } from "firebase/firestore";
 import { db } from "../firebase/config";
@@ -162,12 +163,11 @@ export class ChatService {
       };
       batch.set(messageRef, messageData);
 
-      // Update session
+      // Update session - Optimized: Use FieldValue.increment instead of counting
       const sessionRef = doc(db, "users", userId, "chatSessions", sessionId);
-      const messageCount = await this.getMessageCount(userId, sessionId);
       batch.update(sessionRef, {
         updatedAt: serverTimestamp(),
-        messageCount: messageCount + 1,
+        messageCount: increment(1), // ⚡ Atomic increment - NO read needed!
         lastMessage: {
           content: message.content.slice(0, 100) + (message.content.length > 100 ? "..." : ""),
           timestamp: serverTimestamp()
@@ -194,20 +194,13 @@ export class ChatService {
     lastMessageId?: string
   ): Promise<ChatHistory> {
     try {
-      let q = query(
-        collection(db, "users", userId, "chatSessions", sessionId, "messages"),
-        orderBy("createdAt", "desc"),
-        limit(limitCount + 1) // Get one extra to check if there are more
-      );
+      // Get session info for messageCount (single read vs counting all messages)
+      const [sessionDoc, messagesQuery] = await Promise.all([
+        getDoc(doc(db, "users", userId, "chatSessions", sessionId)),
+        this.buildMessagesQuery(userId, sessionId, limitCount, lastMessageId)
+      ]);
 
-      if (lastMessageId) {
-        const lastDoc = await getDoc(doc(db, "users", userId, "chatSessions", sessionId, "messages", lastMessageId));
-        if (lastDoc.exists()) {
-          q = query(q, startAfter(lastDoc));
-        }
-      }
-
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(messagesQuery);
       const docs = querySnapshot.docs;
       
       const hasMore = docs.length > limitCount;
@@ -225,13 +218,31 @@ export class ChatService {
       return {
         sessionId,
         messages,
-        totalMessages: await this.getMessageCount(userId, sessionId),
+        totalMessages: sessionDoc.exists() ? (sessionDoc.data()?.messageCount || 0) : 0,
         hasMore
       };
     } catch (error) {
       console.error("Error fetching session messages:", error);
       throw new Error("Failed to fetch messages");
     }
+  }
+
+  private async buildMessagesQuery(userId: string, sessionId: string, limitCount: number, lastMessageId?: string) {
+    let q = query(
+      collection(db, "users", userId, "chatSessions", sessionId, "messages"),
+      orderBy("createdAt", "desc"),
+      limit(limitCount + 1) // Get one extra to check if there are more
+    );
+
+    // Optimized pagination: only fetch lastDoc if needed
+    if (lastMessageId) {
+      const lastDoc = await getDoc(doc(db, "users", userId, "chatSessions", sessionId, "messages", lastMessageId));
+      if (lastDoc.exists()) {
+        q = query(q, startAfter(lastDoc));
+      }
+    }
+
+    return q;
   }
 
   async updateMessage(userId: string, sessionId: string, messageId: string, updates: Partial<ChatMessage>): Promise<void> {
@@ -247,18 +258,6 @@ export class ChatService {
     }
   }
 
-  private async getMessageCount(userId: string, sessionId: string): Promise<number> {
-    try {
-      const messagesQuery = query(
-        collection(db, "users", userId, "chatSessions", sessionId, "messages")
-      );
-      const snapshot = await getDocs(messagesQuery);
-      return snapshot.size;
-    } catch (error) {
-      console.error("Error getting message count:", error);
-      return 0;
-    }
-  }
 
   // Utility methods
   async generateSessionTitle(messages: ChatMessage[]): Promise<string> {
