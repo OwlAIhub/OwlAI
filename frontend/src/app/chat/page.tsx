@@ -10,6 +10,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { ChatProvider } from "@/lib/contexts/ChatContext";
 import { Menu } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
@@ -90,41 +91,43 @@ function ChatContent() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full">
-        {/* Sidebar */}
-        <ChatSidebar />
+    <ChatProvider>
+      <SidebarProvider>
+        <div className="flex h-screen w-full">
+          {/* Sidebar */}
+          <ChatSidebar />
 
-        {/* Main Chat Area */}
-        <SidebarInset className="flex-1">
-          <div className="flex h-full flex-col relative">
-            {/* Sidebar Trigger - Floating */}
-            <div className="absolute top-4 left-4 z-10">
-              <SidebarTrigger className="-ml-1">
-                <Menu className="h-4 w-4" />
-              </SidebarTrigger>
+          {/* Main Chat Area */}
+          <SidebarInset className="flex-1">
+            <div className="flex h-full flex-col relative">
+              {/* Sidebar Trigger - Floating */}
+              <div className="absolute top-4 left-4 z-10">
+                <SidebarTrigger className="-ml-1">
+                  <Menu className="h-4 w-4" />
+                </SidebarTrigger>
+              </div>
+
+              {/* Chat Container - Full Height */}
+              <div className="flex-1 min-h-0">
+                <ChatContainer
+                  className="h-full"
+                  welcomeMessage="Hello! I'm OwlAI, your friendly study companion! 🦉 I'm here to help you master UGC NET Paper-1 (Units 1-4) with clear explanations and practice questions. What would you like to explore today?"
+                  starterPrompts={[
+                    "What are the key components of teaching aptitude in higher education?",
+                    "How does research aptitude contribute to effective educational practices?",
+                    "What are the main elements of effective communication in an educational context?",
+                    "How do comprehension skills impact learning outcomes in students?"
+                  ]}
+                />
+              </div>
             </div>
+          </SidebarInset>
+        </div>
 
-            {/* Chat Container - Full Height */}
-            <div className="flex-1 min-h-0">
-              <ChatContainer
-                className="h-full"
-                welcomeMessage="Hello! I'm OwlAI, your friendly study companion! 🦉 I'm here to help you master UGC NET Paper-1 (Units 1-4) with clear explanations and practice questions. What would you like to explore today?"
-                starterPrompts={[
-                  "What are the key components of teaching aptitude in higher education?",
-                  "How does research aptitude contribute to effective educational practices?",
-                  "What are the main elements of effective communication in an educational context?",
-                  "How do comprehension skills impact learning outcomes in students?"
-                ]}
-              />
-            </div>
-          </div>
-        </SidebarInset>
-      </div>
-
-      {/* Performance Monitor */}
-      <PerformanceMonitor />
-    </SidebarProvider>
+        {/* Performance Monitor */}
+        <PerformanceMonitor />
+      </SidebarProvider>
+    </ChatProvider>
   );
 }
 

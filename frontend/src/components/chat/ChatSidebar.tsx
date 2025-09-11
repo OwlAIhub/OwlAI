@@ -22,25 +22,41 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { useChat } from "@/lib/contexts/ChatContext";
 import {
   ChevronRight,
   History,
   LogOut,
+  MessageSquare,
   MoreHorizontal,
   Plus,
+  Trash2,
   User
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function ChatSidebar() {
   const { user, userProfile, signOut } = useAuth();
+  const { state, createNewSession, loadSession, deleteSession } = useChat();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+  
+  const currentSessionId = searchParams.get("session");
+
+  // Load current session on mount
+  useEffect(() => {
+    if (currentSessionId && currentSessionId !== state.currentSession?.id) {
+      loadSession(currentSessionId);
+    }
+  }, [currentSessionId, state.currentSession?.id, loadSession]);
 
   const handleSignOut = async () => {
     try {
@@ -51,9 +67,40 @@ export function ChatSidebar() {
     }
   };
 
-  const handleNewChat = () => {
-    // Simple navigation without database integration
-    router.push("/chat");
+  const handleNewChat = async () => {
+    try {
+      const newSession = await createNewSession();
+      router.push(`/chat?session=${newSession.id}`);
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
+  };
+
+  const handleSelectSession = (sessionId: string) => {
+    router.push(`/chat?session=${sessionId}`);
+  };
+
+  const handleDeleteSession = async (sessionId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    try {
+      await deleteSession(sessionId);
+      if (currentSessionId === sessionId) {
+        router.push("/chat");
+      }
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    }
+  };
+
+  const formatSessionTime = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -107,11 +154,45 @@ export function ChatSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <div className="text-center p-4 text-muted-foreground text-sm">
-                    No chat history available
-                    <br />
-                    <span className="text-xs">Database integration removed</span>
-                  </div>
+                  {state.isLoadingSessions ? (
+                    <div className="text-center p-4 text-muted-foreground text-sm">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mx-auto mb-2"></div>
+                      Loading chats...
+                    </div>
+                  ) : state.sessions.length === 0 ? (
+                    <div className="text-center p-4 text-muted-foreground text-sm">
+                      No chat history yet
+                      <br />
+                      <span className="text-xs">Start a new conversation!</span>
+                    </div>
+                  ) : (
+                    state.sessions.map((session) => (
+                      <SidebarMenuItem key={session.id}>
+                        <div
+                          onClick={() => handleSelectSession(session.id)}
+                          className={`group w-full flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-all ${
+                            currentSessionId === session.id 
+                              ? 'bg-gray-100 text-gray-900' 
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm truncate font-medium">
+                              {session.title}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
+                            onClick={(e) => handleDeleteSession(session.id, e)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </SidebarMenuItem>
+                    ))
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>

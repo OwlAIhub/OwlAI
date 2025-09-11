@@ -2,9 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
-import { flowiseApi } from "../../lib/services/flowiseApi";
+import { useChat } from "../../lib/contexts/ChatContext";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 
@@ -12,14 +12,6 @@ export interface ChatContainerProps {
   className?: string;
   welcomeMessage?: string;
   starterPrompts?: string[];
-}
-
-interface SimpleMessage {
-  id: string;
-  content: string;
-  sender: "user" | "ai";
-  timestamp: Date;
-  status: "sent";
 }
 
 export function ChatContainer({
@@ -32,81 +24,40 @@ export function ChatContainer({
     "How do comprehension skills impact learning outcomes in students?"
   ],
 }: ChatContainerProps) {
-  const [messages, setMessages] = useState<SimpleMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { state, sendMessage, regenerateLastMessage, createNewSession } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      if (messagesEndRef.current && messagesContainerRef.current) {
-        // Try multiple methods to ensure scrolling works
+  // Auto-scroll to bottom when new messages arrive - optimized
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (messagesEndRef.current) {
         messagesEndRef.current.scrollIntoView({
           behavior: "smooth",
           block: "end",
-          inline: "nearest"
         });
-        
-        // Fallback: scroll container to bottom
-        const container = messagesContainerRef.current;
-        container.scrollTop = container.scrollHeight;
       }
-    }, 100);
-  };
+    });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [state.messages, state.isLoading]);
 
-  const handleStarterPromptClick = (prompt: string) => {
+  const handleStarterPromptClick = async (prompt: string) => {
+    // Create new session if none exists
+    if (!state.currentSession) {
+      await createNewSession();
+    }
     sendMessage(prompt);
   };
 
-  const sendMessage = async (content: string) => {
-    if (!content.trim()) return;
-
-    // Add user message
-    const userMessage: SimpleMessage = {
-      id: Date.now().toString(),
-      content: content.trim(),
-      sender: "user",
-      timestamp: new Date(),
-      status: "sent",
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
-
-    try {
-      // Query the Flowise API
-      const response = await flowiseApi.query(content.trim());
-      
-      const aiMessage: SimpleMessage = {
-        id: (Date.now() + 1).toString(),
-        content: response,
-        sender: "ai",
-        timestamp: new Date(),
-        status: "sent",
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
-      const errorMessage: SimpleMessage = {
-        id: (Date.now() + 1).toString(),
-        content: "Oops! 😅 Kuch technical problem aa gayi hai. No worries, just try again - main definitely help karunga! 💪",
-        sender: "ai",
-        timestamp: new Date(),
-        status: "sent",
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+  const handleSendMessage = async (content: string) => {
+    // Create new session if none exists
+    if (!state.currentSession) {
+      await createNewSession();
     }
+    sendMessage(content);
   };
 
   const handleCopyMessage = (content: string) => {
@@ -118,63 +69,10 @@ export function ChatContainer({
   };
 
   const handleRegenerate = async (messageId: string) => {
-    // Find the message to regenerate and get the previous user message
-    const messageIndex = messages.findIndex(msg => msg.id === messageId);
-    if (messageIndex === -1) return;
-
-    const messageToRegenerate = messages[messageIndex];
-
-    // If it's an AI message, regenerate it
-    if (messageToRegenerate.sender === "ai") {
-      // Find the user message that prompted this AI response
-      let userMessage = null;
-      for (let i = messageIndex - 1; i >= 0; i--) {
-        if (messages[i].sender === "user") {
-          userMessage = messages[i];
-          break;
-        }
-      }
-
-      if (!userMessage) return;
-
-      // Remove the current AI message
-      setMessages(prev => prev.filter(msg => msg.id !== messageId));
-
-      // Set loading state
-      setIsLoading(true);
-
-      try {
-        // Query the Flowise API with the original user question
-        const response = await flowiseApi.query(userMessage.content);
-        
-        const newAiMessage: SimpleMessage = {
-          id: `ai-${Date.now()}`,
-          content: response,
-          sender: "ai",
-          timestamp: new Date(),
-          status: "sent",
-        };
-        
-        setMessages(prev => [...prev, newAiMessage]);
-      } catch (error) {
-        console.error('Error regenerating message:', error);
-        
-        const errorMessage: SimpleMessage = {
-          id: `ai-${Date.now()}`,
-          content: "Sorry yaar! 😔 Regenerate karne mein kuch issue hua. Please question dobara try karo - main ready hun help karne ke liye! 😊",
-          sender: "ai",
-          timestamp: new Date(),
-          status: "sent",
-        };
-        
-        setMessages(prev => [...prev, errorMessage]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    regenerateLastMessage();
   };
 
-  const hasMessages = messages.length > 0;
+  const hasMessages = state.messages.length > 0;
 
   return (
     <div className={cn("flex flex-col h-full bg-white", className)}>
@@ -255,9 +153,9 @@ export function ChatContainer({
               className="w-full max-w-2xl mt-8"
             >
               <ChatInput
-                onSendMessage={sendMessage}
-                disabled={isLoading}
-                loading={isLoading}
+                onSendMessage={handleSendMessage}
+                disabled={state.isLoading}
+                loading={state.isLoading}
                 placeholder="Ask me anything about your studies..."
               />
             </motion.div>
@@ -267,7 +165,7 @@ export function ChatContainer({
           <div className="py-6 px-4">
             <div className="max-w-4xl mx-auto space-y-4">
               <AnimatePresence>
-                {messages.map((message) => (
+                {state.messages.map((message) => (
                   <ChatMessage
                     key={message.id}
                     id={message.id}
@@ -278,14 +176,14 @@ export function ChatContainer({
                     onCopy={handleCopyMessage}
                     onRegenerate={handleRegenerate}
                     onFeedback={handleFeedback}
-                    onSendMessage={sendMessage}
+                    onSendMessage={handleSendMessage}
                   />
                 ))}
               </AnimatePresence>
             </div>
 
             {/* Typing Indicator */}
-            {isLoading && (
+            {state.isLoading && (
               <div className="max-w-4xl mx-auto px-4">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -360,9 +258,9 @@ export function ChatContainer({
       {hasMessages && (
         <div className="flex-shrink-0">
           <ChatInput
-            onSendMessage={sendMessage}
-            disabled={isLoading}
-            loading={isLoading}
+            onSendMessage={handleSendMessage}
+            disabled={state.isLoading}
+            loading={state.isLoading}
             placeholder="Ask me anything about your studies..."
           />
         </div>
