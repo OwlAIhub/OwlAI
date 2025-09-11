@@ -97,25 +97,15 @@ function ChatContent() {
 
         {/* Main Chat Area */}
         <SidebarInset className="flex-1">
-          <div className="flex h-full flex-col">
-            {/* Header */}
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <div className="flex h-full flex-col relative">
+            {/* Sidebar Trigger - Floating */}
+            <div className="absolute top-4 left-4 z-10">
               <SidebarTrigger className="-ml-1">
                 <Menu className="h-4 w-4" />
               </SidebarTrigger>
-              <div className="flex flex-1 items-center gap-2 px-3">
-                <h1 className="text-lg font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent">
-                  OwlAI Chat
-                  {demoMode && (
-                    <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                      Demo Mode
-                    </span>
-                  )}
-                </h1>
-              </div>
-            </header>
+            </div>
 
-            {/* Chat Container */}
+            {/* Chat Container - Full Height */}
             <div className="flex-1 min-h-0">
               <ChatContainer
                 className="h-full"

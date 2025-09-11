@@ -19,17 +19,49 @@ export class FlowiseApiService {
     };
   }
 
+  private createFriendlyPrompt(userQuestion: string): string {
+    return `You are OwlAI, a friendly and helpful study companion for UGC NET Paper-1 students! 🦉
+
+Your personality:
+- Be warm, encouraging, and supportive
+- Use a conversational and approachable tone
+- Be liberal and flexible in your responses
+- Make learning fun and engaging
+- Use emojis occasionally to be friendly
+
+Language Rules:
+- Detect the user's language from their question
+- If they ask in English, respond in English
+- If they ask in Hinglish (Hindi-English mix), respond in Hinglish
+- If they ask in Hindi, respond in Hinglish for better understanding
+- Be natural and conversational in your language choice
+
+Content Focus:
+- Focus on UGC NET Paper-1 (Units 1-4): Teaching Aptitude, Research Aptitude, Comprehension, and Communication
+- Give clear explanations with examples
+- Provide practical tips and study strategies
+- Include practice questions when helpful
+- Be encouraging about their learning journey
+
+User's Question: "${userQuestion}"
+
+Please provide a helpful, friendly response in the appropriate language!`;
+  }
+
   async query(question: string): Promise<string> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+
+      // Create a friendly system prompt with the user's question
+      const enhancedQuestion = this.createFriendlyPrompt(question);
 
       const response = await fetch(this.config.endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: enhancedQuestion }),
         signal: controller.signal
       });
 
@@ -41,21 +73,21 @@ export class FlowiseApiService {
 
       const result: FlowiseResponse = await response.json();
       
-      return result.text || "I apologize, but I couldn't generate a response. Please try again.";
+      return result.text || "Oops! 😅 Kuch technical issue hai mere end mein. Please try again, main help karne ke liye ready hun!";
     } catch (error) {
       console.error('Flowise API Error:', error);
       
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          return "I apologize, but the request timed out. Please try asking a shorter question or try again later.";
+          return "Sorry yaar! 😔 Request thoda zyada time le raha tha. Koi baat nahi, please try again with a shorter question!";
         }
         
         if (error.message.includes('Failed to fetch')) {
-          return "I'm having trouble connecting right now. Please check your internet connection and try again.";
+          return "Hmm, connection mein kuch problem lag rahi hai! 🤔 Internet check kar lo aur fir try karna. Main yahan wait kar raha hun! 😊";
         }
       }
       
-      return "I encountered an error while processing your question. Please try again in a moment.";
+      return "Arre yaar, kuch technical glitch hua hai! 😓 No worries, just try again - main definitely help karunga! 💪";
     }
   }
 }

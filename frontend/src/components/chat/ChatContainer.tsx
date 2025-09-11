@@ -97,7 +97,7 @@ export function ChatContainer({
       
       const errorMessage: SimpleMessage = {
         id: (Date.now() + 1).toString(),
-        content: "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment.",
+        content: "Oops! 😅 Kuch technical problem aa gayi hai. No worries, just try again - main definitely help karunga! 💪",
         sender: "ai",
         timestamp: new Date(),
         status: "sent",
@@ -161,7 +161,7 @@ export function ChatContainer({
         
         const errorMessage: SimpleMessage = {
           id: `ai-${Date.now()}`,
-          content: "I apologize, but I'm having trouble generating a new response. Please try asking your question again.",
+          content: "Sorry yaar! 😔 Regenerate karne mein kuch issue hua. Please question dobara try karo - main ready hun help karne ke liye! 😊",
           sender: "ai",
           timestamp: new Date(),
           status: "sent",
@@ -182,15 +182,18 @@ export function ChatContainer({
       <div
         ref={messagesContainerRef}
         id="chat-messages-container"
-        className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
+        className="flex-1 overflow-y-scroll overflow-x-hidden"
         style={{
+          height: 'calc(100vh - 120px)',
+          maxHeight: 'calc(100vh - 120px)',
           scrollBehavior: 'smooth',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
         }}
       >
         {!hasMessages ? (
           /* Welcome Screen */
-          <div className="flex flex-col items-center justify-center min-h-full p-8">
+          <div className="flex flex-col items-center justify-center h-full p-8">
             {/* Welcome Message */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -208,8 +211,8 @@ export function ChatContainer({
                   unoptimized
                 />
               </div>
-              <h2 className="text-xl font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent mb-3 tracking-tight">
-                Welcome to OwlAI
+              <h2 className="text-2xl font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent mb-3 tracking-tight">
+                OwlAI Chat
               </h2>
               <p className="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">{welcomeMessage}</p>
             </motion.div>
