@@ -2,15 +2,15 @@
 
 import {
   createContext,
-  useContext,
-  useReducer,
-  useCallback,
   ReactNode,
+  useCallback,
+  useContext,
   useEffect,
+  useReducer,
 } from "react";
-import { ChatMessage, ChatSession, ChatHistory } from "../types/chat";
 import { chatService } from "../services/chatService";
 import { flowiseApi } from "../services/flowiseApi";
+import { ChatHistory, ChatMessage, ChatSession } from "../types/chat";
 import { useAuth } from "./AuthContext";
 
 interface ChatState {
@@ -285,7 +285,19 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!state.currentSession || !user) return;
+      if (!user) return;
+
+      // Create session if none exists
+      let currentSession = state.currentSession;
+      if (!currentSession) {
+        try {
+          currentSession = await createNewSession();
+        } catch (error) {
+          console.error("Error creating session for message:", error);
+          dispatch({ type: "SET_ERROR", payload: "Failed to create chat session" });
+          return;
+        }
+      }
 
       const userMessage: ChatMessage = {
         id: `temp-${Date.now()}`,
@@ -313,7 +325,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           flowiseApi.query(content),
           // Save user message in background (don't wait)
           chatService
-            .addMessage(user.uid, state.currentSession.id, {
+            .addMessage(user.uid, currentSession.id, {
               content: userMessage.content,
               sender: "user",
               timestamp: userMessage.timestamp,
@@ -334,18 +346,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
         // Save AI message in background and update session title if needed
         Promise.all([
-          chatService.addMessage(user.uid, state.currentSession.id, {
+          chatService.addMessage(user.uid, currentSession.id, {
             content: aiMessage.content,
             sender: "ai",
             timestamp: aiMessage.timestamp,
             status: "sent",
           }),
           // Update session title if this is the first message
-          state.messages.length === 0 && state.currentSession
+          state.messages.length === 0 && currentSession
             ? chatService
                 .generateSessionTitle([userMessage])
                 .then((title) =>
-                  updateSessionTitle(state.currentSession!.id, title),
+                  updateSessionTitle(currentSession!.id, title),
                 )
             : Promise.resolve(),
         ]).catch(console.error);
@@ -363,7 +375,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "SET_LOADING", payload: false });
       }
     },
-    [state.currentSession, state.messages.length, user, updateSessionTitle],
+    [state.currentSession, state.messages.length, user, updateSessionTitle, createNewSession],
   );
 
   const loadMoreMessages = useCallback(async () => {

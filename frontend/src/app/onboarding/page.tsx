@@ -134,11 +134,9 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Save onboarding data to Firestore
       await saveOnboardingData(user, data, startTime);
 
-      // Redirect to profile page after successful save (since user came from profile)
-      router.push("/profile");
+      router.push("/chat");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       setValidationMessage(

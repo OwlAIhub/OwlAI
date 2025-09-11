@@ -24,8 +24,7 @@ export function ChatContainer({
     "How do comprehension skills impact learning outcomes in students?",
   ],
 }: ChatContainerProps) {
-  const { state, sendMessage, regenerateLastMessage, createNewSession } =
-    useChat();
+  const { state, sendMessage, regenerateLastMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -46,18 +45,10 @@ export function ChatContainer({
   }, [state.messages, state.isLoading, scrollToBottom]);
 
   const handleStarterPromptClick = async (prompt: string) => {
-    // Create new session if none exists
-    if (!state.currentSession) {
-      await createNewSession();
-    }
     sendMessage(prompt);
   };
 
   const handleSendMessage = async (content: string) => {
-    // Create new session if none exists
-    if (!state.currentSession) {
-      await createNewSession();
-    }
     sendMessage(content);
   };
 
