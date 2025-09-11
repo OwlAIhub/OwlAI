@@ -183,7 +183,7 @@ export function AboutSection() {
           >
             <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
               <ResponsiveImage
-                src="/about-section.png"
+                src="/about-section.webp"
                 alt="Owl AI - Intelligent Learning Assistant for Competitive Exam Preparation"
                 className="w-full h-auto object-contain"
                 loading="lazy"

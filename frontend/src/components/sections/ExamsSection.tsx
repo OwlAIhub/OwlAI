@@ -22,7 +22,7 @@ const exams = [
     description:
       "Comprehensive preparation for University Grants Commission National Eligibility Test with specialized content for Assistant Professor and JRF positions.",
     icon: <GraduationCap className="w-6 h-6 text-primary" />,
-    image: "/UGC.png",
+    image: "/UGC.webp",
     subjects: [
       "Paper I",
       "Paper II",
@@ -48,7 +48,7 @@ const exams = [
     description:
       "Complete preparation for Staff Selection Commission exams including CGL, CHSL, MTS with practice tests and performance analytics.",
     icon: <Target className="w-6 h-6 text-primary" />,
-    image: "/SSC.png",
+    image: "/SSC.webp",
     subjects: [
       "General Intelligence",
       "General Knowledge",
@@ -61,7 +61,7 @@ const exams = [
     description:
       "Specialized content for Central Teacher Eligibility Test with child development pedagogy and subject-specific teaching methods.",
     icon: <Users className="w-6 h-6 text-primary" />,
-    image: "/CTET.png",
+    image: "/CTET.webp",
     subjects: [
       "Child Development",
       "Pedagogy",

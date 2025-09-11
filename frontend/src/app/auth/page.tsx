@@ -10,9 +10,9 @@ import { motion } from "framer-motion";
 import { ArrowLeft, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function AuthPage() {
+function AuthContent() {
   const { user, loading, authError } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -270,5 +270,17 @@ export default function AuthPage() {
         </motion.div>
       </ResponsiveContainer>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
   );
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/utils";
+import { flowiseApi } from "../../lib/services/flowiseApi";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 
@@ -23,12 +24,12 @@ interface SimpleMessage {
 
 export function ChatContainer({
   className,
-  welcomeMessage = "Hello! I'm your AI learning assistant. How can I help you study today?",
+  welcomeMessage = "Hello! I'm OwlAI, your friendly study companion! 🦉 I'm here to help you master UGC NET Paper-1 (Units 1-4) with clear explanations and practice questions. What would you like to explore today?",
   starterPrompts = [
-    "Research methodology for UGC NET",
-    "UGC NET Paper 1 strategies",
-    "30-day study plan for Economics",
-    "Teaching aptitude section tips",
+    "What are the key components of teaching aptitude in higher education?",
+    "How does research aptitude contribute to effective educational practices?",
+    "What are the main elements of effective communication in an educational context?",
+    "How do comprehension skills impact learning outcomes in students?"
   ],
 }: ChatContainerProps) {
   const [messages, setMessages] = useState<SimpleMessage[]>([]);
@@ -40,12 +41,17 @@ export function ChatContainer({
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (messagesEndRef.current) {
+      if (messagesEndRef.current && messagesContainerRef.current) {
+        // Try multiple methods to ensure scrolling works
         messagesEndRef.current.scrollIntoView({
           behavior: "smooth",
           block: "end",
           inline: "nearest"
         });
+        
+        // Fallback: scroll container to bottom
+        const container = messagesContainerRef.current;
+        container.scrollTop = container.scrollHeight;
       }
     }, 100);
   };
@@ -58,7 +64,7 @@ export function ChatContainer({
     sendMessage(prompt);
   };
 
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
     if (!content.trim()) return;
 
     // Add user message
@@ -73,18 +79,34 @@ export function ChatContainer({
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
-    // Simulate AI response after a delay
-    setTimeout(() => {
+    try {
+      // Query the Flowise API
+      const response = await flowiseApi.query(content.trim());
+      
       const aiMessage: SimpleMessage = {
         id: (Date.now() + 1).toString(),
-        content: "I'm a simple chat interface. Database and AI integration have been removed as requested. This is just a UI demonstration.",
+        content: response,
         sender: "ai",
         timestamp: new Date(),
         status: "sent",
       };
+      
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      const errorMessage: SimpleMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment.",
+        sender: "ai",
+        timestamp: new Date(),
+        status: "sent",
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleCopyMessage = (content: string) => {
@@ -95,8 +117,8 @@ export function ChatContainer({
     console.log("Feedback:", messageId, type);
   };
 
-  const handleRegenerate = (messageId: string) => {
-    // Find the message to regenerate
+  const handleRegenerate = async (messageId: string) => {
+    // Find the message to regenerate and get the previous user message
     const messageIndex = messages.findIndex(msg => msg.id === messageId);
     if (messageIndex === -1) return;
 
@@ -104,24 +126,51 @@ export function ChatContainer({
 
     // If it's an AI message, regenerate it
     if (messageToRegenerate.sender === "ai") {
+      // Find the user message that prompted this AI response
+      let userMessage = null;
+      for (let i = messageIndex - 1; i >= 0; i--) {
+        if (messages[i].sender === "user") {
+          userMessage = messages[i];
+          break;
+        }
+      }
+
+      if (!userMessage) return;
+
       // Remove the current AI message
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
 
       // Set loading state
       setIsLoading(true);
 
-      // Simulate AI response (replace with actual AI call)
-      setTimeout(() => {
+      try {
+        // Query the Flowise API with the original user question
+        const response = await flowiseApi.query(userMessage.content);
+        
         const newAiMessage: SimpleMessage = {
           id: `ai-${Date.now()}`,
-          content: "This is a regenerated response. The AI has provided a new answer to your question.",
+          content: response,
           sender: "ai",
           timestamp: new Date(),
           status: "sent",
         };
+        
         setMessages(prev => [...prev, newAiMessage]);
+      } catch (error) {
+        console.error('Error regenerating message:', error);
+        
+        const errorMessage: SimpleMessage = {
+          id: `ai-${Date.now()}`,
+          content: "I apologize, but I'm having trouble generating a new response. Please try asking your question again.",
+          sender: "ai",
+          timestamp: new Date(),
+          status: "sent",
+        };
+        
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     }
   };
 
@@ -133,16 +182,15 @@ export function ChatContainer({
       <div
         ref={messagesContainerRef}
         id="chat-messages-container"
-        className="flex-1 overflow-y-auto min-h-0"
+        className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
         style={{
-          height: 'calc(100vh - 200px)',
-          maxHeight: 'calc(100vh - 200px)',
-          overflowY: 'scroll'
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         {!hasMessages ? (
           /* Welcome Screen */
-          <div className="flex flex-col items-center justify-center h-full p-8">
+          <div className="flex flex-col items-center justify-center min-h-full p-8">
             {/* Welcome Message */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -213,7 +261,7 @@ export function ChatContainer({
           </div>
         ) : (
           /* Messages List */
-          <div className="py-6 px-4 min-h-full">
+          <div className="py-6 px-4">
             <div className="max-w-4xl mx-auto space-y-4">
               <AnimatePresence>
                 {messages.map((message) => (
@@ -305,28 +353,16 @@ export function ChatContainer({
         )}
       </div>
 
-      {/* Chat Actions (when there are messages) */}
+      {/* Chat Input - Clean at bottom */}
       {hasMessages && (
-        <div className="border-t border-gray-100 px-4 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">
-                {messages.length} message{messages.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-          </div>
+        <div className="flex-shrink-0">
+          <ChatInput
+            onSendMessage={sendMessage}
+            disabled={isLoading}
+            loading={isLoading}
+            placeholder="Ask me anything about your studies..."
+          />
         </div>
-      )}
-
-      {/* Chat Input - Only show when there are messages */}
-      {hasMessages && (
-        <ChatInput
-          onSendMessage={sendMessage}
-          disabled={isLoading}
-          loading={isLoading}
-          placeholder="Ask me anything about your studies..."
-        />
       )}
     </div>
   );

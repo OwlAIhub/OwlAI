@@ -57,19 +57,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout; // eslint-disable-line @typescript-eslint/no-unused-vars
+    let mounted = true;
 
-    // Set a timeout to prevent infinite loading if Firebase fails
+    // Set a reduced timeout to prevent infinite loading if Firebase fails
     const authTimeout = setTimeout(() => {
-      if (loading) {
+      if (loading && mounted) {
         console.warn('Auth initialization timeout - Firebase may be misconfigured');
-        setAuthError('Authentication service unavailable');
+        setAuthError('Authentication service unavailable. Please check your connection and try again.');
         setLoading(false);
         setAuthInitialized(true);
       }
-    }, 10000); // 10 second timeout
+    }, 5000); // Reduced to 5 second timeout
+
+    // Check if auth is available before setting up listener
+    if (!auth) {
+      console.error('Firebase auth not available');
+      if (mounted) {
+        setAuthError('Firebase authentication is not properly configured');
+        setLoading(false);
+        setAuthInitialized(true);
+      }
+      return;
+    }
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!mounted) return;
+      
       clearTimeout(authTimeout);
       console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
       setUser(user);
@@ -77,22 +90,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (user) {
         try {
-          // Create or update user profile in Firestore
-          const profile = await createUserProfile(user);
-          setUserProfile(profile);
-          console.log('User profile loaded:', profile.displayName);
+          // Add timeout for user profile creation
+          const profilePromise = createUserProfile(user);
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Profile creation timeout')), 3000);
+          });
+          
+          const profile = await Promise.race([profilePromise, timeoutPromise]) as UserProfile;
+          if (mounted) {
+            setUserProfile(profile);
+            console.log('User profile loaded:', profile.displayName);
+          }
         } catch (error) {
           console.error("Error managing user profile:", error);
-          setUserProfile(null);
-          setAuthError('Failed to load user profile');
+          if (mounted) {
+            setUserProfile(null);
+            // Don't set this as a blocking error - user can still use the app
+            console.warn('Failed to load user profile, continuing with limited functionality');
+          }
         }
       } else {
-        setUserProfile(null);
+        if (mounted) {
+          setUserProfile(null);
+        }
       }
 
-      setAuthInitialized(true);
-      setLoading(false);
+      if (mounted) {
+        setAuthInitialized(true);
+        setLoading(false);
+      }
     }, (error) => {
+      if (!mounted) return;
+      
       clearTimeout(authTimeout);
       console.error('Firebase auth error:', error);
       setAuthError('Authentication failed: ' + error.message);
@@ -101,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
+      mounted = false;
       unsubscribe();
       clearTimeout(authTimeout);
     };

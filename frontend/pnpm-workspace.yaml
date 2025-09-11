@@ -5,3 +5,7 @@ ignoredBuiltDependencies:
   - protobufjs
   - sharp
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - cwebp-bin
+  - pngquant-bin

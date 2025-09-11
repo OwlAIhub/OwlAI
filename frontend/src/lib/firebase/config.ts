@@ -180,9 +180,14 @@ function initializeFirebaseAuth(): Auth {
     auth = getAuth(app);
     logger.info('Firebase Auth initialized');
 
-    // Configure auth persistence
-    setPersistence(auth, browserLocalPersistence).catch((error) => {
-      logger.warn('Failed to set auth persistence:', error);
+    // Configure auth persistence with timeout handling
+    const persistencePromise = setPersistence(auth, browserLocalPersistence);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Auth persistence timeout')), 3000);
+    });
+
+    Promise.race([persistencePromise, timeoutPromise]).catch((error) => {
+      logger.warn('Failed to set auth persistence (non-critical):', error);
     });
 
     // Connect to Auth emulator in development
