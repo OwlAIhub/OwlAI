@@ -14,20 +14,31 @@ import {
   ResponsiveContainer,
   ResponsiveText,
 } from "@/components/ui/responsive-container";
-import { contactService, type ContactFormData } from "@/lib/services/contactService";
+import {
+  contactService,
+  type ContactFormData,
+} from "@/lib/services/contactService";
 import { useState } from "react";
-import { CheckCircle, Send, Loader2, MessageSquare, Mail, Phone, Building } from "lucide-react";
+import {
+  CheckCircle,
+  Send,
+  Loader2,
+  MessageSquare,
+  Mail,
+  Phone,
+  Building,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 const INQUIRY_TYPES = [
-  { value: 'general', label: 'General Inquiry' },
-  { value: 'support', label: 'Technical Support' },
-  { value: 'partnership', label: 'Partnership' },
-  { value: 'feedback', label: 'Feedback' },
-  { value: 'feature_request', label: 'Feature Request' },
-  { value: 'bug_report', label: 'Bug Report' },
-  { value: 'billing', label: 'Billing' },
-  { value: 'other', label: 'Other' },
+  { value: "general", label: "General Inquiry" },
+  { value: "support", label: "Technical Support" },
+  { value: "partnership", label: "Partnership" },
+  { value: "feedback", label: "Feedback" },
+  { value: "feature_request", label: "Feature Request" },
+  { value: "bug_report", label: "Bug Report" },
+  { value: "billing", label: "Billing" },
+  { value: "other", label: "Other" },
 ];
 
 export function ContactSection() {
@@ -36,30 +47,34 @@ export function ContactSection() {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
-    email: '',
-    message: '',
-    phone: '',
-    subject: '',
-    company: '',
-    inquiryType: 'general',
+    name: "",
+    email: "",
+    message: "",
+    phone: "",
+    subject: "",
+    company: "",
+    inquiryType: "general",
   });
 
-  const handleInputChange = (field: keyof ContactFormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value,
-    }));
-    setError(null);
-  };
+  const handleInputChange =
+    (field: keyof ContactFormData) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+      setError(null);
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email || !formData.message) {
-      setError('Please fill in all required fields.');
+      setError("Please fill in all required fields.");
       return;
     }
 
@@ -70,16 +85,16 @@ export function ContactSection() {
       await contactService.submitContact(formData);
       setIsSubmitted(true);
       setFormData({
-        name: '',
-        email: '',
-        message: '',
-        phone: '',
-        subject: '',
-        company: '',
-        inquiryType: 'general',
+        name: "",
+        email: "",
+        message: "",
+        phone: "",
+        subject: "",
+        company: "",
+        inquiryType: "general",
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit form');
+      setError(err instanceof Error ? err.message : "Failed to submit form");
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +102,7 @@ export function ContactSection() {
 
   if (isSubmitted) {
     return (
-      <section 
+      <section
         id="contact"
         className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 bg-white"
       >
@@ -122,7 +137,8 @@ export function ContactSection() {
                     Thank You!
                   </ResponsiveText>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    We&apos;ve received your message and will get back to you soon. Our team typically responds within 24 hours.
+                    We&apos;ve received your message and will get back to you
+                    soon. Our team typically responds within 24 hours.
                   </p>
                   <Button
                     onClick={() => setIsSubmitted(false)}
@@ -141,7 +157,7 @@ export function ContactSection() {
   }
 
   return (
-    <section 
+    <section
       id="contact"
       className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 bg-white"
     >
@@ -193,7 +209,8 @@ export function ContactSection() {
             }}
             className="text-muted-foreground max-w-2xl mx-auto px-4"
           >
-            Have a question or need assistance? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+            Have a question or need assistance? We&apos;d love to hear from you.
+            Send us a message and we&apos;ll respond as soon as possible.
           </ResponsiveText>
         </motion.div>
 
@@ -211,7 +228,8 @@ export function ContactSection() {
                 Send us a Message
               </CardTitle>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Fill out the form below and we&apos;ll get back to you within 24 hours
+                Fill out the form below and we&apos;ll get back to you within 24
+                hours
               </p>
             </CardHeader>
             <CardContent>
@@ -222,28 +240,36 @@ export function ContactSection() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
                   >
-                    <p className="text-destructive text-sm font-medium">{error}</p>
+                    <p className="text-destructive text-sm font-medium">
+                      {error}
+                    </p>
                   </motion.div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Label
+                      htmlFor="name"
+                      className="text-sm font-medium text-foreground flex items-center gap-2"
+                    >
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       Name *
                     </Label>
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={handleInputChange('name')}
+                      onChange={handleInputChange("name")}
                       placeholder="Your full name"
                       className="border-border/80 focus:border-primary focus:ring-primary/20"
                       required
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Label
+                      htmlFor="email"
+                      className="text-sm font-medium text-foreground flex items-center gap-2"
+                    >
                       <Mail className="w-3 h-3 text-primary" />
                       Email *
                     </Label>
@@ -251,7 +277,7 @@ export function ContactSection() {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={handleInputChange('email')}
+                      onChange={handleInputChange("email")}
                       placeholder="your@email.com"
                       className="border-border/80 focus:border-primary focus:ring-primary/20"
                       required
@@ -261,7 +287,10 @@ export function ContactSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Label
+                      htmlFor="phone"
+                      className="text-sm font-medium text-foreground flex items-center gap-2"
+                    >
                       <Phone className="w-3 h-3 text-muted-foreground" />
                       Phone
                     </Label>
@@ -269,21 +298,24 @@ export function ContactSection() {
                       id="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={handleInputChange('phone')}
+                      onChange={handleInputChange("phone")}
                       placeholder="+91 98765 43210"
                       className="border-border/80 focus:border-primary focus:ring-primary/20"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="company" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Label
+                      htmlFor="company"
+                      className="text-sm font-medium text-foreground flex items-center gap-2"
+                    >
                       <Building className="w-3 h-3 text-muted-foreground" />
                       Company
                     </Label>
                     <Input
                       id="company"
                       value={formData.company}
-                      onChange={handleInputChange('company')}
+                      onChange={handleInputChange("company")}
                       placeholder="Your company name"
                       className="border-border/80 focus:border-primary focus:ring-primary/20"
                     />
@@ -292,13 +324,16 @@ export function ContactSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="inquiryType" className="text-sm font-medium text-foreground">
+                    <Label
+                      htmlFor="inquiryType"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Inquiry Type
                     </Label>
                     <select
                       id="inquiryType"
                       value={formData.inquiryType}
-                      onChange={handleInputChange('inquiryType')}
+                      onChange={handleInputChange("inquiryType")}
                       className="w-full p-3 border border-border/80 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary bg-background text-foreground text-sm"
                     >
                       {INQUIRY_TYPES.map((type) => (
@@ -308,15 +343,18 @@ export function ContactSection() {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-sm font-medium text-foreground">
+                    <Label
+                      htmlFor="subject"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Subject
                     </Label>
                     <Input
                       id="subject"
                       value={formData.subject}
-                      onChange={handleInputChange('subject')}
+                      onChange={handleInputChange("subject")}
                       placeholder="Brief subject of your message"
                       className="border-border/80 focus:border-primary focus:ring-primary/20"
                     />
@@ -324,14 +362,17 @@ export function ContactSection() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message" className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Label
+                    htmlFor="message"
+                    className="text-sm font-medium text-foreground flex items-center gap-2"
+                  >
                     <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Message *
                   </Label>
                   <Textarea
                     id="message"
                     value={formData.message}
-                    onChange={handleInputChange('message')}
+                    onChange={handleInputChange("message")}
                     placeholder="Tell us how we can help you..."
                     rows={6}
                     className="border-border/80 focus:border-primary focus:ring-primary/20 resize-none"

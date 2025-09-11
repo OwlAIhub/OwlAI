@@ -12,16 +12,16 @@
     },
     {
       "collectionGroup": "users",
-      "queryScope": "COLLECTION", 
+      "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "isActive", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
-    
+
     // Onboarding collection
     {
-      "collectionGroup": "onboarding", 
+      "collectionGroup": "onboarding",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "isComplete", "order": "ASCENDING" },
@@ -37,7 +37,7 @@
         { "fieldPath": "completedAt", "order": "DESCENDING" }
       ]
     },
-    
+
     // Chat users
     {
       "collectionGroup": "chatUsers",
@@ -93,7 +93,7 @@
         { "fieldPath": "updatedAt", "order": "DESCENDING" }
       ]
     },
-    
+
     // Messages
     {
       "collectionGroup": "messages",
@@ -119,17 +119,15 @@
       "collectionGroup": "users",
       "fieldPath": "phoneNumber",
       "ttl": false,
-      "indexes": [
-        { "order": "ASCENDING", "queryScope": "COLLECTION" }
-      ]
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     },
     {
-      "collectionGroup": "users", 
+      "collectionGroup": "users",
       "fieldPath": "displayName",
       "ttl": false,
       "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     },
-    
+
     // Contacts
     {
       "collectionGroup": "contacts",
@@ -151,7 +149,7 @@
       "ttl": false,
       "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     },
-    
+
     // Messages
     {
       "collectionGroup": "messages",
@@ -162,7 +160,7 @@
     {
       "collectionGroup": "messages",
       "fieldPath": "sender",
-      "ttl": false, 
+      "ttl": false,
       "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }]
     }
   ]

@@ -23,8 +23,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useChat } from "@/lib/contexts/ChatContext";
@@ -32,15 +31,14 @@ import {
   ChevronRight,
   History,
   LogOut,
-  MessageSquare,
   MoreHorizontal,
   Plus,
   Trash2,
-  User
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function ChatSidebar() {
   const { user, userProfile, signOut } = useAuth();
@@ -48,7 +46,7 @@ export function ChatSidebar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
-  
+
   const currentSessionId = searchParams.get("session");
 
   // Load current session on mount
@@ -80,7 +78,10 @@ export function ChatSidebar() {
     router.push(`/chat?session=${sessionId}`);
   };
 
-  const handleDeleteSession = async (sessionId: string, event: React.MouseEvent) => {
+  const handleDeleteSession = async (
+    sessionId: string,
+    event: React.MouseEvent,
+  ) => {
     event.stopPropagation();
     try {
       await deleteSession(sessionId);
@@ -90,17 +91,6 @@ export function ChatSidebar() {
     } catch (error) {
       console.error("Error deleting session:", error);
     }
-  };
-
-  const formatSessionTime = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
   };
 
   return (
@@ -119,7 +109,9 @@ export function ChatSidebar() {
             />
           </div>
           <div className="flex flex-col">
-            <h2 className="text-sm font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent">OwlAI</h2>
+            <h2 className="text-sm font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent">
+              OwlAI
+            </h2>
             <p className="text-xs text-muted-foreground">
               Your Study Companion
             </p>
@@ -171,9 +163,9 @@ export function ChatSidebar() {
                         <div
                           onClick={() => handleSelectSession(session.id)}
                           className={`group w-full flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-all ${
-                            currentSessionId === session.id 
-                              ? 'bg-gray-100 text-gray-900' 
-                              : 'text-gray-700 hover:bg-gray-50'
+                            currentSessionId === session.id
+                              ? "bg-gray-100 text-gray-900"
+                              : "text-gray-700 hover:bg-gray-50"
                           }`}
                         >
                           <div className="min-w-0 flex-1">
@@ -212,9 +204,7 @@ export function ChatSidebar() {
             <p className="text-sm font-medium text-foreground truncate">
               {userProfile?.phoneNumber || user?.phoneNumber || "User"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Student
-            </p>
+            <p className="text-xs text-muted-foreground">Student</p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

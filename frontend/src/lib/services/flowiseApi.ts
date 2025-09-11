@@ -1,7 +1,7 @@
 interface FlowiseResponse {
   text: string;
-  sourceDocuments?: any[];
-  chatHistory?: any[];
+  sourceDocuments?: unknown[];
+  chatHistory?: unknown[];
 }
 
 interface FlowiseApiConfig {
@@ -28,7 +28,7 @@ export class FlowiseApiService {
       timeout: 30000, // 30 seconds default
       maxRetries: 3,
       cacheEnabled: true,
-      ...config
+      ...config,
     };
   }
 
@@ -63,7 +63,7 @@ Please provide a helpful, friendly response in the appropriate language!`;
 
   private getCacheKey(question: string): string {
     // Normalize question for consistent caching
-    return question.toLowerCase().trim().replace(/\s+/g, ' ');
+    return question.toLowerCase().trim().replace(/\s+/g, " ");
   }
 
   private getCachedResponse(cacheKey: string): string | null {
@@ -94,11 +94,14 @@ Please provide a helpful, friendly response in the appropriate language!`;
     this.cache.set(cacheKey, {
       response,
       timestamp: Date.now(),
-      expiresAt: Date.now() + this.CACHE_DURATION
+      expiresAt: Date.now() + this.CACHE_DURATION,
     });
   }
 
-  private async makeApiRequest(question: string, attempt: number = 1): Promise<string> {
+  private async makeApiRequest(
+    question: string,
+    attempt: number = 1,
+  ): Promise<string> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
@@ -109,28 +112,32 @@ Please provide a helpful, friendly response in the appropriate language!`;
       const response = await fetch(this.config.endpoint, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ question: enhancedQuestion }),
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+        throw new Error(
+          `API request failed with status ${response.status}: ${response.statusText}`,
+        );
       }
 
       const result: FlowiseResponse = await response.json();
-      return result.text || "Oops! 😅 Kuch technical issue hai mere end mein. Please try again!";
-
+      return (
+        result.text ||
+        "Oops! 😅 Kuch technical issue hai mere end mein. Please try again!"
+      );
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       // Retry logic for production reliability
       if (attempt < (this.config.maxRetries || 3)) {
         const delay = Math.pow(2, attempt - 1) * 1000; // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         return this.makeApiRequest(question, attempt + 1);
       }
 
@@ -143,32 +150,31 @@ Please provide a helpful, friendly response in the appropriate language!`;
       // Check cache first - MASSIVE performance gain
       const cacheKey = this.getCacheKey(question);
       const cachedResponse = this.getCachedResponse(cacheKey);
-      
+
       if (cachedResponse) {
         return cachedResponse; // ⚡ Instant response, no API cost!
       }
 
       // Make API request with retry logic
       const response = await this.makeApiRequest(question);
-      
+
       // Cache successful response
       this.setCachedResponse(cacheKey, response);
-      
-      return response;
 
+      return response;
     } catch (error) {
-      console.error('Flowise API Error:', error);
-      
+      console.error("Flowise API Error:", error);
+
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           return "Sorry yaar! 😔 Request thoda zyada time le raha tha. Koi baat nahi, please try again!";
         }
-        
-        if (error.message.includes('Failed to fetch')) {
+
+        if (error.message.includes("Failed to fetch")) {
           return "Hmm, connection mein kuch problem lag rahi hai! 🤔 Internet check kar lo aur fir try karna.";
         }
       }
-      
+
       return "Arre yaar, kuch technical glitch hua hai! 😓 No worries, just try again - main definitely help karunga! 💪";
     }
   }
@@ -177,19 +183,21 @@ Please provide a helpful, friendly response in the appropriate language!`;
 // Production-grade configuration using environment variables
 const getApiEndpoint = (): string => {
   // Try multiple environment variable names for flexibility
-  const endpoint = 
+  const endpoint =
     process.env.NEXT_PUBLIC_FLOWISE_API_ENDPOINT ||
     process.env.FLOWISE_API_ENDPOINT ||
     process.env.NEXT_PUBLIC_API_ENDPOINT;
-  
+
   if (!endpoint) {
-    console.error('🚨 FLOWISE API ENDPOINT NOT CONFIGURED! Set NEXT_PUBLIC_FLOWISE_API_ENDPOINT environment variable.');
+    console.error(
+      "🚨 FLOWISE API ENDPOINT NOT CONFIGURED! Set NEXT_PUBLIC_FLOWISE_API_ENDPOINT environment variable.",
+    );
     // Fallback for development only - NOT for production!
-    return process.env.NODE_ENV === 'development' 
+    return process.env.NODE_ENV === "development"
       ? "http://34.47.134.139:3000/api/v1/prediction/07b180f1-3364-4771-ac29-76334af9e793"
       : "";
   }
-  
+
   return endpoint;
 };
 
@@ -198,5 +206,5 @@ export const flowiseApi = new FlowiseApiService({
   endpoint: getApiEndpoint(),
   timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || "30000"),
   maxRetries: parseInt(process.env.NEXT_PUBLIC_API_MAX_RETRIES || "3"),
-  cacheEnabled: process.env.NEXT_PUBLIC_API_CACHE_ENABLED !== "false" // Default to true
+  cacheEnabled: process.env.NEXT_PUBLIC_API_CACHE_ENABLED !== "false", // Default to true
 });

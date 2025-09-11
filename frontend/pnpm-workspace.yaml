@@ -1,6 +1,6 @@
 ignoredBuiltDependencies:
-  - '@firebase/util'
-  - '@tailwindcss/oxide'
+  - "@firebase/util"
+  - "@tailwindcss/oxide"
   - esbuild
   - protobufjs
   - sharp

@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
-import { cn } from "../../lib/utils";
 import { useChat } from "../../lib/contexts/ChatContext";
+import { cn } from "../../lib/utils";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 
@@ -21,10 +21,11 @@ export function ChatContainer({
     "What are the key components of teaching aptitude in higher education?",
     "How does research aptitude contribute to effective educational practices?",
     "What are the main elements of effective communication in an educational context?",
-    "How do comprehension skills impact learning outcomes in students?"
+    "How do comprehension skills impact learning outcomes in students?",
   ],
 }: ChatContainerProps) {
-  const { state, sendMessage, regenerateLastMessage, createNewSession } = useChat();
+  const { state, sendMessage, regenerateLastMessage, createNewSession } =
+    useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +43,7 @@ export function ChatContainer({
 
   useEffect(() => {
     scrollToBottom();
-  }, [state.messages, state.isLoading]);
+  }, [state.messages, state.isLoading, scrollToBottom]);
 
   const handleStarterPromptClick = async (prompt: string) => {
     // Create new session if none exists
@@ -68,7 +69,7 @@ export function ChatContainer({
     console.log("Feedback:", messageId, type);
   };
 
-  const handleRegenerate = async (messageId: string) => {
+  const handleRegenerate = async () => {
     regenerateLastMessage();
   };
 
@@ -82,11 +83,11 @@ export function ChatContainer({
         id="chat-messages-container"
         className="flex-1 overflow-y-scroll overflow-x-hidden"
         style={{
-          height: 'calc(100vh - 120px)',
-          maxHeight: 'calc(100vh - 120px)',
-          scrollBehavior: 'smooth',
-          WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain'
+          height: "calc(100vh - 120px)",
+          maxHeight: "calc(100vh - 120px)",
+          scrollBehavior: "smooth",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
         }}
       >
         {!hasMessages ? (
@@ -112,7 +113,9 @@ export function ChatContainer({
               <h2 className="text-2xl font-semibold bg-gradient-to-r from-black to-green-600 bg-clip-text text-transparent mb-3 tracking-tight">
                 OwlAI Chat
               </h2>
-              <p className="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">{welcomeMessage}</p>
+              <p className="text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">
+                {welcomeMessage}
+              </p>
             </motion.div>
 
             {/* Starter Prompts */}
@@ -243,7 +246,9 @@ export function ChatContainer({
                     />
                   </div>
 
-                  <span className="text-sm text-gray-600 font-medium">OwlAI is thinking...</span>
+                  <span className="text-sm text-gray-600 font-medium">
+                    OwlAI is thinking...
+                  </span>
                 </motion.div>
               </div>
             )}

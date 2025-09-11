@@ -55,7 +55,12 @@ export function ChatInput({
   const isOverLimit = message.length > maxLength;
 
   return (
-    <div className={cn("bg-gradient-to-t from-white via-white to-transparent", className)}>
+    <div
+      className={cn(
+        "bg-gradient-to-t from-white via-white to-transparent",
+        className,
+      )}
+    >
       {/* Modern Input Container */}
       <div className="px-4 pb-6 pt-4">
         <div className="max-w-4xl mx-auto">
@@ -65,7 +70,7 @@ export function ChatInput({
               animate={{
                 boxShadow: isFocused
                   ? "0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(20, 184, 166, 0.3)"
-                  : "0 4px 20px rgba(0, 0, 0, 0.08)"
+                  : "0 4px 20px rgba(0, 0, 0, 0.08)",
               }}
               transition={{ duration: 0.2 }}
               className={cn(
@@ -92,7 +97,7 @@ export function ChatInput({
                   className={cn(
                     "w-full resize-none border-0 bg-transparent text-base placeholder-gray-400 focus:outline-none focus:ring-0",
                     "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent",
-                    "leading-relaxed py-1"
+                    "leading-relaxed py-1",
                   )}
                   style={{
                     minHeight: "24px",
@@ -123,7 +128,10 @@ export function ChatInput({
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 {/* Attachment Button */}
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button
                     type="button"
                     variant="ghost"
@@ -136,7 +144,10 @@ export function ChatInput({
                 </motion.div>
 
                 {/* Voice Input Button */}
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button
                     type="button"
                     variant="ghost"
@@ -172,7 +183,11 @@ export function ChatInput({
                     {loading ? (
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
                       >
                         <Square className="w-4 h-4" />
                       </motion.div>
@@ -188,15 +203,28 @@ export function ChatInput({
             <div className="flex items-center justify-between mt-3 px-2">
               {/* Helper Text */}
               <div className="text-xs text-gray-400">
-                Press <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded border">Enter</kbd> to send
+                Press{" "}
+                <kbd className="px-1.5 py-0.5 text-xs bg-gray-100 rounded border">
+                  Enter
+                </kbd>{" "}
+                to send
               </div>
 
               {/* Quick Action Pills */}
               <div className="flex items-center gap-2">
                 {[
-                  { label: "UGC NET", message: "Can you help me with UGC NET preparation?" },
-                  { label: "Research", message: "Explain research methodology concepts" },
-                  { label: "Study Plan", message: "Create a study plan for me" }
+                  {
+                    label: "UGC NET",
+                    message: "Can you help me with UGC NET preparation?",
+                  },
+                  {
+                    label: "Research",
+                    message: "Explain research methodology concepts",
+                  },
+                  {
+                    label: "Study Plan",
+                    message: "Create a study plan for me",
+                  },
                 ].map((action) => (
                   <motion.button
                     key={action.label}

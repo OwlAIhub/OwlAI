@@ -1,26 +1,26 @@
 "use client";
 
 import {
-    ConfirmationResult,
-    signOut as firebaseSignOut,
-    onAuthStateChanged,
-    RecaptchaVerifier,
-    signInWithPhoneNumber,
-    User,
+  ConfirmationResult,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  User,
 } from "firebase/auth";
 import type { ReactNode } from "react";
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 import { auth } from "../firebase/config";
 import {
-    createUserProfile,
-    getUserProfile,
-    UserProfile,
+  createUserProfile,
+  getUserProfile,
+  UserProfile,
 } from "../services/userService";
 
 interface AuthContextType {
@@ -51,10 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useState<RecaptchaVerifier | null>(null);
 
   // Stable setRecaptchaVerifier function to prevent infinite re-renders
-  const setRecaptchaVerifier = useCallback((verifier: RecaptchaVerifier | null) => {
-    setRecaptchaVerifierState(verifier);
-  }, []);
-
+  const setRecaptchaVerifier = useCallback(
+    (verifier: RecaptchaVerifier | null) => {
+      setRecaptchaVerifierState(verifier);
+    },
+    [],
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -62,8 +64,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set a reduced timeout to prevent infinite loading if Firebase fails
     const authTimeout = setTimeout(() => {
       if (loading && mounted) {
-        console.warn('Auth initialization timeout - Firebase may be misconfigured');
-        setAuthError('Authentication service unavailable. Please check your connection and try again.');
+        console.warn(
+          "Auth initialization timeout - Firebase may be misconfigured",
+        );
+        setAuthError(
+          "Authentication service unavailable. Please check your connection and try again.",
+        );
         setLoading(false);
         setAuthInitialized(true);
       }
@@ -71,63 +77,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Check if auth is available before setting up listener
     if (!auth) {
-      console.error('Firebase auth not available');
+      console.error("Firebase auth not available");
       if (mounted) {
-        setAuthError('Firebase authentication is not properly configured');
+        setAuthError("Firebase authentication is not properly configured");
         setLoading(false);
         setAuthInitialized(true);
       }
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!mounted) return;
-      
-      clearTimeout(authTimeout);
-      console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
-      setUser(user);
-      setAuthError(null);
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (user) => {
+        if (!mounted) return;
 
-      if (user) {
-        try {
-          // Add timeout for user profile creation
-          const profilePromise = createUserProfile(user);
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Profile creation timeout')), 3000);
-          });
-          
-          const profile = await Promise.race([profilePromise, timeoutPromise]) as UserProfile;
-          if (mounted) {
-            setUserProfile(profile);
-            console.log('User profile loaded:', profile.displayName);
+        clearTimeout(authTimeout);
+        console.log(
+          "Auth state changed:",
+          user ? "User logged in" : "User logged out",
+        );
+        setUser(user);
+        setAuthError(null);
+
+        if (user) {
+          try {
+            // Add timeout for user profile creation
+            const profilePromise = createUserProfile(user);
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(
+                () => reject(new Error("Profile creation timeout")),
+                3000,
+              );
+            });
+
+            const profile = (await Promise.race([
+              profilePromise,
+              timeoutPromise,
+            ])) as UserProfile;
+            if (mounted) {
+              setUserProfile(profile);
+              console.log("User profile loaded:", profile.displayName);
+            }
+          } catch (error) {
+            console.error("Error managing user profile:", error);
+            if (mounted) {
+              setUserProfile(null);
+              // Don't set this as a blocking error - user can still use the app
+              console.warn(
+                "Failed to load user profile, continuing with limited functionality",
+              );
+            }
           }
-        } catch (error) {
-          console.error("Error managing user profile:", error);
+        } else {
           if (mounted) {
             setUserProfile(null);
-            // Don't set this as a blocking error - user can still use the app
-            console.warn('Failed to load user profile, continuing with limited functionality');
           }
         }
-      } else {
-        if (mounted) {
-          setUserProfile(null);
-        }
-      }
 
-      if (mounted) {
-        setAuthInitialized(true);
+        if (mounted) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
+      },
+      (error) => {
+        if (!mounted) return;
+
+        clearTimeout(authTimeout);
+        console.error("Firebase auth error:", error);
+        setAuthError("Authentication failed: " + error.message);
         setLoading(false);
-      }
-    }, (error) => {
-      if (!mounted) return;
-      
-      clearTimeout(authTimeout);
-      console.error('Firebase auth error:', error);
-      setAuthError('Authentication failed: ' + error.message);
-      setLoading(false);
-      setAuthInitialized(true);
-    });
+        setAuthInitialized(true);
+      },
+    );
 
     return () => {
       mounted = false;
@@ -135,7 +156,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearTimeout(authTimeout);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
 
   const signInWithPhone = async (
     phoneNumber: string,

@@ -29,12 +29,15 @@ export function PerformanceMonitor() {
     const handlePerformanceEvent = (event: CustomEvent) => {
       const { type, data } = event.detail;
 
-      setMetrics(prev => {
+      setMetrics((prev) => {
         switch (type) {
-          case 'response_time':
-            const newAvg = prev.totalRequests === 0
-              ? data.responseTime
-              : (prev.avgResponseTime * prev.totalRequests + data.responseTime) / (prev.totalRequests + 1);
+          case "response_time":
+            const newAvg =
+              prev.totalRequests === 0
+                ? data.responseTime
+                : (prev.avgResponseTime * prev.totalRequests +
+                    data.responseTime) /
+                  (prev.totalRequests + 1);
 
             return {
               ...prev,
@@ -43,13 +46,13 @@ export function PerformanceMonitor() {
               lastResponseTime: data.responseTime,
             };
 
-          case 'cache_hit':
+          case "cache_hit":
             return {
               ...prev,
               cacheHits: prev.cacheHits + 1,
             };
 
-          case 'streaming_toggle':
+          case "streaming_toggle":
             return {
               ...prev,
               streamingEnabled: data.enabled,
@@ -61,23 +64,29 @@ export function PerformanceMonitor() {
       });
     };
 
-    window.addEventListener('flowise-performance', handlePerformanceEvent as EventListener);
+    window.addEventListener(
+      "flowise-performance",
+      handlePerformanceEvent as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('flowise-performance', handlePerformanceEvent as EventListener);
+      window.removeEventListener(
+        "flowise-performance",
+        handlePerformanceEvent as EventListener,
+      );
     };
   }, []);
 
   // Toggle visibility with Ctrl+Shift+P
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'P') {
-        setIsVisible(prev => !prev);
+      if (event.ctrlKey && event.shiftKey && event.key === "P") {
+        setIsVisible((prev) => !prev);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   if (!isVisible) return null;
@@ -112,9 +121,7 @@ export function PerformanceMonitor() {
               <Clock className="w-3 h-3 text-gray-500" />
               <div>
                 <div className="text-gray-500">Avg Response</div>
-                <div className="font-medium">
-                  {metrics.avgResponseTime}ms
-                </div>
+                <div className="font-medium">{metrics.avgResponseTime}ms</div>
               </div>
             </div>
 
@@ -124,7 +131,9 @@ export function PerformanceMonitor() {
                 <div className="text-gray-500">Last Response</div>
                 <div className="font-medium flex items-center gap-1">
                   {metrics.lastResponseTime}ms
-                  <div className={`w-2 h-2 rounded-full ${getResponseTimeColor(metrics.lastResponseTime)}`} />
+                  <div
+                    className={`w-2 h-2 rounded-full ${getResponseTimeColor(metrics.lastResponseTime)}`}
+                  />
                 </div>
               </div>
             </div>
@@ -157,7 +166,10 @@ export function PerformanceMonitor() {
 
           <div className="pt-2 border-t">
             <div className="text-xs text-gray-500">
-              Status: <span className={`${getResponseTimeColor(metrics.avgResponseTime)} text-white px-1 rounded text-xs`}>
+              Status:{" "}
+              <span
+                className={`${getResponseTimeColor(metrics.avgResponseTime)} text-white px-1 rounded text-xs`}
+              >
                 {getResponseTimeLabel(metrics.avgResponseTime)}
               </span>
             </div>

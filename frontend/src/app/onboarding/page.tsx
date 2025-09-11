@@ -91,7 +91,9 @@ export default function OnboardingPage() {
         if (completed) {
           // User has already completed onboarding, but allow them to update preferences
           // Don't redirect - let them edit their preferences
-          console.log("User has completed onboarding, allowing preference updates");
+          console.log(
+            "User has completed onboarding, allowing preference updates",
+          );
         }
       } catch (error) {
         console.error("Error checking onboarding status:", error);

@@ -2,41 +2,37 @@
  * 🚀 LEGENDARY CHAT SERVICE
  * Peak Performance Chat Management
  * - Integrated with LegendaryCache for lightning-fast responses
- * - Uses LegendaryConnection for optimized network requests  
+ * - Uses LegendaryConnection for optimized network requests
  * - Implements LegendaryErrorHandler for bulletproof reliability
  * - Advanced batching and deduplication
  * - Real-time performance monitoring
  */
 
-import { 
-  collection, 
-  doc, 
-  updateDoc, 
-  deleteDoc,
-  setDoc,
-  getDocs, 
+import {
+  collection,
+  doc,
   getDoc,
-  query, 
-  orderBy, 
-  limit, 
-  startAfter,
-  writeBatch,
-  serverTimestamp,
+  getDocs,
   increment,
-  Timestamp
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+  startAfter,
+  Timestamp,
+  writeBatch
 } from "firebase/firestore";
 
-import { db } from "../firebase/config";
-import { ChatMessage, ChatSession, ChatHistory } from "../types/chat";
 import { legendaryCache } from "../cache/LegendaryCacheManager";
-import { legendaryConnection } from "../network/LegendaryConnectionManager";
+import { db } from "../firebase/config";
 import { legendaryErrorHandler } from "../monitoring/LegendaryErrorHandler";
+import { ChatHistory, ChatMessage, ChatSession } from "../types/chat";
 
 interface BatchOperation {
   type: 'create' | 'update' | 'delete';
   collection: string;
   id: string;
-  data?: any;
+  data?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -62,7 +58,7 @@ export class LegendaryChatService {
   private readonly BATCH_SIZE = 10;
   private readonly BATCH_TIMEOUT = 500; // 500ms
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-  
+
   private batchTimer?: NodeJS.Timeout;
 
   private constructor() {
@@ -83,10 +79,10 @@ export class LegendaryChatService {
   async createSession(userId: string, title?: string): Promise<ChatSession> {
     const startTime = performance.now();
     const operation = 'createSession';
-    
+
     try {
       legendaryErrorHandler.captureError = legendaryErrorHandler.captureError.bind(legendaryErrorHandler);
-      
+
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const sessionData = {
         id: sessionId,
@@ -244,17 +240,17 @@ export class LegendaryChatService {
 
     try {
       const batch = writeBatch(db);
-      
+
       // Delete session
       const sessionRef = doc(db, "users", userId, "chatSessions", sessionId);
       batch.delete(sessionRef);
 
-      // Delete all messages in this session  
+      // Delete all messages in this session
       const messagesQuery = query(
         collection(db, "users", userId, "chatSessions", sessionId, "messages")
       );
       const messagesSnapshot = await getDocs(messagesQuery);
-      
+
       messagesSnapshot.docs.forEach(doc => {
         batch.delete(doc.ref);
       });
@@ -288,7 +284,7 @@ export class LegendaryChatService {
     try {
       const batch = writeBatch(db);
       const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // Add message
       const messageRef = doc(db, "users", userId, "chatSessions", sessionId, "messages", messageId);
       const messageData = {
@@ -325,7 +321,7 @@ export class LegendaryChatService {
 
       // Cache the message for instant retrieval
       await this.cacheMessage(sessionId, newMessage);
-      
+
       // Invalidate session messages cache to force refresh
       this.invalidateSessionMessagesCache(sessionId);
       this.invalidateUserSessionsCache(userId);
@@ -346,7 +342,7 @@ export class LegendaryChatService {
 
   async getSessionMessages(
     userId: string,
-    sessionId: string, 
+    sessionId: string,
     limitCount: number = 50,
     lastMessageId?: string
   ): Promise<ChatHistory> {
@@ -370,7 +366,7 @@ export class LegendaryChatService {
 
       const querySnapshot = await getDocs(messagesQuery);
       const docs = querySnapshot.docs;
-      
+
       const hasMore = docs.length > limitCount;
       const messages = docs
         .slice(0, limitCount)
@@ -418,13 +414,13 @@ export class LegendaryChatService {
   async generateSessionTitle(messages: ChatMessage[]): Promise<string> {
     try {
       if (messages.length === 0) return `Chat ${new Date().toLocaleDateString()}`;
-      
+
       const firstUserMessage = messages.find(m => m.sender === "user");
       if (firstUserMessage) {
         const title = firstUserMessage.content.slice(0, 50);
         return title + (firstUserMessage.content.length > 50 ? "..." : "");
       }
-      
+
       return `Chat ${new Date().toLocaleDateString()}`;
     } catch (error) {
       legendaryErrorHandler.captureError(
@@ -438,7 +434,7 @@ export class LegendaryChatService {
 
   async searchSessions(userId: string, searchTerm: string, limitCount: number = 10): Promise<ChatSession[]> {
     const cacheKey = `search_${userId}_${searchTerm}_${limitCount}`;
-    
+
     try {
       const cached = await legendaryCache.get<ChatSession[]>(cacheKey);
       if (cached) {
@@ -446,7 +442,7 @@ export class LegendaryChatService {
       }
 
       const sessions = await this.getUserSessions(userId, 100);
-      const results = sessions.filter(session => 
+      const results = sessions.filter(session =>
         session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         session.lastMessage?.content.toLowerCase().includes(searchTerm.toLowerCase())
       ).slice(0, limitCount);
@@ -497,13 +493,19 @@ export class LegendaryChatService {
     try {
       for (const operation of operations) {
         const docRef = doc(db, operation.collection, operation.id);
-        
+
         switch (operation.type) {
           case 'create':
-            batch.set(docRef, operation.data);
+            if (operation.data) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              batch.set(docRef, operation.data as any);
+            }
             break;
           case 'update':
-            batch.update(docRef, operation.data);
+            if (operation.data) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              batch.update(docRef, operation.data as any);
+            }
             break;
           case 'delete':
             batch.delete(docRef);
@@ -528,7 +530,7 @@ export class LegendaryChatService {
   private async updateSessionCaches(sessionId: string, updates: Partial<ChatSession>): Promise<void> {
     const cacheKey = `session_${sessionId}`;
     const cached = await legendaryCache.get<ChatSession>(cacheKey);
-    
+
     if (cached) {
       const updated = { ...cached, ...updates };
       await legendaryCache.set(cacheKey, updated, {
@@ -586,13 +588,13 @@ export class LegendaryChatService {
    * 📊 LEGENDARY METRICS
    */
   private updateMetrics(
-    operation: string, 
-    responseTime: number, 
-    success: boolean, 
+    operation: string,
+    responseTime: number,
+    success: boolean,
     cacheHit: boolean = false
   ): void {
     this.metrics.totalOperations++;
-    
+
     if (cacheHit) {
       this.metrics.cacheHitRate = (this.metrics.cacheHitRate + 1) / 2; // Rolling average
     }
@@ -605,7 +607,7 @@ export class LegendaryChatService {
     }
   }
 
-  getMetrics(): ServiceMetrics & { 
+  getMetrics(): ServiceMetrics & {
     performanceScore: number;
     reliability: number;
   } {
@@ -646,7 +648,7 @@ export class LegendaryChatService {
     if (this.batchTimer) {
       clearInterval(this.batchTimer);
     }
-    
+
     // Process any remaining batch operations
     if (this.batchQueue.length > 0) {
       this.processBatchQueue().catch(console.error);

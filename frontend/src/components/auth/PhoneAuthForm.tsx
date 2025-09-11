@@ -4,12 +4,27 @@ import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/inputs/label";
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { auth, appConfig, getFirebaseErrorMessage } from "@/lib/firebase/config";
+import {
+  auth,
+  appConfig,
+  getFirebaseErrorMessage,
+} from "@/lib/firebase/config";
 import { hasCompletedOnboarding } from "@/lib/services/onboardingService";
-import { validatePhoneNumber, formatPhoneNumber, isTestPhoneNumber } from "@/lib/utils/phoneValidation";
+import {
+  validatePhoneNumber,
+  formatPhoneNumber,
+  isTestPhoneNumber,
+} from "@/lib/utils/phoneValidation";
 import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Loader2, Phone, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Loader2,
+  Phone,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
@@ -27,7 +42,7 @@ interface PhoneAuthFormProps {
 export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const { signInWithPhone, verifyOTP, setRecaptchaVerifier } = useAuth();
   const router = useRouter();
-  
+
   // Form state
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -35,26 +50,27 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null);
+
   // Rate limiting state
   const [lastRequestTime, setLastRequestTime] = useState<number>(0);
   const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [resendLoading, setResendLoading] = useState(false);
-  
+
   // Validation state
   const [phoneValidation, setPhoneValidation] = useState<{
     isValid: boolean;
     formatted: string;
     country?: string;
     error?: string;
-  }>({ isValid: false, formatted: '', country: undefined, error: undefined });
+  }>({ isValid: false, formatted: "", country: undefined, error: undefined });
 
   // ========================================
   // PHONE NUMBER VALIDATION
   // ========================================
-  
+
   const validateAndSetPhoneNumber = useCallback((phone: string) => {
     const validation = validatePhoneNumber(phone);
     setPhoneValidation({
@@ -63,17 +79,22 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
       country: validation.country,
       error: validation.error,
     });
-    
+
     if (validation.isValid) {
       setWarning(null);
       setError(null);
-      
+
       // Check for test numbers in production
-      if (appConfig.environment === 'production' && isTestPhoneNumber(validation.formatted)) {
-        setWarning("Test phone numbers are not supported in production. Please use a real phone number.");
+      if (
+        appConfig.environment === "production" &&
+        isTestPhoneNumber(validation.formatted)
+      ) {
+        setWarning(
+          "Test phone numbers are not supported in production. Please use a real phone number.",
+        );
       }
-    } else if (phone.trim() !== '') {
-      setError(validation.error || 'Invalid phone number');
+    } else if (phone.trim() !== "") {
+      setError(validation.error || "Invalid phone number");
     } else {
       setError(null);
     }
@@ -86,7 +107,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   // ========================================
   // RECAPTCHA INITIALIZATION
   // ========================================
-  
+
   useEffect(() => {
     // Initialize reCAPTCHA verifier with improved timing
     const initRecaptcha = async () => {
@@ -172,12 +193,12 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   // ========================================
   // RATE LIMITING HELPERS
   // ========================================
-  
+
   const startCooldownTimer = useCallback((remainingSeconds: number) => {
     setCooldownRemaining(remainingSeconds);
-    
+
     const countdown = setInterval(() => {
-      setCooldownRemaining(prev => {
+      setCooldownRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(countdown);
           return 0;
@@ -185,92 +206,105 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         return prev - 1;
       });
     }, 1000);
-    
+
     return countdown;
   }, []);
-  
-  const checkRateLimit = useCallback((): { allowed: boolean; remainingTime?: number } => {
+
+  const checkRateLimit = useCallback((): {
+    allowed: boolean;
+    remainingTime?: number;
+  } => {
     const now = Date.now();
     const cooldownPeriod = appConfig.security.otpCooldownSeconds * 1000;
     const timeSinceLastRequest = now - lastRequestTime;
-    
+
     if (timeSinceLastRequest < cooldownPeriod) {
-      const remainingTime = Math.ceil((cooldownPeriod - timeSinceLastRequest) / 1000);
+      const remainingTime = Math.ceil(
+        (cooldownPeriod - timeSinceLastRequest) / 1000,
+      );
       return { allowed: false, remainingTime };
     }
-    
+
     if (attemptCount >= appConfig.security.maxOtpAttempts) {
       return { allowed: false };
     }
-    
+
     return { allowed: true };
   }, [lastRequestTime, attemptCount]);
 
   // ========================================
   // SEND OTP FUNCTION (SHARED BY INITIAL SEND & RESEND)
   // ========================================
-  
-  const sendOTP = useCallback(async (isResend = false): Promise<boolean> => {
-    try {
-      setError(null);
-      setWarning(null);
-      
-      // Validate phone number first
-      if (!phoneValidation.isValid) {
-        setError(phoneValidation.error || "Please enter a valid phone number");
-        return false;
-      }
-      
-      // Check rate limiting
-      const rateCheck = checkRateLimit();
-      if (!rateCheck.allowed) {
-        if (rateCheck.remainingTime) {
-          setError(`Please wait ${rateCheck.remainingTime} seconds before trying again`);
-          startCooldownTimer(rateCheck.remainingTime);
-        } else {
-          setError(`Maximum attempts reached. Please try again later.`);
+
+  const sendOTP = useCallback(
+    async (isResend = false): Promise<boolean> => {
+      try {
+        setError(null);
+        setWarning(null);
+
+        // Validate phone number first
+        if (!phoneValidation.isValid) {
+          setError(
+            phoneValidation.error || "Please enter a valid phone number",
+          );
+          return false;
         }
+
+        // Check rate limiting
+        const rateCheck = checkRateLimit();
+        if (!rateCheck.allowed) {
+          if (rateCheck.remainingTime) {
+            setError(
+              `Please wait ${rateCheck.remainingTime} seconds before trying again`,
+            );
+            startCooldownTimer(rateCheck.remainingTime);
+          } else {
+            setError(`Maximum attempts reached. Please try again later.`);
+          }
+          return false;
+        }
+
+        // Wait for reCAPTCHA to be ready
+        let retries = 0;
+        const maxRetries = 10;
+        while (!window.recaptchaVerifier && retries < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          retries++;
+        }
+
+        if (!window.recaptchaVerifier) {
+          setError(
+            "Security verification is loading. Please try again in a moment.",
+          );
+          return false;
+        }
+
+        const result = await signInWithPhone(phoneValidation.formatted);
+        setConfirmationResult(result);
+
+        // Update state
+        const now = Date.now();
+        setLastRequestTime(now);
+        setAttemptCount((prev) => prev + 1);
+
+        if (!isResend) {
+          setStep("otp");
+        }
+
+        return true;
+      } catch (err: unknown) {
+        console.error("Phone auth error:", err);
+        const errorMessage = getFirebaseErrorMessage(err);
+        setError(errorMessage);
         return false;
       }
-      
-      // Wait for reCAPTCHA to be ready
-      let retries = 0;
-      const maxRetries = 10;
-      while (!window.recaptchaVerifier && retries < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        retries++;
-      }
-
-      if (!window.recaptchaVerifier) {
-        setError("Security verification is loading. Please try again in a moment.");
-        return false;
-      }
-
-      const result = await signInWithPhone(phoneValidation.formatted);
-      setConfirmationResult(result);
-      
-      // Update state
-      const now = Date.now();
-      setLastRequestTime(now);
-      setAttemptCount(prev => prev + 1);
-      
-      if (!isResend) {
-        setStep("otp");
-      }
-      
-      return true;
-      
-    } catch (err: unknown) {
-      console.error("Phone auth error:", err);
-      const errorMessage = getFirebaseErrorMessage(err);
-      setError(errorMessage);
-      return false;
-    }
-  }, [phoneValidation, checkRateLimit, startCooldownTimer, signInWithPhone]);
+    },
+    [phoneValidation, checkRateLimit, startCooldownTimer, signInWithPhone],
+  );
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setLoading(true);
     await sendOTP(false);
     setLoading(false);
@@ -332,11 +366,11 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   // ========================================
   // RESEND OTP FUNCTION (ACTUALLY WORKING!)
   // ========================================
-  
+
   const handleResendOtp = async () => {
     setResendLoading(true);
     setError(null);
-    
+
     try {
       const success = await sendOTP(true);
       if (success) {
@@ -377,8 +411,11 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+91 98765 43210"
               className={`pl-10 h-12 text-base ${
-                phoneValidation.isValid && phoneNumber ? 'border-green-500 focus:border-green-500' : 
-                error && phoneNumber ? 'border-red-500 focus:border-red-500' : ''
+                phoneValidation.isValid && phoneNumber
+                  ? "border-green-500 focus:border-green-500"
+                  : error && phoneNumber
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
               }`}
               disabled={loading}
               required
@@ -390,7 +427,7 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
               <AlertCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
             )}
           </div>
-          
+
           {/* Phone validation feedback */}
           {phoneValidation.isValid && phoneNumber && (
             <motion.p
@@ -399,7 +436,8 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
               className="text-xs text-green-600 flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
-              Valid {phoneValidation.country} number: {formatPhoneNumber(phoneNumber)}
+              Valid {phoneValidation.country} number:{" "}
+              {formatPhoneNumber(phoneNumber)}
             </motion.p>
           )}
         </motion.div>
@@ -436,7 +474,12 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         >
           <Button
             type="submit"
-            disabled={loading || cooldownRemaining > 0 || !phoneValidation.isValid || !phoneNumber}
+            disabled={
+              loading ||
+              cooldownRemaining > 0 ||
+              !phoneValidation.isValid ||
+              !phoneNumber
+            }
             className="w-full h-12 text-base font-medium"
           >
             {loading ? (
@@ -495,7 +538,9 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         className="text-center p-4 bg-gray-50 rounded-lg"
       >
         <p className="text-sm text-muted-foreground mb-1">OTP sent to</p>
-        <p className="font-medium text-foreground">{formatPhoneNumber(phoneNumber)}</p>
+        <p className="font-medium text-foreground">
+          {formatPhoneNumber(phoneNumber)}
+        </p>
         <p className="text-xs text-muted-foreground mt-1">
           Attempt {attemptCount} of {appConfig.security.maxOtpAttempts}
         </p>
@@ -585,7 +630,12 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
         <button
           type="button"
           onClick={handleResendOtp}
-          disabled={loading || resendLoading || cooldownRemaining > 0 || attemptCount >= appConfig.security.maxOtpAttempts}
+          disabled={
+            loading ||
+            resendLoading ||
+            cooldownRemaining > 0 ||
+            attemptCount >= appConfig.security.maxOtpAttempts
+          }
           className="text-sm text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
         >
           {resendLoading ? (

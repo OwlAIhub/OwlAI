@@ -113,20 +113,13 @@ export function ChatMessage({
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-sm ring-1 ring-gray-300/30">
-              <span className="text-white text-xs font-semibold">
-                You
-              </span>
+              <span className="text-white text-xs font-semibold">You</span>
             </div>
           )}
         </div>
 
         {/* Message Content */}
-        <div
-          className={cn(
-            "flex-1 min-w-0",
-            isUser && "text-right",
-          )}
-        >
+        <div className={cn("flex-1 min-w-0", isUser && "text-right")}>
           {/* Message Header */}
           <div
             className={cn(
@@ -208,7 +201,9 @@ export function ChatMessage({
                 variant="outline"
                 size="sm"
                 className="h-9 px-4 text-sm font-medium border-teal-200/60 text-teal-700 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-800 transition-all duration-150"
-                onClick={() => onSendMessage("Can you give me a practical example?")}
+                onClick={() =>
+                  onSendMessage("Can you give me a practical example?")
+                }
               >
                 Give an example
               </Button>

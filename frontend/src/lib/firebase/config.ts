@@ -14,12 +14,12 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { 
-  getAuth, 
-  Auth, 
-  connectAuthEmulator, 
-  setPersistence, 
-  browserLocalPersistence
+import {
+  getAuth,
+  Auth,
+  connectAuthEmulator,
+  setPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
 import {
   getStorage,
@@ -45,7 +45,7 @@ interface FirebaseConfig {
 
 interface AppConfig {
   firebase: FirebaseConfig;
-  environment: 'development' | 'production' | 'test';
+  environment: "development" | "production" | "test";
   features: {
     useEmulators: boolean;
     enableAnalytics: boolean;
@@ -60,8 +60,11 @@ interface AppConfig {
   };
 }
 
-function validateRequiredEnvVar(name: string, value: string | undefined): string {
-  if (!value || value.trim() === '') {
+function validateRequiredEnvVar(
+  name: string,
+  value: string | undefined,
+): string {
+  if (!value || value.trim() === "") {
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
@@ -71,31 +74,57 @@ function getAppConfig(): AppConfig {
   // Validate all required environment variables
   const config: AppConfig = {
     firebase: {
-      apiKey: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_API_KEY', process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
-      authDomain: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
-      projectId: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
-      storageBucket: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
-      messagingSenderId: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
-      appId: validateRequiredEnvVar('NEXT_PUBLIC_FIREBASE_APP_ID', process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
+      apiKey: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_API_KEY",
+        process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      ),
+      authDomain: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+        process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      ),
+      projectId: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      ),
+      storageBucket: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+        process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      ),
+      messagingSenderId: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+        process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      ),
+      appId: validateRequiredEnvVar(
+        "NEXT_PUBLIC_FIREBASE_APP_ID",
+        process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      ),
       measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
     },
-    environment: (process.env.NEXT_PUBLIC_ENV as 'development' | 'production' | 'test') || 'development',
+    environment:
+      (process.env.NEXT_PUBLIC_ENV as "development" | "production" | "test") ||
+      "development",
     features: {
-      useEmulators: process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true',
-      enableAnalytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
-      enableErrorReporting: process.env.NEXT_PUBLIC_ENABLE_ERROR_REPORTING === 'true',
-      enablePerformanceMonitoring: process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true',
-      debugMode: process.env.NEXT_PUBLIC_DEBUG_FIREBASE === 'true',
+      useEmulators: process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true",
+      enableAnalytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true",
+      enableErrorReporting:
+        process.env.NEXT_PUBLIC_ENABLE_ERROR_REPORTING === "true",
+      enablePerformanceMonitoring:
+        process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === "true",
+      debugMode: process.env.NEXT_PUBLIC_DEBUG_FIREBASE === "true",
     },
     security: {
-      otpCooldownSeconds: parseInt(process.env.NEXT_PUBLIC_OTP_COOLDOWN_SECONDS || '30'),
-      maxOtpAttempts: parseInt(process.env.NEXT_PUBLIC_MAX_OTP_ATTEMPTS || '5'),
-      sessionTimeoutMinutes: parseInt(process.env.NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES || '60'),
+      otpCooldownSeconds: parseInt(
+        process.env.NEXT_PUBLIC_OTP_COOLDOWN_SECONDS || "30",
+      ),
+      maxOtpAttempts: parseInt(process.env.NEXT_PUBLIC_MAX_OTP_ATTEMPTS || "5"),
+      sessionTimeoutMinutes: parseInt(
+        process.env.NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES || "60",
+      ),
     },
   };
 
   if (config.features.debugMode) {
-    console.log('🔧 Firebase Config Debug:', {
+    console.log("🔧 Firebase Config Debug:", {
       environment: config.environment,
       projectId: config.firebase.projectId,
       features: config.features,
@@ -129,9 +158,12 @@ class FirebaseLogger {
 
   error(message: string, error?: unknown) {
     console.error(`❌ Firebase Error: ${message}`, error);
-    
+
     // In production, you could send this to error monitoring service
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    if (
+      typeof window !== "undefined" &&
+      process.env.NODE_ENV === "production"
+    ) {
       // Example: Send to error monitoring service
       // errorMonitoringService.captureException(error, { context: message });
     }
@@ -155,22 +187,25 @@ function initializeFirebaseApp(): FirebaseApp {
   try {
     appConfig = getAppConfig();
     logger = new FirebaseLogger(appConfig.features.debugMode);
-    
-    logger.info('Initializing Firebase app', { projectId: appConfig.firebase.projectId });
+
+    logger.info("Initializing Firebase app", {
+      projectId: appConfig.firebase.projectId,
+    });
 
     // Check if app is already initialized
     if (getApps().length === 0) {
       app = initializeApp(appConfig.firebase);
-      logger.info('Firebase app initialized successfully');
+      logger.info("Firebase app initialized successfully");
     } else {
       app = getApps()[0];
-      logger.info('Using existing Firebase app instance');
+      logger.info("Using existing Firebase app instance");
     }
 
     return app;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('❌ Failed to initialize Firebase app:', errorMessage);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("❌ Failed to initialize Firebase app:", errorMessage);
     throw new Error(`Firebase initialization failed: ${errorMessage}`);
   }
 }
@@ -178,33 +213,36 @@ function initializeFirebaseApp(): FirebaseApp {
 function initializeFirebaseAuth(): Auth {
   try {
     auth = getAuth(app);
-    logger.info('Firebase Auth initialized');
+    logger.info("Firebase Auth initialized");
 
     // Configure auth persistence with timeout handling
     const persistencePromise = setPersistence(auth, browserLocalPersistence);
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Auth persistence timeout')), 3000);
+      setTimeout(() => reject(new Error("Auth persistence timeout")), 3000);
     });
 
     Promise.race([persistencePromise, timeoutPromise]).catch((error) => {
-      logger.warn('Failed to set auth persistence (non-critical):', error);
+      logger.warn("Failed to set auth persistence (non-critical):", error);
     });
 
     // Connect to Auth emulator in development
-    if (appConfig.features.useEmulators && appConfig.environment === 'development') {
+    if (
+      appConfig.features.useEmulators &&
+      appConfig.environment === "development"
+    ) {
       try {
         connectAuthEmulator(auth, "http://localhost:9099", {
           disableWarnings: true,
         });
-        logger.info('Connected to Firebase Auth emulator');
+        logger.info("Connected to Firebase Auth emulator");
       } catch (error) {
-        logger.warn('Failed to connect to Auth emulator:', error);
+        logger.warn("Failed to connect to Auth emulator:", error);
       }
     }
 
     return auth;
   } catch (error) {
-    logger.error('Failed to initialize Firebase Auth:', error);
+    logger.error("Failed to initialize Firebase Auth:", error);
     throw error;
   }
 }
@@ -212,21 +250,24 @@ function initializeFirebaseAuth(): Auth {
 function initializeFirestore(): Firestore {
   try {
     db = getFirestore(app);
-    logger.info('Firestore initialized');
+    logger.info("Firestore initialized");
 
     // Connect to Firestore emulator in development
-    if (appConfig.features.useEmulators && appConfig.environment === 'development') {
+    if (
+      appConfig.features.useEmulators &&
+      appConfig.environment === "development"
+    ) {
       try {
         connectFirestoreEmulator(db, "localhost", 8080);
-        logger.info('Connected to Firestore emulator');
+        logger.info("Connected to Firestore emulator");
       } catch (error) {
-        logger.warn('Failed to connect to Firestore emulator:', error);
+        logger.warn("Failed to connect to Firestore emulator:", error);
       }
     }
 
     return db;
   } catch (error) {
-    logger.error('Failed to initialize Firestore:', error);
+    logger.error("Failed to initialize Firestore:", error);
     throw error;
   }
 }
@@ -234,62 +275,68 @@ function initializeFirestore(): Firestore {
 function initializeStorage(): FirebaseStorage {
   try {
     storage = getStorage(app);
-    logger.info('Firebase Storage initialized');
+    logger.info("Firebase Storage initialized");
 
     // Connect to Storage emulator in development
-    if (appConfig.features.useEmulators && appConfig.environment === 'development') {
+    if (
+      appConfig.features.useEmulators &&
+      appConfig.environment === "development"
+    ) {
       try {
         connectStorageEmulator(storage, "localhost", 9199);
-        logger.info('Connected to Firebase Storage emulator');
+        logger.info("Connected to Firebase Storage emulator");
       } catch (error) {
-        logger.warn('Failed to connect to Storage emulator:', error);
+        logger.warn("Failed to connect to Storage emulator:", error);
       }
     }
 
     return storage;
   } catch (error) {
-    logger.error('Failed to initialize Firebase Storage:', error);
+    logger.error("Failed to initialize Firebase Storage:", error);
     throw error;
   }
 }
 
 async function initializeAnalytics(): Promise<Analytics | null> {
-  if (!appConfig.features.enableAnalytics || typeof window === 'undefined') {
+  if (!appConfig.features.enableAnalytics || typeof window === "undefined") {
     return null;
   }
 
   try {
     const supported = await isSupported();
-    if (supported && appConfig.environment === 'production') {
+    if (supported && appConfig.environment === "production") {
       analytics = getAnalytics(app);
-      logger.info('Firebase Analytics initialized');
+      logger.info("Firebase Analytics initialized");
       return analytics;
     } else {
-      logger.info('Firebase Analytics not supported or disabled');
+      logger.info("Firebase Analytics not supported or disabled");
       return null;
     }
   } catch (error) {
-    logger.warn('Failed to initialize Firebase Analytics:', error);
+    logger.warn("Failed to initialize Firebase Analytics:", error);
     return null;
   }
 }
 
 async function initializePerformance(): Promise<FirebasePerformance | null> {
-  if (!appConfig.features.enablePerformanceMonitoring || typeof window === 'undefined') {
+  if (
+    !appConfig.features.enablePerformanceMonitoring ||
+    typeof window === "undefined"
+  ) {
     return null;
   }
 
   try {
-    if (appConfig.environment === 'production') {
+    if (appConfig.environment === "production") {
       performance = getPerformance(app);
-      logger.info('Firebase Performance initialized');
+      logger.info("Firebase Performance initialized");
       return performance;
     } else {
-      logger.info('Firebase Performance disabled in development');
+      logger.info("Firebase Performance disabled in development");
       return null;
     }
   } catch (error) {
-    logger.warn('Failed to initialize Firebase Performance:', error);
+    logger.warn("Failed to initialize Firebase Performance:", error);
     return null;
   }
 }
@@ -298,16 +345,23 @@ function handleInstallations() {
   try {
     // Initialize installations service with error handling
     getInstallations(app);
-    logger.info('Firebase Installations initialized');
+    logger.info("Firebase Installations initialized");
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
-    
-    if (errorCode === 'installations/request-failed' || 
-        errorMessage.includes('PERMISSION_DENIED')) {
-      logger.warn('Firebase Installations API not available - this is normal for some hosting configurations');
+    const errorCode =
+      error && typeof error === "object" && "code" in error
+        ? (error as { code: string }).code
+        : "";
+
+    if (
+      errorCode === "installations/request-failed" ||
+      errorMessage.includes("PERMISSION_DENIED")
+    ) {
+      logger.warn(
+        "Firebase Installations API not available - this is normal for some hosting configurations",
+      );
     } else {
-      logger.warn('Firebase Installations initialization failed:', error);
+      logger.warn("Firebase Installations initialization failed:", error);
     }
   }
 }
@@ -322,23 +376,22 @@ try {
   auth = initializeFirebaseAuth();
   db = initializeFirestore();
   storage = initializeStorage();
-  
+
   // Handle installations
   handleInstallations();
-  
+
   // Initialize optional services asynchronously
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     initializeAnalytics().then((analyticsInstance) => {
       analytics = analyticsInstance;
     });
-    
+
     initializePerformance().then((performanceInstance) => {
       performance = performanceInstance;
     });
   }
-  
 } catch (error) {
-  console.error('🚨 Critical Firebase initialization error:', error);
+  console.error("🚨 Critical Firebase initialization error:", error);
   throw error;
 }
 
@@ -401,15 +454,15 @@ export const getFirebaseErrorMessage = (error: unknown): string => {
 // EXPORTS
 // ========================================
 
-export { 
-  app as default, 
-  auth, 
-  db, 
-  storage, 
-  analytics, 
+export {
+  app as default,
+  auth,
+  db,
+  storage,
+  analytics,
   performance,
   appConfig,
-  logger 
+  logger,
 };
 
 // Type exports for better TypeScript support

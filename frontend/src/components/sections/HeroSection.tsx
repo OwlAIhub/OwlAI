@@ -3,9 +3,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/buttons/button";
 import {
-    ResponsiveContainer,
-    ResponsiveImage,
-    ResponsiveText,
+  ResponsiveContainer,
+  ResponsiveImage,
+  ResponsiveText,
 } from "@/components/ui/responsive-container";
 import { motion } from "framer-motion";
 import { CheckCircle, Menu, Search, Sparkles, X } from "lucide-react";

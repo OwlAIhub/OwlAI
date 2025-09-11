@@ -1,3 +1,11 @@
+import React from "react";
+
+declare global {
+  interface Window {
+    legendaryErrorHandler: LegendaryErrorHandler;
+  }
+}
+
 /**
  * 🚀 LEGENDARY ERROR HANDLER & MONITORING
  * Peak Performance Error Management
@@ -17,7 +25,7 @@ interface ErrorContext {
   userAgent?: string;
   timestamp: number;
   stackTrace?: string;
-  additionalData?: Record<string, any>;
+  additionalData?: Record<string, unknown>;
 }
 
 interface ErrorMetrics {
@@ -39,12 +47,16 @@ interface PerformanceMetrics {
   apiResponseTime: number;
 }
 
-type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
-type ErrorCategory = 'network' | 'ui' | 'business' | 'system' | 'user';
+type ErrorSeverity = "low" | "medium" | "high" | "critical";
+// Removed unused ErrorCategory type to satisfy linter
 
 export class LegendaryErrorHandler {
   private static instance: LegendaryErrorHandler;
-  private errorQueue: Array<{ error: Error; context: ErrorContext; severity: ErrorSeverity }> = [];
+  private errorQueue: Array<{
+    error: Error;
+    context: ErrorContext;
+    severity: ErrorSeverity;
+  }> = [];
   private metrics: ErrorMetrics = {
     totalErrors: 0,
     errorsByType: new Map(),
@@ -52,7 +64,7 @@ export class LegendaryErrorHandler {
     recoveredErrors: 0,
     criticalErrors: 0,
     averageResponseTime: 0,
-    userImpactScore: 0
+    userImpactScore: 0,
   };
 
   private performanceMetrics: PerformanceMetrics = {
@@ -61,7 +73,7 @@ export class LegendaryErrorHandler {
     interactionTime: 0,
     memoryUsage: 0,
     bundleSize: 0,
-    apiResponseTime: 0
+    apiResponseTime: 0,
   };
 
   private recoveryStrategies = new Map<string, () => Promise<boolean>>();
@@ -88,32 +100,32 @@ export class LegendaryErrorHandler {
   captureError(
     error: Error,
     context: Partial<ErrorContext> = {},
-    severity: ErrorSeverity = 'medium'
+    severity: ErrorSeverity = "medium",
   ): void {
     const enhancedContext: ErrorContext = {
       timestamp: Date.now(),
       url: window.location.href,
       userAgent: navigator.userAgent,
       stackTrace: error.stack,
-      ...context
+      ...context,
     };
 
     // Classify error automatically if not specified
     const autoSeverity = this.classifyError(error);
-    const finalSeverity = severity === 'medium' ? autoSeverity : severity;
+    const finalSeverity = severity === "medium" ? autoSeverity : severity;
 
     // Add to processing queue
     this.errorQueue.push({
       error,
       context: enhancedContext,
-      severity: finalSeverity
+      severity: finalSeverity,
     });
 
     // Update metrics
     this.updateErrorMetrics(error, enhancedContext, finalSeverity);
 
     // Attempt immediate recovery for critical errors
-    if (finalSeverity === 'critical') {
+    if (finalSeverity === "critical") {
       this.attemptErrorRecovery(error, enhancedContext);
     }
   }
@@ -121,11 +133,17 @@ export class LegendaryErrorHandler {
   /**
    * 🛡️ LEGENDARY ERROR RECOVERY
    */
-  registerRecoveryStrategy(errorType: string, strategy: () => Promise<boolean>): void {
+  registerRecoveryStrategy(
+    errorType: string,
+    strategy: () => Promise<boolean>,
+  ): void {
     this.recoveryStrategies.set(errorType, strategy);
   }
 
-  private async attemptErrorRecovery(error: Error, context: ErrorContext): Promise<boolean> {
+  private async attemptErrorRecovery(
+    error: Error,
+    context: ErrorContext,
+  ): Promise<boolean> {
     const errorType = error.constructor.name;
     const strategy = this.recoveryStrategies.get(errorType);
 
@@ -138,7 +156,7 @@ export class LegendaryErrorHandler {
           return true;
         }
       } catch (recoveryError) {
-        console.error('Recovery strategy failed:', recoveryError);
+        console.error("Recovery strategy failed:", recoveryError);
       }
     }
 
@@ -146,9 +164,12 @@ export class LegendaryErrorHandler {
     return this.genericRecoveryAttempt(error, context);
   }
 
-  private async genericRecoveryAttempt(error: Error, context: ErrorContext): Promise<boolean> {
+  private async genericRecoveryAttempt(
+    error: Error,
+    context: ErrorContext,
+  ): Promise<boolean> {
     // Network error recovery
-    if (error.message.includes('fetch') || error.message.includes('network')) {
+    if (error.message.includes("fetch") || error.message.includes("network")) {
       if (!this.isOnline) {
         // Wait for connection and retry
         await this.waitForConnection();
@@ -157,14 +178,14 @@ export class LegendaryErrorHandler {
     }
 
     // Memory error recovery
-    if (error.message.includes('memory') || error.name === 'RangeError') {
+    if (error.message.includes("memory") || error.name === "RangeError") {
       // Clear caches and trigger garbage collection
       this.clearCaches();
       return true;
     }
 
     // UI error recovery
-    if (context.component && error.message.includes('render')) {
+    if (context.component && error.message.includes("render")) {
       // Force re-render by updating a key state
       this.triggerComponentRecovery(context.component);
       return true;
@@ -178,23 +199,33 @@ export class LegendaryErrorHandler {
    */
   private initializePerformanceMonitoring(): void {
     // Monitor Core Web Vitals
-    if ('PerformanceObserver' in window) {
+    if ("PerformanceObserver" in window) {
       this.performanceObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           this.processPerformanceEntry(entry);
         }
       });
 
-      this.performanceObserver.observe({ 
-        entryTypes: ['navigation', 'paint', 'largest-contentful-paint', 'first-input', 'layout-shift'] 
+      this.performanceObserver.observe({
+        entryTypes: [
+          "navigation",
+          "paint",
+          "largest-contentful-paint",
+          "first-input",
+          "layout-shift",
+        ],
       });
     }
 
     // Monitor memory usage
-    if ('memory' in performance) {
+    if ("memory" in performance) {
       setInterval(() => {
-        const memory = (performance as any).memory;
-        this.performanceMetrics.memoryUsage = memory.usedJSHeapSize;
+        const memory = (
+          performance as Performance & { memory?: { usedJSHeapSize: number } }
+        ).memory;
+        if (memory && typeof memory.usedJSHeapSize === "number") {
+          this.performanceMetrics.memoryUsage = memory.usedJSHeapSize;
+        }
       }, 10000);
     }
 
@@ -204,28 +235,31 @@ export class LegendaryErrorHandler {
 
   private processPerformanceEntry(entry: PerformanceEntry): void {
     switch (entry.entryType) {
-      case 'navigation':
+      case "navigation":
         const navEntry = entry as PerformanceNavigationTiming;
-        this.performanceMetrics.pageLoadTime = navEntry.loadEventEnd - navEntry.fetchStart;
+        this.performanceMetrics.pageLoadTime =
+          navEntry.loadEventEnd - navEntry.fetchStart;
         break;
 
-      case 'paint':
-        if (entry.name === 'first-contentful-paint') {
+      case "paint":
+        if (entry.name === "first-contentful-paint") {
           this.performanceMetrics.renderTime = entry.startTime;
         }
         break;
 
-      case 'first-input':
-        this.performanceMetrics.interactionTime = (entry as any).processingStart - entry.startTime;
+      case "first-input":
+        const fi = entry as PerformanceEventTiming;
+        this.performanceMetrics.interactionTime =
+          fi.processingStart - fi.startTime;
         break;
 
-      case 'largest-contentful-paint':
+      case "largest-contentful-paint":
         // Track LCP for performance scoring
         if (entry.startTime > 2500) {
           this.captureError(
-            new Error('Poor LCP performance'),
-            { component: 'Performance', action: 'LCP_MEASUREMENT' },
-            'medium'
+            new Error("Poor LCP performance"),
+            { component: "Performance", action: "LCP_MEASUREMENT" },
+            "medium",
           );
         }
         break;
@@ -236,26 +270,35 @@ export class LegendaryErrorHandler {
    * 🌐 LEGENDARY NETWORK MONITORING
    */
   private initializeNetworkMonitoring(): void {
-    window.addEventListener('online', () => {
+    window.addEventListener("online", () => {
       this.isOnline = true;
-      console.info('🚀 Connection restored - Legendary system back online');
+      console.info("🚀 Connection restored - Legendary system back online");
     });
 
-    window.addEventListener('offline', () => {
+    window.addEventListener("offline", () => {
       this.isOnline = false;
-      console.warn('🔄 Connection lost - Legendary offline mode activated');
+      console.warn("🔄 Connection lost - Legendary offline mode activated");
     });
 
     // Monitor network quality
-    if ('connection' in navigator) {
-      const connection = (navigator as any).connection;
+    if ("connection" in navigator) {
+      interface NetworkInformation {
+        effectiveType: string;
+        addEventListener: (type: "change", listener: () => void) => void;
+      }
+      const connection = (
+        navigator as Navigator & { connection?: NetworkInformation }
+      ).connection;
       if (connection) {
-        connection.addEventListener('change', () => {
-          if (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g') {
+        connection.addEventListener("change", () => {
+          if (
+            connection.effectiveType === "2g" ||
+            connection.effectiveType === "slow-2g"
+          ) {
             this.captureError(
-              new Error('Slow network detected'),
-              { component: 'Network', action: 'SLOW_CONNECTION' },
-              'low'
+              new Error("Slow network detected"),
+              { component: "Network", action: "SLOW_CONNECTION" },
+              "low",
             );
           }
         });
@@ -268,62 +311,68 @@ export class LegendaryErrorHandler {
    */
   private classifyError(error: Error): ErrorSeverity {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
 
     // Critical errors
     if (
-      message.includes('security') ||
-      message.includes('csrf') ||
-      message.includes('unauthorized') ||
-      error.name === 'SecurityError' ||
-      message.includes('payment')
+      message.includes("security") ||
+      message.includes("csrf") ||
+      message.includes("unauthorized") ||
+      error.name === "SecurityError" ||
+      message.includes("payment")
     ) {
-      return 'critical';
+      return "critical";
     }
 
     // High severity errors
     if (
-      message.includes('network') ||
-      message.includes('server') ||
-      message.includes('database') ||
-      message.includes('api') ||
-      error.name === 'TypeError' ||
-      error.name === 'ReferenceError'
+      message.includes("network") ||
+      message.includes("server") ||
+      message.includes("database") ||
+      message.includes("api") ||
+      error.name === "TypeError" ||
+      error.name === "ReferenceError"
     ) {
-      return 'high';
+      return "high";
     }
 
     // Medium severity errors
     if (
-      message.includes('render') ||
-      message.includes('component') ||
-      message.includes('state') ||
-      error.name === 'RangeError'
+      message.includes("render") ||
+      message.includes("component") ||
+      message.includes("state") ||
+      error.name === "RangeError"
     ) {
-      return 'medium';
+      return "medium";
     }
 
     // Default to low for unknown errors
-    return 'low';
+    return "low";
   }
 
-  private updateErrorMetrics(error: Error, context: ErrorContext, severity: ErrorSeverity): void {
+  private updateErrorMetrics(
+    error: Error,
+    context: ErrorContext,
+    severity: ErrorSeverity,
+  ): void {
     this.metrics.totalErrors++;
-    
+
     // Update error type metrics
     const errorType = error.constructor.name;
-    this.metrics.errorsByType.set(errorType, (this.metrics.errorsByType.get(errorType) || 0) + 1);
-    
+    this.metrics.errorsByType.set(
+      errorType,
+      (this.metrics.errorsByType.get(errorType) || 0) + 1,
+    );
+
     // Update component metrics
     if (context.component) {
       this.metrics.errorsByComponent.set(
         context.component,
-        (this.metrics.errorsByComponent.get(context.component) || 0) + 1
+        (this.metrics.errorsByComponent.get(context.component) || 0) + 1,
       );
     }
 
     // Update severity metrics
-    if (severity === 'critical') {
+    if (severity === "critical") {
       this.metrics.criticalErrors++;
     }
 
@@ -334,9 +383,10 @@ export class LegendaryErrorHandler {
   private updateUserImpactScore(severity: ErrorSeverity): void {
     const severityWeights = { low: 1, medium: 3, high: 7, critical: 15 };
     const impact = severityWeights[severity];
-    
+
     // Rolling average of user impact
-    this.metrics.userImpactScore = (this.metrics.userImpactScore * 0.9) + (impact * 0.1);
+    this.metrics.userImpactScore =
+      this.metrics.userImpactScore * 0.9 + impact * 0.1;
   }
 
   /**
@@ -344,37 +394,39 @@ export class LegendaryErrorHandler {
    */
   private initializeGlobalErrorHandling(): void {
     // Unhandled JavaScript errors
-    window.addEventListener('error', (event) => {
+    window.addEventListener("error", (event) => {
       this.captureError(
         event.error || new Error(event.message),
         {
-          component: 'Global',
-          action: 'UNHANDLED_ERROR',
+          component: "Global",
+          action: "UNHANDLED_ERROR",
           additionalData: {
             filename: event.filename,
             lineno: event.lineno,
-            colno: event.colno
-          }
+            colno: event.colno,
+          },
         },
-        'high'
+        "high",
       );
     });
 
     // Unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener("unhandledrejection", (event) => {
       this.captureError(
-        event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
+        event.reason instanceof Error
+          ? event.reason
+          : new Error(String(event.reason)),
         {
-          component: 'Global',
-          action: 'UNHANDLED_PROMISE_REJECTION'
+          component: "Global",
+          action: "UNHANDLED_PROMISE_REJECTION",
         },
-        'high'
+        "high",
       );
     });
 
     // React error boundary integration
-    if (typeof window !== 'undefined') {
-      (window as any).legendaryErrorHandler = this;
+    if (typeof window !== "undefined") {
+      window.legendaryErrorHandler = this;
     }
   }
 
@@ -388,13 +440,17 @@ export class LegendaryErrorHandler {
     if (this.errorQueue.length === 0) return;
 
     const errors = this.errorQueue.splice(0, 10); // Process in batches
-    
+
     for (const { error, context, severity } of errors) {
       this.logError(error, context, severity);
     }
   }
 
-  private logError(error: Error, context: ErrorContext, severity: ErrorSeverity): void {
+  private logError(
+    error: Error,
+    context: ErrorContext,
+    severity: ErrorSeverity,
+  ): void {
     const logData = {
       message: error.message,
       name: error.name,
@@ -402,12 +458,13 @@ export class LegendaryErrorHandler {
       severity,
       context,
       performance: this.getPerformanceSnapshot(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Console logging with appropriate level
-    const logLevel = severity === 'critical' || severity === 'high' ? 'error' : 'warn';
-    console[logLevel]('🚀 Legendary Error:', logData);
+    const logLevel =
+      severity === "critical" || severity === "high" ? "error" : "warn";
+    console[logLevel]("🚀 Legendary Error:", logData);
 
     // Here you would normally send to your analytics service
     // this.sendToAnalytics(logData);
@@ -418,8 +475,10 @@ export class LegendaryErrorHandler {
   }
 
   private calculateBundleSize(): void {
-    if ('navigation' in performance) {
-      const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    if ("navigation" in performance) {
+      const navEntries = performance.getEntriesByType(
+        "navigation",
+      ) as PerformanceNavigationTiming[];
       if (navEntries.length > 0) {
         this.performanceMetrics.bundleSize = navEntries[0].transferSize || 0;
       }
@@ -435,33 +494,35 @@ export class LegendaryErrorHandler {
 
       const checkConnection = () => {
         if (this.isOnline) {
-          window.removeEventListener('online', checkConnection);
+          window.removeEventListener("online", checkConnection);
           resolve();
         }
       };
 
-      window.addEventListener('online', checkConnection);
+      window.addEventListener("online", checkConnection);
     });
   }
 
   private clearCaches(): void {
     // Clear various caches to free up memory
     try {
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          names.forEach(name => caches.delete(name));
+      if ("caches" in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => caches.delete(name));
         });
       }
     } catch (error) {
-      console.warn('Failed to clear caches:', error);
+      console.warn("Failed to clear caches:", error);
     }
   }
 
   private triggerComponentRecovery(component: string): void {
     // Dispatch a custom event that components can listen to for recovery
-    window.dispatchEvent(new CustomEvent('legendary-component-recovery', {
-      detail: { component }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("legendary-component-recovery", {
+        detail: { component },
+      }),
+    );
   }
 
   /**
@@ -472,13 +533,17 @@ export class LegendaryErrorHandler {
     recoveryRate: number;
     performanceScore: number;
   } {
-    const errorRate = this.metrics.totalErrors > 0 
-      ? (this.metrics.totalErrors / (Date.now() - performance.timeOrigin)) * 1000 * 60 // errors per minute
-      : 0;
+    const errorRate =
+      this.metrics.totalErrors > 0
+        ? (this.metrics.totalErrors / (Date.now() - performance.timeOrigin)) *
+          1000 *
+          60 // errors per minute
+        : 0;
 
-    const recoveryRate = this.metrics.totalErrors > 0
-      ? (this.metrics.recoveredErrors / this.metrics.totalErrors) * 100
-      : 100;
+    const recoveryRate =
+      this.metrics.totalErrors > 0
+        ? (this.metrics.recoveredErrors / this.metrics.totalErrors) * 100
+        : 100;
 
     const performanceScore = this.calculatePerformanceScore();
 
@@ -488,14 +553,14 @@ export class LegendaryErrorHandler {
       errorsByComponent: this.metrics.errorsByComponent,
       errorRate: Math.round(errorRate * 100) / 100,
       recoveryRate: Math.round(recoveryRate * 100) / 100,
-      performanceScore: Math.round(performanceScore * 100) / 100
+      performanceScore: Math.round(performanceScore * 100) / 100,
     };
   }
 
   getPerformanceMetrics(): PerformanceMetrics & { score: number } {
     return {
       ...this.performanceMetrics,
-      score: this.calculatePerformanceScore()
+      score: this.calculatePerformanceScore(),
     };
   }
 
@@ -508,8 +573,10 @@ export class LegendaryErrorHandler {
     else if (this.performanceMetrics.pageLoadTime > 800) score -= 10;
 
     // Memory usage impact (0-20 points)
-    if (this.performanceMetrics.memoryUsage > 100 * 1024 * 1024) score -= 20; // 100MB
-    else if (this.performanceMetrics.memoryUsage > 50 * 1024 * 1024) score -= 10; // 50MB
+    if (this.performanceMetrics.memoryUsage > 100 * 1024 * 1024)
+      score -= 20; // 100MB
+    else if (this.performanceMetrics.memoryUsage > 50 * 1024 * 1024)
+      score -= 10; // 50MB
 
     // Error impact (0-40 points)
     score -= Math.min(this.metrics.userImpactScore, 40);
@@ -524,7 +591,7 @@ export class LegendaryErrorHandler {
     if (this.performanceObserver) {
       this.performanceObserver.disconnect();
     }
-    
+
     this.errorQueue = [];
     this.recoveryStrategies.clear();
   }
@@ -534,34 +601,44 @@ export class LegendaryErrorHandler {
 export const legendaryErrorHandler = LegendaryErrorHandler.getInstance();
 
 // React Error Boundary Helper
-export const withLegendaryErrorBoundary = (Component: React.ComponentType<any>) => {
-  return class LegendaryErrorBoundary extends React.Component<any, { hasError: boolean }> {
-    constructor(props: any) {
+export const withLegendaryErrorBoundary = <P extends object>(
+  Component: React.ComponentType<P>,
+) => {
+  return class LegendaryErrorBoundary extends React.Component<
+    P,
+    { hasError: boolean }
+  > {
+    constructor(props: P) {
       super(props);
       this.state = { hasError: false };
     }
 
-    static getDerivedStateFromError(error: Error) {
+    static getDerivedStateFromError() {
       return { hasError: true };
     }
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-      legendaryErrorHandler.captureError(error, {
-        component: Component.name,
-        action: 'RENDER_ERROR',
-        additionalData: errorInfo
-      }, 'high');
+      legendaryErrorHandler.captureError(
+        error,
+        {
+          component: Component.name,
+          action: "RENDER_ERROR",
+          additionalData: { errorInfo },
+        },
+        "high",
+      );
     }
 
     render() {
       if (this.state.hasError) {
-        return React.createElement('div', {
-          className: 'legendary-error-fallback',
-          children: '⚡ Something went wrong. Our legendary system is recovering...'
-        });
+        return React.createElement(
+          "div",
+          { className: "legendary-error-fallback" },
+          "⚡ Something went wrong. Our legendary system is recovering...",
+        );
       }
 
-      return React.createElement(Component, this.props);
+      return React.createElement(Component, this.props as P);
     }
   };
 };

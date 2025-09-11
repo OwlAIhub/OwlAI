@@ -117,13 +117,19 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    ) {
       try {
         // Here you would implement actual account deletion logic
         // For now, we'll just sign out and redirect
         await signOut();
         router.push("/");
-        alert("Account deletion functionality will be implemented with backend integration.");
+        alert(
+          "Account deletion functionality will be implemented with backend integration.",
+        );
       } catch (error) {
         console.error("Delete account error:", error);
         alert("Failed to delete account. Please try again.");

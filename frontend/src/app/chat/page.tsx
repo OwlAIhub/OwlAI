@@ -27,7 +27,7 @@ function ChatContent() {
     // Also check for auth errors - if auth is broken, don't redirect
     // Skip redirect if in demo mode
     if (!loading && !user && !authError && !demoMode) {
-      console.log('User not authenticated, redirecting to login...');
+      console.log("User not authenticated, redirecting to login...");
       router.push("/auth");
     }
   }, [user, loading, router, authError, demoMode]);
@@ -39,7 +39,9 @@ function ChatContent() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
           <h2 className="text-red-800 font-semibold mb-2">Connection Error</h2>
           <p className="text-red-600 text-sm mb-4">{authError}</p>
-          <p className="text-gray-600 text-xs">This might be a temporary network issue or configuration problem.</p>
+          <p className="text-gray-600 text-xs">
+            This might be a temporary network issue or configuration problem.
+          </p>
           <div className="mt-4 space-y-2">
             <div className="flex space-x-2">
               <button
@@ -49,7 +51,7 @@ function ChatContent() {
                 Try Again
               </button>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push("/")}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
               >
                 Go Home
@@ -58,7 +60,7 @@ function ChatContent() {
             <button
               onClick={() => {
                 // Provide a way to continue without auth (if the chat can work offline)
-                router.push('/chat?demo=true');
+                router.push("/chat?demo=true");
               }}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm w-full"
             >
@@ -116,7 +118,7 @@ function ChatContent() {
                     "What are the key components of teaching aptitude in higher education?",
                     "How does research aptitude contribute to effective educational practices?",
                     "What are the main elements of effective communication in an educational context?",
-                    "How do comprehension skills impact learning outcomes in students?"
+                    "How do comprehension skills impact learning outcomes in students?",
                   ]}
                 />
               </div>
@@ -134,11 +136,13 @@ function ChatContent() {
 export default function ChatPage() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        }
+      >
         <ChatContent />
       </Suspense>
     </ErrorBoundary>

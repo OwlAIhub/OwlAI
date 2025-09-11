@@ -34,9 +34,9 @@ export interface ChatHistory {
   hasMore: boolean;
 }
 
-export type ChatEventType = 
+export type ChatEventType =
   | "session_created"
-  | "session_updated" 
+  | "session_updated"
   | "message_added"
   | "message_updated"
   | "session_deleted";
@@ -46,5 +46,5 @@ export interface ChatEvent {
   sessionId: string;
   userId: string;
   timestamp: Date;
-  data: any;
+  data: unknown;
 }

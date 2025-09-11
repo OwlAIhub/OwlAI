@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useReducer, useCallback, ReactNode, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  ReactNode,
+  useEffect,
+} from "react";
 import { ChatMessage, ChatSession, ChatHistory } from "../types/chat";
 import { chatService } from "../services/chatService";
 import { flowiseApi } from "../services/flowiseApi";
@@ -26,11 +33,17 @@ type ChatAction =
   | { type: "SET_CURRENT_SESSION"; payload: ChatSession | null }
   | { type: "SET_SESSIONS"; payload: ChatSession[] }
   | { type: "ADD_SESSION"; payload: ChatSession }
-  | { type: "UPDATE_SESSION"; payload: { sessionId: string; updates: Partial<ChatSession> } }
+  | {
+      type: "UPDATE_SESSION";
+      payload: { sessionId: string; updates: Partial<ChatSession> };
+    }
   | { type: "DELETE_SESSION"; payload: string }
   | { type: "SET_MESSAGES"; payload: ChatHistory }
   | { type: "ADD_MESSAGE"; payload: ChatMessage }
-  | { type: "UPDATE_MESSAGE"; payload: { messageId: string; updates: Partial<ChatMessage> } }
+  | {
+      type: "UPDATE_MESSAGE";
+      payload: { messageId: string; updates: Partial<ChatMessage> };
+    }
   | { type: "CLEAR_CHAT" };
 
 const initialState: ChatState = {
@@ -64,39 +77,46 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case "UPDATE_SESSION":
       return {
         ...state,
-        sessions: state.sessions.map(session =>
+        sessions: state.sessions.map((session) =>
           session.id === action.payload.sessionId
             ? { ...session, ...action.payload.updates }
-            : session
+            : session,
         ),
-        currentSession: state.currentSession?.id === action.payload.sessionId
-          ? { ...state.currentSession, ...action.payload.updates }
-          : state.currentSession
+        currentSession:
+          state.currentSession?.id === action.payload.sessionId
+            ? { ...state.currentSession, ...action.payload.updates }
+            : state.currentSession,
       };
     case "DELETE_SESSION":
       return {
         ...state,
-        sessions: state.sessions.filter(session => session.id !== action.payload),
-        currentSession: state.currentSession?.id === action.payload ? null : state.currentSession,
-        messages: state.currentSession?.id === action.payload ? [] : state.messages
+        sessions: state.sessions.filter(
+          (session) => session.id !== action.payload,
+        ),
+        currentSession:
+          state.currentSession?.id === action.payload
+            ? null
+            : state.currentSession,
+        messages:
+          state.currentSession?.id === action.payload ? [] : state.messages,
       };
     case "SET_MESSAGES":
       return {
         ...state,
         messages: action.payload.messages,
         hasMoreMessages: action.payload.hasMore,
-        totalMessages: action.payload.totalMessages
+        totalMessages: action.payload.totalMessages,
       };
     case "ADD_MESSAGE":
       return { ...state, messages: [...state.messages, action.payload] };
     case "UPDATE_MESSAGE":
       return {
         ...state,
-        messages: state.messages.map(message =>
+        messages: state.messages.map((message) =>
           message.id === action.payload.messageId
             ? { ...message, ...action.payload.updates }
-            : message
-        )
+            : message,
+        ),
       };
     case "CLEAR_CHAT":
       return {
@@ -104,7 +124,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         currentSession: null,
         messages: [],
         hasMoreMessages: false,
-        totalMessages: 0
+        totalMessages: 0,
       };
     default:
       return state;
@@ -113,19 +133,19 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
 interface ChatContextType {
   state: ChatState;
-  
+
   // Session Management
   createNewSession: () => Promise<ChatSession>;
   loadSession: (sessionId: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
   updateSessionTitle: (sessionId: string, title: string) => Promise<void>;
   loadUserSessions: () => Promise<void>;
-  
+
   // Message Management
   sendMessage: (content: string) => Promise<void>;
   loadMoreMessages: () => Promise<void>;
   regenerateLastMessage: () => Promise<void>;
-  
+
   // Utility
   clearError: () => void;
   clearCurrentChat: () => void;
@@ -186,162 +206,205 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  const loadSession = useCallback(async (sessionId: string) => {
-    if (!user) return;
-    
-    try {
-      dispatch({ type: "SET_LOADING_MESSAGES", payload: true });
-      
-      // Find session in current sessions
-      let session = state.sessions.find(s => s.id === sessionId);
-      
-      if (!session) {
-        // If session not found locally, try to get fresh sessions from database
-        console.log("Session not found locally, fetching fresh sessions...");
-        const freshSessions = await chatService.getUserSessions(user.uid);
-        dispatch({ type: "SET_SESSIONS", payload: freshSessions });
-        session = freshSessions.find(s => s.id === sessionId);
-        
+  const loadSession = useCallback(
+    async (sessionId: string) => {
+      if (!user) return;
+
+      try {
+        dispatch({ type: "SET_LOADING_MESSAGES", payload: true });
+
+        // Find session in current sessions
+        let session = state.sessions.find((s) => s.id === sessionId);
+
         if (!session) {
-          console.error("Session not found even after refresh:", sessionId);
-          dispatch({ type: "SET_ERROR", payload: "Chat session not found" });
-          return;
+          // If session not found locally, try to get fresh sessions from database
+          console.log("Session not found locally, fetching fresh sessions...");
+          const freshSessions = await chatService.getUserSessions(user.uid);
+          dispatch({ type: "SET_SESSIONS", payload: freshSessions });
+          session = freshSessions.find((s) => s.id === sessionId);
+
+          if (!session) {
+            console.error("Session not found even after refresh:", sessionId);
+            dispatch({ type: "SET_ERROR", payload: "Chat session not found" });
+            return;
+          }
         }
+
+        dispatch({ type: "SET_CURRENT_SESSION", payload: session });
+
+        const chatHistory = await chatService.getSessionMessages(
+          user.uid,
+          sessionId,
+        );
+        dispatch({ type: "SET_MESSAGES", payload: chatHistory });
+      } catch (error) {
+        console.error("Error loading session:", error);
+        dispatch({ type: "SET_ERROR", payload: "Failed to load chat session" });
+      } finally {
+        dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
       }
+    },
+    [state.sessions, user],
+  );
 
-      dispatch({ type: "SET_CURRENT_SESSION", payload: session });
-      
-      const chatHistory = await chatService.getSessionMessages(user.uid, sessionId);
-      dispatch({ type: "SET_MESSAGES", payload: chatHistory });
-    } catch (error) {
-      console.error("Error loading session:", error);
-      dispatch({ type: "SET_ERROR", payload: "Failed to load chat session" });
-    } finally {
-      dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
-    }
-  }, [state.sessions, user]);
+  const deleteSession = useCallback(
+    async (sessionId: string) => {
+      if (!user) return;
 
-  const deleteSession = useCallback(async (sessionId: string) => {
-    if (!user) return;
-    
-    try {
-      dispatch({ type: "SET_LOADING", payload: true });
-      await chatService.deleteSession(user.uid, sessionId);
-      dispatch({ type: "DELETE_SESSION", payload: sessionId });
-    } catch (error) {
-      console.error("Error deleting session:", error);
-      dispatch({ type: "SET_ERROR", payload: "Failed to delete chat" });
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
-    }
-  }, [user]);
+      try {
+        dispatch({ type: "SET_LOADING", payload: true });
+        await chatService.deleteSession(user.uid, sessionId);
+        dispatch({ type: "DELETE_SESSION", payload: sessionId });
+      } catch (error) {
+        console.error("Error deleting session:", error);
+        dispatch({ type: "SET_ERROR", payload: "Failed to delete chat" });
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [user],
+  );
 
-  const updateSessionTitle = useCallback(async (sessionId: string, title: string) => {
-    if (!user) return;
-    
-    try {
-      await chatService.updateSession(user.uid, sessionId, { title });
-      dispatch({ type: "UPDATE_SESSION", payload: { sessionId, updates: { title } } });
-    } catch (error) {
-      console.error("Error updating session title:", error);
-      dispatch({ type: "SET_ERROR", payload: "Failed to update chat title" });
-    }
-  }, [user]);
+  const updateSessionTitle = useCallback(
+    async (sessionId: string, title: string) => {
+      if (!user) return;
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!state.currentSession || !user) return;
+      try {
+        await chatService.updateSession(user.uid, sessionId, { title });
+        dispatch({
+          type: "UPDATE_SESSION",
+          payload: { sessionId, updates: { title } },
+        });
+      } catch (error) {
+        console.error("Error updating session title:", error);
+        dispatch({ type: "SET_ERROR", payload: "Failed to update chat title" });
+      }
+    },
+    [user],
+  );
 
-    const userMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      content: content.trim(),
-      sender: "user",
-      timestamp: new Date(),
-      status: "sending",
-    };
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!state.currentSession || !user) return;
 
-    dispatch({ type: "ADD_MESSAGE", payload: userMessage });
-    dispatch({ type: "SET_LOADING", payload: true });
-
-    try {
-      // Update user message status immediately
-      dispatch({ type: "UPDATE_MESSAGE", payload: { 
-        messageId: userMessage.id, 
-        updates: { status: "sent" } 
-      }});
-
-      // Start AI response and database save in parallel
-      const [aiResponse] = await Promise.all([
-        flowiseApi.query(content),
-        // Save user message in background (don't wait)
-        chatService.addMessage(user.uid, state.currentSession.id, {
-          content: userMessage.content,
-          sender: "user",
-          timestamp: userMessage.timestamp,
-          status: "sent"
-        }).catch(console.error)
-      ]);
-
-      const aiMessage: ChatMessage = {
-        id: `temp-ai-${Date.now()}`,
-        content: aiResponse,
-        sender: "ai",
+      const userMessage: ChatMessage = {
+        id: `temp-${Date.now()}`,
+        content: content.trim(),
+        sender: "user",
         timestamp: new Date(),
-        status: "sent",
+        status: "sending",
       };
 
-      dispatch({ type: "ADD_MESSAGE", payload: aiMessage });
+      dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+      dispatch({ type: "SET_LOADING", payload: true });
 
-      // Save AI message in background and update session title if needed
-      Promise.all([
-        chatService.addMessage(user.uid, state.currentSession.id, {
-          content: aiMessage.content,
+      try {
+        // Update user message status immediately
+        dispatch({
+          type: "UPDATE_MESSAGE",
+          payload: {
+            messageId: userMessage.id,
+            updates: { status: "sent" },
+          },
+        });
+
+        // Start AI response and database save in parallel
+        const [aiResponse] = await Promise.all([
+          flowiseApi.query(content),
+          // Save user message in background (don't wait)
+          chatService
+            .addMessage(user.uid, state.currentSession.id, {
+              content: userMessage.content,
+              sender: "user",
+              timestamp: userMessage.timestamp,
+              status: "sent",
+            })
+            .catch(console.error),
+        ]);
+
+        const aiMessage: ChatMessage = {
+          id: `temp-ai-${Date.now()}`,
+          content: aiResponse,
           sender: "ai",
-          timestamp: aiMessage.timestamp,
-          status: "sent"
-        }),
-        // Update session title if this is the first message
-        state.messages.length === 0 && state.currentSession ? 
-          chatService.generateSessionTitle([userMessage]).then(title => 
-            updateSessionTitle(state.currentSession!.id, title)
-          ) : Promise.resolve()
-      ]).catch(console.error);
+          timestamp: new Date(),
+          status: "sent",
+        };
 
-    } catch (error) {
-      console.error("Error sending message:", error);
-      dispatch({ type: "UPDATE_MESSAGE", payload: { 
-        messageId: userMessage.id, 
-        updates: { status: "error" } 
-      }});
-      dispatch({ type: "SET_ERROR", payload: "Failed to send message" });
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
-    }
-  }, [state.currentSession, state.messages.length, user, updateSessionTitle]);
+        dispatch({ type: "ADD_MESSAGE", payload: aiMessage });
+
+        // Save AI message in background and update session title if needed
+        Promise.all([
+          chatService.addMessage(user.uid, state.currentSession.id, {
+            content: aiMessage.content,
+            sender: "ai",
+            timestamp: aiMessage.timestamp,
+            status: "sent",
+          }),
+          // Update session title if this is the first message
+          state.messages.length === 0 && state.currentSession
+            ? chatService
+                .generateSessionTitle([userMessage])
+                .then((title) =>
+                  updateSessionTitle(state.currentSession!.id, title),
+                )
+            : Promise.resolve(),
+        ]).catch(console.error);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        dispatch({
+          type: "UPDATE_MESSAGE",
+          payload: {
+            messageId: userMessage.id,
+            updates: { status: "error" },
+          },
+        });
+        dispatch({ type: "SET_ERROR", payload: "Failed to send message" });
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [state.currentSession, state.messages.length, user, updateSessionTitle],
+  );
 
   const loadMoreMessages = useCallback(async () => {
-    if (!state.currentSession || !state.hasMoreMessages || state.isLoadingMessages || !user) return;
+    if (
+      !state.currentSession ||
+      !state.hasMoreMessages ||
+      state.isLoadingMessages ||
+      !user
+    )
+      return;
 
     try {
       dispatch({ type: "SET_LOADING_MESSAGES", payload: true });
       const lastMessageId = state.messages[0]?.id;
       const chatHistory = await chatService.getSessionMessages(
         user.uid,
-        state.currentSession.id, 
-        20, 
-        lastMessageId
+        state.currentSession.id,
+        20,
+        lastMessageId,
       );
-      
-      dispatch({ type: "SET_MESSAGES", payload: {
-        ...chatHistory,
-        messages: [...chatHistory.messages, ...state.messages]
-      }});
+
+      dispatch({
+        type: "SET_MESSAGES",
+        payload: {
+          ...chatHistory,
+          messages: [...chatHistory.messages, ...state.messages],
+        },
+      });
     } catch (error) {
       console.error("Error loading more messages:", error);
       dispatch({ type: "SET_ERROR", payload: "Failed to load more messages" });
     } finally {
       dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
     }
-  }, [state.currentSession, state.hasMoreMessages, state.isLoadingMessages, state.messages, user]);
+  }, [
+    state.currentSession,
+    state.hasMoreMessages,
+    state.isLoadingMessages,
+    state.messages,
+    user,
+  ]);
 
   const regenerateLastMessage = useCallback(async () => {
     if (!state.currentSession || state.messages.length < 2 || !user) return;
@@ -349,35 +412,44 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const lastAiMessage = state.messages[state.messages.length - 1];
     const lastUserMessage = state.messages[state.messages.length - 2];
 
-    if (lastAiMessage.sender !== "ai" || lastUserMessage.sender !== "user") return;
+    if (lastAiMessage.sender !== "ai" || lastUserMessage.sender !== "user")
+      return;
 
     try {
-      dispatch({ type: "UPDATE_MESSAGE", payload: { 
-        messageId: lastAiMessage.id, 
-        updates: { status: "sending" } 
-      }});
+      dispatch({
+        type: "UPDATE_MESSAGE",
+        payload: {
+          messageId: lastAiMessage.id,
+          updates: { status: "sending" },
+        },
+      });
 
       const newResponse = await flowiseApi.query(lastUserMessage.content);
-      
-      dispatch({ type: "UPDATE_MESSAGE", payload: { 
-        messageId: lastAiMessage.id, 
-        updates: { content: newResponse, status: "sent" } 
-      }});
+
+      dispatch({
+        type: "UPDATE_MESSAGE",
+        payload: {
+          messageId: lastAiMessage.id,
+          updates: { content: newResponse, status: "sent" },
+        },
+      });
 
       // Update in database
       await chatService.updateMessage(
-        user.uid, 
+        user.uid,
         state.currentSession.id,
-        lastAiMessage.id, 
-        { content: newResponse }
+        lastAiMessage.id,
+        { content: newResponse },
       );
-
     } catch (error) {
       console.error("Error regenerating message:", error);
-      dispatch({ type: "UPDATE_MESSAGE", payload: { 
-        messageId: lastAiMessage.id, 
-        updates: { status: "error" } 
-      }});
+      dispatch({
+        type: "UPDATE_MESSAGE",
+        payload: {
+          messageId: lastAiMessage.id,
+          updates: { status: "error" },
+        },
+      });
       dispatch({ type: "SET_ERROR", payload: "Failed to regenerate message" });
     }
   }, [state.currentSession, state.messages, user]);
@@ -396,11 +468,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     clearCurrentChat,
   };
 
-  return (
-    <ChatContext.Provider value={value}>
-      {children}
-    </ChatContext.Provider>
-  );
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 
 export function useChat(): ChatContextType {

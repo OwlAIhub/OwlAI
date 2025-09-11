@@ -29,7 +29,7 @@ function AuthContent() {
   useEffect(() => {
     // Only redirect if auth is fully loaded and user is definitely authenticated
     if (!loading && user) {
-      console.log('User already authenticated, redirecting to chat...');
+      console.log("User already authenticated, redirecting to chat...");
       router.push("/chat");
     }
   }, [user, loading, router]);
@@ -39,9 +39,13 @@ function AuthContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
-          <h2 className="text-red-800 font-semibold mb-2">Authentication Error</h2>
+          <h2 className="text-red-800 font-semibold mb-2">
+            Authentication Error
+          </h2>
           <p className="text-red-600 text-sm mb-4">{authError}</p>
-          <p className="text-gray-600 text-xs">Please check your Firebase configuration and try again.</p>
+          <p className="text-gray-600 text-xs">
+            Please check your Firebase configuration and try again.
+          </p>
           <div className="mt-4 space-x-2">
             <button
               onClick={() => window.location.reload()}
@@ -50,7 +54,7 @@ function AuthContent() {
               Retry
             </button>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
               className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
             >
               Go Home
@@ -275,11 +279,13 @@ function AuthContent() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
       <AuthContent />
     </Suspense>
   );
