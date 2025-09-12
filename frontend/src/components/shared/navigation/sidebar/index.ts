@@ -1,9 +1,8 @@
+export { useSidebar, SidebarContext } from "./context/SidebarContext";
+export { SidebarProvider } from "./components/SidebarProvider";
+export { Sidebar } from "./components/Sidebar";
+export { SidebarTrigger } from "./components/SidebarTrigger";
 export {
-  useSidebar,
-  SidebarContext,
-  SidebarProvider,
-  Sidebar,
-  SidebarTrigger,
   SidebarRail,
   SidebarInset,
   SidebarInput,
@@ -11,6 +10,8 @@ export {
   SidebarFooter,
   SidebarSeparator,
   SidebarContent,
+} from "./components/SidebarLayout";
+export {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupAction,
@@ -20,8 +21,10 @@ export {
   SidebarMenuButton,
   SidebarMenuAction,
   SidebarMenuSkeleton,
+} from "./components/SidebarMenu";
+export {
   SidebarMenuBadge,
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-} from "@/components/shared/navigation/sidebar";
+} from "./components/SidebarSubMenu";

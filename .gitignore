@@ -228,3 +228,6 @@ bundle-report.html
 
 # Environment Config Summary (contains sensitive info)
 ENVIRONMENT_CONFIG_SUMMARY.md
+flowise-deployment.yaml
+flowise-pvc.yaml
+flowise-service.yaml
