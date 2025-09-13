@@ -84,17 +84,17 @@ export function ChatMessage({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
       className={cn(
-        "group relative px-6 py-4 transition-all duration-150",
+        "group relative px-6 py-6 transition-all duration-200",
         isUser
           ? "bg-transparent"
-          : "bg-gradient-to-r from-gray-50/40 to-transparent border-l-2 border-primary/10 hover:border-primary/20 hover:bg-gray-50/60",
+          : "bg-gradient-to-r from-gray-50/30 to-transparent border-l-4 border-primary/15 hover:border-primary/25 hover:bg-gray-50/50 rounded-r-lg",
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       <div
         className={cn(
-          "max-w-4xl mx-auto flex gap-4",
+          "max-w-5xl mx-auto flex gap-6",
           isUser && "flex-row-reverse",
         )}
       >
@@ -181,7 +181,7 @@ export function ChatMessage({
               </div>
             ) : (
               <div className="prose prose-lg max-w-none">
-                <Markdown content={content} className="text-base leading-7" />
+                <Markdown content={content} className="text-base leading-7 max-w-full" />
               </div>
             )}
           </div>

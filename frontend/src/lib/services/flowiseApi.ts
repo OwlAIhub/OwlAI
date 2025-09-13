@@ -194,7 +194,7 @@ const getApiEndpoint = (): string => {
     );
     // Fallback for development only - NOT for production!
     return process.env.NODE_ENV === "development"
-      ? "http://34.47.134.139:3000/api/v1/prediction/07b180f1-3364-4771-ac29-76334af9e793"
+      ? "http://34.47.134.139/api/v1/prediction/3cd3cea4-e458-4fd3-840d-c690693b2a51"
       : "";
   }
 

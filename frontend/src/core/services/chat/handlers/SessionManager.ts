@@ -32,17 +32,15 @@ export class SessionManager {
   }
 
   async createSession(userId: string, title?: string): Promise<ChatSession> {
-    const startTime = performance.now();
-    const operation = 'createSession';
-
     try {
       legendaryErrorHandler.captureError = legendaryErrorHandler.captureError.bind(legendaryErrorHandler);
 
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      const now = new Date();
       const sessionData = {
         id: sessionId,
         userId,
-        title: title || `Chat ${new Date().toLocaleDateString()}`,
+        title: title || `Chat ${now.toLocaleDateString()}`,
         category: "study" as const,
         isPinned: false,
         isArchived: false,
@@ -65,13 +63,24 @@ export class SessionManager {
       batch.set(sessionRef, sessionData);
       await batch.commit();
 
+      // Create a properly typed session for return
+      const typedSession: ChatSession = {
+        ...sessionData,
+        createdAt: now,
+        updatedAt: now,
+        lastMessage: {
+          content: "",
+          timestamp: now
+        }
+      };
+
       const cacheKey = `session:${sessionId}`;
-      await legendaryCache.set(cacheKey, sessionData, {
+      legendaryCache.set(cacheKey, typedSession, {
         ttl: 5 * 60 * 1000,
         layers: ['memory', 'localStorage']
       });
 
-      return sessionData as ChatSession;
+      return typedSession;
 
     } catch (error) {
       legendaryErrorHandler.captureError(
@@ -84,8 +93,6 @@ export class SessionManager {
   }
 
   async getSession(userId: string, sessionId: string): Promise<ChatSession | null> {
-    const startTime = performance.now();
-    const operation = 'getSession';
 
     try {
       const cacheKey = `session:${sessionId}`;
@@ -97,7 +104,7 @@ export class SessionManager {
         
         if (sessionSnap.exists()) {
           session = { id: sessionSnap.id, ...sessionSnap.data() } as ChatSession;
-          await legendaryCache.set(cacheKey, session, {
+          legendaryCache.set(cacheKey, session, {
             ttl: 5 * 60 * 1000,
             layers: ['memory', 'localStorage']
           });
@@ -121,8 +128,6 @@ export class SessionManager {
     limitCount: number = 20, 
     lastSessionId?: string
   ): Promise<ChatSession[]> {
-    const startTime = performance.now();
-    const operation = 'getUserSessions';
 
     try {
       const cacheKey = `user_sessions:${userId}:${limitCount}:${lastSessionId || 'first'}`;
@@ -154,7 +159,7 @@ export class SessionManager {
           ...doc.data()
         })) as ChatSession[];
 
-        await legendaryCache.set(cacheKey, sessions, {
+        legendaryCache.set(cacheKey, sessions, {
           ttl: 2 * 60 * 1000,
           layers: ['memory', 'localStorage']
         });
@@ -173,8 +178,6 @@ export class SessionManager {
   }
 
   async updateSession(userId: string, sessionId: string, updates: Partial<ChatSession>): Promise<void> {
-    const startTime = performance.now();
-    const operation = 'updateSession';
 
     try {
       const sessionRef = doc(db, "users", userId, "chatSessions", sessionId);
@@ -201,8 +204,6 @@ export class SessionManager {
   }
 
   async deleteSession(userId: string, sessionId: string): Promise<void> {
-    const startTime = performance.now();
-    const operation = 'deleteSession';
 
     try {
       const batch = writeBatch(db);
@@ -240,16 +241,16 @@ export class SessionManager {
     
     if (existingSession) {
       const updatedSession = { ...existingSession, ...updates };
-      await legendaryCache.set(cacheKey, updatedSession, 5 * 60 * 1000);
+      legendaryCache.set(cacheKey, updatedSession, { ttl: 5 * 60 * 1000 });
     }
   }
 
   private async clearSessionCaches(sessionId: string): Promise<void> {
     const cacheKey = `session:${sessionId}`;
-    await legendaryCache.delete(cacheKey);
+    legendaryCache.invalidate(cacheKey);
   }
 
   private invalidateUserSessionsCache(userId: string): void {
-    legendaryCache.deleteByPattern(`user_sessions:${userId}:*`);
+    legendaryCache.invalidate(new RegExp(`user_sessions:${userId}:.*`));
   }
 }

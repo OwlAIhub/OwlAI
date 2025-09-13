@@ -3,7 +3,7 @@
  * Handles efficient batching of database operations
  */
 
-import { doc, writeBatch } from "firebase/firestore";
+import { doc, writeBatch, UpdateData, WithFieldValue } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { legendaryErrorHandler } from "@/lib/monitoring/LegendaryErrorHandler";
 import { BatchOperation, ChatServiceConfig } from "../types";
@@ -73,12 +73,12 @@ export class BatchProcessor {
         switch (operation.type) {
           case 'create':
             if (operation.data) {
-              batch.set(docRef, operation.data as any);
+              batch.set(docRef, operation.data as WithFieldValue<Record<string, unknown>>);
             }
             break;
           case 'update':
             if (operation.data) {
-              batch.update(docRef, operation.data as any);
+              batch.update(docRef, operation.data as UpdateData<Record<string, unknown>>);
             }
             break;
           case 'delete':

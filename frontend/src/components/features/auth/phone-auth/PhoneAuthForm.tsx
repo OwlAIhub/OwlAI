@@ -7,7 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { RecaptchaVerifier } from "firebase/auth";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { auth, appConfig } from "@/lib/firebase/config";
+import { auth } from "@/lib/firebase/config";
 import { hasCompletedOnboarding } from "@/lib/services/onboardingService";
 import { isTestPhoneNumber } from "@/lib/utils/phoneValidation";
 
@@ -29,7 +29,7 @@ interface PhoneAuthFormProps {
 }
 
 export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
-  const { setRecaptchaVerifier } = useAuth();
+  const { user, setRecaptchaVerifier } = useAuth();
   const router = useRouter();
 
   // Form state
@@ -44,11 +44,9 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
     cooldownRemaining, 
     checkRateLimit, 
     startCooldownTimer, 
-    updateRequestTime, 
-    resetAttempts 
+    updateRequestTime 
   } = useRateLimit();
   const { 
-    confirmationResult, 
     loading, 
     error, 
     warning, 
@@ -143,9 +141,9 @@ export function PhoneAuthForm({ mode }: PhoneAuthFormProps) {
   const handleVerifyOTP = async () => {
     const success = await verifyCode(otp);
     
-    if (success) {
+    if (success && user?.uid) {
       try {
-        const onboardingCompleted = await hasCompletedOnboarding();
+        const onboardingCompleted = await hasCompletedOnboarding(user.uid);
         if (onboardingCompleted) {
           router.push("/chat");
         } else {

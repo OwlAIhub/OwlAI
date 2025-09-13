@@ -56,7 +56,7 @@ export function OtpVerificationStep({
           Enter verification code
         </h2>
         <p className="text-muted-foreground">
-          We've sent a 6-digit code to{" "}
+          We&apos;ve sent a 6-digit code to{" "}
           <span className="font-medium">{phoneNumber}</span>
         </p>
       </div>

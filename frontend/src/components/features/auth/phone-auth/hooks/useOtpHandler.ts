@@ -14,8 +14,7 @@ export function useOtpHandler() {
     async (
       formattedPhone: string,
       isValid: boolean,
-      validationError?: string,
-      onRateLimit?: (message: string) => void
+      validationError?: string
     ): Promise<boolean> => {
       try {
         setError(null);

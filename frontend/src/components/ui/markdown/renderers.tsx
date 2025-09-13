@@ -10,7 +10,7 @@ const parseComponentProps = (jsonString: string) => {
   }
 };
 
-// Simple CodeBlock component
+// Enhanced CodeBlock component for educational content
 const CodeBlock = ({
   language,
   children,
@@ -18,14 +18,15 @@ const CodeBlock = ({
   language?: string;
   children: string;
 }) => (
-  <div className="my-6 border border-gray-300 overflow-hidden">
+  <div className="my-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
     {language && (
-      <div className="bg-gray-200 text-gray-900 p-2 text-sm font-mono border-b border-gray-300">
-        {language}
+      <div className="bg-gradient-to-r from-gray-100 to-gray-50 text-gray-800 px-4 py-3 text-sm font-semibold border-b border-gray-200 flex items-center gap-2">
+        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+        <span className="uppercase tracking-wide">{language}</span>
       </div>
     )}
-    <pre className="bg-gray-50 text-gray-900 p-4 overflow-x-auto text-sm leading-relaxed">
-      <code className="font-mono">{children}</code>
+    <pre className="bg-gray-50/50 text-gray-900 p-6 overflow-x-auto text-sm leading-loose hover:bg-gray-50 transition-colors">
+      <code className="font-mono text-gray-800">{children}</code>
     </pre>
   </div>
 );
@@ -101,70 +102,94 @@ export const renderers = {
   p: ({ children }: { children?: React.ReactNode }) => {
     const text = String(children);
 
-    // Definition blocks
+    // Definition blocks - Enhanced for educational content
     if (text.startsWith("Definition:")) {
       return (
-        <div className="border-l-2 border-gray-600 pl-4 py-2 my-3">
-          <p className="text-gray-900 font-semibold text-base leading-relaxed">
-            <strong>Definition:</strong> {children}
+        <div className="border-l-4 border-blue-500 bg-blue-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span className="text-blue-800 font-bold text-sm uppercase tracking-wide">Definition</span>
+          </div>
+          <p className="text-gray-900 text-base leading-relaxed font-medium">
+            {String(children).replace(/^Definition:\s*/, '')}
           </p>
         </div>
       );
     }
 
-    // Key Points
+    // Key Points - Enhanced
     if (text.startsWith("Key Points:")) {
       return (
-        <div className="border-l-2 border-gray-600 pl-4 py-2 my-3">
-          <p className="text-gray-900 font-medium text-base leading-relaxed">
-            <strong>Key Points:</strong> {children}
+        <div className="border-l-4 border-green-500 bg-green-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-green-800 font-bold text-sm uppercase tracking-wide">Key Points</span>
+          </div>
+          <p className="text-gray-900 text-base leading-relaxed font-medium">
+            {String(children).replace(/^Key Points:\s*/, '')}
           </p>
         </div>
       );
     }
 
-    // Theory/Theoretical Framework
+    // Theory/Theoretical Framework - Enhanced
     if (
       text.startsWith("Theory:") ||
       text.startsWith("Theoretical Framework:")
     ) {
       return (
-        <div className="border-l-2 border-gray-600 pl-4 py-2 my-3">
+        <div className="border-l-4 border-purple-500 bg-purple-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+            <span className="text-purple-800 font-bold text-sm uppercase tracking-wide">Theory</span>
+          </div>
           <p className="text-gray-900 text-base leading-relaxed">
-            <strong>Theory:</strong> {children}
+            {String(children).replace(/^(Theory:|Theoretical Framework:)\s*/, '')}
           </p>
         </div>
       );
     }
 
-    // Examples
+    // Examples - Enhanced
     if (text.startsWith("Example:")) {
       return (
-        <div className="border-l-2 border-gray-500 pl-4 py-2 my-3">
-          <p className="text-gray-900 font-mono text-sm leading-relaxed">
-            <strong>Example:</strong> {children}
+        <div className="border-l-4 border-orange-500 bg-orange-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+            <span className="text-orange-800 font-bold text-sm uppercase tracking-wide">Example</span>
+          </div>
+          <p className="text-gray-900 text-base leading-relaxed font-medium">
+            {String(children).replace(/^Example:\s*/, '')}
           </p>
         </div>
       );
     }
 
-    // Important Notes
+    // Important Notes - Enhanced
     if (text.startsWith("Important:") || text.startsWith("Note:")) {
       return (
-        <div className="border-l-2 border-gray-700 pl-4 py-2 my-3">
-          <p className="text-gray-900 font-semibold text-base leading-relaxed">
-            <strong>Important:</strong> {children}
+        <div className="border-l-4 border-red-500 bg-red-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+            <span className="text-red-800 font-bold text-sm uppercase tracking-wide">Important</span>
+          </div>
+          <p className="text-gray-900 text-base leading-relaxed font-semibold">
+            {String(children).replace(/^(Important:|Note:)\s*/, '')}
           </p>
         </div>
       );
     }
 
-    // Summary/Conclusion
+    // Summary/Conclusion - Enhanced
     if (text.startsWith("Summary:") || text.startsWith("Conclusion:")) {
       return (
-        <div className="border-l-2 border-gray-600 pl-4 py-2 my-3">
-          <p className="text-gray-900 font-medium text-base leading-relaxed">
-            <strong>Summary:</strong> {children}
+        <div className="border-l-4 border-indigo-500 bg-indigo-50/50 rounded-r-lg pl-6 pr-4 py-4 my-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+            <span className="text-indigo-800 font-bold text-sm uppercase tracking-wide">Summary</span>
+          </div>
+          <p className="text-gray-900 text-base leading-relaxed font-medium">
+            {String(children).replace(/^(Summary:|Conclusion:)\s*/, '')}
           </p>
         </div>
       );
@@ -198,34 +223,49 @@ export const renderers = {
     </h4>
   ),
 
-  // Clean Lists for educational content
+  // Enhanced Lists for educational content
   ul: ({ children }: { children?: React.ReactNode }) => (
-    <ul className="list-disc pl-6 my-4 space-y-1 text-gray-900">{children}</ul>
+    <ul className="list-none pl-6 my-6 space-y-3 text-gray-900">{children}</ul>
   ),
   ol: ({ children }: { children?: React.ReactNode }) => (
-    <ol className="list-decimal pl-6 my-4 space-y-1 text-gray-900">
+    <ol className="list-none pl-6 my-6 space-y-3 text-gray-900 counter-reset-[list-counter]">
       {children}
     </ol>
   ),
   li: ({ children }: { children?: React.ReactNode }) => (
-    <li className="text-gray-900 leading-relaxed text-base py-1">{children}</li>
+    <li className="relative text-gray-900 leading-relaxed text-base py-2 pl-8 before:content-['•'] before:absolute before:left-0 before:top-2 before:text-primary before:text-lg before:font-bold">
+      {children}
+    </li>
   ),
 
-  // Styled Tables
+  // Enhanced Educational Tables
   table: ({ children }: { children?: React.ReactNode }) => (
-    <div className="overflow-x-auto my-6 border rounded-lg">
+    <div className="overflow-x-auto my-8 border border-gray-200 rounded-xl shadow-sm bg-white">
       <table className="min-w-full divide-y divide-gray-200">{children}</table>
     </div>
   ),
+  thead: ({ children }: { children?: React.ReactNode }) => (
+    <thead className="bg-gradient-to-r from-primary/5 to-primary/10">
+      {children}
+    </thead>
+  ),
+  tbody: ({ children }: { children?: React.ReactNode }) => (
+    <tbody className="bg-white divide-y divide-gray-100">{children}</tbody>
+  ),
   th: ({ children }: { children?: React.ReactNode }) => (
-    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 tracking-wide border-b-2 border-primary/20">
       {children}
     </th>
   ),
   td: ({ children }: { children?: React.ReactNode }) => (
-    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+    <td className="px-6 py-5 text-sm text-gray-800 leading-relaxed border-b border-gray-50 hover:bg-gray-25 transition-colors">
       {children}
     </td>
+  ),
+  tr: ({ children }: { children?: React.ReactNode }) => (
+    <tr className="hover:bg-gray-50/50 transition-colors duration-150">
+      {children}
+    </tr>
   ),
 
   // Other elements

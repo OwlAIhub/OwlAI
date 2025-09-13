@@ -72,13 +72,11 @@ export function ChatContainer({
       <div
         ref={messagesContainerRef}
         id="chat-messages-container"
-        className="flex-1 overflow-y-scroll overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
         style={{
-          height: "calc(100vh - 120px)",
-          maxHeight: "calc(100vh - 120px)",
+          minHeight: 0, // Allow flexbox to control height properly
           scrollBehavior: "smooth",
           WebkitOverflowScrolling: "touch",
-          overscrollBehavior: "contain",
         }}
       >
         {!hasMessages ? (
@@ -156,8 +154,8 @@ export function ChatContainer({
           </div>
         ) : (
           /* Messages List */
-          <div className="py-6 px-4">
-            <div className="max-w-4xl mx-auto space-y-4">
+          <div className="py-8 px-6">
+            <div className="max-w-5xl mx-auto space-y-6">
               <AnimatePresence>
                 {state.messages.map((message) => (
                   <ChatMessage
@@ -178,7 +176,7 @@ export function ChatContainer({
 
             {/* Typing Indicator */}
             {state.isLoading && (
-              <div className="max-w-4xl mx-auto px-4">
+              <div className="max-w-5xl mx-auto px-6">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}

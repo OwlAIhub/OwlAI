@@ -35,12 +35,9 @@ export class MessageManager {
   }
 
   async addMessage(userId: string, sessionId: string, message: Omit<ChatMessage, "id">): Promise<ChatMessage> {
-    const startTime = performance.now();
-    const operation = 'addMessage';
-
     try {
       const batch = writeBatch(db);
-      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
       const messageRef = doc(db, "users", userId, "chatSessions", sessionId, "messages", messageId);
       const messageData = {
@@ -95,8 +92,6 @@ export class MessageManager {
     limitCount: number = 50,
     lastMessageId?: string
   ): Promise<ChatHistory> {
-    const startTime = performance.now();
-    const operation = 'getSessionMessages';
     const cacheKey = `session_messages_${sessionId}_${limitCount}_${lastMessageId || 'initial'}`;
 
     try {
@@ -133,7 +128,7 @@ export class MessageManager {
       };
 
       if (!lastMessageId) {
-        await legendaryCache.set(cacheKey, result, {
+        legendaryCache.set(cacheKey, result, {
           ttl: this.CACHE_TTL / 2,
           layers: ['memory']
         });
@@ -168,7 +163,7 @@ export class MessageManager {
     } catch (error) {
       legendaryErrorHandler.captureError(
         error as Error,
-        { component: 'MessageManager', action: 'updateMessage', userId, sessionId, messageId },
+        { component: 'MessageManager', action: 'updateMessage', userId, sessionId, additionalData: { messageId } },
         'medium'
       );
       throw new Error("Failed to update message");
@@ -195,7 +190,7 @@ export class MessageManager {
     } catch (error) {
       legendaryErrorHandler.captureError(
         error as Error,
-        { component: 'MessageManager', action: 'deleteMessage', userId, sessionId, messageId },
+        { component: 'MessageManager', action: 'deleteMessage', userId, sessionId, additionalData: { messageId } },
         'medium'
       );
       throw new Error("Failed to delete message");
@@ -253,11 +248,11 @@ export class MessageManager {
   }
 
   private async cacheMessage(sessionId: string, message: ChatMessage): Promise<void> {
-    const cacheKey = `message:${message.id}`;
-    await legendaryCache.set(cacheKey, message, this.CACHE_TTL);
+    const cacheKey = `message:${sessionId}:${message.id}`;
+    legendaryCache.set(cacheKey, message, { ttl: this.CACHE_TTL });
   }
 
   private invalidateSessionMessagesCache(sessionId: string): void {
-    legendaryCache.deleteByPattern(`session_messages_${sessionId}_*`);
+    legendaryCache.invalidate(new RegExp(`session_messages_${sessionId}_.*`));
   }
 }
